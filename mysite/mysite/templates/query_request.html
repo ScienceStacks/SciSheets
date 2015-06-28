@@ -1,0 +1,29 @@
+<html>
+<head><title>Query Tables</title></head>
+
+<body>
+
+<p>Tables
+<table border="1">
+  <th>Table</th>
+  <th>Schema</th>
+  {% for row in rows %}
+    <tr>
+      {% for field in row %}
+      <td>{{ field }}</td>
+     {% endfor %}
+    </tr>
+  {% endfor %}
+</table>
+</p>
+
+<form action="/heatmap/query/" method="post" id="inform"
+enctype="multipart/form-data" >{% csrf_token %}
+{{ query_form.as_p }}
+<input type="submit" name="Submit" value="Submit" />
+</form>
+
+
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+<html>
+<head><title>Table</title></head>
+
+<body>
+
+<p> Table:
+<form action="/heatmap/maketable/" method="post" 
+enctype="multipart/form-data" >{% csrf_token %}
+<select name="tablename">
+  {% for table in table_list %}
+   <option value="{{ table }}">{{ table }}</option>
+  {% endfor %}
+</select>
+{{ display_form }}
+<input type="submit" name="submit" value="Submit" />
+</form>
+</p>
+
+</body>
+</html>

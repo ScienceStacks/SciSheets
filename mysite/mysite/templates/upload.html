@@ -1,0 +1,12 @@
+<html>
+<head><title>File Upload</title></head>
+
+<body>
+
+<form action="/heatmap/upload/" method="post" enctype="multipart/form-data" >{% csrf_token %}
+{{ form }}
+<input type="submit" name="submit" value="Submit" />
+</form>
+
+</body>
+</html>

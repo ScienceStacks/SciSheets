@@ -1,0 +1,28 @@
+<html>
+<head><title>Query Result</title></head>
+
+<body>
+<div>
+<h1>Query</h1>
+{{ query_string }}
+</div>
+
+<div>
+<h1>Query Result</h1>
+<table border="1">
+  {% for header in headers %}
+    <th>{{ header }}</th>
+  {% endfor %}
+  {% for row in rows %}
+    <tr>
+    {% for fld in row %} 
+      <td>{{ fld }}</td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+</table>
+</div>
+
+
+</body>
+</html>

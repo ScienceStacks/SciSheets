@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+  <head>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="./mysite/static/heatmap.css">
+    <script src="http://d3js.org/d3.v3.js"></script>
+  </head>
+  <body>
+    <h1> Heatmap of {{ values }} varying {{ xlabel }} (x) and {{ ylabel }} (y) </h1>
+    <div id="chart"></div>
+    <script type ="text/javascript">
+    // The included file has variables
+    {% include "heatmap.js" %}
+    </script>
+  </body>
+</html>
