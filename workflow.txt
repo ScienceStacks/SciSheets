@@ -1,7 +1,0 @@
-WHat's required for setup
-1. Under Block-Structured-Spreadsheets, 
-  a. rm -rf mysite
-  b. python manage.py startproject
-  c. git checkout mysite
-  d. python manage.py migrate
-2. 
