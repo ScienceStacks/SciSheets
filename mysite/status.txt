@@ -1,3 +1,6 @@
-1. Setup works to repo on debug server, but not on apache.
-2. Part of setup should be moved to fabfile
-
+1. Do Genetic code example
+  a. Create a nested dictionary of the genetic code
+  b. See what table building happens with this structure in d3
+  c. consider using templates to build the tables
+  d. Add widgets to: promote schema, demote schema, eliminate level,
+     restore levels
