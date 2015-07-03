@@ -1,6 +1,5 @@
 1. Do Genetic code example
-  a. Create a nested dictionary of the genetic code
-  b. See what table building happens with this structure in d3
-  c. consider using templates to build the tables
+  a. Handle wide tables
+     Option to stack vertically?
   d. Add widgets to: promote schema, demote schema, eliminate level,
      restore levels

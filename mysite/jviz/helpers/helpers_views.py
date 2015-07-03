@@ -7,7 +7,7 @@ from django.template.loader import get_template
 from django.template import Context
 from mysite import settings
 from mysite.helpers import file_access as fa
-from mysite.helpers.csv_formatter import GeneticCodeAsDict
+from mysite.helpers.csv_formatter import GeneticCodeAsNestedDict
 from mysite.helpers.db_access import (DBAccess, CUR_DB)
 from mysite.helpers.file_to_db import FileTable
 import datetime
@@ -85,7 +85,12 @@ def upload(request):
 
 def codons(request):
   t_codons = get_template('codons.html')
-  html = t_codons.render({})
+  data = GeneticCodeAsNestedDict()
+  json_data = json.dumps(data)
+  ctx = Context({
+      'jdata': json_data,
+      })
+  html = t_codons.render(ctx)
   return HttpResponse(html)
 
 #################################
@@ -99,22 +104,3 @@ def process_uploaded_file(f, name):
       destination.write(chunk)
   ft = FileTable(uploaded_file)
   ft.CreateAndPopulateTable()
-
-#FIX THIS
-def GeneticCodeAsNestedDict():
-  # Constructs a tested dictionary representation of 
-  # as a nested dictionary
-  aa_by_codon = GeneticCodeAsDict()
-  result = {}
-  NUCLEOTIDES = ['A', 'C', 'G', 'T']
-  for c1 in NUCLEOTIDES:
-    entry1 = {}
-    for c2 in NUCLEOTIDES:
-      entry2 = {}
-      for c2 in NUCLEOTIDES:
-        for c3 in NUCLEOTIDES:
-          codon = "%s%s%s" % (c1, c2, c3)
-          entry2[c3] = aa_by_codon[codon]
-        entry1[c2] = 
-      
-  

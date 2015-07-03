@@ -28,6 +28,7 @@ background-color: rgb(8,81,156);
 <script src="http://d3js.org/d3.v3.js"></script>​
 <script>
 
+var jdata = {{ jdata|safe }};
 
 d3.select("body").selectAll("table")
     .data([jdata])
