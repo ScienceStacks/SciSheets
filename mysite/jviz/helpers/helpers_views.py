@@ -85,11 +85,19 @@ def upload(request):
 
 def codons(request):
   t_codons = get_template('codons.html')
-  data = GeneticCodeAsNestedDict()
-  json_data = json.dumps(data)
-  ctx = Context({
-      'jdata': json_data,
-      })
+  data_dict = GeneticCodeAsNestedDict()[0]
+  NUCLEOTIDES = ['A', 'C', 'G', 'T']
+  ctx_dict = {}
+  #for nuc in NUCLEOTIDES:
+  for n in range(len(NUCLEOTIDES)):
+    nuc = NUCLEOTIDES[n]
+    cur_var = "data_%d" % n
+    json_var = "json_%s" % cur_var
+    exec("%s = data_dict[nuc]" % cur_var)
+    exec("%s = json.dumps(%s)" % (json_var, cur_var)) 
+    exec("ctx_dict['%s'] = %s" % (json_var, json_var))
+  ctx_dict["top_header"] = NUCLEOTIDES
+  ctx = Context(ctx_dict)
   html = t_codons.render(ctx)
   return HttpResponse(html)
 

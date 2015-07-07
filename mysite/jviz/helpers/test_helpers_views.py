@@ -31,12 +31,12 @@ class TestHelpers(TestCase):
           "Value %s is not present for key %s" % (str(v), k))
 
   def testLetter(self):
-    response = self.client.get('/heatmap/letter/')
+    response = self.client.get('/letter/')
     self.assertEqual(response.status_code, 200)
     self._TestContext(response.context, {'person_name': 'John'})
 
   def testPlot(self):
-    CLIENT_URL = '/heatmap/plot/' + TEST_DATA_FILENAME + '/'
+    CLIENT_URL = '/plot/' + TEST_DATA_FILENAME + '/'
     response = self.client.get(CLIENT_URL)
     self.assertEqual(response.status_code, 200)
     self.assertTrue('xlabel' in response.context)
@@ -47,7 +47,15 @@ class TestHelpers(TestCase):
     self._TestContext(response.context, test_dict)
 
   def testUpload(self):
-    CLIENT_URL = '/heatmap/upload/'
+    CLIENT_URL = '/upload/'
+    response = self.client.get(CLIENT_URL)
+    self.assertEqual(response.status_code, 200)
+    post_dict = {'filename': TEST_DATA_FILENAME}
+    response = self.client.post(CLIENT_URL, post_dict)
+    self.assertEqual(response.status_code, 200)
+
+  def testUpload(self):
+    CLIENT_URL = '/codons/'
     response = self.client.get(CLIENT_URL)
     self.assertEqual(response.status_code, 200)
     post_dict = {'filename': TEST_DATA_FILENAME}

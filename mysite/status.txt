@@ -1,5 +1,0 @@
-1. Do Genetic code example
-  a. Handle wide tables
-     Option to stack vertically?
-  d. Add widgets to: promote schema, demote schema, eliminate level,
-     restore levels

@@ -1,6 +1,5 @@
 from mysite import settings
 from mysite.helpers.db_access import DBAccess
-from heatmap.models import UploadedFiles
 from mysite.helpers import testhelpers as th
 import unittest
 import file_to_db as f2d
@@ -10,7 +9,7 @@ import sqlite3
 
 ##########################
 # Tests
-#########################
+##########################
 class TestDBAccess(unittest.TestCase):
 
   def setUp(self):

@@ -6,12 +6,13 @@ table {
   box-shadow: 1px 1px 10px rgba(0,0,0,0.5);
   border-collapse: collapse;
   border-spacing: 0;
+  text-align: left;
 }
 table {
   margin: auto;
 }
-table, td, th {
-  padding: 7px;
+td, th {
+  padding: 2px;
   text-align: center;
   border: 1px solid rgb(8,48,107);
 }
@@ -23,15 +24,24 @@ tr.alt td {
 background-color: rgb(8,81,156);
  20   color: white;
 }
+.bottom-three {
+    margin-bottom: 1cm;
+}
 </style>
 <body>
-<script src="http://d3js.org/d3.v3.js"></script>​
+<script src="http://d3js.org/d3.v3.js"></script>
+
+<p class="bottom-three">
+<center> <b> {{ top_header.0 }}</b> </center>
+</p>
+<p id="h0" ></p>
+
 <script>
 
-var jdata = {{ jdata|safe }};
+var json_data_0 = {{ json_data_0|safe }};
 
-d3.select("body").selectAll("table")
-    .data([jdata])
+d3.select("#h0").selectAll("table")
+    .data( [json_data_0] )
   .enter().append("table")
     .call(recurse);
 
@@ -42,23 +52,19 @@ function recurse(sel) {
     var colnames,
         tds,
         table = d3.select(this);
-
     // obtain column names by gathering unique key names in all 1st level objects
     // following method emulates a set by using the keys of a d3.map()
     colnames = d                                                          // array of objects
         .reduce(function(p,c) { return p.concat(d3.keys(c)); }, [])       // array with all keynames
         .reduce(function(p,c) { return (p.set(c,0), p); }, d3.map())      // map with unique keynames as keys
         .keys();                                                          // array with unique keynames (arb. order)
-
     // colnames array is in arbitrary order
     // sort colnames here if required
-
     // create header row using standard 1D data join and enter()
     table.append("thead").append("tr").selectAll("th")
         .data(colnames)
       .enter().append("th")
         .text(function(d) { return d; });
-
     // create the table cells by using nested 2D data join and enter()
     // see also http://bost.ocks.org/mike/nest/
     tds = table.append("tbody").selectAll("tr")
@@ -70,7 +76,6 @@ function recurse(sel) {
           });
         })
       .enter().append("td");
-
     // cell contents depends on the data bound to the cell
     // fill with text if data is not an Array
     tds.filter(function(d) { return !(d instanceof Array); })
@@ -84,3 +89,44 @@ function recurse(sel) {
 </script>
 
 
+<p class="bottom-three">
+<center> <b> {{ top_header.1 }}</b> </center>
+</p>
+<p id="h1" ></p>
+
+<script>
+var json_data_1 = {{ json_data_1|safe }};
+
+d3.select("#h1").selectAll("table")
+    .data( [json_data_1] )
+  .enter().append("table")
+    .call(recurse);
+</script>
+
+<p class="bottom-three">
+<center> <b> {{ top_header.2 }}</b> </center>
+</p>
+<p id="h2" ></p>
+
+<script>
+var json_data_2 = {{ json_data_2|safe }};
+
+d3.select("#h2").selectAll("table")
+    .data( [json_data_2] )
+  .enter().append("table")
+    .call(recurse);
+</script>
+
+<p class="bottom-three">
+<center> <b> {{ top_header.3 }}</b> </center>
+</p>
+<p id="h3" ></p>
+
+<script>
+var json_data_3 = {{ json_data_3|safe }};
+
+d3.select("#h3").selectAll("table")
+    .data( [json_data_3] )
+  .enter().append("table")
+    .call(recurse);
+</script>

@@ -2,7 +2,7 @@
    Helpers for accessing data tables.
 '''
 
-from heatmap.models import UploadedFiles
+from jviz.models import UploadedFiles
 from mysite.helpers.db_access import DBAccess
 from mysite.helpers.file_access import ConvertType, ConvertTypes
 from mysite import settings

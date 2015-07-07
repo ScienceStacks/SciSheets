@@ -1,0 +1,23 @@
+1. Do Genetic code example
+  a. Handle wide tables
+     Option to stack vertically?
+  b. Change table title to reflect WHERE clause constraints. Requires
+     incorporating column names. Do this by:
+     (1) CSV has attribute names
+     (2) Create JSON keys using attribute name and value
+     (3) Have CSV upload that creates table
+  c. Initial page for nested table analysis provides for table selection
+     and specification of classification and value attributes.
+     (1) Select a succession of attribute columns until done
+     (2) Select a successon  of value columns until done
+     (3) ANALYZE button: posts the results.
+     (4) Server
+         (a) Creates initial JSON structure
+         (b) Renders a new page for table navigation.
+  d. Add widgets to merge and split cells.
+  e. Algorithm for table layout based on tree structure relationships between
+     schema.
+
+TODO:
+1. Generalize codons.html so that it's not just 4 levels and can vary when
+table has a "stacked" level.

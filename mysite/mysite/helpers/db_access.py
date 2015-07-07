@@ -2,7 +2,6 @@
    Helpers that virtualize the underlying database used.
 '''
 
-from heatmap.models import UploadedFiles
 from mysite import settings
 import sqlite3
 import os

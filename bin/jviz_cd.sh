@@ -1,1 +1,1 @@
-pushd $HOME/JViz/mysite/$1
+pushd $HOME/JViz/$1
