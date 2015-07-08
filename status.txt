@@ -1,11 +1,15 @@
 1. Do Genetic code example
-  a. Handle wide tables
-     Option to stack vertically?
+  a. Add widget per header
+     -Can create a form and menu for each header
+     -show can transmit information about split/join and item checked
+     -Generate the page for a given nested table structure
+      (Create a nested table class)
   b. Change table title to reflect WHERE clause constraints. Requires
      incorporating column names. Do this by:
      (1) CSV has attribute names
      (2) Create JSON keys using attribute name and value
      (3) Have CSV upload that creates table
+  b1.Widget allows for splitting/merging
   c. Initial page for nested table analysis provides for table selection
      and specification of classification and value attributes.
      (1) Select a succession of attribute columns until done

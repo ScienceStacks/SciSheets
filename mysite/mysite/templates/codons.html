@@ -24,14 +24,14 @@ tr.alt td {
 background-color: rgb(8,81,156);
  20   color: white;
 }
-.bottom-three {
+.spaces {
     margin-bottom: 1cm;
 }
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.js"></script>
 
-<p class="bottom-three">
+<p class="spaces">
 <center> <b> {{ top_header.0 }}</b> </center>
 </p>
 <p id="h0" ></p>
@@ -39,6 +39,7 @@ background-color: rgb(8,81,156);
 <script>
 
 var json_data_0 = {{ json_data_0|safe }};
+// var json_data_0 = [{"A": "aa, bb", "B": "cc"}]
 
 d3.select("#h0").selectAll("table")
     .data( [json_data_0] )
@@ -89,7 +90,7 @@ function recurse(sel) {
 </script>
 
 
-<p class="bottom-three">
+<p class="spaces">
 <center> <b> {{ top_header.1 }}</b> </center>
 </p>
 <p id="h1" ></p>
@@ -103,7 +104,7 @@ d3.select("#h1").selectAll("table")
     .call(recurse);
 </script>
 
-<p class="bottom-three">
+<p class="spaces">
 <center> <b> {{ top_header.2 }}</b> </center>
 </p>
 <p id="h2" ></p>
@@ -117,7 +118,7 @@ d3.select("#h2").selectAll("table")
     .call(recurse);
 </script>
 
-<p class="bottom-three">
+<p class="spaces">
 <center> <b> {{ top_header.3 }}</b> </center>
 </p>
 <p id="h3" ></p>

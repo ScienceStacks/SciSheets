@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<style type="text/css">
+table {
+  font-family: "Helvetica", "Lucida Sans", "Lucida Sans Unicode", "Luxi Sans", Tahoma, sans-serif;
+  box-shadow: 1px 1px 10px rgba(0,0,0,0.5);
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: left;
+}
+table {
+  margin: auto;
+}
+td, th {
+  padding: 2px;
+  text-align: center;
+  border: 1px solid rgb(8,48,107);
+}
+th {
+  background-color: rgb(8,81,156);
+  color: white;
+}
+.spaces {
+    margin-bottom: 1cm;
+}
+
+input[type="checkbox"] + label span {
+display:inline-block;
+    width:19px;
+    height:19px;
+    margin:-1px 4px 0 0;
+    vertical-align:middle;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<table>
+
+ <thead>
+   <tr><th>
+<div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">
+    A
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+      <li role="presentation"><a role="menuitem" tabindex="-1" onclick="alert('A');">Split...</a></li>
+
+         <form id="cell1" method="get">
+          <input type="checkbox" id="C2:A" name="split1" value="C2=A"}>
+          <label for="C2:A"> A </label>
+          <input type="checkbox" id="C2:G" name="split2" value="C2=G">
+          <label for="C2:G"> G </label>
+         </form>
+
+      <li role="presentation"><a role="menuitem" tabindex="-1">Join...</a></li>
+    </ul>
+</div>
+</th></tr>
+ </thead>
+
+ <td>
+   <table>
+
+    <thead>
+        <tr>
+            <th>
+
+                A
+
+            </th>
+            <th>
+
+                C
+
+            </th>
+            <th>
+
+                T
+
+            </th>
+            <th>
+
+                C3=G
+
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+
+                Pro
+
+            </td>
+            <td>
+
+                Pro
+
+            </td>
+            <td>
+
+                Pro
+
+            </td>
+            <td>
+
+                Pro
+
+            </td>
+        </tr>
+    </tbody>
+    </tr>
+    </td>
+
+</table>
+</body>
+</html>

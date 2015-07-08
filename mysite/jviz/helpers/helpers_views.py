@@ -84,6 +84,8 @@ def upload(request):
      })
 
 def codons(request):
+  # To generalize so that cells can be merged and hence multiple
+  # values may be present, construct a string from the vectorss.
   t_codons = get_template('codons.html')
   data_dict = GeneticCodeAsNestedDict()[0]
   NUCLEOTIDES = ['A', 'C', 'G', 'T']
