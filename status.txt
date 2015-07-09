@@ -1,7 +1,7 @@
 1. Do Genetic code example
   a. Add widget per header
-     -Can create a form and menu for each header
-     -show can transmit information about split/join and item checked
+     -show can transmit information about split/join and item checked.
+      -See http://stackoverflow.com/questions/20307590/connect-http-post-request-to-an-onclick-using-javascript
      -Generate the page for a given nested table structure
       (Create a nested table class)
   b. Change table title to reflect WHERE clause constraints. Requires
