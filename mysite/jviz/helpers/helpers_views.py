@@ -103,6 +103,17 @@ def codons(request):
   html = t_codons.render(ctx)
   return HttpResponse(html)
 
+def nested(request):
+  t_nested_tables = get_template('nested_tables.html')
+  html = t_nested_tables.render({})
+  return HttpResponse(html)
+
+def tables(request, node):
+  # To generalize so that cells can be merged and hence multiple
+  value = request.GET.getlist('value', '')
+  html = "Node is %s. Selection is %s" % (node, value)
+  return HttpResponse(html)
+
 #################################
 # Auxiliary functions
 #################################

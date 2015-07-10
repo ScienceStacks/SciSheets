@@ -15,4 +15,6 @@ urlpatterns = patterns('',
     url(r'^maketable/', 'jviz.views.maketable'),
     url(r'^deletetable/', 'jviz.views.deletetable'),
     url(r'^query/', 'jviz.views.query'),
+    url(r'^nested/', 'jviz.views.nested'),
+    url(r'^tables/(?P<node>.+)/$', 'jviz.views.tables'),
 )

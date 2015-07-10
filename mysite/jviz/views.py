@@ -29,3 +29,9 @@ def query(request):
 
 def codons(request):
   return hv.codons(request)
+
+def nested(request):
+  return hv.nested(request)
+
+def tables(request, node):
+  return hv.tables(request, node)
