@@ -1,3 +1,4 @@
+0. Trying to get css in a file
 1. Do Genetic code example
   a. Add widget per header
      -show can transmit information about split/join and item checked.

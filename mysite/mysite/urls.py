@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = patterns('',
     # Examples:
@@ -18,3 +19,4 @@ urlpatterns = patterns('',
     url(r'^nested/', 'jviz.views.nested'),
     url(r'^tables/(?P<node>.+)/$', 'jviz.views.tables'),
 )
+urlpatterns += staticfiles_urlpatterns()
