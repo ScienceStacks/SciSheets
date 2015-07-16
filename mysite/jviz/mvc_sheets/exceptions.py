@@ -20,3 +20,6 @@ class DuplicateColumnName(Error):
 class NoNameRow(Error):
   pass
 
+class InternalError(Error):
+  pass
+

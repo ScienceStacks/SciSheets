@@ -17,9 +17,6 @@ class Column(object):
     self._formula = None
     self._table = None
 
-  def GetName(self):
-    return self._name
-
   def AddCells(self, v, replace=False):
     if isinstance(v, list):
       new_data_list = v
@@ -36,31 +33,6 @@ class Column(object):
       full_data_list = self._data_values.tolist.extend(new_data_list)
     self._data_values = array(full_data_list)
 
-  def DelCells(self):
-    self._data_values = array([])
-
-  def GetCells(self):
-    return self._data_values
-
-  def SetTable(self, table):
-    # Sets the table being used for this column
-    self._table = table
-
-  def SetFormula(self, formula):
-    # A formula is a valid python expression of a mix of numpy.array
-    # scalars, and functions in math for columns that preceed
-    # this column in the table.
-    self._formula = formula
- 
-  def Evaluate(self):
-    # Evaluates the formula, if any.
-    # Replaces the data values with the formula results
-    raise e.NotYetImplemented("Evaluate")
-
-  def UpdateCell(self, index, val):
-    if index >= 0 and index < len(self._data_values):
-      self._data_values[index] = val
-
   def Copy(self)
     # Returns a copy of this object
     result = Column(self._name, 
@@ -68,3 +40,31 @@ class Column(object):
     result.SetFormula(self._formula)
     result.AddCells(self._data_values)
     return result
+
+  def DelCells(self):
+    self._data_values = array([])
+ 
+  def Evaluate(self):
+    # Evaluates the formula, if any.
+    # Replaces the data values with the formula results
+    raise e.NotYetImplemented("Evaluate")
+
+  def GetCells(self):
+    return self._data_values
+
+  def GetName(self):
+    return self._name
+
+  def SetFormula(self, formula):
+    # A formula is a valid python expression of a mix of numpy.array
+    # scalars, and functions in math for columns that preceed
+    # this column in the table.
+    self._formula = formula
+
+  def SetTable(self, table):
+    # Sets the table being used for this column
+    self._table = table
+
+  def UpdateCell(self, index, val):
+    if index >= 0 and index < len(self._data_values):
+      self._data_values[index] = val
