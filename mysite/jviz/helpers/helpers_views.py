@@ -111,7 +111,11 @@ def nested(request):
 def tables(request, node):
   # To generalize so that cells can be merged and hence multiple
   value = request.GET.getlist('value', '')
-  html = "Node is %s. Selection is %s" % (node, value)
+  if request.session.get(node, False):
+    html = "You've already asked for this node."
+  else:
+    html = "Node is %s. Selection is %s" % (node, value)
+    request.session[node] = True
   return HttpResponse(html)
 
 #################################
