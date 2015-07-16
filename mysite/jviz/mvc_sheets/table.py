@@ -2,6 +2,11 @@
   Implements the table class for MVCSheets.
   A table has 0 or more columns. A row is identified either by having
   a special column (name column) or by the 0 based index of the row.
+
+  Some notes on names:
+    Parameters:
+      col - either a column or a column name
+      rowid - either a row name or the index of the row
 '''
 
 
@@ -65,7 +70,7 @@ class Table(object):
     # Input: col - column name (str) or column object
     #        name_column - indicates that the column is a key for the table
     column = self._GetColumnObject(col)
-    name = column.GetName()
+    name = column.GetTableName()
     if self._columns.has_key(name):
       raise e.DuplicateColumnName("Table %s already has column %s" %
           (self._name, name))
@@ -83,7 +88,7 @@ class Table(object):
     # Returns a copy of this object
     new_table = Table(self._name)
     for c in self._columns.values():
-      new_column = Column(c.GetName())
+      new_column = Column(c.GetTableName())
       if self._name_column == c:
         name_column = True
       else:
@@ -106,9 +111,9 @@ class Table(object):
       raise e.ColumnNotFound("Didn't find column %s in table %s" %
           (name, self._name))
 
-  def DelRow(self, rows):
+  def DelRows(self, rowids):
     # Deletes the specified rows
-    # Input: rows - list of row names or indicies
+    # Input: rowids - list of row names or indicies
     raise e.NotYetImplemented("DelRow")
 
   def Evaluate(self):
@@ -120,7 +125,7 @@ class Table(object):
     # Returns a dictionary with the column objects
     return self._columns
     
-  def GetName(self):
+  def GetTableName(self):
     return self._name
 
   def GetRows(self, row_names=None):
@@ -136,11 +141,11 @@ class Table(object):
       result[k] = array(data_list)
     return result
 
-  def UpdateRow(self, row, row_values):
+  def UpdateRow(self, rowid, row_values):
     # Changes the row to the values indicated
-    # Input: row - row name (if name column is not None) or index
+    # Input: rowid - row name (if name column is not None) or index
     #        row_values - list of values corresponding to the columns to be changed
-    indicies = self._GetRowIndicies(row)
+    indicies = self._GetRowIndicies(rowid)
     if len(indicies) != 1:
       raise e.InternalError("Expected exactly one row")
     index = indicies[0]
@@ -150,5 +155,3 @@ class Table(object):
       column_values = value[n]
       new_column_values[index] = row_values[n]
       self._columns[keys[n]] = new_column_values
-      
-   
