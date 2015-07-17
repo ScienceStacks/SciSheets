@@ -10,8 +10,8 @@
 '''
 
 
-import exceptions as e
-import column as c
+import errors as er
+import column as cl
 from numpy import array
 
 
@@ -27,10 +27,10 @@ class Table(object):
   def _GetColumnObject(col):
     # Input: col - column name (str) or column object
     # Return - column object
-    if isinstance(col, c.Column):
+    if isinstance(col, cl.Column):
       column = col
     else:
-      column = c.Column(name)
+      column = cl.Column(name)
     return column
 
   def _GetRowIndicies(self, row_names):
@@ -42,7 +42,7 @@ class Table(object):
       all_indicies = range(len(all_names))
     else:
       if len(self._columns) == 0:
-        raise e.InternalError("No columns present in table %s" % 
+        raise er.InternalError("No columns present in table %s" % 
             self._name)
       all_indicies = range(len(self._columns.values[0])
       all_names = all_indicies
@@ -53,13 +53,11 @@ class Table(object):
 
   def _ValidateTable(self):
     # Checks that the table is internally consistent
-    keys = self._columns.keys()
-    values = self._columns.values()
-    num_rows = len(values[0])
-    for n in range(len(values)):
-      if len(values[n]) != num_rows:
-        raise e.InternalError("In Table %s, Row %d has length %d. Expected %d." %
-            (self._name, n, len(values[n]), num_rows))
+    num_rows = self.GetNumRows()
+    for column in self._columns.values():
+      if  column.NumRows() != num_rows:
+        raise er.InternalError("In Table %s, Column %s differs in its number of rows." %
+            (self._name, column.GetName())
     
     
 
@@ -72,7 +70,7 @@ class Table(object):
     column = self._GetColumnObject(col)
     name = column.GetTableName()
     if self._columns.has_key(name):
-      raise e.DuplicateColumnName("Table %s already has column %s" %
+      raise er.DuplicateColumnName("Table %s already has column %s" %
           (self._name, name))
     column.SetTable(self)
     self._columns[name] = column
@@ -82,13 +80,13 @@ class Table(object):
   def AddRow(self, values):
     # Adds values to the corresponding columns
     # Input: values - list of values
-    raise e.NotYetImplemented("AddRow")
+    raise er.NotYetImplemented("AddRow")
 
   def Copy(self)
     # Returns a copy of this object
     new_table = Table(self._name)
     for c in self._columns.values():
-      new_column = Column(c.GetTableName())
+      new_column = Column(cl.GetTableName())
       if self._name_column == c:
         name_column = True
       else:
@@ -96,7 +94,7 @@ class Table(object):
       new_table.AddColumn(new_column, name_column=name_column)
     return new_table
     
-    raise e.NotYetImplemented("Copy")
+    raise er.NotYetImplemented("Copy")
 
   def DelColumn(self, col):
     # Deletes a column from the table.
@@ -108,22 +106,31 @@ class Table(object):
     if self._columns.has_key(name):
       del self._columns[name]
     else:
-      raise e.ColumnNotFound("Didn't find column %s in table %s" %
+      raise er.ColumnNotFound("Didn't find column %s in table %s" %
           (name, self._name))
 
   def DelRows(self, rowids):
     # Deletes the specified rows
     # Input: rowids - list of row names or indicies
-    raise e.NotYetImplemented("DelRow")
+    raise er.NotYetImplemented("DelRow")
 
   def Evaluate(self):
     # Evaluates the formulas in the table. Evaluation is
     # done in column order.
-    raise e.NotYetImplemented("Evaluate")
+    raise er.NotYetImplemented("Evaluate")
 
   def GetColumns(self):
     # Returns a dictionary with the column objects
     return self._columns
+ 
+  def GetNumColumns(self):
+    return len(self._columns)
+
+  def GetNumRows(self):
+    if self.GetNumColumns == 0:
+      return 0
+    column = self._columns.values()[0]
+    return column.GetNumRows()
     
   def GetTableName(self):
     return self._name
@@ -147,7 +154,7 @@ class Table(object):
     #        row_values - list of values corresponding to the columns to be changed
     indicies = self._GetRowIndicies(rowid)
     if len(indicies) != 1:
-      raise e.InternalError("Expected exactly one row")
+      raise er.InternalError("Expected exactly one row")
     index = indicies[0]
     keys = self._columns.keys()
     values = self._columns.values()

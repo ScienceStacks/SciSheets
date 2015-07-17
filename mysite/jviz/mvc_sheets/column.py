@@ -64,6 +64,9 @@ class Column(object):
   def GetColumnName(self):
     return self._name
 
+  def GetNumRows(self):
+    return len(self._data_values)
+
   def SetFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
     # scalars, and functions in math for columns that preceed
