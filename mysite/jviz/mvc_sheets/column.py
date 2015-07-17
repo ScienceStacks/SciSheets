@@ -15,7 +15,7 @@ class Column(object):
     self._data_values = np.array([])
     self._data_type = data_type
     self._formula = None
-    self._table = None
+    self._owning_table = None
 
   def AddCells(self, v, replace=False):
     if isinstance(v, list):
@@ -61,11 +61,11 @@ class Column(object):
   def GetCells(self):
     return self._data_values
 
+  def GetNumCells(self):
+    return len(self._data_values)
+
   def GetColumnName(self):
     return self._name
-
-  def GetNumRows(self):
-    return len(self._data_values)
 
   def SetFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
@@ -75,7 +75,7 @@ class Column(object):
 
   def SetTable(self, table):
     # Sets the table being used for this column
-    self._table = table
+    self._owning_table = table
 
   def UpdateCell(self, index, val):
     if index >= 0 and index < len(self._data_values):

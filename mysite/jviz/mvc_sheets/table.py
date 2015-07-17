@@ -127,6 +127,7 @@ class Table(object):
     return len(self._columns)
 
   def GetNumRows(self):
+    self._ValidateTable()
     if self.GetNumColumns == 0:
       return 0
     column = self._columns.values()[0]

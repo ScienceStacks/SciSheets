@@ -53,7 +53,7 @@ class TestHelpers(unittest.TestCase):
   def testConstructor(self):
     column = cl.Column(COLUMN_NAME)
     self.assertEqual(column._name, COLUMN_NAME)
-    self.assertIsNone(column._table)
+    self.assertIsNone(column._owning_table)
     self.assertIsNone(column._formula)
 
   def testAddCells(self):
@@ -77,7 +77,7 @@ class TestHelpers(unittest.TestCase):
     self.assertEqual(column._name, column_copy._name)
     self.assertTrue(CompareValues(column._data_values, column_copy._data_values))
     self.assertEqual(column._formula, column_copy._formula)
-    self.assertIsNone(column_copy._table)
+    self.assertIsNone(column_copy._owning_table)
 
   def testDelCells(self):
     column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
@@ -101,6 +101,37 @@ class TestHelpers(unittest.TestCase):
         formula=FORMULA)
     cells = column.GetCells()
     self.assertTrue(CompareValues(column._data_values, cells))
+
+  def testGetNumCells(self):
+    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+        formula=FORMULA)
+    self.assertEqual(column.GetNumCells(), len(LIST))
+
+  def testGetColumnName(self):
+    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+        formula=FORMULA)
+    self.assertEqual(column.GetColumnName(), column._name)
+
+  def testSetFormula(self):
+    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+        formula=None)
+    column.SetFormula(FORMULA)
+    self.assertEqual(column._formula, FORMULA)
+
+  def testSetTable(self):
+    column = CreateColumn(COLUMN_NAME, data=LIST, table=None,
+        formula=FORMULA)
+    column.SetTable(TABLE)
+    self.assertEqual(column._owning_table, TABLE)
+
+  def testUpdateCell(self):
+    column = CreateColumn(COLUMN_NAME, data=LIST, table=None,
+        formula=FORMULA)
+    INDEX = 0
+    new_value = LIST[INDEX] + 10
+    column.UpdateCell(INDEX, new_value)
+    self.assertEqual(column._data_values[INDEX], new_value)
+    
     
 
 
