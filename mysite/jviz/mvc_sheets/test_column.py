@@ -1,8 +1,12 @@
 '''Tests for column'''
 
-from django.test import TestCase 
-from jviz.mvc_sheets import column as cl
+#from django.test import TestCase 
+#mockfrom jviz.mvc_sheets import column as cl
+import column as cl
+import unittest
+import errors as ex
 import numpy as np
+from nose.tools import assert_raises
 
 # Constants
 COLUMN_NAME = "DUMMY"
@@ -44,7 +48,7 @@ def CreateColumn(name, data=np.array([]), table=None, formula=None):
 #############################
 # Tests
 #############################
-class TestHelpers(TestCase):
+class TestHelpers(unittest.TestCase):
 
   def testConstructor(self):
     column = cl.Column(COLUMN_NAME)
@@ -86,6 +90,17 @@ class TestHelpers(TestCase):
     NON_INDEX = 1
     column.DelCells([INDEX])
     self.assertEqual(column._data_values[INDEX], LIST[NON_INDEX])
+
+  def testEvaluate(self):
+    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+        formula=FORMULA)
+    self.assertRaises(ex.NotYetImplemented, column.Evaluate)
+
+  def testGetCells(self):
+    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+        formula=FORMULA)
+    cells = column.GetCells()
+    self.assertTrue(CompareValues(column._data_values, cells))
     
 
 

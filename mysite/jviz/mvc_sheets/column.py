@@ -4,7 +4,7 @@
 
 
 import constants as cn
-import exceptions as ex
+import errors as ex
 import numpy as np
 
 
