@@ -6,7 +6,7 @@ import column as cl
 import unittest
 import errors as ex
 import numpy as np
-from nose.tools import assert_raises
+from util_test import CreateColumn, CompareValues, ToList
 
 # Constants
 COLUMN_NAME = "DUMMY"
@@ -14,41 +14,11 @@ LIST = [2.0, 3.0]
 TABLE = 'DUMMY'
 FORMULA = "A+B"
 
-#############################
-# Utility Functions
-#############################
-def ToList(v):
-  if isinstance(v, list):
-    data_list = v
-  elif isinstance(v, np.ndarray):
-    data_list = v.tolist()
-  else:
-    data_list = [v]
-  return data_list
-
-def CompareValues(v1, v2):
-  list1 = ToList(v1)
-  list2 = ToList(v2)
-  if len(list1) != len(list2):
-    return False
-  r = True
-  for n in range(len(list1)):
-    r = r and (list1[n] == list2[n])
-  return r
-
-def CreateColumn(name, data=np.array([]), table=None, formula=None):
-  # Returns a populated column
-  column = cl.Column(name)
-  column.AddCells(data)
-  column.SetTable(table)
-  column.SetFormula(formula)
-  return column
-
 
 #############################
 # Tests
 #############################
-class TestHelpers(unittest.TestCase):
+class TestColumn(unittest.TestCase):
 
   def testConstructor(self):
     column = cl.Column(COLUMN_NAME)

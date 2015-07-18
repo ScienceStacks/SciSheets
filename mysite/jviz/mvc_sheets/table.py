@@ -18,7 +18,7 @@ from numpy import array
 # TODO: Should there always be a name_column? Default is row number?
 class Table(object):
 
-  def __init__(self, name)
+  def __init__(self, name):
     self._name = name
     self._columns = {}  # key: name, value: object
     self._name_column = None
@@ -44,7 +44,7 @@ class Table(object):
       if len(self._columns) == 0:
         raise er.InternalError("No columns present in table %s" % 
             self._name)
-      all_indicies = range(len(self._columns.values[0])
+      all_indicies = range(len(self._columns.values[0]))
       all_names = all_indicies
     if row_names is None:
       return all_indicies
@@ -57,7 +57,7 @@ class Table(object):
     for column in self._columns.values():
       if  column.NumRows() != num_rows:
         raise er.InternalError("In Table %s, Column %s differs in its number of rows." %
-            (self._name, column.GetName())
+            (self._name, column.GetName()))
     
     
 
@@ -68,7 +68,7 @@ class Table(object):
     # Input: col - column name (str) or column object
     #        name_column - indicates that the column is a key for the table
     column = self._GetColumnObject(col)
-    name = column.GetTableName()
+    name = column.GetColumnName()
     if self._columns.has_key(name):
       raise er.DuplicateColumnName("Table %s already has column %s" %
           (self._name, name))
@@ -82,7 +82,7 @@ class Table(object):
     # Input: values - list of values
     raise er.NotYetImplemented("AddRow")
 
-  def Copy(self)
+  def Copy(self):
     # Returns a copy of this object
     new_table = Table(self._name)
     for c in self._columns.values():
