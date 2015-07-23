@@ -64,7 +64,7 @@ class Column(object):
   def GetNumCells(self):
     return len(self._data_values)
 
-  def GetColumnName(self):
+  def GetName(self):
     return self._name
 
   def SetFormula(self, formula):

@@ -1,27 +1,16 @@
-1. Do Genetic code example
-  a. Add widget per header
-     -show can transmit information about split/join and item checked.
-      -See http://stackoverflow.com/questions/20307590/connect-http-post-request-to-an-onclick-using-javascript
-     -Generate the page for a given nested table structure
-      (Create a nested table class)
-  b. Change table title to reflect WHERE clause constraints. Requires
-     incorporating column names. Do this by:
-     (1) CSV has attribute names
-     (2) Create JSON keys using attribute name and value
-     (3) Have CSV upload that creates table
-  b1.Widget allows for splitting/merging
-  c. Initial page for nested table analysis provides for table selection
-     and specification of classification and value attributes.
-     (1) Select a succession of attribute columns until done
-     (2) Select a successon  of value columns until done
-     (3) ANALYZE button: posts the results.
-     (4) Server
-         (a) Creates initial JSON structure
-         (b) Renders a new page for table navigation.
-  d. Add widgets to merge and split cells.
-  e. Algorithm for table layout based on tree structure relationships between
-     schema.
+1. Complete scisheet core classes
+   a. Table
 
-TODO:
-1. Generalize codons.html so that it's not just 4 levels and can vary when
-table has a "stacked" level.
+2. Subclasses
+  a. HTMLColumn - has ToHTML method
+  b. HTMLTable
+
+3. Evaluate in Table and Column
+
+4. Export to python - 4 files: function.py, test_function.py, 
+   input.dat, output.dat. test_function runs function.py with
+   input.dat and verifies that output.dat is produced.
+
+5. Can I do an import if write functions as methods in a special
+   class? That way, python import of function.py will provide
+   the right metadata.

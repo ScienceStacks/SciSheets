@@ -1,10 +1,8 @@
 '''Tests for column'''
 
-#from django.test import TestCase 
-#mockfrom jviz.mvc_sheets import column as cl
 import column as cl
 import unittest
-import errors as ex
+import errors as er
 import numpy as np
 from util_test import CreateColumn, CompareValues, ToList
 
@@ -64,7 +62,7 @@ class TestColumn(unittest.TestCase):
   def testEvaluate(self):
     column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
-    self.assertRaises(ex.NotYetImplemented, column.Evaluate)
+    self.assertRaises(er.NotYetImplemented, column.Evaluate)
 
   def testGetCells(self):
     column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
