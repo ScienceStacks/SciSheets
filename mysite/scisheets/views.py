@@ -1,6 +1,7 @@
 from django import forms
 from django.http import HttpResponse
 from scisheets.helpers import helpers_views as hv
+from heatmap.helpers import table_view as tv
 
 
 #######################
