@@ -4,7 +4,7 @@
 from mysite import settings
 from mysite.helpers import testhelpers as th
 from mysite.helpers.db_access import DBAccess
-from jviz.models import UploadedFiles
+from scisheets.models import UploadedFiles
 from mysite.helpers.file_to_db import (FileTable, SQLType)
 import unittest
 #import file_to_db as f2d

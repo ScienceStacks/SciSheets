@@ -1,3 +1,14 @@
+# TODO: Should there always be a name_column? Default is row number?
+# TODO: Add tests for a name column
+# TODO: Add helper classes for:
+#        ColId - identifies a column by index or name or object
+#                and converts between them
+#        RowId - identifies a row by index or name
+#                and converts between them
+#        Columns - representation of a collection of columns
+#                  (as a list or dict)
+#        Row - representation of the cells with the same RowId
+#              as a list or a dict        
 '''
   Implements the table class for MVCSheets.
   A table has 0 or more columns. A row is identified either by having
@@ -25,8 +36,6 @@ from numpy import array
 from helpers import OrderableStrings
 
 
-# TODO: Should there always be a name_column? Default is row number?
-# TODO: Add tests for a name column
 class Table(object):
 
   def __init__(self, name):

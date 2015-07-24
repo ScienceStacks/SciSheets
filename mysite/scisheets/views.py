@@ -1,6 +1,6 @@
 from django import forms
 from django.http import HttpResponse
-from jviz.helpers import helpers_views as hv
+from scisheets.helpers import helpers_views as hv
 
 
 #######################
