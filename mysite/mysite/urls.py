@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^upload/', 'scisheets.views.upload'),
     url(r'^maketable/', 'scisheets.views.maketable'),
     url(r'^deletetable/', 'scisheets.views.deletetable'),
-    url(r'^query/', 'scisheets.views.query'),
+    url(r'^query/', 'heatmap.views.query'),
     url(r'^nested/', 'scisheets.views.nested'),
     url(r'^tables/(?P<node>.+)/$', 'scisheets.views.tables'),
 )

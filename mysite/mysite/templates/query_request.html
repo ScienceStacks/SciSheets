@@ -17,7 +17,7 @@
 </table>
 </p>
 
-<form action="/heatmap/query/" method="post" id="inform"
+<form action="/query/" method="post" id="inform"
 enctype="multipart/form-data" >{% csrf_token %}
 {{ query_form.as_p }}
 <input type="submit" name="Submit" value="Submit" />
