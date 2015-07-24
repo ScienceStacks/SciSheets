@@ -42,7 +42,7 @@ class Column(object):
     result.AddCells(self._data_values)
     return result
 
-  def DelCells(self, indicies=None):
+  def DeleteCells(self, indicies=None):
     # Input: index of cells to delete (all if None)
     if indicies is None:
       self._data_values = np.empty([0])

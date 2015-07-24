@@ -47,16 +47,16 @@ class TestColumn(unittest.TestCase):
     self.assertEqual(column._formula, column_copy._formula)
     self.assertIsNone(column_copy._owning_table)
 
-  def testDelCells(self):
+  def testDeleteCells(self):
     column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
-    column.DelCells()
+    column.DeleteCells()
     self.assertEqual(len(column._data_values), 0)
     column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
     INDEX = 0
     NON_INDEX = 1
-    column.DelCells([INDEX])
+    column.DeleteCells([INDEX])
     self.assertEqual(column._data_values[INDEX], LIST[NON_INDEX])
 
   def testEvaluate(self):
@@ -75,10 +75,10 @@ class TestColumn(unittest.TestCase):
         formula=FORMULA)
     self.assertEqual(column.GetNumCells(), len(LIST))
 
-  def testGetColumnName(self):
+  def testGetName(self):
     column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
-    self.assertEqual(column.GetColumnName(), column._name)
+    self.assertEqual(column.GetName(), column._name)
 
   def testSetFormula(self):
     column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,

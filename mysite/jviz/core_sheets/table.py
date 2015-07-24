@@ -2,14 +2,20 @@
   Implements the table class for MVCSheets.
   A table has 0 or more columns. A row is identified either by having
   a special column (name column) or by the 0 based index of the row.
+  The name column must be strings, each being unique.
   All columns in a table should have the same number of rows.
 
   Some notes on names:
     Parameters:
       col - either a column or a column name
-      row - a table row either as a list or a dict
-      rowl - row as a list
-      rowid - either a row name or the index of the row
+      row - either list representation of a row or a
+            dict representation of a row
+      rowl - list representation of a row
+      rowdict - dictionary representation of a row
+      rowid - either a name (rowname) or an index (rowidx)
+      rowidx - an int used to index into column cells
+      rowname - the value of the string in the name column
+                that corresponds to the row index
 '''
 
 
@@ -20,6 +26,7 @@ from helpers import OrderableStrings
 
 
 # TODO: Should there always be a name_column? Default is row number?
+# TODO: Add tests for a name column
 class Table(object):
 
   def __init__(self, name):
@@ -35,10 +42,12 @@ class Table(object):
     #         num - number of cells to add
     column.AddCells([None for n in range(num)])
 
-  def _GetRowIndicies(self, row_names):
+  def _RowidToRowidx(self, rowids):
     # Obtains the indicies of the rows corresponding to the row names
-    # Input: row_names - list of names in the named_row, or integer indicies
+    # Input: row_names - list of names in the named row
     # Returns - list of row indicies
+    if isinstance(rowids[0], int):
+      return rowids
     if self._name_column is not None:
       all_names = self._name_column.GetData().tolist()
       all_indicies = range(len(all_names))
@@ -46,7 +55,7 @@ class Table(object):
       if len(self._columns) == 0:
         raise er.InternalError("No columns present in table %s" % 
             self._name)
-      all_indicies = range(len(self._columns.values[0]))
+      all_indicies = range(self.GetNumRows())
       all_names = all_indicies
     if row_names is None:
       return all_indicies
@@ -62,7 +71,7 @@ class Table(object):
     if isinstance(row, list):
       if len(row) != self.GetNumColumns():
         raise er.InternalError("Row %s doesn't match number of columns %d in table %s" %
-             (row, self.GetNumColumns(), self.GetName())
+             (row, self.GetNumColumns(), self.GetName()))
       rowl = row
     elif isinstance(row, dict):
       rowl = []
@@ -131,19 +140,20 @@ class Table(object):
     self._column_positions.Append(name)
     self._ValidateTable()
 
-  def AddRow(self, row)
+  def AddRow(self, row):
     # Adds values to the corresponding columns
     # Input: row - list or dict of values
     rowl = self._RowToRowl(row)
     for p in range(self.GetNumColumns()):
       column =  self.GetColumnObject(p)
-      column.AddCell(rowl[p])
+      column.AddCells(rowl[p])
 
   def Copy(self):
     # Returns a copy of this object
     new_table = Table(self._name)
     for c in self._columns.values():
-      new_column = Column(cl.GetTableName())
+      new_column = cl.Column(c.GetName())
+      new_column.AddCells(c.GetCells().tolist())
       if self._name_column == c:
         name_column = True
       else:
@@ -151,11 +161,12 @@ class Table(object):
       new_table.AddColumn(new_column, name_column=name_column)
     return new_table
 
-  def DelColumn(self, col):
+  def DeleteColumn(self, col):
     # Deletes a column from the table.
     # Input: col - column name (str) or column object
     column = self.GetColumnObject(col)
-    column_position = self.GetColumnPosition(column.GetColumnName())
+    name = column.GetName()
+    column_position = self.GetColumnPosition(column.GetName())
     if self._name_column == column:
       self._name_column = None
     # Remove from columns dicts
@@ -166,10 +177,12 @@ class Table(object):
     self._column_positions.Delete(name)
     self._ValidateTable()
 
-  def DelRows(self, rowids):
+  def DeleteRows(self, rowids):
     # Deletes the specified rows
     # Input: rowids - list of row names or indicies
-    raise er.NotYetImplemented("DelRow")
+    rowidxs = self._RowidToRowidx(rowids)
+    for c in self._columns.values():
+      c.DeleteCells(indicies=rowidxs)
 
   def Evaluate(self):
     # Evaluates the formulas in the table. Evaluation is
@@ -178,7 +191,7 @@ class Table(object):
 
   def GetColumns(self):
     # Returns a dictionary with the column objects
-    return self._columns
+    return self._columns.values()
 
   def GetColumnObject(self, col):
     # Input: col - column name (str) or column object or column position
@@ -186,10 +199,10 @@ class Table(object):
     if isinstance(col, cl.Column):
       column = col
     elif isinstance(col, str):
-      column = self._columns(col)
+      column = self._columns[col]
     elif isinstance(col, int):
       name = self._column_positions.GetString(col)
-      column = self._columns(name)
+      column = self._columns[name]
     else:
       raise InternalError("Invalid type %s" % type(col))
     return column
@@ -213,26 +226,27 @@ class Table(object):
     # Input: row_names - names of rows to be returned
     # Returns - dict with k=name, v=array
     result = {}
-    indicies = self._GetRowIndicies(row_names)
-    for k,v in self._columns:
-      cells = self._columns.GetCells()
+    if row_names is None:
+      indicies = range(self.GetNumRows())
+    else:
+      indicies = self._RowidToRowidx(row_names)
+    for k,v in self._columns.iteritems():
+      cells = self._columns[k].GetCells()
       data_list = []
       for i in indicies:
         data_list.append(cells[i])
       result[k] = array(data_list)
     return result
 
-  def UpdateRow(self, rowid, row_values):
+  def UpdateRow(self, rowid, rowl):
     # Changes the row to the values indicated
     # Input: rowid - row name (if name column is not None) or index
-    #        row_values - list of values corresponding to the columns to be changed
-    indicies = self._GetRowIndicies(rowid)
+    #        rowl - list of values corresponding to the columns to be changed
+    indicies = self._RowidToRowidx([rowid])
     if len(indicies) != 1:
       raise er.InternalError("Expected exactly one row")
-    index = indicies[0]
+    rowidx = indicies[0]
     keys = self._columns.keys()
-    values = self._columns.values()
-    for n in range(len(self._columns)):
-      column_values = value[n]
-      new_column_values[index] = row_values[n]
-      self._columns[keys[n]] = new_column_values
+    for c in self._columns.values():
+      n = self.GetColumnPosition(c.GetName())
+      c.UpdateCell(rowidx, rowl[n])
