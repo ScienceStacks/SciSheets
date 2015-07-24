@@ -1,6 +1,7 @@
 from django import forms
 from django.http import HttpResponse
 from scisheets.helpers import helpers_views as hv
+from scisheets.helpers import html_tables_views as ht
 from heatmap.helpers import table_view as tv
 
 
@@ -36,3 +37,6 @@ def nested(request):
 
 def tables(request, node):
   return hv.tables(request, node)
+
+def test_html_table(request):
+  return ht.test_html_tables(request)
