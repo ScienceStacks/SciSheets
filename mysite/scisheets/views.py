@@ -38,5 +38,5 @@ def nested(request):
 def tables(request, node):
   return hv.tables(request, node)
 
-def test_html_table(request):
-  return ht.test_html_tables(request)
+def simple_html_tables(request):
+  return ht.SimpleHTMLTables(request)

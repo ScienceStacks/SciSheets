@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     url(r'^plot/(?P<filename>.+)/$', 'scisheets.views.plot'),
     url(r'^query/', 'heatmap.views.query'),
     url(r'^tables/(?P<node>.+)/$', 'scisheets.views.tables'),
-    url(r'^testhtmltable/', 'scisheets.views.test_html_table'),
+    url(r'^SimpleHTMLTables/', 'scisheets.views.simple_html_tables'),
     url(r'^upload/', 'scisheets.views.upload'),
 )
 urlpatterns += staticfiles_urlpatterns()

@@ -30,5 +30,5 @@ class NameForm(forms.Form):
 # View Helpers
 #######################
 
-def test_html_tables(request):
+def SimpleHTMLTables(request):
   return HttpResponse("Not implemented")
