@@ -1,11 +1,13 @@
-1. Complete scisheet core classes
-   a. Table
 
 2. Subclasses
-  a. HTMLColumn - has ToHTML method
-  b. HTMLTable
+  a. HTMLTable - generates html for a table. allows for a recursive
+     construction of tables, where a cell can expand into a table.
+     - requires knowing the type of an entry 
+     - the resulting html must be packaged with a header and css
 
-3. Evaluate in Table and Column
+3. Tests
+   a. Display unnested random table
+   b. Do nested random table
 
 4. Export to python - 4 files: function.py, test_function.py, 
    input.dat, output.dat. test_function runs function.py with

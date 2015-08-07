@@ -1,0 +1,15 @@
+<!--Creates HTML for a table-->
+<!--Inputs: headers - list of names to head the columns-->
+<!--        rows - list of list, each of which has same count as columns -->
+<table border="1">
+  {% for header in headers %}
+    <th>{{ header }}</th>
+  {% endfor %}
+  {% for row in rows %}
+    <tr>
+    {% for fld in row %} 
+      <td>{{ fld }}</td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+</table>
