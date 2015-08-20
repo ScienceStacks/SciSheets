@@ -1,9 +1,17 @@
 
-2. Subclasses
-  a. HTMLTable - generates html for a table. allows for a recursive
-     construction of tables, where a cell can expand into a table.
-     - requires knowing the type of an entry 
-     - the resulting html must be packaged with a header and css
+2. js + html
+  a. Use example-plugin-headermenu as start
+  b. Add
+     editing (from example 3), including handling notifications of changes (e.g., via ajax?)
+  c. Column Header menu
+        insert left 
+        insert right
+        delete
+        cut
+        paste left
+        past right
+2.1 HTMLTable
+   generate the data and headers
 
 3. Tests
    a. Display unnested random table
