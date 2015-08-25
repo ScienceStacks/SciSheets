@@ -30,3 +30,7 @@ cd $SITE_NAME
 chmod o+w uploads
 ##########
 bash apache_restart.sh
+echo "******Provide NPM Files *****"
+NODEJS=$HOME/node_modules/slickgrid
+cp SlickGrid/*.js $NODEJS
+cp SlickGrid/*.css $NODEJS

@@ -1,0 +1,10 @@
+{
+  "name": "scisheets",
+  "version": "0.0.1",
+  "description": "Spreadsheet system for scientists",
+  "dependencies": {
+    "slickgrid": "2.1.0",
+    "smash": "0",
+    "uglify-js": "2"
+  }
+}
