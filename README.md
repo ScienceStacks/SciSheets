@@ -8,6 +8,6 @@ To install on a virgin VM:
 2. bash setup_vm.sh
 3. Answer "yes" as required and enter root password
 4. cd $HOME
-5. git clone https://github.com/ScienceStacks/SciSheets.git
+5. git clone --recursive https://github.com/ScienceStacks/SciSheets.git
 6. cd SciSheets
 7. bash setup.sh
