@@ -1,10 +1,4 @@
-1. Put files into SciSheets. Use nodejs capability to compile js
-+Created a make file to construct the concatenated libraries
-+Added installs to BaseStack
---Have problem with order or mix of dependencies
---Uglify isn't working
---Need to copy files to nodejs install that aren't obtained from git
-
+1. Design the menus that will be used
 1.1 Demonsrate ability to embed multiple lines. (Can embed html using a column formatter).
 2. js + html
   a. Use example-plugin-headermenu as start (or context menu in http://localhost:8000/SlickGrid/examples/example7-events.html)

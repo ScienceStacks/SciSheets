@@ -1,11 +1,12 @@
 # Create compressed files to use for slickgrid
 # Assumes that nodejs is installed and there is a link 
 # from node to nodejs
-# To run: make Makefile slickgrid
+# To run: 
+#  make Makefile clean
+#  make Makefile slickgrid
 
 B=$(shell echo $(HOME))
 DDIR=mysite/mysite/static
-VERSION = $(shell python version.py)
 
 N=$(B)/node_modules
 SL=$(N)/slickgrid
@@ -14,9 +15,9 @@ UGLIFYJS=$(N)/.bin/uglifyjs
 UGLIFYCSS=/usr/local/bin/uglifycss
 
 GENERATED_FILES = \
-	$(DDIR)/slicklib.min.js \
-	$(DDIR)/slicklib.js \
-	$(DDIR)/slicklib.min.css
+	$(DDIR)/slickgrid.min.js \
+	$(DDIR)/slickgrid.js \
+	$(DDIR)/slickgrid.min.css
 
 CSS_FILES = \
 	$(SL)/css/smoothness/jquery-ui-1.8.16.custom.css \
@@ -47,17 +48,17 @@ JS_FILES = \
 # Rules
 ##################
 
-.PHONY: target
-
-slicklib: $(GENERATED_FILES) $(CSS_FILES) $(JS_FILES) package.json Makefile
-
-$(DDIR)/slicklib.min.css: $(CSS_FILES) package.json
-	$(SMASH) $(CSS_FILES) > $(DDIR)/slicklib.css
-	$(UGLIFYCSS) $(DDIR)/slicklib.css > $@
-
-$(DDIR)/slicklib.min.js: $(JS_FILES) package.json
-	$(SMASH) $(JS_FILES) > $(DDIR)/slicklib.js
-	$(UGLIFYJS) $(DDIR)/slicklib.js > $@
-
 clean:
 	@rm -f $(GENERATED_FILES)
+
+slickgrid: Makefile $(GENERATED_FILES) $(CSS_FILES) $(JS_FILES) package.json
+
+$(DDIR)/slickgrid.min.css: $(CSS_FILES) package.json
+	$(SMASH) $(CSS_FILES) > $(DDIR)/slickgrid.css
+	$(UGLIFYCSS) $(DDIR)/slickgrid.css > $@
+
+$(DDIR)/slickgrid.min.js: $(JS_FILES) package.json
+	$(SMASH) $(JS_FILES) > $(DDIR)/slickgrid.js
+	$(UGLIFYJS) $(DDIR)/slickgrid.js > $@
+
+.PHONY: clean

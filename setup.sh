@@ -15,6 +15,7 @@ fab setup_django:conf_path=$CONF_PATH,app_dir=$APP_DIR
 # Set up the site context. ADD TO FABFILE?
 echo "************ Configuration *************"
 cd $REPO_DIR
+git submodule init  # Get submodules in the project
 rm -rf $SITE_DIR
 django-admin startproject mysite
 git checkout mysite
