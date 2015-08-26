@@ -32,5 +32,8 @@ chmod o+w uploads
 bash apache_restart.sh
 echo "******Provide NPM Files *****"
 NODEJS=$HOME/node_modules/slickgrid
-cp SlickGrid/*.js $NODEJS
-cp SlickGrid/*.css $NODEJS
+cp $REPO_DIR/SlickGrid/*.js $NODEJS
+cp $REPO_DIR/SlickGrid/*.css $NODEJS
+echo "*******Update the paths******"
+echo 'PATH=$HOME/SciSheets/bin:$PATH' >> $HOME/.bashrc
+echo "source scisheets_alias.sh" >> $HOME/.bashrc
