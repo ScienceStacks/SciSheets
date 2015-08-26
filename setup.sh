@@ -30,10 +30,14 @@ cd $SITE_NAME
 chmod o+w uploads
 ##########
 bash apache_restart.sh
-echo "******Provide NPM Files *****"
+# Provide NPM Files
 NODEJS=$HOME/node_modules/slickgrid
 cp $REPO_DIR/SlickGrid/*.js $NODEJS
 cp $REPO_DIR/SlickGrid/*.css $NODEJS
-echo "*******Update the paths******"
+# Update the paths
 echo 'PATH=$HOME/SciSheets/bin:$PATH' >> $HOME/.bashrc
 echo "source scisheets_alias.sh" >> $HOME/.bashrc
+# Create the compressed JS files
+cd $REPO_DIR
+make Makefile clean
+make Makefile slickgrid
