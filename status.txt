@@ -1,4 +1,9 @@
-1. Design the menus that will be used
+1. Single table
+-.css uses URLs instead of images/static for drop-down for menus
+-Trying to get a form that comes up dynamically when select a button.
+ as an alernative, can send request to server, which comes back with the form.
+  The response can include the table.
+
 1.1 Demonsrate ability to embed multiple lines. (Can embed html using a column formatter).
 2. js + html
   a. Use example-plugin-headermenu as start (or context menu in http://localhost:8000/SlickGrid/examples/example7-events.html)

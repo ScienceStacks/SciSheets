@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<div><input type="submit" id="prompt" value="NewTable" onclick="popupUploadForm()"/>
+
+
+<script type="text/javascript">
+
+function popupUploadForm(){
+        var newName = window.prompt('New name?', 'current name');
+        var ele = document.getElementById("prompt");
+        ele.value = newName;
+    }
+</script>
+</body>
+</html>
