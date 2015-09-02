@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Example: Adding A Context Menu To A Table (YUI Library)</title>
+
+        <!-- Standard reset and fonts -->
+
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/reset/reset.css">
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/fonts/fonts.css">
+
+
+        <!-- CSS for Menu -->
+
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/menu/assets/skins/sam/menu.css"> 
+
+
+        <!-- Page-specific styles -->
+
+        <style type="text/css">
+
+            h1 { 
+
+                font-weight: bold; 
+                margin: 0 0 1em 0;
+            }
+
+            body {
+            
+                padding: 1em;
+            
+            }
+
+            p, ul {
+
+                margin: 1em 0;
+
+            }
+
+            
+            p em,
+            #operainstructions li em {
+
+                font-weight: bold;
+
+            }
+
+            #operainstructions {
+
+                list-style-type: square;
+                margin-left: 2em;
+
+            }
+
+            #dataset {
+
+                border: solid 1px #000;
+
+            }
+
+            #dataset tr.odd {
+
+                background-color: #ccc;
+            
+            }
+
+            
+            #dataset tr.selected {
+
+                background-color: #039;
+            
+            }
+            
+
+            #dataset td {
+
+                border: solid 1px #000;
+                padding: .25em .5em;
+            
+            }
+
+        </style>
+
+
+        <!-- Dependency source files -->
+        <script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+        <script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/container/container_core.js"></script>
+
+        <!-- Menu source file -->
+        <script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/menu/menu.js"></script>
+
+
+        <!-- Page-specific script -->
+        <script type="text/javascript" src="context_menu.js"> </script>
+
+    </head>
+    <body class="yui-skin-sam">
+
+        <h1>Example: Adding A Context Menu To A Table (YUI Library)</h1>
+
+        <p>
+            When adding context menus to large data structures like a 
+            <code>&#60;table&#62;</code> or large list (<code>&#60;ol&#62;</code> 
+            or <code>&#60;ul&#62;</code>), it is recommended to bind a single 
+            YAHOO.widget.ContextMenu instance to the structure's root element, than to a set 
+            of its child nodes (<code>&#60;tr&#62;</code>s or <code>&#60;li&#62;</code>s).
+            
+            Doing so significantly improves the performance of a web page or 
+            application by reducing the number of "contextmenu" event handlers 
+            as well as the number of YAHOO.widget.ContextMenu instances in memory.
+        </p>
+
+        <p>
+            This example demonstrates this technique, as well as how to create 
+            a context-sensitive context menu; a context menu whose content 
+            changes based on the element that triggered its display.
+        </p>
+
+        <p><em>Please Note:</em> Opera users will need to do the following to use this example:</p>
+
+        <ul id="operainstructions">
+            <li><em>Opera for Windows:</em>  Hold down the control key and click with the left mouse button.</li>
+            <li><em>Opera for OS X:</em>  Hold down the command key (&#8984;) and click with the left mouse button.</li>
+        </ul>
+    
+        <table id="dataset">
+<tr class="type5 odd"><td>Row 0, Column 1</td><td>Row 0, Column 2</td><td>Row 0, Column 3</td><td>Row 0, Column 4</td></tr>
+<tr class="type3"><td>Row 1, Column 1</td><td>Row 1, Column 2</td><td>Row 1, Column 3</td><td>Row 1, Column 4</td></tr>
+<tr class="type2 odd"><td>Row 2, Column 1</td><td>Row 2, Column 2</td><td>Row 2, Column 3</td><td>Row 2, Column 4</td></tr>
+<tr class="type5"><td>Row 3, Column 1</td><td>Row 3, Column 2</td><td>Row 3, Column 3</td><td>Row 3, Column 4</td></tr>
+<tr class="type3 odd"><td>Row 4, Column 1</td><td>Row 4, Column 2</td><td>Row 4, Column 3</td><td>Row 4, Column 4</td></tr>
+<tr class="type1"><td>Row 5, Column 1</td><td>Row 5, Column 2</td><td>Row 5, Column 3</td><td>Row 5, Column 4</td></tr>
+<tr class="type5 odd"><td>Row 6, Column 1</td><td>Row 6, Column 2</td><td>Row 6, Column 3</td><td>Row 6, Column 4</td></tr>
+        </table>
+
+    </body>
+</html>

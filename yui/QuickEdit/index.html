@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Inline Cell Editing</title>
+
+<style type="text/css">
+/*margin and padding on body element
+  can introduce errors in determining
+  element position and are not recommended;
+  we turn them off as a foundation for YUI
+  CSS treatments. */
+body {
+	margin:0;
+	padding:0;
+}
+</style>
+</head>
+
+<body>
+
+<script src="http://yui.yahooapis.com/3.5.1/build/yui/yui-min.js"></script>
+<script>
+YUI({
+    //Last Gallery Build of this module
+    gallery: 'gallery-2014.03.06-14-38'
+}).use('gallery-quickedit', function(Y) {
+ 
+	var cols = [
+		{ key: 'title', label: 'Title', quickEdit: true },
+		{ key: 'year', label: 'Year' },
+		{ key: 'quantity', label: 'Quantity',
+			quickEdit: {
+				validation: { css: 'yiv-required yiv-integer:[0,]' }
+			}
+		}
+	];
+ 
+	var table = new Y.DataTable.Base({columnset: cols});
+	table.plug(Y.Plugin.DataTableDataSource, {datasource: ds});
+	table.plug(Y.Plugin.DataTableQuickEdit, {changesAlwaysInclude: ['id']});
+ 
+	table.render("#table");
+ 
+});
+</script>
+
+</body>
+</html>

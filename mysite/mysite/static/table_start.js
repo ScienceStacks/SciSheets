@@ -2,6 +2,7 @@
   // TODO: Look at JqueryUI to create custom inputs - https://github.com/jquery/jquery-ui - 
  //        especially the model form in the dialogue example.
  //        maybe better off doing this in python?
+ // also look at yui - http://yuilibrary.com/ and http://yuilibrary.com/yui/docs/panel/panel-form-example.html
   var grid;
   var columns = [
     {id: "table", name: "new-table", field: "name"}

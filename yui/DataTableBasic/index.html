@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Example: Basic DataTable - YUI Library</title>
+
+    <meta name="viewport" content="width=960" id="meta-viewport">
+    <script>
+    if (screen.width < 768) {
+        document.getElementById('meta-viewport').setAttribute('content', 'width=768');
+    }
+    </script>
+
+        
+        
+    
+    
+    
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic">
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.0/build/cssgrids/cssgrids-min.css">
+        <link rel="stylesheet" href="/combo/css?main-min.css">
+    
+        <link rel="stylesheet" href="/vendor/prettify/prettify-min.css">
+        <link rel="stylesheet" href="/css/docs-min.css">
+    
+    
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta http-equiv="X-XRDS-Location" content="/xrds.xml">
+    <link rel="shortcut icon" type="image/png" href="/img/favicon.png">
+    
+    
+            <script>
+            var YUI_config={"filter":"min","maxURLLength":1024,"root":"3.18.1/","groups":{"site":{"combine":true,"comboBase":"/combo/js?","root":"","modules":{"hoverable":{"path":"hoverable-min.js","requires":["event-hover","node-base","node-event-delegate"]},"search":{"path":"search-min.js","requires":["autocomplete","autocomplete-highlighters","node-pluginhost"]},"api-filter":{"path":"apidocs/api-filter-min.js","requires":["autocomplete-base","autocomplete-highlighters","autocomplete-sources"]},"api-list":{"path":"apidocs/api-list-min.js","requires":["api-filter","api-search","event-key","node-focusmanager","tabview"]},"api-search":{"path":"apidocs/api-search-min.js","requires":["autocomplete-base","autocomplete-highlighters","autocomplete-sources","escape"]}}}}};
+            if (location.protocol.indexOf('https') > -1) {
+                YUI_config.comboBase = 'https://yui-s.yahooapis.com/combo?';
+                YUI_config.combine = true;
+            }
+            </script>
+    
+            <script src="http://yui.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
+    
+</head>
+<body class="yui3-skin-sam">
+
+
+<div class="yui3-u-1">
+    <div id="docs-hd" class="content">
+        <h1>Example: Basic DataTable</h1>
+
+        
+    </div>
+</div>
+
+<div class="yui3-u-3-4 print-max-width">
+    <div id="docs-main" class="content">
+        <style>
+/* custom styles for this example */
+.example .yui3-datatable {
+    margin-bottom: 1em;
+}
+
+/* css to counter global site css */
+.example table {
+    width: auto;
+}
+.example caption {
+    display: table-caption;
+}
+.example th,
+.example td {
+    text-transform: none;
+    border: 0 none;
+}
+</style>
+
+<div class="example yui3-skin-sam">
+    <div id="simple"></div>
+
+<div id="labels"></div>
+
+<script src="custom.js"> </script>
+
+</div>
+</body>
+</html>

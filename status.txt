@@ -1,3 +1,15 @@
+0. See if YUI will work for my needs
+  a. Got datatable with a modal menu
+  b. DataTableQuickEdit provides cell editing and pagination
+  c. See if can get sortable columns
+
+0.1 Approach
+  a. Single button for the table
+  b. Provide for operating on multiple columns within the single button menu
+  c. Have "edit" button and paginate control.
+     Provides a way to do coordinated search of tables to position
+     to related spots.
+
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus
 -Trying to get a form that comes up dynamically when select a button.

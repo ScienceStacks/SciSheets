@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" class="yui3-loading">
+<head>
+    <meta charset="utf-8">
+    <title>Using a panel to show a modal form</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/combo?3.18.1/build/cssreset/reset-min.css&amp;3.18.1/build/cssfonts/fonts-min.css&amp;3.18.1/build/cssbase/base-min.css">
+    <script src="http://yui.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
+    
+
+</head>
+<body class="yui3-skin-sam">
+
+<style type="text/css">
+#desc {
+    margin-bottom: 20px;
+    border-bottom: 1px dotted #333;
+}
+#desc span {
+    background: #a3350d;
+    padding :2px;
+    color:# f27243;
+}
+
+.yui3-panel {
+    outline: none;
+}
+.yui3-panel-content .yui3-widget-hd {
+    font-weight: bold;
+}
+.yui3-panel-content .yui3-widget-bd {
+    padding: 15px;
+}
+.yui3-panel-content label {
+    margin-right: 30px;
+}
+.yui3-panel-content fieldset {
+    border: none;
+    padding: 0;
+}
+.yui3-panel-content input[type="text"] {
+    border: none;
+    border: 1px solid #ccc;
+    padding: 3px 7px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    font-size: 100%;
+    width: 200px;
+}
+
+#addRow {
+    margin-top: 10px;
+}
+
+#dt {
+    margin-left: 1em;
+}
+
+#dt th, #dt td {
+    border: 0 none;
+    border-left: 1px solid #cbcbcb;
+}
+
+</style>
+
+<h2>Using a panel to show a modal form</h2>
+
+<div class="yui3-u-1">
+
+<div id="dt"></div>
+
+<p><button id="addRow">Add</button></p>
+
+<div id="panelContent">
+    <div class="yui3-widget-bd">
+        <form>
+            <fieldset>
+                <p>
+                    <label for="id">ID</label><br/>
+                    <input type="text" name="id" id="productId" placeholder="">
+                </p>
+                <p>
+                    <label for="name">Name</label><br/>
+                    <input type="text" name="name" id="name" value="" placeholder="">
+                </p>
+                <p>
+                    <label for="password">Price</label><br/>
+                    <input type="text" name="price" id="price" value="" placeholder="$">
+                </p>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="custom.js"> </script>
+</body>
+</html>
