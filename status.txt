@@ -1,14 +1,13 @@
 0. See if YUI will work for my needs
   a. Got datatable with a modal menu
   b. DataTableQuickEdit provides cell editing and pagination
-  c. See if can get sortable columns
+  c. Trying to get context menu for columns, but have dependency errors.
+     Combining InlineEdit and ContextMenu
 
 0.1 Approach
-  a. Single button for the table
-  b. Provide for operating on multiple columns within the single button menu
-  c. Have "edit" button and paginate control.
-     Provides a way to do coordinated search of tables to position
-     to related spots.
+  a. Context menu for header is created by knowing the id of the tags
+     which can be obtained from a DOM search
+  b. Need to merge constructing context menu with cell inline editing
 
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus

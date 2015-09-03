@@ -1,62 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>Example: Basic DataTable - YUI Library</title>
-
-  <meta name="viewport" content="width=960" id="meta-viewport">
-  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic">
-  <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.0/build/cssgrids/cssgrids-min.css">
-  <link rel="stylesheet" href="/combo/css?main-min.css">
-
-  <link rel="stylesheet" href="/vendor/prettify/prettify-min.css">
-  <link rel="stylesheet" href="/css/docs-min.css">
-  
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
-  <meta http-equiv="X-XRDS-Location" content="/xrds.xml">
-  <link rel="shortcut icon" type="image/png" href="/img/favicon.png">
-  
-  <script src="http://yui.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
-    
-</head>
-<body class="yui3-skin-sam">
 
 
-<div class="yui3-u-1">
-    <div id="docs-hd" class="content">
-        <h1>Example: Basic DataTable</h1>
-    </div>
-</div>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Inline Cell Editing</title>
 
-<div class="yui3-u-3-4 print-max-width">
-    <div id="docs-main" class="content">
-        <style>
-/* custom styles for this example */
-.example .yui3-datatable {
-    margin-bottom: 1em;
-}
-
-/* css to counter global site css */
-.example table {
-    width: auto;
-}
-.example caption {
-    display: table-caption;
-}
-.example th,
-.example td {
-    text-transform: none;
-    border: 0 none;
+<style type="text/css">
+/*margin and padding on body element
+  can introduce errors in determining
+  element position and are not recommended;
+  we turn them off as a foundation for YUI
+  CSS treatments. */
+body {
+	margin:0;
+	padding:0;
 }
 </style>
 
-<div class="example yui3-skin-sam">
-    <div id="simple"></div>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/fonts/fonts-min.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/calendar/assets/skins/sam/calendar.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/datatable/assets/skins/sam/datatable.css" />
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/yahoo/yahoo.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/animation/animation.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/calendar/calendar-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/container/container_core.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/datatable/datatable-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/datasource/datasource-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/dom/dom.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/element/element-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/event/event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/event-delegate/event-delegate-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/menu/menu.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.9.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 
-<div id="labels"></div>
 
-<script src="custom.js"> </script>
+<!--begin custom header content for this example-->
+<style type="text/css">
+/* custom styles for this example */
+.yui-skin-sam .yui-dt-col-address pre { font-family:arial;font-size:100%; } /* Use PRE in first col to preserve linebreaks*/
+</style>
 
+<!--end custom header content for this example-->
+
+</head>
+
+<body class="yui-skin-sam">
+
+
+<h1>Inline Cell Editing</h1>
+
+<div class="exampleIntro">
+	<p>This example demonstrates basic inline cell editing features, as well as
+more complex customizations, such as input validation and click-to-save interactions.</p>
+			
 </div>
+
+<!--BEGIN SOURCE CODE FOR EXAMPLE =============================== -->
+
+<div id="cellediting"></div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript" src="data.js"></script>
+<script type="text/javascript" src="custom.js"> </script>
 </body>
 </html>

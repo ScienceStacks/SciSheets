@@ -1,3 +1,12 @@
+$(document).click(function(event) {
+    var dt_type = event.target.className;
+    if (dt_type == "yui-dt-label") {
+      var text = $(event.target).text();
+      msg = "Label is " + dt_type + ". Label is " + text
+      alert(msg);
+    }
+});
+
 YAHOO.util.Event.addListener(window, "load", function() {
   YAHOO.example.InlineCellEditing = function() {
     // Custom formatter for "address" column to preserve line breaks
