@@ -39,6 +39,7 @@ function onEweContextMenuClick(p_sType, p_aArgs) {
   "use strict";
   var oItem = p_aArgs[1], // The MenuItem that was clicked
     oTarget = this.contextEventTarget;
+  alert("Invoked context menu");
   return oItem + oTarget; /* dummy */
 }
 
@@ -79,7 +80,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
         {key: "fruit", editor:  new YAHOO.widget.DropdownCellEditor({multiple: true, dropdownOptions: ["apple", "banana", "cherry"]})},
         {key: "last_login", formatter: YAHOO.widget.DataTable.formatDate, editor:  new YAHOO.widget.DateCellEditor()}
       ],
-      myDataSource = new YAHOO.util.DataSource(YAHOO.example.Data.addresses);
+      myDataSource = new YAHOO.util.DataSource(newDataSource);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
     myDataSource.responseSchema = {
       fields: ["address", "city", "state", "amount", "active", "colors", "fruit", {key: "last_login", parser: "date"}]
