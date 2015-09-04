@@ -1,6 +1,14 @@
 0. See if YUI will work for my needs
-  a. Got datatable with a modal menu
-  b. DataTableQuickEdit provides cell editing and pagination
+  -STATUS
+   Got context menu with cell editing
+   Trying to get separate events for context for tbl and col
+  -ISSUES
+   1. CSS is wrong
+   2. Not getting the right DOM element for the tbl event
+  -TO DO:
+   1. Need to find right DOM for table
+   2. Fix CSS
+   3. Show can communicate with server
   c. Trying to get context menu for columns, but have dependency errors.
      Combining InlineEdit and ContextMenu
 
