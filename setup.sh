@@ -40,4 +40,4 @@ echo "source scisheets_alias.sh" >> $HOME/.bashrc
 # Create the compressed JS files
 cd $REPO_DIR
 make Makefile clean
-make Makefile slickgrid
+make Makefile yui

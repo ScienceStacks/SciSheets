@@ -4,6 +4,7 @@
   "description": "Spreadsheet system for scientists",
   "dependencies": {
     "slickgrid": "2.1.0",
+    "yui": "3.10.0",
     "smash": "0",
     "uglify-js": "2"
   }
