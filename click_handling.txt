@@ -1,0 +1,24 @@
+1. Set up the handlers I want, rather that try to decode them
+   after the fact. This would be done by looking at the elements
+   under the "div" for the table and assigning onclicks. Use
+   addEventListener(). See https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+
+  a. For column:
+    1) Look for <head> tag
+    2) For each <th>,
+       extract from <th> id the name of the column ("yui-dt*-th-"[name])
+  b. For Cell
+    1) Find the <td tag with yui-dt-data
+    2) Keep track of index by row and table
+    3) Add click event with data provided by row and column
+  c. For Row
+    1) If first column, extract the row# and treat as a row event
+       for right click
+    2) Otherwise, ignore the event
+   
+  
+
+2. If deciphering clicks, then need to backup to parent. Look
+   at http://stackoverflow.com/questions/12551920/capturing-all-the-a-click-event.
+
+3. BInding events in JQuery - http://www.tutorialspoint.com/jquery/jquery-events.htm

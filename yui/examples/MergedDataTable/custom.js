@@ -4,8 +4,33 @@
 /*global $, jQuery, alert, YAHOO */
 /*jshint onevar: false */
 
+/*
+  The table objects are: Table, Column, Row, and Cell. They are specified
+  as follows:
+    Table - GUID
+    Column - name
+    Row - number
+    Cell - column ID, row ID
+
+  This code provides the following:
+    1. Determines when there is a left or right click on the a table object and record
+       its identity.
+    2. Perform simple local actions and report what is done to the server. This includes
+       - Update a data value
+       - Change the name of a Table or Column
+       - Change a row number
+*/
+
+function myClicker(n) {
+  alert(n);
+}
+
+// Identify what was clicked, specifying the object
 $(document).click(function (event) {
   "use strict";
+  // TODO: Can reliably find the column by looking for text
+  //       equal to the column name. But this can be confused
+  //       with the cell contents.
   var dt_type = event.target.className,
     text = $(event.target).text(),
     msg = "Label is " + dt_type + ". Label is " + text;
@@ -23,7 +48,7 @@ var tblMenuItems = ["Rename", "Delete", "Add-Col" ];
   object literal of configuration properties.
  */
 // BUG: Not getting the correct DOM element. Consider putting trigger on the table and then not bubbling for column?
-var el = $( "caption" );
+var el = $("caption");
 var tblContextMenu = new YAHOO.widget.ContextMenu("tab-menu",
       {
       trigger: [ el ],  // Templatetize dt{#columns} & iterate across column names
@@ -88,28 +113,35 @@ colContextMenu.subscribe("render", onColContextMenuRender);
 
 
 var newDataSource = [
-    {name: "John A. Smith", address: "1236 Some Street", salary: "12.33"},
-    {name: "Joan B. Jones", address: "3271 Another Ave", salary: "34556"},
-    {name: "Bob C. Uncle", address: "9996 Random Road", salary: "893"},
-    {name: "John D. Smith", address: "1623 Some Street", salary: "0.092"},
-    {name: "Joan E. Jones", address: "3217 Another Ave", salary: "23456"}];
+    {row: "1", name: "John A. Smith", address: "1236 Some Street", salary: "12.33"},
+    {row: "2", name: "Joan B. Jones", address: "3271 Another Ave", salary: "34556"},
+    {row: "3", name: "Bob C. Uncle", address: "9996 Random Road", salary: "893"},
+    {row: "4", name: "John D. Smith", address: "1623 Some Street", salary: "0.092"},
+    {row: "5", name: "Joan E. Jones", address: "3217 Another Ave", salary: "23456"}];
 
 YAHOO.util.Event.addListener(window, "load", function () {
   // Custom formatter for "address" column to preserve line breaks
   "use strict";
   YAHOO.example.InlineCellEditing = (function () {
-    var formatAddress = function (elCell, oRecord, oColumn, oData) {
-        elCell.innerHTML = "<pre class=\"address\">" + YAHOO.lang.escapeHTML(oData) + "</pre>";
-      },
+    function formatColumn(name) {
+      return function (elCell, oRecord, oColumn, oData) {
+        elCell.innerHTML = "<pre class=\"" + name + "\">" + YAHOO.lang.escapeHTML(oData) + "</pre>";
+      };
+    }
+    var format_address = formatColumn("address"),
+      format_name = formatColumn("name"),
+      format_row = formatColumn("row"),
+      format_salary = formatColumn("salary"),
       myColumnDefs = [
-        {key: "name", formatter: formatAddress, editor:  new YAHOO.widget.TextareaCellEditor()},
-        {key: "address", formatter: formatAddress, editor:  new YAHOO.widget.TextareaCellEditor()},
-        {key: "salary", formatter: formatAddress, editor:  new YAHOO.widget.TextareaCellEditor()}
+        {key: "row", formatter: format_row, editor:  new YAHOO.widget.TextareaCellEditor()},
+        {key: "name", formatter: format_name, editor:  new YAHOO.widget.TextareaCellEditor()},
+        {key: "address", formatter: format_address, editor:  new YAHOO.widget.TextareaCellEditor()},
+        {key: "salary", formatter: format_salary, editor:  new YAHOO.widget.TextareaCellEditor()}
       ],
       myDataSource = new YAHOO.util.DataSource(newDataSource);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
     myDataSource.responseSchema = {
-      fields: ["name", "address", "salary"]
+      fields: ["row", "name", "address", "salary"]
     };
 
     var myDataTable = new YAHOO.widget.DataTable("cellediting", myColumnDefs, myDataSource,

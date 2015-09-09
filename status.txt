@@ -17,6 +17,8 @@
      which can be obtained from a DOM search
   b. Need to merge constructing context menu with cell inline editing
 
+0.2 JS tests
+
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus
 -Trying to get a form that comes up dynamically when select a button.
