@@ -15,6 +15,7 @@ fab setup_django:conf_path=$CONF_PATH,app_dir=$APP_DIR
 # Set up the site context. ADD TO FABFILE?
 echo "************ Configuration *************"
 cd $REPO_DIR
+git config credential.helper store  # Avoid repeated entry of creds
 rm -rf $SITE_DIR
 django-admin startproject mysite
 git checkout mysite
