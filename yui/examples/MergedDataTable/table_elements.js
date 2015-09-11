@@ -1,4 +1,3 @@
-// TODO: Finish debugging. Add accessor methods
 /*jslint indent: 2 */
 /*jslint browser: true*/
 /*jslint unparam: true*/
@@ -8,6 +7,11 @@
 /*jshint yui: true */
 /*jshint jquery: true */
 /*jshint qunit: true */
+
+/*
+   What's next:
+     Finish debugging. Add accessor methods
+*/
 
 /*
   Creates a class that contains the table elements
@@ -27,29 +31,32 @@
 //    element: element object
 */
 
-
-/* ---------------- Internal Classes ----------------*/
-function TableRow(row, element) {
+/********** TableRow **************/
+function TableRow(name, element) {
   "use strict";
-  this.row = row;
+  this.name = name;
   this.element = element;
 }
 
-function TableColumn(column, element) {
+/********** TableColumn **************/
+function TableColumn(name, element) {
   "use strict";
-  this.column = column;
+  this.name = name;
   this.element = element;
 }
 
-function TableCell(row, column, element) {
+/********** TableCells **************/
+function TableCell(rowName, columnName, element) {
   "use strict";
-  this.row = row;
-  this.column = column;
+  this.rowName = rowName;
+  this.columnName = columnName;
   this.element = element;
 }
 
-/*------------ External Class -----------*/
 
+/***************************************/
+/********** TableElements **************/
+/***************************************/
 function TableElements(tableName) {
   "use strict";
   this.tableName = tableName;
@@ -57,19 +64,47 @@ function TableElements(tableName) {
   this.columns = [];  // Array of TableColumn
   this.rows = [];  // Array of TableRow
   this.cells = [];  // Array of TableCell
+  this.zInit();  // Fill in columns, rows, cells
 }
 
-TableElements.prototype.init = function () {
+TableElements.prototype.GetTableRow = function (element) {
   "use strict";
-  this.initColumns();
-  this.initCells();
-  this.initRows();
+  var elements;
+  elements = this.zFindElements(this.rows, element);
+  if (elements.length !== 1) {
+    console.log("**Error. Found " + elements.length + "!= 1");
+    elements = null;  // Ensure get an error on return
+  }
+  return elements[0];
 };
 
-TableElements.prototype.initColumns = function () {
+// ----------- INTERNAL METHODS
+
+TableElements.prototype.zInit = function () {
+  "use strict";
+  this.zInitColumns();
+  this.zInitCells();
+  this.zInitRows();
+};
+
+TableElements.prototype.zInitCells = function () {
+  "use strict";
+  var tdata, r, c, cell, rows, row;
+  tdata = $('.yui-dt-data')[0];
+  rows = tdata.getElementsByTagName('tr');
+  for (r = 0; r < rows.length; r++) {
+    row = rows[r].getElementsByTagName('td');
+    for (c = 0; c < this.columns.length; c++) {
+      cell = new TableCell(r + 1, this.columns[c].name, row[c]);
+      this.cells.push(cell);
+    }
+  }
+};
+
+TableElements.prototype.zInitColumns = function () {
   "use strict";
   var c, elements, theader, spans, name, element, col;
-  theader = this.table.getElementsByTagName('thead')[0];
+  theader = this.tableElement.getElementsByTagName('thead')[0];
   elements = theader.getElementsByTagName('th');
   for (c = 0; c < elements.length; c++) {
     spans = elements[c].getElementsByTagName('span');
@@ -80,28 +115,34 @@ TableElements.prototype.initColumns = function () {
   }
 };
 
-TableElements.prototype.initCells = function () {
-  "use strict";
-  var tdata, r, c, cell, rows, row;
-  tdata = $('.yui-dt-data')[0];
-  rows = tdata.getElementsByTagName('tr');
-  for (r = 0; r < rows.length; r++) {
-    row = rows[r].getElementsByTagName('td');
-    for (c = 0; c < this.columns.length; c++) {
-      cell = new TableCell(r + 1, this.columns[c], row[c]);
-      this.Cells.push(cell);
-    }
-  }
-};
-
-TableElements.prototype.initRows = function () {
+TableElements.prototype.zInitRows = function () {
   "use strict";
   var i, cell, row;
   for (i = 0; i < this.cells.length; i++) {
     cell = this.cells[i];
-    if (cell.column === 'row') {
-      row = new TableRow(cell.row, cell.element);
+    if (cell.columnName === 'row') {
+      row = new TableRow(cell.rowName, cell.element);
       this.rows.push(row);
     }
   }
 };
+
+// Finds the matching element in an array of objects that have
+// the element property.
+// Input: theArray - an array of objects that
+//                   has an element property
+//        theElement - the element to locate
+// Output: result - the object with a matching element
+// Output: anE
+TableElements.prototype.zFindElements = function (theArray, theElement) {
+  "use strict";
+  var result;
+  result = [];
+  theArray.forEach(function (entry) {
+    if (entry.element === theElement) {
+      result.push(entry);
+    }
+  });
+  return result;
+};
+
