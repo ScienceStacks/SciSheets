@@ -1,8 +1,24 @@
-/*jslint indent: 2 */
-/*jslint browser: true*/
-/*jslint unparam: true*/
-/*global $, jQuery, alert, YAHOO */
+/*
+  TODO:
+  1. Make cells editable by default if they are data columns (not formulas)
+  2. Assign own click handlers for:
+     column: double click - change name
+             right click - context menu
+     mouseout: detect value change   
+   look at http://yuiblog.com/blog/2007/09/26/satyam-datatable-2/
+*/
+
+/*jshint onevar: true */
+/*jshint todo: true */
+/*jshint qunit: true */
+/*jshint jquery: true */
+/*jshint yui: true */
+/*jslint plusplus: true */
 /*jshint onevar: false */
+/*global $, alert, YAHOO */
+/*jslint unparam: true*/
+/*jslint browser: true */
+/*jslint indent: 2 */
 
 /*
   The table objects are: Table, Column, Row, and Cell. They are specified
@@ -21,14 +37,10 @@
        - Change a row number
 */
 
-function myClicker(n) {
-  alert(n);
-}
-
-// Identify what was clicked, specifying the object
+// Identify what element was single clicked, specifying the object
 $(document).click(function (event) {
   "use strict";
-  // TODO: Can reliably find the column by looking for text
+  //  Can reliably find the column by looking for text
   //       equal to the column name. But this can be confused
   //       with the cell contents.
   var dt_type = event.target.className,
@@ -37,6 +49,13 @@ $(document).click(function (event) {
   if (dt_type === "yui-dt-label") {
     alert(msg);
   }
+  event.stopPropagation();
+});
+
+// Identify what element was double clicked
+$(document).dblclick(function (event) {
+  "use strict";
+  // TODO: set up click handler, initially just reporting the element
 });
 
 var colMenuItems = ["Rename", "Delete" ];
@@ -59,7 +78,7 @@ var tblContextMenu = new YAHOO.widget.ContextMenu("tab-menu",
 
 var colContextMenu = new YAHOO.widget.ContextMenu("col-menu",
       {
-      trigger: ["yui-dt3-th-address", "yui-dt3-th-salary"],  // Templatetize dt{#columns} & iterate across column names
+      trigger: ["yui-dt4-th-address", "yui-dt4-th-salary"],  // Templatetize dt{#columns} & iterate across column names
       itemdata: colMenuItems,
       lazyload: true
     }
@@ -91,7 +110,6 @@ function onColContextMenuClick(p_sType, p_aArgs) {
   var oItem = p_aArgs[1], // The MenuItem that was clicked
     oTarget = this.contextEventTarget;
   alert("Invoked column context menu");
-  return oItem + oTarget; /* dummy */
 }
 
 // "render" event handler for the ewe context menu
@@ -124,11 +142,13 @@ YAHOO.util.Event.addListener(window, "load", function () {
   "use strict";
   YAHOO.example.InlineCellEditing = (function () {
     function formatColumn(name) {
+      var localName = name;
       return function (elCell, oRecord, oColumn, oData) {
-        elCell.innerHTML = "<pre class=\"" + name + "\">" + YAHOO.lang.escapeHTML(oData) + "</pre>";
+        elCell.innerHTML = "<pre class=\"" + localName + "\">" + YAHOO.lang.escapeHTML(oData) + "</pre>";
       };
     }
-    var format_address = formatColumn("address"),
+    var myDataTable, highlightEditableCell,
+      format_address = formatColumn("address"),
       format_name = formatColumn("name"),
       format_row = formatColumn("row"),
       format_salary = formatColumn("salary"),
@@ -144,14 +164,14 @@ YAHOO.util.Event.addListener(window, "load", function () {
       fields: ["row", "name", "address", "salary"]
     };
 
-    var myDataTable = new YAHOO.widget.DataTable("cellediting", myColumnDefs, myDataSource,
-        {
-          caption: "New table"
-        }
+    myDataTable = new YAHOO.widget.DataTable("cellediting", myColumnDefs, myDataSource,
+      {
+        caption: "New table"
+      }
         );
 
     // Set up editing flow
-    var highlightEditableCell = function (oArgs) {
+    highlightEditableCell = function (oArgs) {
       var elCell = oArgs.target;
       if (YAHOO.util.Dom.hasClass(elCell, "yui-dt-editable")) {
         this.highlightCell(elCell);
@@ -159,7 +179,18 @@ YAHOO.util.Event.addListener(window, "load", function () {
     };
     myDataTable.subscribe("cellMouseoverEvent", highlightEditableCell);
     myDataTable.subscribe("cellMouseoutEvent", myDataTable.onEventUnhighlightCell);
-    myDataTable.subscribe("cellClickEvent", myDataTable.onEventShowCellEditor);
+    // myDataTable.subscribe("cellClickEvent", myDataTable.onEventShowCellEditor);
+
+    myDataTable.subscribe("cellClickEvent", function (oArgs) {
+        var target = oArgs.target,
+            record = this.getRecord(target),
+            column = this.getColumn(target);
+     
+        switch (column.key) {
+            // Do stuff here
+        }
+    });
+
     return {
       oDS: myDataSource,
       oDT: myDataTable

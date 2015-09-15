@@ -1,51 +1,279 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<!DOCTYPE HTML>
 <html>
 <head>
+	<title>YUI 3 QuickEdit Example</title>
+	<meta http-equiv=content-type content="text/html; charset=utf-8">
 
+	<script src="http://yui.yahooapis.com/3.10.2/build/yui/yui-min.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.10.2/build/cssreset/cssreset-min.css">
+<!--
+	<script src="gallery-quickedit-debug.js"></script>
+	<script src="gallery-formmgr-css-validation-debug.js"></script>
+	<script src="gallery-paginator-debug.js"></script>
+	<script src="gallery-node-optimizations-debug.js"></script>
+	<script src="gallery-funcprog-debug.js"></script>
+	<script src="gallery-object-extras-debug.js"></script>
+	<link rel="stylesheet" type="text/css" href="assets/gallery-quickedit.css" />
+	<link rel="stylesheet" type="text/css" href="assets/gallery-paginator.css" />
+-->
+	<style type="text/css">
+	#controls
+	{
+		margin: 10px 0;
+	}
 
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-<title>Inline Cell Editing</title>
+	.rpp
+	{
+		padding-left: 1.5em;
+	}
 
-<style type="text/css">
-/*margin and padding on body element
-  can introduce errors in determining
-  element position and are not recommended;
-  we turn them off as a foundation for YUI
-  CSS treatments. */
-body {
-	margin:0;
-	padding:0;
-}
-</style>
+	.yui3-skin-sam .yui3-datatable caption
+	{
+		padding: 0 !important;
+	}
+
+	.yui3-skin-sam .yui3-paginator-rpp-options
+	{
+		margin-left: 0;
+	}
+	</style>
 </head>
+<body class="yui3-skin-sam">
 
-<body>
+<h1><a href="http://yuilibrary.com/gallery/show/quickedit">YUI 3 QuickEdit</a> Example</h1>
+<hr>
 
-<script src="http://yui.yahooapis.com/3.5.1/build/yui/yui-min.js"></script>
-<script>
+<div id="controls">
+	<button id="start">QuickEdit</button>
+	<button id="save" style="display:none;">Save</button>
+	<button id="cancel" style="display:none;">Cancel</button>
+</div>
+
+<div id="pg"></div>
+
+<div id="table"></div>
+
+<hr>
+<p><a href="../yuidoc/modules/gallery-quickedit.html">Show me the documentation</a></p>
+<p><a href="/yui-modules/">Back to project list</a></p>
+
+<script type="text/javascript">
 YUI({
-    //Last Gallery Build of this module
-    gallery: 'gallery-2014.03.06-14-38'
-}).use('gallery-quickedit', function(Y) {
- 
-	var cols = [
+//	filter: 'raw', combine: false,
+	gallery: 'gallery-2013.06.26-23-09'
+}).use(
+	'datatable-datasource',
+	'gallery-quickedit',
+	'gallery-paginator',
+function(Y) {
+"use strict";
+
+	function sendRequest()
+	{
+		table.datasource.load(
+		{
+			request: pg.getState()
+		});
+	}
+
+// Raw data
+
+	var data =
+	[
+		{id:'n1', year:1950, quantity:10, title:"The Lion, the Witch and the Wardrobe"},
+		{id:'n2', year:1951, quantity:5, title:"Prince Caspian: The Return to Narnia"},
+		{id:'n3', year:1952, quantity:2, title:"The Voyage of the Dawn Treader"},
+		{id:'n4', year:1953, quantity:6, title:"The Silver Chair"},
+		{id:'n5', year:1954, quantity:9, title:"The Horse and His Boy"},
+		{id:'n6', year:1955, quantity:4, title:"The Magician's Nephew"},
+		{id:'n7', year:1956, quantity:8, title:"The Last Battle"},
+		{id:'lsf1', year:1938, quantity:10, title:"Out of the Silent Planet"},
+		{id:'lsf2', year:1943, quantity:5, title:"Perelandra"},
+		{id:'lsf3', year:1945, quantity:2, title:"That Hideous Strength"},
+		{id:'p1', year:1995, quantity:7, title:"Northern Lights"},
+		{id:'p2', year:1997, quantity:5, title:"The Subtle Knife"},
+		{id:'p3', year:2000, quantity:8, title:"The Amber Spyglass"},
+		{id:'t0', year:1937, quantity:5, title:"The Hobbit"},
+		{id:'t1', year:1955, quantity:12, title:"The Fellowship of the Ring"},
+		{id:'t2', year:1955, quantity:0, title:"The Two Towers"},
+		{id:'t3', year:1955, quantity:8, title:"The Return of the King"},
+		{id:'pd', year:1966, quantity:5, title:"Do Androids Dream of Electric Sheep?"},
+		{id:'h1', year:1959, quantity:4, title:"Starship Troopers"},
+		{id:'h2', year:1961, quantity:7, title:"Stranger in a Strange Land"},
+		{id:'h3', year:1966, quantity:3, title:"The Moon Is a Harsh Mistress"},
+		{id:'v1', year:1946, quantity:3, title:"Slan"},
+		{id:'v2', year:1950, quantity:5, title:"The Voyage of the Space Beagle"},
+		{id:'v3', year:1970, quantity:8, title:"Quest for the Future"},
+		{id:'d1', year:1859, quantity:5, title:"On the Origin of Species by Means of Natural Selection, or the Preservation of Favoured Races in the Struggle for Life"},
+		{id:'d2', year:1881, quantity:2, title:"The Formation of Vegetable Mould through the Action of Worms"},
+		{id:'e1', year:1905, quantity:8, title:"On a Heuristic Viewpoint Concerning the Production and Transformation of Light"},
+		{id:'e2', year:1905, quantity:5, title:"On the Electrodynamics of Moving Bodies"},
+		{id:'e3', year:1917, quantity:7, title:"Kosmologische Betrachtungen zur allgemeinen Relativit&auml;tstheorie"},
+		{id:'e4', year:1935, quantity:3, title:"Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?"},
+		{id:'g1', year:1610, quantity:5, title:"Sidereus Nuncius"},
+		{id:'g2', year:1615, quantity:2, title:"Letter to the Grand Duchess Christina"},
+		{id:'g3', year:1632, quantity:6, title:"Dialogo sopra i due massimi sistemi del mondo"},
+		{id:'i1', year:1671, quantity:7, title:"Method of Fluxions"},
+		{id:'i2', year:1687, quantity:4, title:"Philosophi&aelig; Naturalis Principia Mathematica"},
+		{id:'i3', year:1704, quantity:3, title:"Opticks"}
+	];
+
+// Data Source
+
+	// extend local data source to understand pagination
+
+	function CustomDataSource()
+	{
+		CustomDataSource.superclass.constructor.apply(this, arguments);
+	}
+
+	CustomDataSource.NAME = "customdatasource";
+
+	Y.extend(CustomDataSource, Y.DataSource.Local,
+	{
+		_defDataFn: function(e)
+		{
+			var response =
+			{
+				results: e.data.slice(e.request.recordOffset, e.request.recordOffset + e.request.rowsPerPage),
+				meta:
+				{
+					totalRecords: data.length
+				}
+			};
+
+			this.fire("response", Y.mix({response: response}, e));
+		}
+	});
+
+	// create data source
+
+	var ds = new CustomDataSource({source: data});
+
+// Paginator
+
+	var pg = new Y.Paginator(
+	{
+		totalRecords: 5,
+		rowsPerPage: 5,
+		template: '{FirstPageLink}{PreviousPageLink}{PageLinks}{NextPageLink}{LastPageLink} <span class="rpp">Rows per page:</span> {RowsPerPageDropdown}',
+		rowsPerPageOptions:    [5,10],
+		firstPageLinkLabel:    '|&lt;',
+		previousPageLinkLabel: '&lt;',
+		nextPageLinkLabel:     '&gt;',
+		lastPageLinkLabel:     '&gt;|'
+	});
+	pg.render('#pg');
+
+	pg.on('changeRequest', function(state)
+	{
+		this.setPage(state.page, true);
+		this.setRowsPerPage(state.rowsPerPage, true);
+		sendRequest();
+	});
+
+	ds.on('response', function(e)
+	{
+		pg.setTotalRecords(e.response.meta.totalRecords, true);
+		pg.render();
+	});
+
+// DataTable
+
+	var cols =
+	[
 		{ key: 'title', label: 'Title', quickEdit: true },
 		{ key: 'year', label: 'Year' },
 		{ key: 'quantity', label: 'Quantity',
-			quickEdit: {
+			quickEdit:
+			{
+				copyDown:   true,
 				validation: { css: 'yiv-required yiv-integer:[0,]' }
 			}
 		}
 	];
- 
-	var table = new Y.DataTable.Base({columnset: cols});
+
+	var table = new Y.DataTable({columns: cols});
 	table.plug(Y.Plugin.DataTableDataSource, {datasource: ds});
 	table.plug(Y.Plugin.DataTableQuickEdit, {changesAlwaysInclude: ['id']});
- 
+
 	table.render("#table");
- 
+
+	sendRequest();
+
+// Controls
+
+	var start  = Y.one('#start');
+	var save   = Y.one('#save');
+	var cancel = Y.one('#cancel');
+
+	start.on('click', function()
+	{
+		table.qe.start();
+		start.set('disabled', true);
+		save.show();
+		cancel.show();
+		pg.disable();
+	});
+
+	function finish()
+	{
+		table.qe.cancel();
+		start.set('disabled', false);
+		save.hide();
+		cancel.hide();
+		pg.enable();
+	}
+
+	save.on('click', function()
+	{
+		var changes = table.qe.getChanges();
+		if (changes)
+		{
+			if (window.console && window.console.log)
+			{
+				console.log(changes);
+			}
+
+			for (var i=0; i<changes.length; i++)
+			{
+				var change = changes[i];
+				var rec    = null;
+				for (var j=0; j<data.length; j++)
+				{
+					if (data[j].id === change.id)
+					{
+						rec = data[j];
+						break;
+					}
+				}
+
+				if (rec)
+				{
+					for (var key in change)
+					{
+						if (change.hasOwnProperty(key))
+						{
+							rec[key] = change[key];
+						}
+					}
+				}
+			}
+
+			sendRequest();
+
+			finish();
+		}
+	});
+
+	cancel.on('click', function ()
+	{
+		finish();
+	});
 });
 </script>
 
 </body>
 </html>
+

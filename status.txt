@@ -3,7 +3,7 @@
    Got context menu with cell editing
    Trying to get separate events for context for tbl and col
   -ISSUES
-   1. CSS is wrong
+   1. Looks like can use cellClickEvent handling to get row, column, cell
    2. Not getting the right DOM element for the tbl event
   -TO DO:
    1. Need to find right DOM for table
