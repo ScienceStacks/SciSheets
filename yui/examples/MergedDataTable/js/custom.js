@@ -166,7 +166,8 @@ YAHOO.util.Event.addListener(window, "load", function () {
 
     myDataTable = new YAHOO.widget.DataTable("cellediting", myColumnDefs, myDataSource,
       {
-        caption: "New table"
+        caption: "New table",
+        scrollable: "y"
       }
         );
 
@@ -180,16 +181,44 @@ YAHOO.util.Event.addListener(window, "load", function () {
     myDataTable.subscribe("cellMouseoverEvent", highlightEditableCell);
     myDataTable.subscribe("cellMouseoutEvent", myDataTable.onEventUnhighlightCell);
     // myDataTable.subscribe("cellClickEvent", myDataTable.onEventShowCellEditor);
+    // Entered after a cell is modified
+    myDataTable.subscribe("cellUpdateEvent", function (e) { alert("Modified"); });
+    myDataTable.subscribe("theadCellClickEvent", function (e) { alert("ColumnSelect"); });
 
+
+    // this is the table
+    // this.getColumn(target).field - returns the column name (string)
+    // this.getCellIndex(target) - returns int of 0 based column
+    // this.getRecordIndex(target) - returns an int of 0 based row
     myDataTable.subscribe("cellClickEvent", function (oArgs) {
         var target = oArgs.target,
-            record = this.getRecord(target),
-            column = this.getColumn(target);
-     
-        switch (column.key) {
-            // Do stuff here
+            columnName = this.getColumn(target).field,
+            columnIndex = this.getCellIndex(target) + 1,
+            rowIndex = this.getRecordIndex(target) + 1,
+            msg = "(r,c) = (" + rowIndex + ", " + columnIndex + ")";
+        alert(msg);
+        if (columnName != "row") {
+          myDataTable.onEventShowCellEditor(oArgs);
         }
     });
+
+
+      /* Mutation
+      table.addRow({ item: 'collet', cost: 0.42, price: 2.65 });
+      
+      table.addRows([
+          { item: 'nut',    cost: 0.42, price: 2.65 },
+          { item: 'washer', cost: 0.01, price: 0.08 },
+          { item: 'bit',    cost: 0.19, price: 0.97 }
+      ]);
+      
+      // Remove table records by their Model, id, clientId, or index
+      table.removeRow(0);
+      
+      // Modify a record by passing its id, clientId, or index, followed by an
+      // object with new field values
+      table.modifyRow('record_4', { cost: 0.74 });
+      */
 
     return {
       oDS: myDataSource,
