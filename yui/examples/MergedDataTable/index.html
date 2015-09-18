@@ -21,6 +21,8 @@ body {
 <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.css"/>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery.min.js"></script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
 
 <!--begin custom header content for this example-->
 <style type="text/css">
@@ -47,10 +49,29 @@ more complex customizations, such as input validation and click-to-save interact
 </div>
 
 <!--BEGIN SOURCE CODE FOR EXAMPLE =============================== -->
+<div id="demoHeaders">
+<ul style="width:100px;" id="menu">
+	<li>Item 1</li>
+	<li>Item 2</li>
+	<li>Item 3
+		<ul>
+			<li>Item 3-1</li>
+			<li id="item3-2">Item 3-2</li>
+			<li id="item3-3">Item 3-3</li>
+			<li>Item 3-4</li>
+			<li>Item 3-5</li>
+		</ul>
+	</li>
+	<li>Item 4</li>
+	<li>Item 5</li>
+</ul>
+</div>
 
 <div id="cellediting"></div>
+
 <script type="text/javascript" src="js/data.js"></script>
 <script type="text/javascript" src="js/data_table.js"> </script>
 <script type="text/javascript" src="js/custom.js"> </script>
+<script type="text/javascript" src="js/menu.js"> </script>
 </body>
 </html>

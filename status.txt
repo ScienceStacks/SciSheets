@@ -1,4 +1,7 @@
-0. See if YUI will work for my needs
+0. Integrate menu selection into MergedDataTable
+1. fix CSS
+2. Create a menu when an element is clicked
+3. Capture the selection
 UI: header click: popup menu
     cell click: non-row - change data
     row: popup menu
