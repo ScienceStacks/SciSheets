@@ -1,22 +1,9 @@
 0. Integrate menu selection into MergedDataTable
-1. fix CSS
-2. Create a menu when an element is clicked
-3. Capture the selection
-UI: header click: popup menu
-    cell click: non-row - change data
-    row: popup menu
-  -STATUS
-   Can get row, column, column name on a subscribed table event
-   Can get header clicks separate from cell clicks
-   Can invoke cell editor selectively
-   Trying to get separate events for context for tbl and col
-  -ISSUES
-   Lost context menu
-  -TO DO:
-   1. Need to find right DOM for table
-   3. Show can communicate with server
-  c. Trying to get context menu for columns, but have dependency errors.
-     Combining InlineEdit and ContextMenu
+1. Use table_setup.js to route events. Verify with alerts
+2. Set up stubs in table, column, row, cell files with alerts
+3. Create menus for each context
+   a. Add to HTML
+   b. Processing in various .js files
 
 0.1 Approach
   a. Context menu for header is created by knowing the id of the tags

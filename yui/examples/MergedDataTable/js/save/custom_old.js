@@ -166,8 +166,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
 
     myDataTable = new YAHOO.widget.DataTable("cellediting", myColumnDefs, myDataSource,
       {
-        caption: "New table",
-        scrollable: "y"
+        caption: "New table"
       }
         );
 
@@ -184,7 +183,9 @@ YAHOO.util.Event.addListener(window, "load", function () {
     // Entered after a cell is modified
     myDataTable.subscribe("cellUpdateEvent", function (e) { alert("Modified"); });
     myDataTable.subscribe("theadCellClickEvent", function (e) { alert("ColumnSelect"); });
-
+    var tableElement = $('#cellediting');
+    var captionElement = tableElement.find('caption');
+    captionElement.click(function () {alert("clicked caption");});
 
     // this is the table
     // this.getColumn(target).field - returns the column name (string)
