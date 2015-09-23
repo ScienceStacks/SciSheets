@@ -18,12 +18,14 @@
      no other dependencies
 */
 
-function SciSheets(table) {
-  "use strict";
-  this.table = function () {}; // Namespace for table functions
-  this.column = function () {};  // Namespace for column functions
-  this.row = function () {};  // Namespace for row functions
-  this.cell = function () {};  // Namespace for cell functions
-  this.util = function () {};  // Names space for utility routines.
-  this.table = table;
+/* Create the SciSheets namespace */
+function SciSheets() {
+  this.dataTable = null;  // dataTable for this SciSheet
 }
+
+SciSheets.prototype.util = function() {};
+SciSheets.prototype.table = function() {};
+SciSheets.prototype.row = function() {};
+SciSheets.prototype.column = function() {};
+SciSheets.prototype.column = function() {};
+SciSheets.prototype.cell = function() {};

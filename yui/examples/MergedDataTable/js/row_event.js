@@ -9,3 +9,7 @@
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
+
+SciSheets.prototype.row_click = function (ep) {
+  alert("Row '" + ep.rowIndex + "' clicked");
+};

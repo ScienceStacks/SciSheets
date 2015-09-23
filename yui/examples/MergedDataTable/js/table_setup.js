@@ -5,7 +5,7 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global $, alert, YAHOO */
+/*global $, alert, YAHOO, SciSheets */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
@@ -38,43 +38,46 @@
        - Change a row number
 */
 
-var myColumnDefs, newDataSource, columnNames, tableID, tableCaption;
-tableID = "cellediting";
-tableCaption = "New table";
-columnNames = ["row", "name", "address", "salary"];
-myColumnDefs = [
-                {key: "row", formatter: SciSheets.util.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor()},
-                {key: "name", formatter: SciSheets.util.formatColumn("name"), editor:  new YAHOO.widget.TextareaCellEditor()},
-                {key: "address", formatter: SciSheets.util.formatColumn("address"), editor:  new YAHOO.widget.TextareaCellEditor()},
-                {key: "salary", formatter: SciSheets.util.formatColumn("salary"), editor:  new YAHOO.widget.TextareaCellEditor()}
-               ],
-newDataSource = [
-    {row: "1", name: "John A. Smith", address: "1236 Some Street", salary: "12.33"},
-    {row: "2", name: "Joan B. Jones", address: "3271 Another Ave", salary: "34556"},
-    {row: "3", name: "Bob C. Uncle", address: "9996 Random Road", salary: "893"},
-    {row: "4", name: "John D. Smith", address: "1623 Some Street", salary: "0.092"},
-    {row: "5", name: "Joan E. Jones", address: "3217 Another Ave", salary: "23456"}
-                ];
-
-// Common code
 YAHOO.util.Event.addListener(window, "load", function () {
-  // Custom formatter for "address" column to preserve line breaks
   "use strict";
   YAHOO.example.InlineCellEditing = (function () {
-    var myDataTable, highlightEditableCell, myDataSource;
+
+    /* ----------- Code customized for data --------------*/
+    var myColumnDefs, newDataSource, columnNames, tableId, tableCaption,
+      myDataTable, highlightEditableCell, myDataSource, id, tableElement,
+      captionElement, sciSheets;
+    sciSheets = new SciSheets();
+    tableId = "cellediting";
+    tableCaption = "New table";
+    columnNames = ["row", "name", "address", "salary"];
+    myColumnDefs = [
+      {key: "row", formatter: sciSheets.util.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "name", formatter: sciSheets.util.formatColumn("name"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "address", formatter: sciSheets.util.formatColumn("address"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "salary", formatter: sciSheets.util.formatColumn("salary"), editor:  new YAHOO.widget.TextareaCellEditor()}
+    ];
+    newDataSource = [
+      {row: "1", name: "John A. Smith", address: "1236 Some Street", salary: "12.33"},
+      {row: "2", name: "Joan B. Jones", address: "3271 Another Ave", salary: "34556"},
+      {row: "3", name: "Bob C. Uncle", address: "9996 Random Road", salary: "893"},
+      {row: "4", name: "John D. Smith", address: "1623 Some Street", salary: "0.092"},
+      {row: "5", name: "Joan E. Jones", address: "3217 Another Ave", salary: "23456"}
+    ];
+
+    /* ----------- Code independent of data --------------*/
+    // Custom formatter for "address" column to preserve line breaks
     myDataSource = new YAHOO.util.DataSource(newDataSource);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-    myDataSource.responseSchema = { 
-                                   fields: columnNames
-                                  };
+    myDataSource.responseSchema = {
+      fields: columnNames
+    };
 
-    myDataTable = new YAHOO.widget.DataTable(tableID, myColumnDefs, myDataSource,
+    myDataTable = new YAHOO.widget.DataTable(tableId, myColumnDefs, myDataSource,
       {
         caption: tableCaption
       }
         );
-
-    sciSheet = new SciSheets(myDataTable);
+    sciSheets.dataTable = myDataTable;
 
     // Set up events
     highlightEditableCell = function (oArgs) {
@@ -85,33 +88,29 @@ YAHOO.util.Event.addListener(window, "load", function () {
     };
     myDataTable.subscribe("cellMouseoverEvent", highlightEditableCell);
     myDataTable.subscribe("cellMouseoutEvent", myDataTable.onEventUnhighlightCell);
-    var id = '#' + tableId;
-    var tableElement = $(id);
-    var captionElement = tableElement.find('caption');
+    id = '#' + tableId;
+    tableElement = $(id);
+    captionElement = tableElement.find('caption');
 
     /*------------------- Catch table clicks  --------------*/
-    captionElement.click(function () {
-      var ep, msg;
-      ep = new EventProcessing(this, oArgs);
-      scisheet.table.click(ep);
-      alert("clicked caption");
+    captionElement.click(function (oArgs) {
+      var ep;
+      sciSheets.table_click(oArgs);
     });
 
     /*------------------- Catch column clicks  --------------*/
-    myDataTable.subscribe("theadCellClickEvent", function (e) {
-      var ep, msg;
-      ep = new EventProcessing(this, oArgs);
-      scisheet.column.click(ep);
-      alert("Column " + ep.columnName + " clicked");
+    myDataTable.subscribe("theadCellClickEvent", function (oArgs) {
+      var ep;
+      ep = new sciSheets.util.eventProcessing(this, oArgs);
+      sciSheets.column_click(ep);
     });
 
     /*------------------- Catch cell modifications --------------*/
-    myDataTable.subscribe("cellUpdateEvent", function (oArgs) { 
-      var ep, msg;
-      ep = new EventProcessing(this, oArgs);
-      scisheet.cell.modified(ep);
-      msg = "(r,c) = (" + ep.rowIndex + ", " + ep.columnIndex + ")";
-      alert("Modified"); 
+    myDataTable.subscribe("cellUpdateEvent", function (oArgs) {
+      var ep;
+      ep = new sciSheets.util.eventProcessing(this, oArgs);
+      sciSheets.cell.modify(ep);
+      alert("Modified");
     });
 
     /* --------------- Catch cell clicks ------------------------*/
@@ -122,15 +121,11 @@ YAHOO.util.Event.addListener(window, "load", function () {
     //   this.getRecordIndex(target) - returns an int of 0 based row
     myDataTable.subscribe("cellClickEvent", function (oArgs) {
       var ep, msg;
-      ep = new EventProcessing(this, oArgs);
-      msg = "(r,c) = (" + ep.rowIndex + ", " + ep.columnIndex + ")";
-      alert(msg);
-      if (columnName === "row") {
-        scisheet.row.click(ep);
-      }
-      else {
-        scisheet.cell.click(ep);
-        myDataTable.onEventShowCellEditor(oArgs);
+      ep = new sciSheets.util.eventProcessing(this, oArgs);
+      if (ep.columnName === "row") {
+        sciSheets.row_click(ep);
+      } else {
+        sciSheets.cell_click(ep, oArgs);
       }
     });
 

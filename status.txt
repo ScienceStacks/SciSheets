@@ -1,14 +1,7 @@
 0. Integrate menu selection into MergedDataTable
-1. Use table_setup.js to route events. Verify with alerts
-2. Set up stubs in table, column, row, cell files with alerts
-3. Create menus for each context
-   a. Add to HTML
+  3. Create menus for each context
+   a. Add menus for each click event to HTML
    b. Processing in various .js files
-
-0.1 Approach
-  a. Context menu for header is created by knowing the id of the tags
-     which can be obtained from a DOM search
-  b. Need to merge constructing context menu with cell inline editing
 
 0.2 JS tests
 

@@ -9,3 +9,7 @@
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
+
+SciSheets.prototype.column_click = function (ep) {
+  alert("Column '" + ep.columnName + "' clicked");
+};

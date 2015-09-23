@@ -11,7 +11,7 @@
 /*jslint indent: 2 */
 
 // Data and column setup
-SciSheets.util.prototype.formatColumn = function (name) {
+SciSheets.prototype.util.formatColumn = function (name) {
   "use strict";
   var localName = name;
   return function (elCell, oRecord, oColumn, oData) {
@@ -20,11 +20,11 @@ SciSheets.util.prototype.formatColumn = function (name) {
 };
 
 // EventProcessing Object
-function EventProcessing(table, oArgs) {
+SciSheets.prototype.util.eventProcessing = function (table, oArgs) {
   "use strict";
   // var target, columnName, columnIndex, rowIndex;
   this.target = oArgs.target;
   this.columnName = table.getColumn(this.target).field;
   this.columnIndex = table.getCellIndex(this.target) + 1;
   this.rowIndex = table.getRecordIndex(this.target) + 1;
-}
+};

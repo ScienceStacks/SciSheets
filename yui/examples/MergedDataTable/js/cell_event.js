@@ -9,3 +9,9 @@
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
+
+SciSheets.prototype.cell_click = function (ep, oArgs) {
+  msg = "Clicked (r,c) = (" + ep.rowIndex + ", " + ep.columnIndex + ")";
+  alert(msg);
+  this.dataTable.onEventShowCellEditor(oArgs);
+};
