@@ -1,6 +1,2 @@
 #!/bin/bash
-for ff in $( ls *.js ); do
-  clear
-  echo $ff; jslint.sh $ff | more
-  read -p "Press [Enter] to continue ..."
-done
+jsl.sh $@

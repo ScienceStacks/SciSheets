@@ -11,7 +11,7 @@
 /*jslint browser: true */
 /*jslint indent: 2 */
 /*
-  TODO:
+  TBD:
   1. Make cells editable by default if they are data columns (not formulas)
   2. Assign own click handlers for:
      column: double click - change name
@@ -95,16 +95,16 @@ YAHOO.util.Event.addListener(window, "load", function () {
 
     /*------------------- Catch table clicks  --------------*/
     captionElement.click(function (oArgs) {
-      var sciSheetTable;
-      sciSheetTable = new SciSheetsTable(sciSheets);
-      sciSheetTable.click(oArgs);
+      var sciSheetsTable;
+      sciSheetsTable = new SciSheetsTable(sciSheets);
+      sciSheetsTable.click(oArgs);
     });
 
     /*------------------- Catch column clicks  --------------*/
     myDataTable.subscribe("theadCellClickEvent", function (oArgs) {
-      var sciSheetColumn;
-      sciSheetColumn = new SciSheetsColumn(sciSheets);
-      sciSheetColumn.click(oArgs);
+      var sciSheetsColumn;
+      sciSheetsColumn = new SciSheetsColumn(sciSheets);
+      sciSheetsColumn.click(oArgs);
     });
 
     /*------------------- Catch cell modifications --------------*/
@@ -122,13 +122,14 @@ YAHOO.util.Event.addListener(window, "load", function () {
     //   this.getCellIndex(target) - returns int of 0 based column
     //   this.getRecordIndex(target) - returns an int of 0 based row
     myDataTable.subscribe("cellClickEvent", function (oArgs) {
-      var ep, sciSheetRow;
+      var ep, sciSheetsRow, sciSheetsCell;
       ep = new SciSheetsUtilEvent(sciSheets, oArgs);
       if (ep.columnName === "row") {
-        sciSheetRow = new SciSheetsRow(sciSheets);
-        sciSheetRow.click(oArgs);
+        sciSheetsRow = new SciSheetsRow(sciSheets);
+        sciSheetsRow.click(oArgs);
       } else {
-        sciSheets.cell_click(ep, oArgs);
+        sciSheetsCell = new SciSheetsCell(sciSheets);
+        sciSheetsCell.click(oArgs);
       }
     });
 

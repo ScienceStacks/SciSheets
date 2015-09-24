@@ -5,15 +5,29 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global SciSheets, $, alert, YAHOO */
+/*global SciSheetsUtilEvent, SciSheets, $, alert, YAHOO */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
 
-SciSheets.prototype.cell_click = function (ep, oArgs) {
+function SciSheetsCell(scisheet) {
   "use strict";
-  var msg;
-  msg = "Clicked (r,c) = (" + ep.rowIndex + ", " + ep.columnIndex + ")";
+  this.scisheet = scisheet;
+}
+
+SciSheetsCell.prototype.click = function (oArgs) {
+  "use strict";
+  var ep, msg;
+  ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
+  msg = "Clicked cell = (" + ep.rowIndex + ", " + ep.columnIndex + ")";
   alert(msg);
-  this.dataTable.onEventShowCellEditor(oArgs);
+  this.scisheet.dataTable.onEventShowCellEditor(oArgs);
+};
+
+SciSheetsCell.prototype.modify = function (oArgs) {
+  "use strict";
+  var ep, msg;
+  ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
+  msg = "Modified cell = (" + ep.rowIndex + ", " + ep.columnIndex + ")";
+  alert(msg);
 };
