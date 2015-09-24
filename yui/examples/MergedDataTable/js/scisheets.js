@@ -20,12 +20,27 @@
 
 /* Create the SciSheets namespace */
 function SciSheets() {
+  "use strict";
   this.dataTable = null;  // dataTable for this SciSheet
 }
 
-SciSheets.prototype.util = function() {};
-SciSheets.prototype.table = function() {};
-SciSheets.prototype.row = function() {};
-SciSheets.prototype.column = function() {};
-SciSheets.prototype.column = function() {};
-SciSheets.prototype.cell = function() {};
+// Data and column setup
+SciSheets.prototype.formatColumn = function (name) {
+  "use strict";
+  var localName = name;
+  return function (elCell, oRecord, oColumn, oData) {
+    elCell.innerHTML = "<pre class=\"" + localName + "\">" + YAHOO.lang.escapeHTML(oData) + "</pre>";
+  };
+};
+
+// EventProcessing Object
+function SciSheetsUtilEvent(scisheet, oArgs) {
+  "use strict";
+  var table;
+  this.scisheet = scisheet;
+  table = this.scisheet.dataTable;
+  this.target = oArgs.target;
+  this.columnName = table.getColumn(this.target).field;
+  this.columnIndex = table.getCellIndex(this.target) + 1;
+  this.rowIndex = table.getRecordIndex(this.target) + 1;
+}

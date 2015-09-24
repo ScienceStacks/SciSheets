@@ -5,7 +5,8 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global $, alert, YAHOO, SciSheets */
+/*global $, alert, YAHOO, SciSheets, SciSheetsColumn, SciSheetsUtilEvent */
+/*global $, SciSheetsTable, SciSheetsColumn, SciSheetsRow, SciSheetsCell */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
@@ -51,10 +52,10 @@ YAHOO.util.Event.addListener(window, "load", function () {
     tableCaption = "New table";
     columnNames = ["row", "name", "address", "salary"];
     myColumnDefs = [
-      {key: "row", formatter: sciSheets.util.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor()},
-      {key: "name", formatter: sciSheets.util.formatColumn("name"), editor:  new YAHOO.widget.TextareaCellEditor()},
-      {key: "address", formatter: sciSheets.util.formatColumn("address"), editor:  new YAHOO.widget.TextareaCellEditor()},
-      {key: "salary", formatter: sciSheets.util.formatColumn("salary"), editor:  new YAHOO.widget.TextareaCellEditor()}
+      {key: "row", formatter: sciSheets.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "name", formatter: sciSheets.formatColumn("name"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "address", formatter: sciSheets.formatColumn("address"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "salary", formatter: sciSheets.formatColumn("salary"), editor:  new YAHOO.widget.TextareaCellEditor()}
     ];
     newDataSource = [
       {row: "1", name: "John A. Smith", address: "1236 Some Street", salary: "12.33"},
@@ -94,21 +95,22 @@ YAHOO.util.Event.addListener(window, "load", function () {
 
     /*------------------- Catch table clicks  --------------*/
     captionElement.click(function (oArgs) {
-      var ep;
-      sciSheets.table_click(oArgs);
+      var sciSheetTable;
+      sciSheetTable = new SciSheetsTable(sciSheets);
+      sciSheetTable.click(oArgs);
     });
 
     /*------------------- Catch column clicks  --------------*/
     myDataTable.subscribe("theadCellClickEvent", function (oArgs) {
-      var ep;
-      ep = new sciSheets.util.eventProcessing(this, oArgs);
-      sciSheets.column_click(ep);
+      var sciSheetColumn;
+      sciSheetColumn = new SciSheetsColumn(sciSheets);
+      sciSheetColumn.click(oArgs);
     });
 
     /*------------------- Catch cell modifications --------------*/
     myDataTable.subscribe("cellUpdateEvent", function (oArgs) {
       var ep;
-      ep = new sciSheets.util.eventProcessing(this, oArgs);
+      ep = new sciSheets.util.eventProcessing(sciSheets, oArgs);
       sciSheets.cell.modify(ep);
       alert("Modified");
     });
@@ -120,10 +122,11 @@ YAHOO.util.Event.addListener(window, "load", function () {
     //   this.getCellIndex(target) - returns int of 0 based column
     //   this.getRecordIndex(target) - returns an int of 0 based row
     myDataTable.subscribe("cellClickEvent", function (oArgs) {
-      var ep, msg;
-      ep = new sciSheets.util.eventProcessing(this, oArgs);
+      var ep, sciSheetRow;
+      ep = new SciSheetsUtilEvent(sciSheets, oArgs);
       if (ep.columnName === "row") {
-        sciSheets.row_click(ep);
+        sciSheetRow = new SciSheetsRow(sciSheets);
+        sciSheetRow.click(oArgs);
       } else {
         sciSheets.cell_click(ep, oArgs);
       }

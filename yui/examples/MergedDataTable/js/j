@@ -1,5 +1,6 @@
-clear; jslint.sh custom.js | more
-#read -p "Press [Enter] to continue ..."
-#clear; jslint.sh table_elements.js | more
-#read -p "Press [Enter] to continue ..."
-#clear; jslint.sh tests.js | more
+#!/bin/bash
+for ff in $( ls *.js ); do
+  clear
+  echo $ff; jslint.sh $ff | more
+  read -p "Press [Enter] to continue ..."
+done
