@@ -1,8 +1,7 @@
 0. Integrate menu selection into MergedDataTable
-NEXT: Fix cell click handlers for refactoring
   3. Create menus for each context
-   a. Add menus for each click event to HTML
-   b. Processing in various .js files
+   a. Add menus for each click handler. Use TABLE as prototype
+   b. Create the menus for each handler and empty handling codes
 
 0.2 JS tests
 

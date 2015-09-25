@@ -17,5 +17,20 @@ function SciSheetsTable(scisheet) {
 
 SciSheetsTable.prototype.click = function (oArgs) {
   "use strict";
+  var ele;
   alert("Table clicked");
+  ele = document.getElementById("TableClickMenu");
+  $(ele).menu(
+    {
+      role: "listbox",
+      select: function (event, data) {
+        var thisEleId, ele;
+        thisEleId = event.currentTarget.id;
+        alert("Selected " + thisEleId);
+        ele = document.getElementById("TableClickMenu");
+        $(ele).css("display", "none");
+      }
+    }
+  );
+  $(ele).css("display", "block");
 };

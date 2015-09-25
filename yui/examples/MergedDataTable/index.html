@@ -19,6 +19,8 @@ body {
 </style>
 
 <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.css"/>
+<link href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="menu.css"/>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery.min.js"></script>
 <script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
@@ -36,30 +38,19 @@ body {
 
 <body class="yui-skin-sam">
 
-<p onclick="myClicker(1)"> Click 1 </p>
-<p onclick="myClicker(2)"> Click 2 </p>
-
-
-<h1>Inline Cell Editing</h1>
-
-<div class="exampleIntro">
-	<p>This example demonstrates basic inline cell editing features, as well as
-more complex customizations, such as input validation and click-to-save interactions.</p>
-			
-</div>
 
 <!--BEGIN SOURCE CODE FOR EXAMPLE =============================== -->
-<div id="demoHeaders">
-<ul style="width:100px;" id="menu">
+<div id="ClickMenus">
+<ul style="width:100px;display:none" id="TableClickMenu">
 	<li>Item 1</li>
 	<li>Item 2</li>
 	<li>Item 3
 		<ul>
-			<li>Item 3-1</li>
+			<li id="item3-1">Item 3-1</li>
 			<li id="item3-2">Item 3-2</li>
 			<li id="item3-3">Item 3-3</li>
-			<li>Item 3-4</li>
-			<li>Item 3-5</li>
+			<li id="item3-4">Item 3-4</li>
+			<li id="item3-5">Item 3-5</li>
 		</ul>
 	</li>
 	<li>Item 4</li>
@@ -74,7 +65,6 @@ more complex customizations, such as input validation and click-to-save interact
 <script type="text/javascript" src="js/column_event.js"> </script>
 <script type="text/javascript" src="js/row_event.js"> </script>
 <script type="text/javascript" src="js/cell_event.js"> </script>
-<script type="text/javascript" src="js/menu.js"> </script>
 <script type="text/javascript" src="js/table_setup.js"> </script>
 </body>
 </html>

@@ -18,6 +18,7 @@
      no other dependencies
 */
 
+
 /* Create the SciSheets namespace */
 function SciSheets() {
   "use strict";
