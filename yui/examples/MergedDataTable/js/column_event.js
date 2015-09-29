@@ -5,10 +5,11 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global SciSheetsUtilEvent, $, alert, YAHOO */
+/*global SciSheetsUtilEvent, $, alert, YAHOO, SciSheetsUtilClick */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
+/*jslint newcap: true */
 
 function SciSheetsColumn(scisheet) {
   "use strict";
@@ -19,5 +20,10 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   "use strict";
   var ep;
   ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
-  alert("Column '" + ep.columnName + "' clicked");
+  SciSheetsUtilClick("ColumnClickMenu", function (eleId) {
+    var msg;
+    msg = "Column '" + ep.columnName + "' clicked.";
+    msg += "Selected " + eleId;
+    alert(msg);
+  });
 };

@@ -55,3 +55,38 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   this.columnIndex = table.getCellIndex(this.target) + 1;
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }
+
+// Generic click handle for a popup menu
+// Input: eleId - ID of the popup menu to use
+//        selectedEleFunc - function that processes the selected element
+//            argument - ID of the selected element
+// Output: establishes the click handlers
+function SciSheetsUtilClick(eleId, selectedEleFunc) {
+  "use strict";
+  var ele;
+  // alert(eleId + " clicked");
+  ele = document.getElementById(eleId);
+  $(ele).menu(
+    {
+      role: "listbox",
+      select: function (event, data) {
+        var thisEleId, tableMenu;
+        thisEleId = event.currentTarget.id;
+        selectedEleFunc(thisEleId);
+        tableMenu = document.getElementById(eleId);
+        $(tableMenu).css("display", "none");
+      },
+      blur: function (event, data) {
+        var tableMenu;
+        tableMenu = document.getElementById(eleId);
+        $(tableMenu).hide();
+      },
+      focus: function (event, data) {
+        var tableMenu;
+        tableMenu = document.getElementById(eleId);
+        $(tableMenu).show();
+      },
+    }
+  );
+  $(ele).css("display", "block");
+}
