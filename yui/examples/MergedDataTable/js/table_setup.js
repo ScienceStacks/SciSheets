@@ -78,7 +78,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
         caption: tableCaption
       }
         );
-    sciSheets.dataTable = myDataTable;
+    sciSheets.setup(myDataTable);
 
     // Set up events
     highlightEditableCell = function (oArgs) {

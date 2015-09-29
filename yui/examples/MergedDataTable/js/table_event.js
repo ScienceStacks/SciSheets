@@ -24,12 +24,22 @@ SciSheetsTable.prototype.click = function (oArgs) {
     {
       role: "listbox",
       select: function (event, data) {
-        var thisEleId, ele;
+        var thisEleId, tableMenu;
         thisEleId = event.currentTarget.id;
         alert("Selected " + thisEleId);
-        ele = document.getElementById("TableClickMenu");
-        $(ele).css("display", "none");
-      }
+        tableMenu = document.getElementById("TableClickMenu");
+        $(tableMenu).css("display", "none");
+      },
+      blur: function (event, data) {
+        var tableMenu;
+        tableMenu = document.getElementById("TableClickMenu");
+        $(tableMenu).hide();
+      },
+      focus: function (event, data) {
+        var tableMenu;
+        tableMenu = document.getElementById("TableClickMenu");
+        $(tableMenu).show();
+      },
     }
   );
   $(ele).css("display", "block");

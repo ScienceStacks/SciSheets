@@ -25,6 +25,16 @@ function SciSheets() {
   this.dataTable = null;  // dataTable for this SciSheet
 }
 
+// Setup
+SciSheets.prototype.setup = function (dataTable) {
+  "use strict";
+  var ele;
+  this.dataTable = dataTable;
+  // Handle caption
+  ele = document.getElementsByTagName("caption")[0];
+  $(ele).css("font-size", "14px");
+};
+
 // Data and column setup
 SciSheets.prototype.formatColumn = function (name) {
   "use strict";
