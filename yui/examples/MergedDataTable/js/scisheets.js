@@ -56,6 +56,14 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }
 
+function zSciSheetsUtilProcessEvent(eleId, selectedEleFunc) {
+  "use strict";
+  var tableMenu;
+  selectedEleFunc(eleId);
+  tableMenu = document.getElementById(eleId);
+  $(tableMenu).css("display", "none");
+}
+
 // Generic click handle for a popup menu
 // Input: eleId - ID of the popup menu to use
 //        selectedEleFunc - function that processes the selected element
@@ -70,11 +78,9 @@ function SciSheetsUtilClick(eleId, selectedEleFunc) {
     {
       role: "listbox",
       select: function (event, data) {
-        var thisEleId, tableMenu;
+        var thisEleId;
         thisEleId = event.currentTarget.id;
-        selectedEleFunc(thisEleId);
-        tableMenu = document.getElementById(eleId);
-        $(tableMenu).css("display", "none");
+        zSciSheetsUtilProcessEvent(thisEleId, selectedEleFunc);
       },
       blur: function (event, data) {
         var tableMenu;

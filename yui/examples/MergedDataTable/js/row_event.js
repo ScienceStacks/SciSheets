@@ -1,3 +1,4 @@
+/*jslint newcap: true */
 /*jshint onevar: true */
 /*jshint todo: true */
 /*jshint qunit: true */
@@ -5,7 +6,7 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global SciSheets, SciSheetsUtilEvent, $, alert, YAHOO, SciSheetsUtilEvent */
+/*global SciSheets, $, alert, YAHOO, SciSheetsUtilEvent, SciSheetsUtilClick */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */

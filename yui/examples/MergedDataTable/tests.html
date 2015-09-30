@@ -1,20 +1,79 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>QUnit Example</title>
-  <link rel="stylesheet" href="/home/ubuntu/SciSheets/mysite/mysite/static/qunit.css">
-  <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.css"/>
-  <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.js"></script>
-  <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery.min.js"></script>
-  <script src="js/table_elements.js"></script>
-  <script src="js/custom.js"></script>
+
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Inline Cell Editing</title>
+
+<style type="text/css">
+/*margin and padding on body element
+  can introduce errors in determining
+  element position and are not recommended;
+  we turn them off as a foundation for YUI
+  CSS treatments. */
+body {
+	margin:0;
+	padding:0;
+}
+caption {
+	margin-top: 1em;
+        font-size: large;
+}
+</style>
+
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.css"/>
+<link href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="menu.css"/>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery.min.js"></script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.js"></script>
+
+<!--begin custom header content for this example-->
+<style type="text/css">
+/* custom styles for this example */
+.yui-skin-sam .yui-dt-col-address pre { font-family:arial;font-size:100%; } /* Use PRE in first col to preserve linebreaks*/
+</style>
+
+<!--end custom header content for this example-->
+
 </head>
-<body>
-  <div id="cellediting"></div>
-  <div id="qunit">QUnit</div>
-  <div id="qunit-fixture"></div>
-  <script src="/home/ubuntu/SciSheets/mysite/mysite/static/qunit.js"></script>
-  <script src="js/tests.js"></script>
+
+<body class="yui-skin-sam">
+
+
+<!--BEGIN SOURCE CODE FOR EXAMPLE =============================== -->
+<div id="ClickMenus">
+<ul style="width:100px;display:none" id="TableClickMenu">
+	<li id="rename">Rename</li>
+	<li id="delete" >Delete</li>
+</ul>
+<ul style="width:100px;display:none" id="ColumnClickMenu">
+	<li id="insert">Insert</li>
+	<li id="delete" >Delete</li>
+	<li id="hide" >Hide</li>
+	<li id="rename">Rename</li>
+	<li id="formula" >Formula</li>
+</ul>
+<ul style="width:100px;display:none" id="RowClickMenu">
+	<li id="delete" >Delete</li>
+	<li id="insert">Insert</li>
+	<li id="hide" >Hide</li>
+</ul>
+</div>
+
+<div id="cellediting"></div>
+
+<script type="text/javascript" src="js/scisheets.js"> </script>
+<script type="text/javascript" src="js/table_event.js"> </script>
+<script type="text/javascript" src="js/column_event.js"> </script>
+<script type="text/javascript" src="js/row_event.js"> </script>
+<script type="text/javascript" src="js/cell_event.js"> </script>
+<script type="text/javascript" src="js/table_setup.js"> </script>
+<div id="qunit">QUnit</div>
+<div id="qunit-fixture"></div>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/qunit.js"></script>
+<script src="js/tests.js"></script>
 </body>
 </html>

@@ -1,8 +1,3 @@
-0. Integrate menu selection into MergedDataTable
-  3. Create menus for each context
-   a. Add menus for each click handler. Use TABLE as prototype
-   b. Create the menus for each handler and empty handling codes
-
 0.2 JS tests
 
 1. Single table
