@@ -11,17 +11,35 @@
 /*jslint browser: true */
 /*jslint indent: 2 */
 
+function clickTester(clickElement, clickMenuName, selIndex) {
+  "use strict";
+  var clickMenu, selectEle;
+  // Bring up the menu
+  $(clickElement).trigger('click');
+  clickMenu = document.getElementById(clickMenuName);
+  selectEle = clickMenu.children[selIndex];
+  $(selectEle).trigger("click");
+}
+
 QUnit.test("table_setup", function (assert) {
   "use strict";
-  var ele, clickMenu, selectEle;
+  var ele;
+  // Mock the server communication
+  $.mockjax({
+    url: "*",
+    responseText: {
+      status: "success"
+    }
+  });
+  /* Table Tests */
   ele = document.getElementsByTagName("caption")[0];
-  // Bring up the menu
-  $(ele).trigger('click');
-  clickMenu = document.getElementById("TableClickMenu");
-  // Call directly the code that processes the menu selection
-  //clickMenu.selectedIndex = 0;
-  //$(clickMenu).trigger("select");
-  // selectEle = $(clickMenu).find("rename");
-  // selectEle.trigger("select");
-  assert.ok(true, "dummy");
+  clickTester(ele, "TableClickMenu", 0);
+  clickTester(ele, "TableClickMenu", 1);
+  assert.ok(true, "Table tests");
+  /* Column Tests */
+  ele = document.getElementById("yui-dt4-th-name");
+  clickTester(ele, "ColumnClickMenu", 0);
+  clickTester(ele, "ColumnClickMenu", 1);
+  clickTester(ele, "ColumnClickMenu", 2);
+  assert.ok(true, "Column tests");
 });

@@ -1,3 +1,6 @@
 [submodule "SlickGrid"]
 	path = SlickGrid
 	url = https://github.com/mleibman/SlickGrid.git
+[submodule "jquery-mockjax"]
+	path = jquery-mockjax
+	url = https://github.com/jakerella/jquery-mockjax.git

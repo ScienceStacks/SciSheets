@@ -1,7 +1,9 @@
 # Create compressed files to use for slickgrid
-# Assumes that nodejs is installed and there is a link 
-# from node to nodejs
-# To run from the directory in which Makefile is present
+# Assumes 
+#  -nodejs is installed
+#  -there is a link from node to nodejs
+#  -running from the directory of the Makefile
+# To run:
 #  make Makefile clean
 #  make Makefile yui
 # To re-acquire the source files used
@@ -144,7 +146,10 @@ $(DDIR)/yui.min.js: $(YUI_JS_FILES) package.json
 # The following rules are used to reacquire dependencies.
 # The files themselves should already be in mysite/mysite/static
 # The "dep" rule runs all of these
-acquire: jquery_dep qunit_dep yui_dep
+acquire: jquery_dep qunit_dep yui_dep jquery_mockjax_dep
+
+jquery_mockjax_dep:
+	cp jquery-mockjax/src/jquery.mockjax.js $(DDIR)
 
 jquery_dep:
 	@wget http://code.jquery.com/jquery-2.1.4.min.js
@@ -169,4 +174,4 @@ yui_dep:
 	@mv *.js $(YUI_JS)
 
 
-.PHONY: clean acquire jquery_dep qunit_dep yui_dep
+.PHONY: clean acquire jquery_dep qunit_dep yui_dep jquery_mockjax_dep
