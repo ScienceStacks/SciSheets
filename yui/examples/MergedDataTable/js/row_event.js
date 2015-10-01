@@ -23,7 +23,7 @@ SciSheetsRow.prototype.click = function (oArgs) {
   SciSheetsUtilClick("RowClickMenu", function (eleId) {
     var msg;
     msg = "Row '" + ep.rowIndex + "' clicked.";
-    msg += "Selected " + eleId;
-    alert(msg);
+    msg += " Selected " + eleId + ".";
+    console.log(msg);
   });
 };

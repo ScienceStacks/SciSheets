@@ -19,6 +19,6 @@ function SciSheetsTable(scisheet) {
 SciSheetsTable.prototype.click = function (oArgs) {
   "use strict";
   SciSheetsUtilClick("TableClickMenu", function (eleId) {
-    alert("Table click. Selected " + eleId);
+    console.log("Table click. Selected " + eleId + ".");
   });
 };

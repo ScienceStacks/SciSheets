@@ -23,7 +23,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   SciSheetsUtilClick("ColumnClickMenu", function (eleId) {
     var msg;
     msg = "Column '" + ep.columnName + "' clicked.";
-    msg += "Selected " + eleId;
-    alert(msg);
+    msg += " Selected " + eleId + ".";
+    console.log(msg);
   });
 };

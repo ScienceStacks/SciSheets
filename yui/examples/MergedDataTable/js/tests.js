@@ -11,19 +11,34 @@
 /*jslint browser: true */
 /*jslint indent: 2 */
 
+/* 
+   Clicks on the specified option on the menu
+   If selIndex < 0, then clicks on all
+*/
 function clickTester(clickElement, clickMenuName, selIndex) {
   "use strict";
-  var clickMenu, selectEle;
+  var clickMenu, selectEle, i, idx,
+    selList = [];
   // Bring up the menu
-  $(clickElement).trigger('click');
   clickMenu = document.getElementById(clickMenuName);
-  selectEle = clickMenu.children[selIndex];
-  $(selectEle).trigger("click");
+  if (selIndex < 0) {
+    for (i = 0; i < clickMenu.children.length; i++) {
+      selList.push(i);
+    }
+  } else {
+    selList.push(selIndex);
+  }
+  for (i = 0; i < selList.length; i++) {
+    idx = selList[i];
+    $(clickElement).trigger('click');
+    selectEle = clickMenu.children[idx];
+    $(selectEle).trigger("click");
+  }
 }
 
 QUnit.test("table_setup", function (assert) {
   "use strict";
-  var ele;
+  var ele, ele1;
   // Mock the server communication
   $.mockjax({
     url: "*",
@@ -33,13 +48,24 @@ QUnit.test("table_setup", function (assert) {
   });
   /* Table Tests */
   ele = document.getElementsByTagName("caption")[0];
-  clickTester(ele, "TableClickMenu", 0);
-  clickTester(ele, "TableClickMenu", 1);
+  clickTester(ele, "TableClickMenu", -1);  // Do all items
   assert.ok(true, "Table tests");
   /* Column Tests */
   ele = document.getElementById("yui-dt4-th-name");
-  clickTester(ele, "ColumnClickMenu", 0);
-  clickTester(ele, "ColumnClickMenu", 1);
-  clickTester(ele, "ColumnClickMenu", 2);
+  clickTester(ele, "ColumnClickMenu", -1);  // Do all items
   assert.ok(true, "Column tests");
+  /* Test the Row menu */
+  ele = document.getElementById("yui-rec11");
+  ele = ele.getElementsByClassName("yui-dt4-col-row")[0];
+  clickTester(ele, "RowClickMenu", -1);  // Do all items
+  assert.ok(true, "Row tests");
+  /* Test the Cell menu */
+  ele = document.getElementById("yui-rec11");
+  ele = ele.getElementsByClassName("yui-dt4-col-name")[0];
+  $(ele).trigger('click');
+  // Get rid of the menu
+  ele = document.getElementById("yui-textareaceditor1-container");
+  ele1 = ele.getElementsByTagName("button")[1];  // Select cancel
+  $(ele1).trigger('click');
+  assert.ok(true, "Cell tests");
 });
