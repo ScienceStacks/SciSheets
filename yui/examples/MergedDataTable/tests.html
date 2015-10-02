@@ -22,19 +22,13 @@ caption {
 }
 </style>
 
- {% load staticfiles %}
- <style type="text/css">
-{% include "yui/yui.min.css" %}
-{% include "jquery-ui/jquery-ui.css" %}
-{% include "scitable/menu.css" %}
- </style>
-
-<script type="text/javascript">
-{% include "yui/yui.min.js" %}
-{% include "jquery/jquery.min.js" %}
-{% include "jquery-ui/external/jquery/jquery.js" %}
-{% include "jquery-ui/jquery-ui.js" %}
-</script>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.css"/>
+<link href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="menu.css"/>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery.min.js"></script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui.min.js"></script>
 
 <!--begin custom header content for this example-->
 <style type="text/css">
@@ -71,15 +65,16 @@ caption {
 
 <div id="cellediting"></div>
 
-
-<script type="text/javascript">
-{% include "scitable/scisheets.js" %}
-{% include "scitable/table_event.js" %}
-{% include "scitable/column_event.js" %}
-{% include "scitable/row_event.js" %}
-{% include "scitable/cell_event.js" %}
-{% include "scitable/table_setup.js" %}
-</script>
-
+<script type="text/javascript" src="js/scisheets.js"> </script>
+<script type="text/javascript" src="js/table_event.js"> </script>
+<script type="text/javascript" src="js/column_event.js"> </script>
+<script type="text/javascript" src="js/row_event.js"> </script>
+<script type="text/javascript" src="js/cell_event.js"> </script>
+<script type="text/javascript" src="js/table_setup.js"> </script>
+<div id="qunit">QUnit</div>
+<div id="qunit-fixture"></div>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/qunit.js"></script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery.mockjax.js"></script>
+<script src="js/tests.js"></script>
 </body>
 </html>

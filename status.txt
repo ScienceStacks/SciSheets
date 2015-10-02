@@ -1,5 +1,5 @@
 Serve page from Django
-Refactor for testing, django - not getting correct refs to static files
+-Refactored but missing the images directory under jquery-ui
 -isolate data
 -easy testing
 -coverage
