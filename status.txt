@@ -1,4 +1,8 @@
-0.2 JS tests
+Serve page from Django
+Refactor for testing, django - not getting correct refs to static files
+-isolate data
+-easy testing
+-coverage
 
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus

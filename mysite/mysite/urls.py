@@ -19,5 +19,6 @@ urlpatterns = patterns('',
     url(r'^tables/(?P<node>.+)/$', 'scisheets.views.tables'),
     url(r'^SimpleHTMLTables/', 'scisheets.views.simple_html_tables'),
     url(r'^upload/', 'scisheets.views.upload'),
+    url(r'^scisheets/', 'scisheets.views.scisheets'),
 )
 urlpatterns += staticfiles_urlpatterns()
