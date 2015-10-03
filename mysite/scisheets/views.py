@@ -44,3 +44,12 @@ def simple_html_tables(request):
 
 def scisheets(request):
   return sv.scisheets(request)
+
+''' Handle requests for images from jquery-ui
+/*
+ def images(request, filename):
+ create a file attachment. modify the header. use response.write
+   file_path = "./mysite/template/jquery-ui/image" + filename
+   return render_to_response(file_path, { 'img':
+*/
+'''

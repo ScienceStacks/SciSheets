@@ -1,8 +1,15 @@
 Serve page from Django
 -Refactored but missing the images directory under jquery-ui
 -isolate data
--easy testing
--coverage
+
+To Fix
+1. images: change the "url" references (via sed) and:
+a) Use https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/images/
+b) use a static path that works
+c) change the .css .js files to be templates
+2. Clicking on row only has menu for insert or change row number
+3. Problem with menu selections being hidden when click table caption
+4. Make tests work
 
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus
