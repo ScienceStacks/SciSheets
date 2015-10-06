@@ -22,19 +22,15 @@ caption {
 }
 </style>
 
- {% load staticfiles %}
- <style type="text/css">
-{% include "yui/yui.min.css" %}
-{% include "jquery-ui/jquery-ui.css" %}
-{% include "scitable/menu.css" %}
- </style>
+ {% load static from staticfiles %}
+<link rel="stylesheet" type="text/css" href='{% static "yui/yui.min.css" %}'/>
+<link rel="stylesheet" type="text/css" href='{% static "jquery-ui/jquery-ui.css" %}'/>
+<link rel="stylesheet" type="text/css" href='{% static "scitable/menu.css" %}'/>
 
-<script type="text/javascript">
-{% include "yui/yui.min.js" %}
-{% include "jquery/jquery.min.js" %}
-{% include "jquery-ui/external/jquery/jquery.js" %}
-{% include "jquery-ui/jquery-ui.js" %}
-</script>
+<script type="text/javascript" src="{% static 'yui/yui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'jquery/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'jquery-ui/external/jquery/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
 
 <!--begin custom header content for this example-->
 <style type="text/css">
@@ -71,15 +67,12 @@ caption {
 
 <div id="cellediting"></div>
 
-
-<script type="text/javascript">
-{% include "scitable/scisheets.js" %}
-{% include "scitable/table_event.js" %}
-{% include "scitable/column_event.js" %}
-{% include "scitable/row_event.js" %}
-{% include "scitable/cell_event.js" %}
-{% include "scitable/table_setup.js" %}
-</script>
+<script type="text/javascript" src="{% static 'js/scisheets.js' %}"> </script>
+<script type="text/javascript" src="{% static 'js/table_event.js' %}"> </script>
+<script type="text/javascript" src="{% static 'js/column_event.js' %}"> </script>
+<script type="text/javascript" src="{% static 'js/row_event.js' %}"> </script>
+<script type="text/javascript" src="{% static 'js/cell_event.js' %}"> </script>
+<script type="text/javascript" src="{% static 'js/table_setup.js' %}"> </script>
 
 </body>
 </html>
