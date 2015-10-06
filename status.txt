@@ -1,14 +1,8 @@
 Serve page from Django
--Refactored but missing the images directory under jquery-ui
 -isolate data
 
 To Fix
-1. images: change the "url" references (via sed) and:
-a) Use https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/images/
-b) use a static path that works
-c) change the .css .js files to be templates
-d) Use static files correctly, as in https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/images/ui-bg_highlight-soft_100_eeeeee_1x100.png
-2. Clicking on row only has menu for insert or change row number
+2. Menu popups are slow and often contain all elements
 3. Problem with menu selections being hidden when click table caption
 4. Make tests work
 
