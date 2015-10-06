@@ -55,7 +55,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
       fields: d.columnNames
     };
 
-    myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, d.dataSource,
+    myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,
       {
         caption: d.tableCaption
       }

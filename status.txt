@@ -1,10 +1,5 @@
 Serve page from Django
--isolate data
-
-To Fix
-2. Menu popups are slow and often contain all elements
-3. Problem with menu selections being hidden when click table caption
-4. Make tests work
+-Refactor data so can use template or otherwise customize data
 
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus
