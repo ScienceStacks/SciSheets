@@ -56,14 +56,6 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }
 
-function zSciSheetsUtilProcessEvent(eleId, selectedEleFunc) {
-  "use strict";
-  var tableMenu;
-  selectedEleFunc(eleId);
-  tableMenu = document.getElementById(eleId);
-  $(tableMenu).css("display", "none");
-}
-
 // Generic click handle for a popup menu
 // Input: eleId - ID of the popup menu to use
 //        selectedEleFunc - function that processes the selected element
@@ -71,28 +63,24 @@ function zSciSheetsUtilProcessEvent(eleId, selectedEleFunc) {
 // Output: establishes the click handlers
 function SciSheetsUtilClick(eleId, selectedEleFunc) {
   "use strict";
-  var ele;
-  // alert(eleId + " clicked");
-  ele = document.getElementById(eleId);
-  $(ele).menu(
+  var clickMenu;
+  clickMenu = document.getElementById(eleId);
+  $(clickMenu).menu(
     {
       role: "listbox",
       select: function (event, data) {
         var thisEleId;
         thisEleId = event.currentTarget.id;
-        zSciSheetsUtilProcessEvent(thisEleId, selectedEleFunc);
+        $(clickMenu).css("display", "none");
+        selectedEleFunc(eleId);
       },
       blur: function (event, data) {
-        var tableMenu;
-        tableMenu = document.getElementById(eleId);
-        $(tableMenu).hide();
+        $(clickMenu).css("display", "none");
       },
       focus: function (event, data) {
-        var tableMenu;
-        tableMenu = document.getElementById(eleId);
-        $(tableMenu).show();
+        $(clickMenu).css("display", "block");
       },
     }
   );
-  $(ele).css("display", "block");
+  $(clickMenu).css("display", "block");
 }

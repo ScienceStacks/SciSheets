@@ -1,12 +1,22 @@
-  // TODO: Shorten new table to just a button. Still getting extra space.
-  // TODO: Look at JqueryUI to create custom inputs - https://github.com/jquery/jquery-ui - 
+/*jshint newcap: true */
+/*jshint onevar: true */
+/*jshint todo: true */
+/*jshint qunit: true */
+/*jshint jquery: true */
+/*jshint yui: true */
+/*jslint plusplus: true */
+/*jshint onevar: false */
+/*global $, alert, YAHOO */
+/*jslint unparam: true*/
+/*jslint browser: true */
+/*jslint indent: 2 */
+  // TBD: Shorten new table to just a button. Still getting extra space.
+  // TBD: Look at JqueryUI to create custom inputs - https://github.com/jquery/jquery-ui - 
  //        especially the model form in the dialogue example.
  //        maybe better off doing this in python?
  // also look at yui - http://yuilibrary.com/ and http://yuilibrary.com/yui/docs/panel/panel-form-example.html
-  var grid;
-  var columns = [
-    {id: "table", name: "new-table", field: "name"}
-  ];
+var grid;
+var columns = [{id: "table", name: "new-table", field: "name"}];
 
   for (var i = 0; i < columns.length; i++) {
     columns[i].header = {
