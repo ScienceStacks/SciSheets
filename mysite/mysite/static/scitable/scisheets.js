@@ -69,8 +69,6 @@ function SciSheetsUtilClick(eleId, selectedEleFunc) {
     {
       role: "listbox",
       select: function (event, data) {
-        var thisEleId;
-        thisEleId = event.currentTarget.id;
         $(clickMenu).css("display", "none");
         selectedEleFunc(eleId);
       },
