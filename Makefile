@@ -84,21 +84,23 @@ YUI_JS_SRC = \
 
 clean:
 	@rm -f $(YUI_GENERATED_FILES)
-	@rm -f $(DDIRJQUERY)/*.*
+	@rm -f $(DDIR_JQUERY)/*.*
+
+all: yui jquery
 
 
 ############# YUI ####################
 # Run the "yui" rule to obtain all YUI dependencies
 
-yui: Makefile $(YUI_GENERATED_FILES) $(YUI_CSS_FILES) $(YUI_JS_FILES) package.json
+yui: Makefile $(DDIR_YUI)/yui.min.css $(DDIR_YUI)/yui.min.js package.json
 
-$(DDIR)/yui.min.css: $(YUI_CSS_FILES) package.json
-	$(SMASH) $(YUI_CSS_FILES) > $(DDIR)/yui.css
-	$(UGLIFYCSS) $(DDIR)/yui.css > $@
+$(DDIR_YUI)/yui.min.css: $(YUI_CSS_FILES) package.json
+	$(SMASH) $(YUI_CSS_FILES) > $(DDIR_YUI)/yui.css
+	$(UGLIFYCSS) $(DDIR_YUI)/yui.css > $@
 
-$(DDIR)/yui.min.js: $(YUI_JS_FILES) package.json
-	$(SMASH) $(YUI_JS_FILES) > $(DDIR)/yui.js
-	$(UGLIFYJS) $(DDIR)/yui.js > $@
+$(DDIR_YUI)/yui.min.js: $(YUI_JS_FILES) package.json
+	$(SMASH) $(YUI_JS_FILES) > $(DDIR_YUI)/yui.js
+	$(UGLIFYJS) $(DDIR_YUI)/yui.js > $@
 
 
 ############# OTHER ####################
@@ -106,17 +108,17 @@ $(DDIR)/yui.min.js: $(YUI_JS_FILES) package.json
 # The following rules are used to reacquire dependencies.
 # The files themselves should already be in mysite/mysite/static
 # The "dep" rule runs all of these
-acquire: jquery_dep qunit_dep yui_dep jquery_mockjax_dep
+acquire: jquery qunit yui_dep jquery_mockjax
 
-jquery_mockjax_dep:
+jquery_mockjax:
 	cp jquery-mockjax/src/jquery.mockjax.js $(DDIR_JQUERYMOCKJAX)/jquery_mockjax
 
-jquery_dep:
+jquery:
 	@wget http://code.jquery.com/jquery-2.1.4.min.js
-	@mv jquery-2.1.4.min.js $(DDIR_JQUERY)
+	@mv jquery-2.1.4.min.js $(DDIR_JQUERY)/jquery.min.js
 
 # Acquire the dependencies used for qunit
-qunit_dep:
+qunit:
 	@wget http://code.jquery.com/qunit/qunit-1.19.0.css
 	@mv qunit-*.css $(DDIR_QUNIT)/qunit.css
 	@wget http://code.jquery.com/qunit/qunit-1.19.0.js
