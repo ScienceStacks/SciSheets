@@ -61,8 +61,7 @@ QUnit.test("table_setup", function (assert) {
     clickTester(ele, "RowClickMenu", -1);  // Do all items
     assert.ok(true, "Row tests");
     /* Test the Cell menu */
-    ele = document.getElementById("yui-rec11");
-    ele = ele.getElementsByClassName("yui-dt4-col-name")[0];
+    ele = document.getElementById("yui-gen26");
     $(ele).trigger('click');
     // Get rid of the menu
     ele = document.getElementById("yui-textareaceditor1-container");
