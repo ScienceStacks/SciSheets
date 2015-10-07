@@ -1,4 +1,4 @@
-# Create compressed files to use for slickgrid
+# Manage dependencies on yui, jquery, jquery-ui, jquery-mockjax, qunit
 # Assumes 
 #  -nodejs is installed
 #  -there is a link from node to nodejs
@@ -12,9 +12,13 @@
 B=$(shell echo $(HOME))
 CDIR=$(shell pwd)
 DDIR=mysite/mysite/static
+DDIR_YUI=$(DDIR)/yui
+DDIR_JQUERY=$(DDIR)/jquery
+DDIR_JQUERYUI=$(DDIR)/jquery-ui
+DDIR_JQUERYMOCKJAX=$(DDIR)/jquery_mockjax
+DDIR_QUNIT=$(DDIR)/QUNIT
 
 N=$(B)/node_modules
-SL=$(N)/slickgrid
 YUI=$(CDIR)/yui
 YUI_JS=$(CDIR)/yui/js
 YUI_CSS=$(CDIR)/yui/css
@@ -24,40 +28,10 @@ UGLIFYCSS=/usr/local/bin/uglifycss
 
 JQUERY = $(DDIR)/jquery.min.js
 
-SLICK_GENERATED_FILES = \
-	$(DDIR)/slickgrid.min.js \
-	$(DDIR)/slickgrid.js \
-	$(DDIR)/slickgrid.min.css
-
-SLICK_CSS_FILES = \
-	$(SL)/css/smoothness/jquery-ui-1.8.16.custom.css \
-	$(SL)/slick.grid.css \
-	$(SL)/slick-default-theme.css \
-	$(SL)/examples/examples.css \
-	$(SL)/plugins/slick.headermenu.css \
-	$(SL)/plugins/slick.headermenu.css
-
-SLICK_JS_FILES = \
-	$(SL)/lib/jquery-1.7.min.js \
-	$(SL)/lib/jquery.event.drag-2.0.min.js \
-	$(SL)/lib/jquery-ui-1.8.16.custom.min.js \
-	$(SL)/lib/firebugx.js \
-	$(SL)/slick.groupitemmetadataprovider.js \
-	$(SL)/plugins/slick.autotooltips.js \
-	$(SL)/plugins/slick.cellcopymanager.js \
-	$(SL)/plugins/slick.cellrangedecorator.js \
-	$(SL)/plugins/slick.cellselectionmodel.js \
-	$(SL)/plugins/slick.headermenu.js \
-	$(SL)/slick.core.js \
-	$(SL)/slick.dataview.js \
-	$(SL)/slick.editors.js \
-	$(SL)/slick.formatters.js \
-	$(SL)/slick.grid.js
-
 YUI_GENERATED_FILES = \
-	$(DDIR)/yui.min.js \
-	$(DDIR)/yui.js \
-	$(DDIR)/yui.min.css
+	$(DDIR_YUI)/yui.min.js \
+	$(DDIR_YUI)/yui.js \
+	$(DDIR_YUI)/yui.min.css
 
 # Need to insert files in the order of the dependencies
 YUI_CSS_FILES = \
@@ -109,22 +83,8 @@ YUI_JS_SRC = \
 ##################
 
 clean:
-	@rm -f $(SLICK_GENERATED_FILES)
 	@rm -f $(YUI_GENERATED_FILES)
-	@rm -f $(JQUERY)
-
-
-############# SLICKGRID ####################
-
-slickgrid: Makefile $(SLICK_GENERATED_FILES) $(SLICK_CSS_FILES) $(SLICK_JS_FILES) package.json $(JQUERY)
-
-$(DDIR)/slickgrid.min.css: $(SLICK_CSS_FILES) package.json
-	$(SMASH) $(SLICK_CSS_FILES) > $(DDIR)/slickgrid.css
-	$(UGLIFYCSS) $(DDIR)/slickgrid.css > $@
-
-$(DDIR)/slickgrid.min.js: $(SLICK_JS_FILES) package.json
-	$(SMASH) $(SLICK_JS_FILES) > $(DDIR)/slickgrid.js
-	$(UGLIFYJS) $(DDIR)/slickgrid.js > $@
+	@rm -f $(DDIRJQUERY)/*.*
 
 
 ############# YUI ####################
@@ -149,18 +109,18 @@ $(DDIR)/yui.min.js: $(YUI_JS_FILES) package.json
 acquire: jquery_dep qunit_dep yui_dep jquery_mockjax_dep
 
 jquery_mockjax_dep:
-	cp jquery-mockjax/src/jquery.mockjax.js $(DDIR)
+	cp jquery-mockjax/src/jquery.mockjax.js $(DDIR_JQUERYMOCKJAX)/jquery_mockjax
 
 jquery_dep:
 	@wget http://code.jquery.com/jquery-2.1.4.min.js
-	@mv jquery-2.1.4.min.js $(JQUERY)
+	@mv jquery-2.1.4.min.js $(DDIR_JQUERY)
 
 # Acquire the dependencies used for qunit
 qunit_dep:
 	@wget http://code.jquery.com/qunit/qunit-1.19.0.css
-	@mv qunit-*.css $(DDIR)/qunit.css
+	@mv qunit-*.css $(DDIR_QUNIT)/qunit.css
 	@wget http://code.jquery.com/qunit/qunit-1.19.0.js
-	@mv qunit-*.js $(DDIR)/qunit.js
+	@mv qunit-*.js $(DDIR_QUNIT)/qunit.js
 
 yui_dep:
 	for ff in $(YUI_CSS_SRC); do \
