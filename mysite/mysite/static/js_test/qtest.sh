@@ -7,6 +7,6 @@ sed 's/.{% static "/"\/home\/ubuntu\/SciSheets\/mysite\/mysite\/static\//' <test
 sed 's/ %}.//' <test2.html >test3.html
 sed '/table_setup.js/r insert.html' < test3.html > test4.html
 sed '/load static from/s/^.*$//' < test4.html > test5.html
-sed '/src.*static.*data.js/s/src=.*.></src="test_data.js"></' < test5.html > test.html
+sed '/include "scitable_data.html/s/^.*$//' < test5.html > test.html
 mv test?.html /tmp
 bash qunit.sh test.html

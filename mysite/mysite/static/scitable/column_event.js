@@ -11,6 +11,8 @@
 /*jslint indent: 2 */
 /*jslint newcap: true */
 
+var ROW_NAME = "row";
+
 function SciSheetsColumn(scisheet) {
   "use strict";
   this.scisheet = scisheet;
@@ -20,10 +22,12 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   "use strict";
   var ep;
   ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
-  SciSheetsUtilClick("ColumnClickMenu", function (eleId) {
-    var msg;
-    msg = "Column '" + ep.columnName + "' clicked.";
-    msg += " Selected " + eleId + ".";
-    console.log(msg);
-  });
+  if (ep.columnName  !== ROW_NAME) {
+    SciSheetsUtilClick("ColumnClickMenu", function (eleId) {
+      var msg;
+      msg = "Column '" + ep.columnName + "' clicked.";
+      msg += " Selected " + eleId + ".";
+      console.log(msg);
+    });
+  }
 };

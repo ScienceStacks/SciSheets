@@ -1,5 +1,4 @@
 Serve page from Django
--Clean: eliminate slickgrid, revise Makefile
 -Refactor data so can use template or otherwise customize data
 
 1. Single table

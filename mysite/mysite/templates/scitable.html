@@ -73,7 +73,7 @@ caption {
 <script type="text/javascript" src='{% static "scitable/row_event.js" %}'> </script>
 <script type="text/javascript" src='{% static "scitable/cell_event.js" %}'> </script>
 <script type="text/javascript" src='{% static "scitable/table_setup.js" %}'> </script>
-<script type="text/javascript" src='{% static "scitable/data.js" %}'> </script>
+{% include "scitable_data.html" %}
 
 </body>
 </html>
