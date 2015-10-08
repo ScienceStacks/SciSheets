@@ -38,7 +38,7 @@ function clickTester(clickElement, clickMenuName, selIndex) {
 
 QUnit.test("table_setup", function (assert) {
   "use strict";
-  var ele, ele1;
+  var ele;
   // Mock the server communication
   $.mockjax({
     url: "*",
@@ -52,9 +52,12 @@ QUnit.test("table_setup", function (assert) {
     clickTester(ele, "TableClickMenu", -1);  // Do all items
     assert.ok(true, "Table tests");
     /* Column Tests */
+    ele = document.getElementById("yui-dt4-th-row");
+    clickTester(ele, "FirstColumnClickMenu", -1);  // Do all items
+    assert.ok(true, "First column tests");
     ele = document.getElementById("yui-dt4-th-name");
     clickTester(ele, "ColumnClickMenu", -1);  // Do all items
-    assert.ok(true, "Column tests");
+    assert.ok(true, "Other column tests");
     /* Test the Row menu */
     ele = document.getElementById("yui-rec11");
     ele = ele.getElementsByClassName("yui-dt4-col-row")[0];
@@ -67,8 +70,7 @@ QUnit.test("table_setup", function (assert) {
     ele = document.getElementById("yui-textareaceditor1-container");
     $(ele).trigger('click');
     assert.ok(true, "Cell tests");
-  }
-  catch(err) {
+  } catch (err) {
     console.log(err.message);
   }
 

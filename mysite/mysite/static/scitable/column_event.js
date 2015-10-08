@@ -22,7 +22,14 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   "use strict";
   var ep;
   ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
-  if (ep.columnName  !== ROW_NAME) {
+  if (ep.columnName  === ROW_NAME) {
+    SciSheetsUtilClick("FirstColumnClickMenu", function (eleId) {
+      var msg;
+      msg = "Column '" + ep.columnName + "' clicked.";
+      msg += " Selected " + eleId + ".";
+      console.log(msg);
+    });
+  } else {
     SciSheetsUtilClick("ColumnClickMenu", function (eleId) {
       var msg;
       msg = "Column '" + ep.columnName + "' clicked.";
