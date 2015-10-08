@@ -1,24 +1,15 @@
 <script type="text/javascript"> 
-/*jshint newcap: true */
-/*jshint onevar: true */
-/*jshint todo: true */
-/*jshint qunit: true */
-/*jshint jquery: true */
-/*jshint yui: true */
-/*jslint plusplus: true */
-/*jshint onevar: false */
-/*global $, alert, YAHOO, SciSheets */
-/*jslint unparam: true*/
-/*jslint browser: true */
-/*jslint indent: 2 */
-
 /* Creates data objects used elsewhere. Codes is templated. */
 function DataSource() {
   "use strict";
   var sciSheets = new SciSheets();
-  this.tableId = "cellediting";
-  this.tableCaption = "New table";
-  this.columnNames = ["row", "name", "address", "salary"];
+  this.tableId = "{{ table_id }}";
+  this.tableCaption = "{{ table_caption }}";
+  this.columnNames = [
+  {% for col in initial_column_names %}
+    "{{ col }}",
+  {% endfor %}
+  "{{ final_column_name }}" ];
   this.columnDefs = [
     {key: "row", formatter: sciSheets.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor()},
     {key: "name", formatter: sciSheets.formatColumn("name"), editor:  new YAHOO.widget.TextareaCellEditor()},
