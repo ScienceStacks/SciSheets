@@ -1,5 +1,5 @@
 Serve page from Django
--Refactor data so can use template or otherwise customize data
+-Not getting correct values in nested for loop in scitable_data.html
 
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus
