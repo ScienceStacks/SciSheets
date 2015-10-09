@@ -23,21 +23,6 @@ function DataSource() {
      ,
     {% endif %}
   {% endfor %}
-  this.dataSource = [
-  {% for row in data %}
-    { {{ row }}
-    {% for col, val in row.items %}
-      "{{ col }}": "{{ val }}"
-      {% if col == final_column_name %}
-        {% if row == final_row %}
-          }];
-        {% else %}
-          },
-        {% endif %}
-      {% else %}
-        ,
-      {% endif %}
-    {% endfor %}
-  {% endfor %}
+  this.dataSource = JSON.parse({{ data|safe }});
 }
 </script>
