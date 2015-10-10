@@ -1,5 +1,6 @@
 Serve page from Django
--Not getting correct values in nested for loop in scitable_data.html
+-Bugs in tests for scisheets core
+-Finishing server table generation code
 
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus
