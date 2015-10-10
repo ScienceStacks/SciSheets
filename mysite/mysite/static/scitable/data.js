@@ -15,7 +15,7 @@
 function DataSource() {
   "use strict";
   var sciSheets = new SciSheets();
-  this.tableId = "cellediting";
+  this.tableId = "SciSheets";
   this.tableCaption = "New table";
   this.columnNames = ["row", "name", "address", "salary"];
   this.columnDefs = [

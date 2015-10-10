@@ -33,6 +33,8 @@ class Column(object):
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
     self._data_values = np.array(full_data_list)
+    if self._owning_table is not None:
+      self._owning_table.AdjustColumns()
 
   def Copy(self):
     # Returns a copy of this object
@@ -52,6 +54,7 @@ class Column(object):
         if not (nn in indicies):
           new_data_list.append(self._data_values[nn])
       self._data_values = np.array(new_data_list)
+    self._owning_table.AdjustColumns()
 
   def Evaluate(self):
     # Evaluates the formula, if any.

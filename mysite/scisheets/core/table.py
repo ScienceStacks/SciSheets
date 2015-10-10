@@ -9,6 +9,7 @@
 #                  (as a list or dict)
 #        Row - representation of the cells with the same RowId
 #              as a list or a dict        
+# TODO: Trim unneeded rows of None if cells are deleted
 '''
   Implements the table class for MVCSheets.
   A table has 0 or more columns. A row is identified either by having
@@ -30,11 +31,13 @@
 '''
 
 
+from column import Column
 import errors as er
 import column as cl
-from numpy import array
 from helpers import OrderableStrings
+import numpy as np
 
+ROW_COLUMN_NAME = "row"
 
 class Table(object):
 
@@ -43,6 +46,11 @@ class Table(object):
     self._columns = {}  # key: name, value: object
     self._column_positions = OrderableStrings()
     self._name_column = None
+    self._CreateFirstColumn()
+
+  def _CreateFirstColumn(self):
+    col = Column(ROW_COLUMN_NAME)
+    self.AddColumn(col)
 
   @staticmethod
   def _AddNoneCellsToColumn(column, num):
@@ -168,6 +176,7 @@ class Table(object):
       else:
         name_column = False
       new_table.AddColumn(new_column, name_column=name_column)
+    import pdb; pdb.set_trace()
     return new_table
 
   def DeleteColumn(self, col):
@@ -244,7 +253,7 @@ class Table(object):
       data_list = []
       for i in indicies:
         data_list.append(cells[i])
-      result[k] = array(data_list)
+      result[k] = np.array(data_list)
     return result
 
   def UpdateRow(self, rowid, rowl):
@@ -254,8 +263,21 @@ class Table(object):
     indicies = self._RowidToRowidx([rowid])
     if len(indicies) != 1:
       raise er.InternalError("Expected exactly one row")
-    rowidx = indicies[0]
-    keys = self._columns.keys()
-    for c in self._columns.values():
-      n = self.GetColumnPosition(c.GetName())
-      c.UpdateCell(rowidx, rowl[n])
+    if len(indicies) > 1:
+      rowidx = indicies[0]
+      keys = self._columns.keys()
+      for c in self._columns.values():
+        n = self.GetColumnPosition(c.GetName())
+        c.UpdateCell(rowidx, rowl[n])
+
+  def AdjustColumns(self):
+    # Ensures that columns are the same length
+    max_rows = self._columns.values()[0].GetNumCells()
+    NONE_ARRAY = np.array([None])
+    for col in self._columns.values():
+      max_rows = max(max_rows, col.GetNumCells())
+    for col in self._columns.values():
+      num_rows = col.GetNumCells()
+      if num_rows < max_rows:
+        added_rows = max_rows - num_rows
+        col.AddCells(np.repeat(NONE_ARRAY, added_rows))

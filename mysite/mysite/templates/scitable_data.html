@@ -3,7 +3,6 @@
 function DataSource() {
   "use strict";
   var sciSheets = new SciSheets();
-  this.tableId = "{{ table_id }}";
   this.tableCaption = "{{ table_caption }}";
   this.columnNames = [
   {% for col in column_names %}
