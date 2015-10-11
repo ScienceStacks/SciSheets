@@ -17,7 +17,7 @@ class Column(object):
     self._formula = None
     self._owning_table = None
 
-  def AddCells(self, v, replace=False):
+  def AddCells(self, v, replace=False, adjust=True):
     if isinstance(v, list):
       new_data_list = v
     elif isinstance(v, np.ndarray):
@@ -33,7 +33,7 @@ class Column(object):
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
     self._data_values = np.array(full_data_list)
-    if self._owning_table is not None:
+    if self._owning_table is not None and adjust:
       self._owning_table.AdjustColumns()
 
   def Copy(self):
@@ -44,7 +44,7 @@ class Column(object):
     result.AddCells(self._data_values)
     return result
 
-  def DeleteCells(self, indicies=None):
+  def DeleteCells(self, indicies=None, adjust=True):
     # Input: index of cells to delete (all if None)
     if indicies is None:
       self._data_values = np.empty([0])
@@ -54,7 +54,8 @@ class Column(object):
         if not (nn in indicies):
           new_data_list.append(self._data_values[nn])
       self._data_values = np.array(new_data_list)
-    self._owning_table.AdjustColumns()
+    if self._owning_table is not None and adjust:
+      self._owning_table.AdjustColumns()
 
   def Evaluate(self):
     # Evaluates the formula, if any.
