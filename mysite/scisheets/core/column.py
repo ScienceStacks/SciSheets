@@ -17,7 +17,7 @@ class Column(object):
     self._formula = None
     self._owning_table = None
 
-  def AddCells(self, v, replace=False, adjust=True):
+  def addCells(self, v, replace=False, adjust=True):
     if isinstance(v, list):
       new_data_list = v
     elif isinstance(v, np.ndarray):
@@ -36,15 +36,15 @@ class Column(object):
     if self._owning_table is not None and adjust:
       self._owning_table.AdjustColumns()
 
-  def Copy(self):
+  def copy(self):
     # Returns a copy of this object
     result = Column(self._name, 
                     data_type = self._data_type)
-    result.SetFormula(self._formula)
-    result.AddCells(self._data_values)
+    result.setFormula(self._formula)
+    result.addCells(self._data_values)
     return result
 
-  def DeleteCells(self, indicies=None, adjust=True):
+  def deleteCells(self, indicies=None, adjust=True):
     # Input: index of cells to delete (all if None)
     if indicies is None:
       self._data_values = np.empty([0])
@@ -57,21 +57,21 @@ class Column(object):
     if self._owning_table is not None and adjust:
       self._owning_table.AdjustColumns()
 
-  def Evaluate(self):
-    # Evaluates the formula, if any.
+  def evaluate(self):
+    # evaluates the formula, if any.
     # Replaces the data values with the formula results
-    raise ex.NotYetImplemented("Evaluate")
+    raise ex.NotYetImplemented("evaluate")
 
-  def GetCells(self):
+  def getCells(self):
     return self._data_values
 
-  def GetNumCells(self):
+  def getNumCells(self):
     return len(self._data_values)
 
-  def GetName(self):
+  def getName(self):
     return self._name
 
-  def SetFormula(self, formula):
+  def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
     # scalars, and functions in math for columns that preceed
     # this column in the table.
