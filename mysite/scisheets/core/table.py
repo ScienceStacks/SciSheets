@@ -27,18 +27,75 @@ import numpy as np
 ROW_COLUMN_NAME = "row"
 ROW_COLUMN_NUM = 0
 
+class RowDict:
+  " Container of values for a row"
+
+  def __init__(self, dic):
+    self._row_dic = dic
+
+  def getValues(self):
+    return self._row_dic
+
+  def getValue(self, name):
+    return self._row_dic[name]
+
+  def setValue(self, name, value):
+    self._row_dic[name] = value
+
 
 #####################################
 # Table objects
 # When a table is created, the "row" column is created.
 #####################################
 
-class Table(object):
+class ColumnContainer(object):
+  # A ColumnContainer can add and delete columns. It has no concept of Rows.
+  # It treats columns as independent objects.
 
   def __init__(self, name):
     self._name = name
     self._columns = []  # array of column objects in table sequence
-    self._createFirstColumn()
+
+  def getColumns(self):
+    # Returns a list with the column objects in sequence
+    return self._columns
+
+  def getColumnFromIndex(self, index):
+    # Returns a dictionary with the column object at the index
+    return self._columns[index]
+
+  def getColumnFromName(self, name):
+    # Finds a column with the specified name or None
+    for c in self._columns:
+      if c.GetName == name:
+        return c
+     return None
+ 
+  def getNumColumns(self):
+    return len(self._columns)
+
+  def insertColumn(self, column, index=None):
+    idx = index
+    if idx is None:
+      idx = len(self._columns)
+    self._columns.(idx, column)
+
+
+class Table(ColumnContainer):
+  # Implements full table functionality.
+  # Feature 1: Maintains consistency
+  #   between columns as to column lengths 
+  #   column names are unique
+  # Feature 2: Knows about rows
+  #   add rows
+  #   delete rows
+  #   rows have a name as specified in the row column
+  # The primary object for referencing a column is the column object.
+  # The primary object for referencing a row is the row index
+
+  def __init__(self, name):
+    super(Table, self).__init__(name)
+    self._createRowColumn()
 
   # Data columns are those that have user data. The "row" column is excluded.
   def _getDataColumns(self):
@@ -47,73 +104,92 @@ class Table(object):
     result.remove(remove_column)
     return  result
 
-  def _createFirstColumn(self):
+  # TODO: Verify the index 
+  def _getRowNameFromIndex(self, index):
+    return str(index + 1)
+
+  def _createRowColumn(self):
     col = Column(ROW_COLUMN_NAME)
-    self.AddColumn(col, adjust=False)
+    self.addColumn(col, adjust=False)
 
-  def _findColumnWithName(self, name):
-    # Finds a column with the specified name or None
-    for c in self._columns:
-      if c.GetName == name:
-        return c
-     return None
-
+  # TODO: Should this only use RowDict?
   def _validateRow(self, rowl, data_row = False):
     # Validates that the row is consistent with the table
     # Input: rowl - row in list form
     #        data_row - indicates if this is just data or includes
     #                   the row index column (first column)
+    # Verify the class of the argument
+    if not isinstance(rowl, list):
+      raise er.InternalError("In table %s, invalid row format column %s" %
+          (self._name, rowl))
+    # Verify that the row has the expected length
     if data_row:
       expected_length = self.GetNumDataColumns()
     else:
       expected_length = self.getNumColumns()
-    if not isinstance(rowl, list):
-      raise er.InternalError("In table %s, invalid row format column %s" %
-          (self._name, rowl))
     if len(rowl) != expected_length:
       raise er.InternalError("In table %s, row has wrong number cells" %
           self._name)
 
   def _validateTable(self):
     # Checks that the table is internally consistent
+    # The following predicates are considered:
+    # Verify that there is at least one column
     if len(self._columns) < 1:
       raise er.InternalError("Table %s has no columns." % self._name)
-    num_rows = len(self._columns[0].GetCells())  # Can't use GetNumRows
+    # Verify that all columns have the same number of cells
+    num_rows = len(self.getColumnsFromName(ROW_COLUMN_NAME).GetCells())
     for column in self._columns:
       if  column.GetNumCells() != num_rows:
         raise er.InternalError("In Table %s, Column %s differs in its number of rows." %
             (self._name, column.getName()))
-    # Check the column positions
-    num_columns = self.getNumColumns()
-    if self._column_positions.GetMaxPosition() != num_columns - 1:
-      msg = ("Table %s does not have consistent column positions"
-            % self.getName())
-      raise er.InternalError(msg)
      
-  # TODO: Handle adding columns when there is partial data in other columns
-  # TODO: Should there be error checking when adding a name column?
-  def AddColumn(self, colid, adjust=True):
+  def addColumn(self, column, index=None, adjust=True):
     # Adds a column to the table. Ensures uniqueness of column names.
-    # Input: colid - ColumnID
+    # Input: column - column object
     #        adjust - adjust column lengths
-    if self._findColumnWithName(colid.name)
+    if self.getColumnFromName(column.getName())
       raise er.DuplicateColumnName("Table %s already has column %s" %
           (self._name, name))
-    # Update table and column state
-    column.SetTable(self)
-    self._columns.append(column)
+    self.insertColumn(column, index=index)
+    column.setTable(self)
     if adjust:
       self.adjustColumnLengths()
     self._validateTable()
 
-  def appendRow(self, row):
-    # Appends the row to end of table
-    # Input: row - Row object 
-    rowl = row.getList()
-    rowl[ROW_COLUMN_NUM] = str(self.GetNumRows() + 1)
+  def insertRow(self, row_dict, index=None):
+    # Inserts the row in the desired position in the table
+    # Input: row_dict - a RowDict object
+    #        index - position in the table where the row is inserted
+    # Assigns the value of the ROW_COLUMN
+    idx = index
+    if idx is None:
+      idx = self.getNumRows()
+    row_dict.setValue(ROW_COLUMN_NAME, self._getRowName(idx))
     for n in range(self.getNumColumns()):
       column =  self._columns[n]
-      column.addCells(rowl[n], adjust=False)
+      name = column.getName()
+      if (name in row_dict.getValues().keys())
+        column.insertCell(val, idx)
+      else:
+        column.insertCell(None, idx)
+
+  # TODO: Handle existing row correctly so not adding None
+  # TODO: Eliminate need to adjust columns by only adding
+  #       Columns with no data
+  def updateRow(self, row_dict, index):
+    # Updates the row in place
+    # Input: row_dict - RowDict representation of row
+    #        index - index of row to change
+    # Assigns the value of the ROW_COLUMN
+    row_dict.setValue(ROW_COLUMN_NAME, self._getRowName(idx))
+    for n in range(self.getNumColumns()):
+      column =  self._columns[n]
+      name = column.getName()
+      if (name in row_dict.getValues().keys())
+        column.updateCell(val, idx)
+      else:
+        column.updateCell(None, idx)
 
   def copy(self):
     # Returns a copy of this object
@@ -121,73 +197,13 @@ class Table(object):
     for c in self._getDataColumns():
       new_column = cl.Column(c.getName())
       new_column.AddCells(c.GetCells().tolist())
-      new_table.AddColumn(new_column)
+      new_table.addColumn(new_column)
     return new_table
 
-  def deleteColumn(self, colid):
+  def deleteColumn(self, column)
     # Deletes a column from the table.
-    # Input: colid - column ID
-    self._columns.remove(colid.obj)
-    self._validateTable()
-
-  def deleteRows(self, rowids):
-    # Deletes the specified rows
-    # Input: rowids - list of RowIDs
-    index_list = []
-    for r in rowids:
-      index_list.append(r.index)
-    for c in self._columns:
-      c.DeleteCells(indicies=index_list, adjust=False)
-
-  def evaluate(self):
-    # evaluates the formulas in the table. Evaluation is
-    # done in column order.
-    raise er.NotYetImplemented("evaluate")
-
-  def getColumns(self):
-    # Returns a dictionary with the column objects
-    return self._columns
-
-  def GetColumnObject(self, col):
-    raise er.InternalError("Deprecated GetColumnObject")
-
-  def GetColumnPosition(self, name):
-    return self._column_positions.GetPosition(name)
- 
-  def getNumColumns(self):
-    return len(self._columns)
- 
-  def GetNumDataColumns(self):
-    return len(self._columns) - 1
-
-  def GetNumRows(self):
-    if self.getNumColumns() == 0:
-      return 0
-    column = self._columns.values()[0]
-    return column.GetNumCells()
-    
-  def getName(self):
-    return self._name
-
-  def GetRows(self, rowids):
-    # Input: rowids - list of RowIDs
-    # Returns - dict with k=name, v=array
-    result = {}
-    for k,v in self._columns.iteritems():
-      cells = self._columns[k].GetCells()
-      data_list = []
-      for i in rowidxs:
-        data_list.append(cells[i])
-      result[k] = np.array(data_list)
-    return result
-
-  def UpdateRow(self, row)
-    # Changes the row to the values indicated
-    # Input: row - Row object with new values
-    rowl = row.getList()
-    for n in range(1, self.GetNumDataColumns())
-      c = self._columns[n]
-      c.UpdateCell(row[ROW_COLUMN_NUM], rowl[n])
+    # Input: column - column obj to delete
+    column.setTable(None)
 
   def adjustColumnLengths(self):
     # Ensures that columns are the same length

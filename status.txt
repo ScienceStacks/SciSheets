@@ -1,6 +1,9 @@
 Serve page from Django
--Bugs in tests for scisheets core
--Finishing server table generation code
+1) revise tests for column
+2) test util
+3) test tableid
+4) test row
+5) test table
 
 1. Single table
 -.css uses URLs instead of images/static for drop-down for menus

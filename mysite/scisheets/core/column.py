@@ -17,6 +17,18 @@ class Column(object):
     self._formula = None
     self._owning_table = None
 
+  def insertCell(self, val, index=None):
+    # Input: val - value to insert
+    #        index - where it is inserted
+    #                appended to end if None
+    NotYetImplemented
+
+  def updateCell(self, val, index):
+    # Input: val - value to insert
+    #        index - where it is inserted
+    #                appended to end if None
+    self._data_values[index] = val
+
   def addCells(self, v, replace=False, adjust=True):
     if isinstance(v, list):
       new_data_list = v
@@ -44,7 +56,7 @@ class Column(object):
     result.addCells(self._data_values)
     return result
 
-  def deleteCells(self, indicies=None, adjust=True):
+  def deleteCells(self, indicies=None)
     # Input: index of cells to delete (all if None)
     if indicies is None:
       self._data_values = np.empty([0])
@@ -54,8 +66,6 @@ class Column(object):
         if not (nn in indicies):
           new_data_list.append(self._data_values[nn])
       self._data_values = np.array(new_data_list)
-    if self._owning_table is not None and adjust:
-      self._owning_table.AdjustColumns()
 
   def evaluate(self):
     # evaluates the formula, if any.
@@ -64,6 +74,9 @@ class Column(object):
 
   def getCells(self):
     return self._data_values
+
+  def getCell(self, index):
+    return self._data_values[index]
 
   def getNumCells(self):
     return len(self._data_values)

@@ -83,7 +83,7 @@ class ColID(object):
 
   def _setupFromName(self):
     # Input: name - column name
-    columns = self._table.GetColumns()
+    columns = self._table.getColumns()
     for n in range(len(columns)):
       if columns[n].getName() == name:
         self._obj = c
@@ -95,11 +95,11 @@ class ColID(object):
   def _setupFromIndex(self):
     # Input: index - column index
     self._assignPosition()
-    self._obj = self._table.GetColumns()[index]
+    self._obj = self._table.getColumns()[index]
     self._name = self._obj.getName()
 
   def _setupFromObj(self):
-    columns = self._table.GetColumns()
+    columns = self._table.getColumns()
     for n in range(len(columns)):
       if columns[n] == self._obj:
         self._index = n
