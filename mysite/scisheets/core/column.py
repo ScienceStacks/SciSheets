@@ -29,7 +29,7 @@ class Column(object):
     #                appended to end if None
     self._data_values[index] = val
 
-  def addCells(self, v, replace=False, adjust=True):
+  def addCells(self, v)
     if isinstance(v, list):
       new_data_list = v
     elif isinstance(v, np.ndarray):
@@ -41,12 +41,9 @@ class Column(object):
       for e in new_data_list:
         if not isinstance(e, self._data_type):
           raise ex.DataTypeError("%g is not %s" % (e, self._data_type))
-    if replace is False:
-      full_data_list = self._data_values.tolist()
-      full_data_list.extend(new_data_list)
+    full_data_list = self._data_values.tolist()
+    full_data_list.extend(new_data_list)
     self._data_values = np.array(full_data_list)
-    if self._owning_table is not None and adjust:
-      self._owning_table.AdjustColumns()
 
   def copy(self):
     # Returns a copy of this object
