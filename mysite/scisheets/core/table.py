@@ -53,6 +53,13 @@ class ColumnContainer(object):
     self._name = name
     self._columns = []  # array of column objects in table sequence
 
+  def deleteColumn(self, column):
+    index = self._columns.index(column)
+    self.deleteColumnFromIndex(index)
+
+  def deleteColumnFromIndex(self, index):
+    del self._columns[index]
+
   def getColumns(self):
     # Returns a list with the column objects in sequence
     return self._columns
@@ -67,15 +74,21 @@ class ColumnContainer(object):
       if c.GetName == name:
         return c
      return None
- 
-  def getNumColumns(self):
-    return len(self._columns)
+
+  def getRow(self, index):
+    row = Row()
+    for c in self._columns:
+      row[c.name] = c.getCell[index]
+    return row
 
   def insertColumn(self, column, index=None):
     idx = index
     if idx is None:
       idx = len(self._columns)
     self._columns.(idx, column)
+ 
+  def numColumns(self):
+    return len(self._columns)
 
 
 class Table(ColumnContainer):
@@ -152,7 +165,7 @@ class Table(ColumnContainer):
     if idx is None:
       idx = self.getNumRows()
     row.[ROW_COLUMN_NAME] =  self._getRowName(idx)
-    for n in range(self.getNumColumns()):
+    for n in range(self.numColumns()):
       column =  self._columns[n]
       name = column.getName()
       if (name in row.keys())
@@ -167,7 +180,7 @@ class Table(ColumnContainer):
     #        index - index of row to change
     # Assigns the value of the ROW_COLUMN
     row.[ROW_COLUMN_NAME] = self._getRowName(idx)
-    for n in range(self.getNumColumns()):
+    for n in range(self.numColumns()):
       column =  self._columns[n]
       name = column.getName()
       if name in row.keys():
@@ -186,3 +199,4 @@ class Table(ColumnContainer):
     # Deletes a column from the table.
     # Input: column - column obj to delete
     column.setTable(None)
+    super(Table, self).deleteColumn(column)
