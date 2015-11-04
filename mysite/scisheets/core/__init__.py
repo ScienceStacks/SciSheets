@@ -11,18 +11,20 @@
        within the Table.
      A ColumnContainer is a collection of Columns in which each
        each Column appears in a particular order.
-     A Table is a ColumnContainer in which Columns have
-       the same length and Column Names are unique.
-     A Row is a collection of Cells from different Columns in a Table 
-       at the same offset within their Column.
-     The Row Index of a Row is the 0-based offset within each 
-       Column of the Cells in the Row.
-     A Row Name is a string that uniquely identifies the Row. This
-       is the 1-based offset of the row in the Table.
-     The Name Column is a Column in the Table that contains the
-       Row Names. It is at Column Index 0, and has the name "row".
-       The Name Column is created automatically when the Table is
+     A Table is a ColumnContainer in which:
+       - Columns have the same number of Cells
+       - Column Names are unique
+       - Cells in Columns can be accessed with the same index
+     The NameColumn of a Table is the Column that contains the
+       unique names. It is at Column Index 0, and has the name "row".
+       The NameColumn is created automatically when the Table is
        created, and is maintained automatically.
+     A Row in a Table is a collection of Cells from the Columns in
+       Table that are at the same offset within their Column.
+     The RowIndex of a Row is the 0-based offset within each 
+       Column of the Cells in the Row.
+     A RowName is a string that uniquely identifies the Row. This
+       is the value of the NameColumn at the RowIndex of the Row.
 
   The use cases supported are:
     1. Create a new Table.
@@ -30,15 +32,22 @@
     3. Add a Row to a Table.
     4. Update the values of one or more Cells in a Row.
     5. Delete a Row, Column, or Table.
-    6. Insert a Row between existing Rows.
+    6. Move to a new position in the Table. 
     7. Make a copy of a Row, Column, or Table.
 
   In support of these use cases, the following operations can be
-  performed on Tables, Rows and Columns.
+  performed on Tables and Columns.
     1. Create
     2. Copy
     3. Delete
   In addition, 
     1. Insert a Row or Column into a Table at a particular index.
-    2. Update one or more Cells in a Row.
+    2. Update one or more Cells in a Column.
+    3. Delete a Row from a Table
+
+  Workflow
+    1. Create a Table
+    2. Add a Column to the Table
+    3. Add Rows to the Table.
+    4. Replace Cells in Rows.
 '''

@@ -7,7 +7,7 @@ import table as tb
 import numpy as np
 
 
-def ToList(v):
+def toList(v):
   if isinstance(v, list):
     data_list = v
   elif isinstance(v, np.ndarray):
@@ -16,9 +16,9 @@ def ToList(v):
     data_list = [v]
   return data_list
 
-def CompareValues(v1, v2):
-  list1 = ToList(v1)
-  list2 = ToList(v2)
+def compareValues(v1, v2):
+  list1 = toList(v1)
+  list2 = toList(v2)
   if len(list1) != len(list2):
     return False
   r = True
@@ -26,18 +26,18 @@ def CompareValues(v1, v2):
     r = r and (list1[n] == list2[n])
   return r
 
-def CreateColumn(name, data=np.array([]), table=None, formula=None):
+def createColumn(name, data=np.array([]), table=None, formula=None):
   # Returns a populated column
   column = cl.Column(name)
-  column.AddCells(data)
-  column.SetTable(table)
-  column.SetFormula(formula)
+  column.addCells(data)
+  column.setTable(table)
+  column.setFormula(formula)
   return column
 
-def CreateTable(name, column_name=None):
+def createTable(name, column_name=None):
   # Returns a populated column
   table = tb.Table(name)
   if column_name is not None:
     column = cl.Column(name)
-    table.AddColumn(column)
+    table.addColumn(column)
   return table

@@ -17,19 +17,7 @@ class Column(object):
     self._formula = None
     self._owning_table = None
 
-  def insertCell(self, val, index=None):
-    # Input: val - value to insert
-    #        index - where it is inserted
-    #                appended to end if None
-    NotYetImplemented
-
-  def updateCell(self, val, index):
-    # Input: val - value to insert
-    #        index - where it is inserted
-    #                appended to end if None
-    self._data_values[index] = val
-
-  def addCells(self, v)
+  def addCells(self, v):
     if isinstance(v, list):
       new_data_list = v
     elif isinstance(v, np.ndarray):
@@ -53,16 +41,12 @@ class Column(object):
     result.addCells(self._data_values)
     return result
 
-  def deleteCells(self, indicies=None)
-    # Input: index of cells to delete (all if None)
-    if indicies is None:
-      self._data_values = np.empty([0])
-    else:
-      new_data_list = []
-      for nn in range(len(self._data_values)):
-        if not (nn in indicies):
-          new_data_list.append(self._data_values[nn])
-      self._data_values = np.array(new_data_list)
+  def deleteCells(self, indicies):
+    # Input: indicies - list of indicies to delete
+    data_list = self._data_values.tolist()
+    for nn in indicies:
+      del data_list[nn]
+    self._data_values = np.array(data_list)
 
   def evaluate(self):
     # evaluates the formula, if any.
@@ -72,14 +56,21 @@ class Column(object):
   def getCells(self):
     return self._data_values
 
-  def getCell(self, index):
-    return self._data_values[index]
-
-  def getNumCells(self):
-    return len(self._data_values)
-
   def getName(self):
     return self._name
+
+  def insertCell(self, val, index=None):
+    # Input: val - value to insert
+    #        index - where it is inserted
+    #                appended to end if None
+    data_list = self._data_values.tolist()
+    if index is None:
+      index = len(self._data_values)
+    data_list.insert(index, val)
+    self._daa_values = np.array(data_list)
+
+  def numCells(self):
+    return len(self._data_values)
 
   def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
@@ -87,10 +78,12 @@ class Column(object):
     # this column in the table.
     self._formula = formula
 
-  def SetTable(self, table):
+  def setTable(self, table):
     # Sets the table being used for this column
     self._owning_table = table
 
-  def UpdateCell(self, index, val):
-    if index >= 0 and index < len(self._data_values):
-      self._data_values[index] = val
+  def updateCell(self, val, index):
+    # Input: val - value to insert
+    #        index - index of cell being updated
+    #                appended to end if None
+    self._data_values[index] = val

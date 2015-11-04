@@ -4,7 +4,7 @@ import column as cl
 import unittest
 import errors as er
 import numpy as np
-from util_test import CreateColumn, CompareValues, ToList
+from util_test import createColumn, compareValues, toList
 
 # Constants
 COLUMN_NAME = "DUMMY"
@@ -29,75 +29,71 @@ class TestColumn(unittest.TestCase):
     LIST = [2.0, 3.0]
     ARRAY = np.array(LIST)
     column = cl.Column(COLUMN_NAME)
-    column.AddCells(SINGLE)
-    self.assertTrue(CompareValues(column._data_values, SINGLE))
+    column.addCells(SINGLE)
+    self.assertTrue(compareValues(column._data_values, SINGLE))
     column = cl.Column(COLUMN_NAME)
-    column.AddCells(LIST)
-    self.assertTrue(CompareValues(column._data_values, LIST))
+    column.addCells(LIST)
+    self.assertTrue(compareValues(column._data_values, LIST))
     column = cl.Column(COLUMN_NAME)
-    column.AddCells(ARRAY)
-    self.assertTrue(CompareValues(column._data_values, ARRAY))
+    column.addCells(ARRAY)
+    self.assertTrue(compareValues(column._data_values, ARRAY))
 
   def testCopy(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+    column = createColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
-    column_copy = column.Copy()
+    column_copy = column.copy()
     self.assertEqual(column._name, column_copy._name)
-    self.assertTrue(CompareValues(column._data_values, column_copy._data_values))
+    self.assertTrue(compareValues(column._data_values, column_copy._data_values))
     self.assertEqual(column._formula, column_copy._formula)
     self.assertIsNone(column_copy._owning_table)
 
   def testDeleteCells(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
-        formula=FORMULA)
-    column.DeleteCells()
-    self.assertEqual(len(column._data_values), 0)
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+    column = createColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
     INDEX = 0
     NON_INDEX = 1
-    column.DeleteCells([INDEX])
+    column.deleteCells([INDEX])
     self.assertEqual(column._data_values[INDEX], LIST[NON_INDEX])
 
   def testEvaluate(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+    column = createColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
-    self.assertRaises(er.NotYetImplemented, column.Evaluate)
+    self.assertRaises(er.NotYetImplemented, column.evaluate)
 
   def testGetCells(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+    column = createColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
-    cells = column.GetCells()
-    self.assertTrue(CompareValues(column._data_values, cells))
+    cells = column.getCells()
+    self.assertTrue(compareValues(column._data_values, cells))
 
-  def testGetNumCells(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+  def testNumCells(self):
+    column = createColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
-    self.assertEqual(column.GetNumCells(), len(LIST))
+    self.assertEqual(column.numCells(), len(LIST))
 
   def testGetName(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+    column = createColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=FORMULA)
-    self.assertEqual(column.GetName(), column._name)
+    self.assertEqual(column.getName(), column._name)
 
   def testSetFormula(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=TABLE,
+    column = createColumn(COLUMN_NAME, data=LIST, table=TABLE,
         formula=None)
-    column.SetFormula(FORMULA)
+    column.setFormula(FORMULA)
     self.assertEqual(column._formula, FORMULA)
 
   def testSetTable(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=None,
+    column = createColumn(COLUMN_NAME, data=LIST, table=None,
         formula=FORMULA)
-    column.SetTable(TABLE)
+    column.setTable(TABLE)
     self.assertEqual(column._owning_table, TABLE)
 
   def testUpdateCell(self):
-    column = CreateColumn(COLUMN_NAME, data=LIST, table=None,
+    column = createColumn(COLUMN_NAME, data=LIST, table=None,
         formula=FORMULA)
     INDEX = 0
     new_value = LIST[INDEX] + 10
-    column.UpdateCell(INDEX, new_value)
+    column.updateCell(new_value, INDEX)
     self.assertEqual(column._data_values[INDEX], new_value)
     
     

@@ -2,6 +2,8 @@ Serve page from Django
 0.1) Revise code to be consistent with the naming and use cases
      in __init__.py. Use the term "Name Column" instead of
      "Row Column". 
+0.2) Use Pandas in the implementation? But how deal with nested
+     tables.
 1) revise tests for column
 2) test util
 3) test tableid
