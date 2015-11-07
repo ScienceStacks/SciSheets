@@ -32,8 +32,8 @@
     3. Add a Row to a Table.
     4. Update the values of one or more Cells in a Row.
     5. Delete a Row, Column, or Table.
-    6. Move to a new position in the Table. 
-    7. Make a copy of a Row, Column, or Table.
+    6. Move a Row or Column to a new position in the Table. 
+    7. Make a copy of a Column or Table.
 
   In support of these use cases, the following operations can be
   performed on Tables and Columns.

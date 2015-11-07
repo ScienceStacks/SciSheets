@@ -17,6 +17,9 @@ class ColumnNotFound(Error):
 class DuplicateColumnName(Error):
   pass
 
+class InvalidColumnStructureForAddToTable(Error):
+  pass
+
 class NoNameRow(Error):
   pass
 

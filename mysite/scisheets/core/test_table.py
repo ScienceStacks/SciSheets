@@ -4,10 +4,10 @@
 #mockfrom jviz.mvc_sheets import column as cl
 import table as tb 
 import column as cl
-import unittest
 import errors as er
 import numpy as np
-from util_test import CreateColumn, CompareValues, ToList, CreateTable
+from util_test import createColumn, createTable
+import unittest
 
 
 # Constants
@@ -31,113 +31,123 @@ COLUMN2_CELLS = [10.0, 20.0, 30.0]
 class TestTable(unittest.TestCase):
 
   def setUp(self):
-    self.table = CreateTable(TABLE_NAME)
-    column = cl.Column(COLUMN1)
-    column.AddCells(COLUMN1_CELLS)
-    self.table.AddColumn(column)
-    column = cl.Column(COLUMN2)
-    column.AddCells(COLUMN2_CELLS)
-    self.table.AddColumn(column)
-    self.columns = self.table.GetColumns()
+    self.table = createTable(TABLE_NAME)
+    column1 = cl.Column(COLUMN1)
+    column1.addCells(COLUMN1_CELLS)
+    self.table.addColumn(column1)
+    column2 = cl.Column(COLUMN2)
+    column2.addCells(COLUMN2_CELLS)
+    self.table.addColumn(column2)
+    self.columns = self.table.getColumns()
 
   def testConstructor(self):
     table = tb.Table(TABLE_NAME)
     self.assertEqual(table._name, TABLE_NAME)
-    self.assertIsNone(table._name_column)
     self.assertEqual(len(table._columns), 1)
+    self.assertEqual(table._columns[0].getName(), "row")
 
-  def testAddColumn(self):
-    table = CreateTable(TABLE_NAME)
+  def testAdjustColumnLength(self):
+    table = createTable(TABLE_NAME)
+    column = cl.Column(COLUMN)
+    column.addCells(COLUMN1_CELLS)
+    table.addColumn(column)
+    column = cl.Column(COLUMN1)
+    table._adjustColumnLength(column)
+    self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
+
+  def testUpdateNameColumn(self):
+    self.assertEqual(self.table._columns[0].numCells(),
+                     self.table._columns[1].numCells())
+
+  def testaddColumn(self):
+    table = createTable(TABLE_NAME)
     # Add an empty column
     column = cl.Column(COLUMN)
-    table.AddColumn(column)
+    column.addCells(COLUMN1_CELLS)
+    table.addColumn(column)
     # Add a column with the same name
-    self.assertEqual(table._columns[COLUMN], column)
+    self.assertEqual(table._columns[1], column)
     with self.assertRaises(er.DuplicateColumnName):
-      table.AddColumn(column)
-    table = CreateTable(TABLE_NAME)
+      table.addColumn(column)
+    table = createTable(TABLE_NAME)
     # Add a column with data
-    column = cl.Column(COLUMN)
-    column.AddCells(LIST)
-    table.AddColumn(column)
-    self.assertEqual(len(table._columns[COLUMN].GetCells()), 
-        len(LIST))
-    column = cl.Column(COLUMN2)
-    column.AddCells(LIST2)
-    table.AddColumn(column)
-    self.assertEqual(len(table._columns[COLUMN2].GetCells()), 
-        len(LIST))
+    column = cl.Column(COLUMN1)
+    column.addCells(LIST)
+    table.addColumn(column)
+    self.assertEqual(column.numCells(), table.numRows())
     # Add a column that has more rows than the table
     column = cl.Column(COLUMN4)
-    column.AddCells(LIST)
-    column.AddCells(LIST)
-    table.AddColumn(column)
-    # Verify that cells were added
-    self.assertEqual(len(table._columns[COLUMN4].GetCells()), 
-        2*len(LIST))
+    column.addCells(LIST)
+    column.addCells(LIST)
+    with self.assertRaises(er.InvalidColumnStructureForAddToTable):
+      table.addColumn(column)
+
+  def testGetRow(self):
+    row = self.table.getRow()
+    isCorrect = row.has_key(COLUMN1) and row.has_key(COLUMN2)
+    self.assertTrue(isCorrect)
+    isCorrect = row[COLUMN1] is None
+    isCorrect = isCorrect and row[COLUMN2] is None
+    IDX = 1
+    row = self.table.getRow(IDX)
+    isCorrect = row[COLUMN1] == COLUMN1_CELLS[IDX]
+    isCorrect = isCorrect and row[COLUMN2] == COLUMN2_CELLS[IDX]
+    self.assertTrue(isCorrect)
 
   def testAddRow(self):
-    ROW = ["four", 40.0]
-    self.table.AddRow(ROW)
-    self.assertEqual(self.table.GetNumRows(), 4)
-    column = self.columns[0]
-    cells = column.GetCells()
-    self.assertEqual(cells[3], ROW[0])
+    row = self.table.getRow()
+    row[COLUMN1] = "four"
+    row[COLUMN2] = 40.0
+    self.table.addRow(row)
+    expected_rows = len(COLUMN1_CELLS) + 1
+    self.assertEqual(self.table.numRows(), expected_rows)
+    column = self.columns[1]
+    cells = column.getCells()
+    self.assertEqual(cells[3], row[COLUMN1])
 
   def testCopy(self):
-    new_table = self.table.Copy()
-    self.assertEqual(self.table.GetNumRows(), new_table.GetNumRows())
-    self.assertEqual(self.table.GetNumColumns(), new_table.GetNumColumns())
+    new_table = self.table.copy()
+    self.assertEqual(self.table.numRows(), new_table.numRows())
+    self.assertEqual(self.table.numColumns(), new_table.numColumns())
 
   def testDeleteColumn(self):
-    num_col = self.table.GetNumColumns()
-    self.table.DeleteColumn(COLUMN2)
-    self.assertEqual(num_col-1, self.table.GetNumColumns())
+    num_col = self.table.numColumns()
+    column = self.table.columnFromName(COLUMN2)
+    self.table.deleteColumn(column)
+    self.assertEqual(num_col-1, self.table.numColumns())
 
   def testDeleteRows(self):
     ROWS = [0, 2]
-    self.table.DeleteRows(ROWS)
-    #TODO: Adjust test when have 'None' cleanup logics
-    #self.assertEqual(self.table.GetNumRows(), len(COLUMN1_CELLS)-len(ROWS))
+    expected_rows = self.table.numRows() - len(ROWS)
+    self.table.deleteRows(ROWS)
+    self.assertEqual(self.table.numRows(), expected_rows)
 
   def testGetColumns(self):
-    columns = self.table.GetColumns()
-    self.assertEqual(len(columns), self.table.GetNumColumns())
+    columns = self.table.getColumns()
+    self.assertEqual(len(columns), self.table.numColumns())
     for c in columns:
       self.assertTrue(isinstance(c, cl.Column))
 
-  def testGetColumnObject(self):
-    column = self.table.GetColumnObject(COLUMN1)
-    self.assertEqual(column.GetName(), COLUMN1)
-    column1 = self.table.GetColumnObject(1)
-    self.assertEqual(column, column1)
-    column1 = self.table.GetColumnObject(column)
-    self.assertEqual(column, column1)
+  def testNumColumns(self):
+    self.assertEqual(self.table.numColumns(), 3)
 
-# TODO: Fix - not being consistent with column positions
-  def testGetColumnPosition(self):
-    return
-    n = 0
-    for c in self.columns:
-      n += 1
-      pos = self.table.GetColumnPosition(c.GetName())
-      self.assertEqual(pos, n)
-
-  def testGetNumColumns(self):
-    self.assertEqual(self.table.GetNumColumns(), 3)
-
-  def testGetNumRows(self):
-    self.assertEqual(self.table.GetNumRows(), len(COLUMN2_CELLS))
+  def testNumRows(self):
+    self.assertEqual(self.table.numRows(), len(COLUMN2_CELLS))
 
   def testUpdateRow(self):
     rowidx = 1
-    NEW_ROW0 = [COLUMN1_CELLS[rowidx], COLUMN2_CELLS[rowidx]]
-    self.table.UpdateRow(0, NEW_ROW0)
-    rowdict = self.table.GetRows()
-    rowl = [rowdict[COLUMN1][rowidx], rowdict[COLUMN2][rowidx]]
-    for n in range(len(NEW_ROW0)):
-      self.assertEqual(NEW_ROW0[n], rowl[n])
+    row = tb.Row()
+    row[COLUMN1] = '10'
+    row[COLUMN2] = 20.0
+    self.table.updateRow(row, rowidx)
+    row['row'] = self.table._rowNameFromIndex(rowidx)
+    self.assertEqual(row, self.table.getRow(index=rowidx))
+
+  def testMoveColumn(self):
+    column2 = self.table.columnFromName(COLUMN2)
+    self.table.moveColumn(column2, 1)
+    self.assertEqual(self.table._columns[1].getName(), COLUMN2)
       
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.man()

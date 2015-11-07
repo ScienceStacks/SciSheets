@@ -17,7 +17,9 @@ class Column(object):
     self._formula = None
     self._owning_table = None
 
-  def addCells(self, v):
+  def addCells(self, v, replace=False):
+    # Input: v - value(s) to add
+    #        replace - if True, then replace existing cells
     if isinstance(v, list):
       new_data_list = v
     elif isinstance(v, np.ndarray):
@@ -29,9 +31,12 @@ class Column(object):
       for e in new_data_list:
         if not isinstance(e, self._data_type):
           raise ex.DataTypeError("%g is not %s" % (e, self._data_type))
-    full_data_list = self._data_values.tolist()
-    full_data_list.extend(new_data_list)
-    self._data_values = np.array(full_data_list)
+    if replace:
+      self._data_values = np.array(new_data_list)
+    else:
+      full_data_list = self._data_values.tolist()
+      full_data_list.extend(new_data_list)
+      self._data_values = np.array(full_data_list)
 
   def copy(self):
     # Returns a copy of this object
@@ -67,7 +72,7 @@ class Column(object):
     if index is None:
       index = len(self._data_values)
     data_list.insert(index, val)
-    self._daa_values = np.array(data_list)
+    self._data_values = np.array(data_list)
 
   def numCells(self):
     return len(self._data_values)
