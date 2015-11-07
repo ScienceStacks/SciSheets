@@ -1,35 +1,13 @@
 Serve page from Django
-0.1) Revise code to be consistent with the naming and use cases
-     in __init__.py. Use the term "Name Column" instead of
-     "Row Column". 
-0.2) Use Pandas in the implementation? But how deal with nested
-     tables.
-1) revise tests for column
-2) test util
-3) test tableid
-4) test row
-5) test table
 
-1. Single table
--.css uses URLs instead of images/static for drop-down for menus
--Trying to get a form that comes up dynamically when select a button.
- as an alernative, can send request to server, which comes back with the form.
-  The response can include the table.
+1. Generate random tables with output only
 
-1.1 Demonsrate ability to embed multiple lines. (Can embed html using a column formatter).
-2. js + html
-  a. Use example-plugin-headermenu as start (or context menu in http://localhost:8000/SlickGrid/examples/example7-events.html)
-  b. Add
-     editing (from example 3), including handling notifications of changes (e.g., via ajax?)
-  c. Column Header menu
-        insert left 
-        insert right
-        delete
-        cut
-        paste left
-        past right
-2.1 HTMLTable
-   generate the data and headers
+2. Provide for updates to tables
+  a. values
+  b. columns
+  c. rows
+
+3. Implement ITERATE function
 
 3. Tests
    a. Display unnested random table
