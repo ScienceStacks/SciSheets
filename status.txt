@@ -1,9 +1,7 @@
 Serve page from Django
 
-1. Generate random tables with output only
-
 2. Provide for updates to tables
-  a. values
+  a. values - ajax interface to change values, retain table between calls
   b. columns
   c. rows
 
