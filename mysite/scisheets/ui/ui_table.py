@@ -49,16 +49,3 @@ def getContext(table_name, column_names, data):
     data.append(column.GetCells())
   result['data'] = self._Make_JSON_string(data)
   return result
-
-def makeColumnSpec(names):
-  # Returns a column specification array suitable for use
-  # in the YUI column definitions argument called to make a datatable.
-  # Inputs: names - names of columns
-  # Output: result - column specification
-  result = []
-  for name in names:
-    entry = {}
-    entry["key"] = name
-    entry["editor"] = "editor: new YAHOO.widget.TextareaCellEditor()"
-    result.append(entry)
-  return result
