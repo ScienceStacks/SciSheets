@@ -4,9 +4,10 @@ function DataSource() {
   "use strict";
   var sciSheets = new SciSheets();
   this.tableCaption = "{{ table_caption }}";
+  this.tableId = "{{ table_id }}";
   this.columnNames = [
   {% for col in column_names %}
-    "{{ col }}"
+    '{{ col }}'
     {% if col == final_column_name %}
      ];
     {% else %}

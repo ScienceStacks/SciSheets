@@ -1,5 +1,8 @@
 Serve page from Django
 
+0. Getting "html" is null when server pages from Django. Seems
+   to be an issue with the data provided in d.dataSource.
+
 1. Generate random tables with output only
 
 2. Provide for updates to tables

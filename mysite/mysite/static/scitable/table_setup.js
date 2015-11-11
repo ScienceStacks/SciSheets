@@ -1,4 +1,3 @@
-/*jshint onevar: true */
 /*jshint todo: true */
 /*jshint qunit: true */
 /*jshint jquery: true */
@@ -50,9 +49,10 @@ YAHOO.util.Event.addListener(window, "load", function () {
     /* ----------- Code independent of data --------------*/
     // Custom formatter for "address" column to preserve line breaks
     myDataSource = new YAHOO.util.DataSource(d.dataSource);
+    //myDataSource = new YAHOO.util.DataSource(new_data);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
     myDataSource.responseSchema = {
-      fields: d.columnNames
+      fields: d.columnDefs
     };
 
     myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,
