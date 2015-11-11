@@ -38,8 +38,8 @@ def nested(request):
 def tables(request, node):
   return hv.tables(request, node)
 
-def scisheets(request):
-  return sv.scisheets(request)
+def scisheets(request, ncol, nrow):
+  return sv.scisheets(request, ncol, nrow)
 
 ''' Handle requests for images from jquery-ui
 /*

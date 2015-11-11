@@ -4,12 +4,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Context
-from ..ui.ui_table import makeJSONStr, getContext, makeColumnSpec
+from ..ui.ui_table import makeJSONStr, getContext
 from ..core.column import Column
+from ..ui.ui_table import UITable
+import numpy as np
 
 
 # This version uses templates to generate column names
-def scisheets(request):
+def scisheets_old(request):
   column_names = ["row", "name", "address", "salary"]
   final_column_name = column_names[-1]
   table_id = "scitable" # Must match ID in the html file
@@ -27,4 +29,31 @@ def scisheets(request):
               'data': data,
              }
   html = get_template('scitable.html').render(ctx_dict)
+  return HttpResponse(html)
+
+def scisheets_older(request):
+  table = UITable("DemoTable")
+  column = Column("name")
+  names = ["John QQ. Smith", "Joan B. Jones", "Bob C. Uncle", "John D. Smith", "Joan E. Jones", "Jacob Burns"]
+  column.addCells(names)
+  table.addColumn(column)
+  column = Column("address")
+  addresses = ["1236 Some Street", "3271 Another Ave", "9996 Random Road", "1623 Some Street", "3217 Another Ave", "7118 McGee"]
+  column.addCells(addresses)
+  table.addColumn(column)
+  column = Column("salary")
+  salaries = ["12.33", "34556", "893", "0.092", "23456", "20,101"]
+  column.addCells(salaries)
+  table.addColumn(column)
+  html = table.render()
+  return HttpResponse(html)
+
+def scisheets(request, ncol, nrow):
+  table = UITable("DemoTable")
+  for c in range(int(ncol)):
+    column = Column("Col-" + str(c))
+    values = np.random.randint(1, 100, int(nrow))
+    column.addCells(values)
+    table.addColumn(column)
+  html = table.render()
   return HttpResponse(html)

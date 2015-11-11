@@ -2,9 +2,10 @@
   Extends the Table class to display a table and respond to UI events
 '''
 
-
-from ..core.table import Table
+from django.shortcuts import render
+from django.template.loader import get_template
 from numpy import array
+from ..core.table import Table
 
 
 def makeJSONStr(column_names, data):
@@ -49,3 +50,24 @@ def getContext(table_name, column_names, data):
     data.append(column.GetCells())
   result['data'] = self._Make_JSON_string(data)
   return result
+
+class UITable(Table):
+  ''' 
+      Extends the Table class to provide rendering of the Table as
+      a YUI DataTable.
+  '''
+  
+  def render(self, table_id="scitable"):
+    # Input: table_id - how the table is identified in the HTML
+    # Output: html rendering of the Table
+    column_names = [c.getName() for c in self._columns]
+    column_data = [c.getCells().tolist() for c in self._columns]
+    data = makeJSONStr(column_names, column_data)
+    ctx_dict = {'column_names': column_names,
+                'final_column_name': column_names[-1],
+                'table_caption': self.getName(),
+                'table_id': table_id,
+                'data': data,
+               }
+    html = get_template('scitable.html').render(ctx_dict)
+    return html
