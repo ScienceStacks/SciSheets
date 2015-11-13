@@ -44,6 +44,57 @@ SciSheets.prototype.formatColumn = function (name) {
   };
 };
 
+// Factory to create SeverCommand objects (a JSON structure)
+// Returns a command object
+SciSheets.prototype.createServerCommand = function () {
+  "use strict";
+  return {command: null,
+          table: null,
+          column: null,
+          row: null
+         };
+};
+
+/* --------------------------------------------------------------- 
+  Sends a ServerCommand object to the sever
+   Assumes that a JSON object is returned from the server.
+      success: boolean that indicates if processing was successful
+      data: string returned from server
+   Input: serverCommand - a ServerCommand object
+          successFunction - function to execute if successful
+            The function has a single argument that is the
+            string value returned from the server.
+   Usage example:
+      var scisheets = new SciSheets();
+      var data = scisheets.createServerCommand();
+      data.command = "delete";
+      data.table = "my table";
+      data.column = "-3";
+      var aSuccessFunction = function (return_data) {
+        "use strict";
+        alert(return_data);
+        window.console.log('Successful');
+      };
+      scisheets.sendServerCommand(data, aSuccessFunction);
+--------------------------------------------------------------- */
+SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction) {
+  "use strict";
+  $.ajax({async: true,
+    url: "tryajax/scisheets_command",
+    data: serverCommand,
+    success: function (result) {
+      if (!result.success) {
+        alert("Server error for cmd: " + serverCommand.command);
+      }
+      successFunction(result.data);
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+      alert(xhr.status);
+      alert(thrownError);
+    }
+    });
+};
+
 // EventProcessing Object
 function SciSheetsUtilEvent(scisheet, oArgs) {
   "use strict";

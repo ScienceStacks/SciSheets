@@ -1,5 +1,15 @@
 Serve page from Django
 
+1. Implement processing for a data cell update
+   a. Server has a persistent session variable. If the variable doesn't
+      exist, a random table is created.
+   b. Update doesn't reload the page.
+   c. UITable has a method: uiCellUpdate(row, column, value)
+
+1.1 Implement column delete.
+   a. Command is sent to delete the column
+   b. Success function causes the page to be reloaded.
+
 2. Provide for updates to tables
   a. values - ajax interface to change values, retain table between calls
   b. columns

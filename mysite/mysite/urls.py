@@ -23,5 +23,7 @@ urlpatterns = patterns('',
     url(r'^upload/', 'scisheets.views.upload'),
     #url(r'^scisheets/', 'scisheets.views.scisheets'),
     url(r'^scisheets/(?P<ncol>.+)/(?P<nrow>.+)/$', 'scisheets.views.scisheets'),
+    url(r'^tryajax/scisheets_command', 'scisheets.views.tryajax_reply'),
+    url(r'^tryajax', 'scisheets.views.tryajax'),
 )
 urlpatterns += staticfiles_urlpatterns()

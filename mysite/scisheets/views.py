@@ -3,6 +3,12 @@ from django.http import HttpResponse
 from scisheets.helpers import helpers_views as hv
 from scisheets.helpers import scisheets_views as sv
 from heatmap.helpers import table_view as tv
+from django.shortcuts import render
+from django.template.loader import get_template
+from django.views.decorators.http import require_http_methods
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 #######################
@@ -41,11 +47,18 @@ def tables(request, node):
 def scisheets(request, ncol, nrow):
   return sv.scisheets(request, ncol, nrow)
 
-''' Handle requests for images from jquery-ui
-/*
- def images(request, filename):
- create a file attachment. modify the header. use response.write
-   file_path = "./mysite/template/jquery-ui/image" + filename
-   return render_to_response(file_path, { 'img':
-*/
-'''
+def tryajax(request):
+  html = get_template('tryajax.html').render({})
+  return HttpResponse(html)
+
+def tryajax_reply(request):
+  if request.GET.has_key('column'):
+    val = int(request.GET.get('column'))
+    if val < 1:
+       msg = "<1"
+    else:
+       msg = ">=1"
+    data = {'data': msg, 'success': True}
+    json_str = json.dumps(data)
+    return HttpResponse(json_str, content_type="application/json")
+  return HttpResponse('got reply')

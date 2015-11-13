@@ -9,9 +9,10 @@ from ..core.table import Table
 
 
 def makeJSONStr(column_names, data):
-  # Creates a string that javascript parses into JSON
-  # Input: column_names - list of names of the data columns
-  #        data - list of columns of data
+  # Creates a string that javascript parses into JSON in
+  # the format expected by YUI datatable
+  # Input: column_names - list of variables
+  #        data - list of array data
   # Output: result - JSON parseable string
   number_of_columns = len(column_names)
   if len(data) > 0:
