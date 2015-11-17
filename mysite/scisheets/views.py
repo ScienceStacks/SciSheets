@@ -47,6 +47,9 @@ def tables(request, node):
 def scisheets(request, ncol, nrow):
   return sv.scisheets(request, ncol, nrow)
 
+def scisheets_reload(request):
+  return sv.scisheets_reload(request)
+
 def tryajax(request):
   html = get_template('tryajax.html').render({})
   return HttpResponse(html)

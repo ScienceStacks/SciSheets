@@ -8,52 +8,36 @@ from ..ui.ui_table import makeJSONStr, getContext
 from ..core.column import Column
 from ..ui.ui_table import UITable
 import numpy as np
+import pickle
 
+PICKLE_FILE = "pickle.p"
+PICKLE_KEY = "pickle_file"
 
-# This version uses templates to generate column names
-def scisheets_old(request):
-  column_names = ["row", "name", "address", "salary"]
-  final_column_name = column_names[-1]
-  table_id = "scitable" # Must match ID in the html file
-  table_caption = "Demo Table"
-  names = ["John Q. Smith", "Joan B. Jones", "Bob C. Uncle", "John D. Smith", "Joan E. Jones", "Jacob Burns"]
-  addresses = ["1236 Some Street", "3271 Another Ave", "9996 Random Road", "1623 Some Street", "3217 Another Ave", "7118 McGee"]
-  salaries = ["12.33", "34556", "893", "0.092", "23456", "20,101"]
-  row_names = [str(n+1) for n in range(len(names))]
-  data = makeJSONStr(column_names, 
-      [row_names, names, addresses, salaries])
-  ctx_dict = {'column_names': column_names,
-              'final_column_name': final_column_name,
-              'table_caption': table_caption,
-              'table_id': table_id,
-              'data': data,
-             }
-  html = get_template('scitable.html').render(ctx_dict)
-  return HttpResponse(html)
-
-def scisheets_older(request):
-  table = UITable("DemoTable")
-  column = Column("name")
-  names = ["John QQ. Smith", "Joan B. Jones", "Bob C. Uncle", "John D. Smith", "Joan E. Jones", "Jacob Burns"]
-  column.addCells(names)
-  table.addColumn(column)
-  column = Column("address")
-  addresses = ["1236 Some Street", "3271 Another Ave", "9996 Random Road", "1623 Some Street", "3217 Another Ave", "7118 McGee"]
-  column.addCells(addresses)
-  table.addColumn(column)
-  column = Column("salary")
-  salaries = ["12.33", "34556", "893", "0.092", "23456", "20,101"]
-  column.addCells(salaries)
-  table.addColumn(column)
-  html = table.render()
-  return HttpResponse(html)
 
 def scisheets(request, ncol, nrow):
+  # Creates a new table with the specified number of columns and rows
   table = UITable("DemoTable")
   for c in range(int(ncol)):
     column = Column("Col-" + str(c))
     values = np.random.randint(1, 100, int(nrow))
     column.addCells(values)
     table.addColumn(column)
+  request.session[PICKLE_KEY] = PICKLE_FILE
+  pickle.dump(table, open(PICKLE_FILE, "wb"))
   html = table.render()
   return HttpResponse(html)
+
+def scisheets_reload(request):
+  # Invoked to reload the current page
+  if request.session.has_key(PICKLE_KEY):
+    table = pickle.load( open(request.session[PICKLE_KEY], "rb"))
+    html = table.render()
+  else:
+    html = "No session found"
+  return HttpResponse(html)
+
+def scisheets_command(request):
+  # Invoked from Ajax within the page
+  # Input: ???
+  # Output returned: ???
+  NotYetImplemented

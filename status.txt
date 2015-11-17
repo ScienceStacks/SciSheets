@@ -1,8 +1,8 @@
 Serve page from Django
 
 1. Implement processing for a data cell update
-   a. Server has a persistent session variable. If the variable doesn't
-      exist, a random table is created.
+   a. Implement AJAX to send cell updates and server side to record it.
+      Prove works by doing a reload
    b. Update doesn't reload the page.
    c. UITable has a method: uiCellUpdate(row, column, value)
 
