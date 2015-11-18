@@ -51,7 +51,8 @@ SciSheets.prototype.createServerCommand = function () {
   return {command: null,
           table: null,
           column: null,
-          row: null
+          row: null,
+          value: null
          };
 };
 
@@ -80,7 +81,7 @@ SciSheets.prototype.createServerCommand = function () {
 SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction) {
   "use strict";
   $.ajax({async: true,
-    url: "tryajax/scisheets_command",
+    url: "command",
     data: serverCommand,
     success: function (result) {
       if (!result.success) {

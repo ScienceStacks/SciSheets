@@ -254,6 +254,18 @@ class Table(ColumnContainer):
   def numRows(self):
     return self._columns[NAME_COLUMN_IDX].numCells()
 
+  def rowIndexFromName(self, name):
+    return int(name) - 1
+
+  def updateCell(self, value, row_index, column_index):
+    # Changes the value of the identified cell
+    # Inputs: value - new value for the cell
+    #         row_index - 0-based index of the row
+    #         column_index - 0-based index of the column
+    column = self.columnFromIndex(column_index)
+    column.updateCell(value, row_index)
+
+
   def updateRow(self, row, index):
     # Updates the row in place. Only changes values
     # that are specified in row.

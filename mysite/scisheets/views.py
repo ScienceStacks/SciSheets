@@ -47,6 +47,12 @@ def tables(request, node):
 def scisheets(request, ncol, nrow):
   return sv.scisheets(request, ncol, nrow)
 
+def scisheets_command(request, ncol, nrow):
+  return sv.scisheets_command(request, ncol, nrow)
+
+def scisheets_command0(request):
+  return sv.scisheets_command0(request)
+
 def scisheets_reload(request):
   return sv.scisheets_reload(request)
 

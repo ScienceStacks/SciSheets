@@ -6,6 +6,7 @@
 /*jslint plusplus: true */
 /*jshint onevar: false */
 /*global SciSheetsUtilEvent, SciSheets, $, alert, YAHOO */
+/*global SciSheets */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
@@ -17,17 +18,21 @@ function SciSheetsCell(scisheet) {
 
 SciSheetsCell.prototype.click = function (oArgs) {
   "use strict";
-  var ep, msg;
+  var ep, msg, cmd, scisheet;
+  scisheet = this.scisheet;
   ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
-  msg = "Clicked cell = (" + ep.rowIndex + ", " + ep.columnIndex + ").";
-  console.log(msg);
+  this.scisheet.dataTable.on('editorSaveEvent', function (oArgs) {
+    //var key = oArgs.editor.getColumn().key;
+    msg = "Clicked cell = (" + ep.rowIndex + ", " + ep.columnIndex + ").";
+    msg += " Old data: "  + oArgs.oldData + ".";
+    msg += " New data: "  + oArgs.newData + ".";
+    console.log(msg);
+    cmd = scisheet.createServerCommand();
+    cmd.command = "Update";
+    cmd.column = ep.columnIndex;
+    cmd.row = ep.rowIndex;
+    cmd.value = oArgs.newData;
+    scisheet.sendServerCommand(cmd, function () {});
+  });
   this.scisheet.dataTable.onEventShowCellEditor(oArgs);
-};
-
-SciSheetsCell.prototype.modify = function (oArgs) {
-  "use strict";
-  var ep, msg;
-  ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
-  msg = "Modified cell = (" + ep.rowIndex + ", " + ep.columnIndex + ").";
-  console(msg);
 };

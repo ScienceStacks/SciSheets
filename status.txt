@@ -1,10 +1,8 @@
 Serve page from Django
 
 1. Implement processing for a data cell update
-   a. Implement AJAX to send cell updates and server side to record it.
-      Prove works by doing a reload
-   b. Update doesn't reload the page.
-   c. UITable has a method: uiCellUpdate(row, column, value)
+   a. Why am I getting "pickle.p"
+   a. Provide tests for js & python new code
 
 1.1 Implement column delete.
    a. Command is sent to delete the column

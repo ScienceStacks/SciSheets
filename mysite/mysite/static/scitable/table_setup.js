@@ -49,7 +49,6 @@ YAHOO.util.Event.addListener(window, "load", function () {
     /* ----------- Code independent of data --------------*/
     // Custom formatter for "address" column to preserve line breaks
     myDataSource = new YAHOO.util.DataSource(d.dataSource);
-    //myDataSource = new YAHOO.util.DataSource(new_data);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
     myDataSource.responseSchema = {
       fields: d.columnDefs
