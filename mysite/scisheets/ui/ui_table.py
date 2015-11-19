@@ -4,8 +4,9 @@
 
 from django.shortcuts import render
 from django.template.loader import get_template
-from numpy import array
+import numpy as np
 from ..core.table import Table
+from ..core.column import Column
 
 
 def makeJSONStr(column_names, data):
@@ -57,6 +58,44 @@ class UITable(Table):
       Extends the Table class to provide rendering of the Table as
       a YUI DataTable.
   '''
+
+  @staticmethod
+  def createRandomIntTable(name, nrow, ncol, low_int=0, hi_int=100):
+    # Creates a table with random integers as values
+    # Input: name - name of the table
+    #        nrow - number of rows
+    #        ncol - number of columns
+    #        low_int - smallest integer
+    #        hi_int - largest integer
+    table = UITable(name)
+    for c in range(int(ncol)):
+      column = Column("Col-" + str(c))
+      values = np.random.randint(low_int, hi_int, int(nrow))
+      column.addCells(values)
+      table.addColumn(column)
+    return table
+
+  def processCommand(self, cmd_dict):
+    # Processes a UI request for the Table.
+    # Input: cmd_dict - dictionary with the keys
+    #          command - command issued
+    #          table_name - name of the table
+    #          column_index - 0 based index
+    #          row_index - 0 based index of row
+    #          value - value assigned
+    # Output: response - Dictionary with response
+    #            data: data returned
+    #            success: True/False
+    response = {'data': None, 'success': False}
+    if cmd_dict['command'] == "Update":
+      self.updateCell(cmd_dict['value'], 
+                      cmd_dict['row_index'], 
+                      cmd_dict['column_index'])
+      response['data'] = "OK"
+      response['success'] = True
+    else:
+      NotYetImplemented
+    return response
   
   def render(self, table_id="scitable"):
     # Input: table_id - how the table is identified in the HTML

@@ -254,7 +254,8 @@ class Table(ColumnContainer):
   def numRows(self):
     return self._columns[NAME_COLUMN_IDX].numCells()
 
-  def rowIndexFromName(self, name):
+  @staticmethod
+  def rowIndexFromName(name):
     return int(name) - 1
 
   def updateCell(self, value, row_index, column_index):

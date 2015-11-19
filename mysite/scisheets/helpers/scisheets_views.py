@@ -17,7 +17,7 @@ PICKLE_KEY = "pickle_file"
 
 
 # ******************** Helper Functions *****************
-def extractDataFromGet(request, key):
+def extractDataFromRequest(request, key):
   # Returns the value of the key
   if request.GET.has_key(key):
     strValue = request.GET.get(key)
@@ -31,6 +31,23 @@ def extractDataFromGet(request, key):
     return value
   else:
     return None
+
+def createCommandDict(request):
+  # Creates a dictionary from the fields in the request
+  # that constitute the JSON structure sent in the command
+  # from AJAX.
+  # Input: request - HTML request object
+  # Output: result - dictionary of the command
+  result = {}
+  result['command'] = extractDataFromRequest(request, 'command')
+  result['table_name'] = extractDataFromRequest(request, 'table')
+  result['column_index'] = extractDataFromRequest(request, 'column')
+  if result['column_index'] is not None:
+    result['column_index'] -= 1  # Adjust for 0 based indexing
+  result['row_index'] = UITable.rowIndexFromName(extractDataFromRequest(request, 
+                                                                      'row'))
+  result['value'] = extractDataFromRequest(request, 'value')
+  return result
 
 def unPickleTable(request):
   # Returns the table if found
@@ -56,12 +73,7 @@ def pickleTable(request, table):
 
 def scisheets(request, ncol, nrow):
   # Creates a new table with the specified number of columns and rows
-  table = UITable("DemoTable")
-  for c in range(int(ncol)):
-    column = Column("Col-" + str(c))
-    values = np.random.randint(1, 100, int(nrow))
-    column.addCells(values)
-    table.addColumn(column)
+  table = UITable.createRandomIntTable("Demo", ncol, nrow)
   html = table.render()
   pickleTable(request, table)
   return HttpResponse(html)
@@ -73,23 +85,11 @@ def scisheets_command(request, _, __):
 def scisheets_command0(request):
   # Invoked from Ajax within the page with a command structure
   # Input: request - includes command structure in the GET
-  # Output returned: ???
-  command = extractDataFromGet(request, 'command')
-  table = extractDataFromGet(request, 'table')
-  column_index = extractDataFromGet(request, 'column')
-  if column_index is not None:
-    column_index -= 1  # Adjust for 0 based indexing
-  row_name = extractDataFromGet(request, 'row')
-  value = extractDataFromGet(request, 'value')
+  # Output returned - 
+  cmd_dict = createCommandDict(request)
   table = unPickleTable(request)
-  if command == "Update":
-    row_index = table.rowIndexFromName(row_name)
-    table.updateCell(value, row_index, column_index)
-  else:
-    NotYetImplemented
-  pickleTable(request, table)
-  data = {'data': "OK", 'success': True}
-  json_str = json.dumps(data)
+  json_str = json.dumps(table.processCommand(cmd_dict))
+  pickleTable(request, table)  # Save table modifications
   return HttpResponse(json_str, content_type="application/json")
 
 def scisheets_reload(request):
