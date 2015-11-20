@@ -49,7 +49,8 @@ SciSheets.prototype.formatColumn = function (name) {
 SciSheets.prototype.createServerCommand = function () {
   "use strict";
   return {command: null,
-          table: null,
+          target: null,  // Part of table targeted
+          table: null,   // Table name
           column: null,
           row: null,
           value: null
@@ -104,7 +105,8 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   table = this.scisheet.dataTable;
   this.target = oArgs.target;
   this.columnName = table.getColumn(this.target).field;
-  this.columnIndex = table.getCellIndex(this.target) + 1;
+  this.columnIndex = oArgs.target.cellIndex;
+  // this.columnIndex = table.getCellIndex(this.target) + 1;
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }
 
@@ -121,8 +123,8 @@ function SciSheetsUtilClick(eleId, selectedEleFunc) {
     {
       role: "listbox",
       select: function (event, data) {
+        selectedEleFunc(event.currentTarget.firstChild.data);
         $(clickMenu).css("display", "none");
-        selectedEleFunc(eleId);
       },
       blur: function (event, data) {
         $(clickMenu).css("display", "none");

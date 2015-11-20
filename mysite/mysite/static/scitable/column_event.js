@@ -20,21 +20,29 @@ function SciSheetsColumn(scisheet) {
 
 SciSheetsColumn.prototype.click = function (oArgs) {
   "use strict";
-  var ep;
-  ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
+  var ep, scisheet;
+  scisheet = this.scisheet;
+  ep = new SciSheetsUtilEvent(scisheet, oArgs);
   if (ep.columnName  === ROW_NAME) {
     SciSheetsUtilClick("FirstColumnClickMenu", function (eleId) {
       var msg;
-      msg = "Column '" + ep.columnName + "' clicked.";
-      msg += " Selected " + eleId + ".";
+      msg = "Row Name Column clicked.";
       console.log(msg);
     });
   } else {
     SciSheetsUtilClick("ColumnClickMenu", function (eleId) {
-      var msg;
-      msg = "Column '" + ep.columnName + "' clicked.";
+      var msg, cmd;
+      msg = "Column " + ep.columnIndex + " (" + ep.columnName + ")" + " clicked.";
       msg += " Selected " + eleId + ".";
       console.log(msg);
+      cmd = scisheet.createServerCommand();
+      cmd.command = eleId;
+      cmd.column = ep.columnIndex;
+      cmd.target = "Column";
+      scisheet.sendServerCommand(cmd, function (data) {
+        console.log("Server returned: " + data);
+        window.location.href = 'http://localhost:8000/scisheets/';  // reload the page
+      });
     });
   }
 };

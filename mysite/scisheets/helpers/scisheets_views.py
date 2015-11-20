@@ -40,12 +40,18 @@ def createCommandDict(request):
   # Output: result - dictionary of the command
   result = {}
   result['command'] = extractDataFromRequest(request, 'command')
+  result['target'] = extractDataFromRequest(request, 'target')
   result['table_name'] = extractDataFromRequest(request, 'table')
   result['column_index'] = extractDataFromRequest(request, 'column')
   if result['column_index'] is not None:
     result['column_index'] -= 1  # Adjust for 0 based indexing
-  result['row_index'] = UITable.rowIndexFromName(extractDataFromRequest(request, 
-                                                                      'row'))
+  row_name = extractDataFromRequest(request, 'row')
+  try:
+    do_conversion = isinstance(int(row_name), int)
+  except:
+    do_conversion = False
+  if do_conversion:
+    result['row_index'] = UITable.rowIndexFromName(row_name)
   result['value'] = extractDataFromRequest(request, 'value')
   return result
 

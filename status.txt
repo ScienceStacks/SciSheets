@@ -1,5 +1,8 @@
 Serve page from Django
 
+a. Delete a column not working
+b. Update a cell seems to be in wrong position after reload
+
 1. Implement processing for a data cell update
    a. Why am I getting "pickle.p"
    a. Provide tests for js & python new code

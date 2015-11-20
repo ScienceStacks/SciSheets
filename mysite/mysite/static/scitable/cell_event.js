@@ -20,8 +20,8 @@ SciSheetsCell.prototype.click = function (oArgs) {
   "use strict";
   var ep, msg, cmd, scisheet;
   scisheet = this.scisheet;
-  ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
-  this.scisheet.dataTable.on('editorSaveEvent', function (oArgs) {
+  ep = new SciSheetsUtilEvent(scisheet, oArgs);
+  scisheet.dataTable.on('editorSaveEvent', function (oArgs) {
     //var key = oArgs.editor.getColumn().key;
     msg = "Clicked cell = (" + ep.rowIndex + ", " + ep.columnIndex + ").";
     msg += " Old data: "  + oArgs.oldData + ".";
@@ -29,10 +29,13 @@ SciSheetsCell.prototype.click = function (oArgs) {
     console.log(msg);
     cmd = scisheet.createServerCommand();
     cmd.command = "Update";
+    cmd.target = "Cell";
     cmd.column = ep.columnIndex;
     cmd.row = ep.rowIndex;
     cmd.value = oArgs.newData;
-    scisheet.sendServerCommand(cmd, function () {});
+    scisheet.sendServerCommand(cmd, function (data) {
+      console.log("Returned: " + data);
+    });
   });
   this.scisheet.dataTable.onEventShowCellEditor(oArgs);
 };

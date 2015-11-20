@@ -79,6 +79,7 @@ class UITable(Table):
     # Processes a UI request for the Table.
     # Input: cmd_dict - dictionary with the keys
     #          command - command issued
+    #          target - type of table object targeted: Cell, Column, Row
     #          table_name - name of the table
     #          column_index - 0 based index
     #          row_index - 0 based index of row
@@ -87,13 +88,21 @@ class UITable(Table):
     #            data: data returned
     #            success: True/False
     response = {'data': None, 'success': False}
-    if cmd_dict['command'] == "Update":
-      self.updateCell(cmd_dict['value'], 
-                      cmd_dict['row_index'], 
-                      cmd_dict['column_index'])
-      response['data'] = "OK"
-      response['success'] = True
-    else:
+    # Cells
+    if cmd_dict["target"] == "Cell":
+      if cmd_dict["command"] == "Update":
+        self.updateCell(cmd_dict["value"], 
+                        cmd_dict["row_index"], 
+                        cmd_dict["column_index"])
+        response["data"] = "OK"
+        response["success"] = True
+    if cmd_dict["target"] == "Column":
+      if cmd_dict['command'] == "Delete":
+        column = self.columnFromIndex(cmd_dict["column_index"])
+        self.deleteColumn(column)
+        response["data"] = "OK"
+        response["success"] = True
+    if not response["success"]:
       NotYetImplemented
     return response
   
