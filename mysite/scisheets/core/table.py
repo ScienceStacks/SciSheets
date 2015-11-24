@@ -34,7 +34,7 @@ class ColumnContainer(object):
     self._columns = []  # array of column objects in table sequence
 
   def columnFromIndex(self, index):
-    # Returns a dictionary with the column object at the index
+    # Returns the column object at the index
     return self._columns[index]
 
   def columnFromName(self, name):

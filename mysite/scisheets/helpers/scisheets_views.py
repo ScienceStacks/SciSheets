@@ -43,8 +43,6 @@ def createCommandDict(request):
   result['target'] = extractDataFromRequest(request, 'target')
   result['table_name'] = extractDataFromRequest(request, 'table')
   result['column_index'] = extractDataFromRequest(request, 'column')
-  if result['column_index'] is not None:
-    result['column_index'] -= 1  # Adjust for 0 based indexing
   row_name = extractDataFromRequest(request, 'row')
   try:
     do_conversion = isinstance(int(row_name), int)
@@ -94,12 +92,14 @@ def scisheets_command0(request):
   # Output returned - 
   cmd_dict = createCommandDict(request)
   table = unPickleTable(request)
-  json_str = json.dumps(table.processCommand(cmd_dict))
+  command_result = table.processCommand(cmd_dict)
+  json_str = json.dumps(command_result)
   pickleTable(request, table)  # Save table modifications
   return HttpResponse(json_str, content_type="application/json")
 
 def scisheets_reload(request):
   # Invoked to reload the current page
+  pickle_file = request.session.get(PICKLE_KEY)
   table = unPickleTable(request)
   if table is None:
     html = "No session found"
