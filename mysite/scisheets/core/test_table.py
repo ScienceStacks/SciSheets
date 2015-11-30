@@ -213,6 +213,10 @@ class TestTable(unittest.TestCase):
     new_row = self.table.getRow(INDEX)
     self.assertEqual(new_row[COLUMN1], row[COLUMN1])
     self.assertEqual(new_row[COLUMN2], row[COLUMN2])
+
+  def testGetCell(self):
+    self.assertEqual(self.table.getCell(0, 1),
+                     COLUMN1_CELLS[0])
       
 
 if __name__ == '__main__':

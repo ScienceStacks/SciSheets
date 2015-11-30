@@ -44,6 +44,9 @@ class ColumnContainer(object):
         return c
     return None
 
+  def getCell(self, row_index, column_index):
+    return self._columns[column_index].getCells()[row_index]
+
   def getColumns(self):
     # Returns a list with the column objects in sequence
     return self._columns

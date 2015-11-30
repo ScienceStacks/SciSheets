@@ -35,23 +35,6 @@ def makeJSONStr(column_names, data):
   result += "]'"
   return result
 
-def getContext(table_name, column_names, data):
-  # Returns the context required to render the table using
-  # the scitable_data.html template
-  # Output: result - a dictionary with the value specifications
-  result = {}
-  result['table_caption'] = self._name
-  column_names = []
-  columns = self.GetColumns()
-  for column in columns:
-    column_names.append(column.GetName())
-  result['column_names'] = column_names
-  result['final_column_name'] = column_names[-1]
-  data = []
-  for column in columns:
-    data.append(column.GetCells())
-  result['data'] = self._Make_JSON_string(data)
-  return result
 
 class UITable(Table):
   ''' 
@@ -78,8 +61,8 @@ class UITable(Table):
   def processCommand(self, cmd_dict):
     # Processes a UI request for the Table.
     # Input: cmd_dict - dictionary with the keys
-    #          command - command issued
     #          target - type of table object targeted: Cell, Column, Row
+    #          command - command issued
     #          table_name - name of the table
     #          column_index - 0 based index
     #          row_index - 0 based index of row

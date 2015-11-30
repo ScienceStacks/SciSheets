@@ -4,7 +4,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Context
-from ..ui.ui_table import makeJSONStr, getContext
 from ..core.column import Column
 from ..ui.ui_table import UITable
 import json
