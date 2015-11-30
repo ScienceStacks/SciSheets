@@ -69,7 +69,7 @@ def pickleTable(request, table):
     fh = tempfile.NamedTemporaryFile()
     request.session[PICKLE_KEY] = fh.name  # Just get the name
     fh.close()
-  pickle_file = request.session[PICKLE_KEY]
+  pickle_file = request.session.get(PICKLE_KEY)
   pickle.dump(table, open(pickle_file, "wb"))
 
 

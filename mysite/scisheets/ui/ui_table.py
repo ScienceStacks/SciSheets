@@ -98,8 +98,6 @@ class UITable(Table):
         response["success"] = True
     if cmd_dict["target"] == "Column":
       if cmd_dict['command'] == "Delete":
-        num_cols = self.numColumns()
-        BOMB
         column = self.columnFromIndex(cmd_dict["column_index"])
         self.deleteColumn(column)
         num_cols = self.numColumns()
