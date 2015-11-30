@@ -239,7 +239,7 @@ class Table(ColumnContainer):
       column =  self._columns[n]
       name = column.getName()
       if (name in row.keys()):
-        column.insertCell(val, idx)
+        column.insertCell(row[name], idx)
       else:
         column.insertCell(None, idx)
     self._updateNameColumn()

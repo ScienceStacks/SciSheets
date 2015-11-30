@@ -147,6 +147,72 @@ class TestTable(unittest.TestCase):
     column2 = self.table.columnFromName(COLUMN2)
     self.table.moveColumn(column2, 1)
     self.assertEqual(self.table._columns[1].getName(), COLUMN2)
+
+  def testColumnFromIndex(self):
+    COLUMN2_INDEX = 1
+    column2 = self.table.columnFromIndex(COLUMN2_INDEX)
+    self.assertEqual(column2.getName(), COLUMN1)
+
+  def testInsertColumn(self):
+    NEW_COLUMN_NAME = "NEW_COLUMN"
+    index = 1
+    new_column = cl.Column(NEW_COLUMN_NAME)
+    self.table.insertColumn(new_column, index)
+    self.assertEqual(self.table._columns[index].getName(), 
+        NEW_COLUMN_NAME)
+    NEWER_COLUMN_NAME = "NEWER_COLUMN"
+    newer_column = cl.Column(NEWER_COLUMN_NAME)
+    index = len(self.table._columns)
+    self.table.insertColumn(newer_column)
+    self.assertEqual(self.table._columns[index].getName(), 
+        NEWER_COLUMN_NAME)
+
+  def testRemoveColumn(self):
+    num_col = self.table.numColumns()
+    column = self.table.getColumns()[1]
+    self.table.removeColumn(column)
+    self.assertEqual(self.table.numColumns(), num_col - 1)
+
+  def testInsertRow(self):
+    row = self.table.getRow()  # Get an empty row
+    row[COLUMN1] = "four"
+    row[COLUMN2] = 50
+    index = 0
+    self.table.insertRow(row, index=index)
+    columns = self.table.getColumns()
+    self.assertEqual(columns[1].getCells()[index], "four")
+    self.assertEqual(columns[2].getCells()[index], 50)
+    index = len(columns[1].getCells())
+    self.table.insertRow(row)
+    self.assertEqual(columns[1].getCells()[index], "four")
+    self.assertEqual(columns[2].getCells()[index], 50)
+
+  def testMoveRow(self):
+    cur_row = self.table.getRow(1)
+    self.table.moveRow(1,2)
+    new_row = self.table.getRow(2)
+    for k in cur_row.keys():
+      if k != 'row':
+        self.assertEqual(cur_row[k], new_row[k])
+
+  def testUpdateCell(self):
+    NEW_VALUE = "onee"
+    COLUMN_INDEX = 1
+    ROW_INDEX = 0
+    self.table.updateCell("onee", ROW_INDEX, COLUMN_INDEX)
+    columns = self.table.getColumns()
+    self.assertEqual(columns[COLUMN_INDEX].getCells()[ROW_INDEX],
+        NEW_VALUE)
+
+  def testUpdateRow(self):
+    row = self.table.getRow()  # Get an empty row
+    row[COLUMN1] = "four"
+    row[COLUMN2] = 50
+    INDEX = 0
+    self.table.updateRow(row, index=INDEX)
+    new_row = self.table.getRow(INDEX)
+    self.assertEqual(new_row[COLUMN1], row[COLUMN1])
+    self.assertEqual(new_row[COLUMN2], row[COLUMN2])
       
 
 if __name__ == '__main__':
