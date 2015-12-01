@@ -13,15 +13,6 @@ TEST_FILE2 = os.path.join(settings.BASE_DIR,
 
 class TestFunctions(unittest.TestCase):
 
-  def testConvertType(self):
-    self.assertEqual(fa.ConvertType('3'), 3)
-    self.assertEqual(fa.ConvertType('3s'), '3s')
-    self.assertTrue(abs(fa.ConvertType('3.1') - 3.1) < 0.001)
-
-  def testConvertTypes(self):
-    self.assertEqual(fa.ConvertTypes(['3', '3s', '3.1']),
-                                    [ 3 , '3s',  3.1  ])
-
   def testSplitFilename(self):
     NAME = "dummy"
     EXT = "ext"

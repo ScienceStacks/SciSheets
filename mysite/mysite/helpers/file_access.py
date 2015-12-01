@@ -1,5 +1,6 @@
 '''Utility routines that add in file access'''
 
+import util as ut
 import json
 
 
@@ -21,28 +22,6 @@ class InternalError(Error):
 #############################
 # Functions
 #############################
-def ConvertType(v):
-  # Converts to int, float, str as required
-  # Input: v - string representation
-  # Output: r - new representation
-  try:
-    r = int(v)
-  except:
-    try:
-      r = float(v)
-    except:
-      r = v  # Leave as string
-  return r
-
-def ConvertTypes(values):
-  # Converts a list strings to a list of their types
-  # Input: values - list
-  # Output: results
-  results = []
-  for v in values:
-    results.append(ConvertType(v))
-  return results
-
 def SplitFilename(filename):
   # Returns the name and extension
   # Input: filename - <file>.<ext>
@@ -104,7 +83,7 @@ class File2Json(_FileBase):
             self._filename, n)
         raise FileError(msg)
       for i in range(len(colvals)):
-        dic[self._colnames[i]] = ConvertType(colvals[i])
+        dic[self._colnames[i]] = ut.ConvertType(colvals[i])
       lst.append(dic)
     result = json.dumps(lst)
     return result
@@ -181,7 +160,7 @@ class CrdFile2Json(_FileBase):
       dic = {
           "y": self._GetCoord("y", ycrd),
           "x": self._GetCoord("x", xcrd),
-          "value": ConvertType(val),
+          "value": ut.ConvertType(val),
           }
       self._points.append(dic)
 

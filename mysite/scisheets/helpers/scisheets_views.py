@@ -6,6 +6,7 @@ from django.template.loader import get_template
 from django.template import Context
 from ..core.column import Column
 from ..ui.ui_table import UITable
+import mysite.helpers.util as ut
 import json
 import numpy as np
 import os
@@ -19,15 +20,7 @@ PICKLE_KEY = "pickle_file"
 def extractDataFromRequest(request, key):
   # Returns the value of the key
   if request.GET.has_key(key):
-    strValue = request.GET.get(key)
-    try:
-      value = int(strValue)
-    except:
-      try:
-        value = float(strValue)
-      except:
-        value = strValue
-    return value
+    return ut.ConvertType(request.GET.get(key))
   else:
     return None
 
