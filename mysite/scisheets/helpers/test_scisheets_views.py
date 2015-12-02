@@ -19,6 +19,8 @@ class TestScisheetsViews(TestCase):
  
   def setUp(self):
     self.factory = RequestFactory()
+  
+  ''' Helper Methods '''
 
   def _addSessionToRequest(self, request):
     middleware = SessionMiddleware()
@@ -40,6 +42,25 @@ class TestScisheetsViews(TestCase):
     cmd_dict['column_index'] = COLUMN_INDEX
     cmd_dict['table_name'] = TABLE_NAME
     return cmd_dict
+
+  def _createBaseTable(self):
+    # Create the table
+    create_table_url = self._createBaseURL(params=TABLE_PARAMS)
+    return self.client.get(create_table_url)
+
+  def _createBaseURL(self, params=None):
+    # Creates the base URL to construct a table
+    # Input: params
+    #         0 - number of columns
+    #         1 - number of rows
+    # Output: URL
+    if params is None:
+      client_url = BASE_URL
+    else:
+      ncol = params[0]
+      nrow = params[1]
+      client_url = "%s%d/%d/" % (BASE_URL, ncol, nrow)
+    return client_url
 
   def _createURL(self, address="dummy", count=None, values=None, names=None):
     # Input: count - number of variables
@@ -72,11 +93,6 @@ class TestScisheetsViews(TestCase):
           url += "%s=%s" % (names[n], None)
     return url
 
-  def _URL2Request(self, url):
-    # Input: url - URL string
-    # Returns - request with count number of parameters
-    return self.factory.get(url)
-
   def _createURLFromCommandDict(self, cmd_dict, address=None):
     # Input: cmd_dict - command dictionary from commandFactory
     # Output: URL
@@ -85,6 +101,21 @@ class TestScisheetsViews(TestCase):
     for k in names:
       values.append(cmd_dict[k])
     return self._createURL(values=values, names=names, address=address)
+
+  def _URL2Request(self, url):
+    # Input: url - URL string
+    # Returns - request with count number of parameters
+    return self.factory.get(url)
+
+  def _verifyResponse(self, response, checkSessionid=True):
+    self.assertEqual(response.status_code, 200)
+    if checkSessionid:
+      self.assertTrue(response.cookies.has_key('sessionid'))
+    expected_keys = ['column_names', 'final_column_name', 
+        'table_id', 'table_caption', 'data']
+    self.assertTrue(response.context.keys().issuperset(expected_keys))
+
+  ''' TESTS '''
 
   def testCreateCommandDict(rquest):
     cmd_dict = sv.createCommandDict(self.request)
@@ -122,33 +153,6 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(request.session.has_key(sv.PICKLE_KEY))
     new_table = sv.unPickleTable(request)
     self.assertEqual(new_table.getName(), table.getName())
-
-  def _createBaseURL(self, params=None):
-    # Creates the base URL to construct a table
-    # Input: params
-    #         0 - number of columns
-    #         1 - number of rows
-    # Output: URL
-    if params is None:
-      client_url = BASE_URL
-    else:
-      ncol = params[0]
-      nrow = params[1]
-      client_url = "%s%d/%d/" % (BASE_URL, ncol, nrow)
-    return client_url
-
-  def _createBaseTable(self):
-    # Create the table
-    create_table_url = self._createBaseURL(params=TABLE_PARAMS)
-    return self.client.get(create_table_url)
-
-  def _verifyResponse(self, response, checkSessionid=True):
-    self.assertEqual(response.status_code, 200)
-    if checkSessionid:
-      self.assertTrue(response.cookies.has_key('sessionid'))
-    expected_keys = ['column_names', 'final_column_name', 
-        'table_id', 'table_caption', 'data']
-    self.assertTrue(response.context.keys().issuperset(expected_keys))
 
   def testScisheets(self):
     # Test creation of the initial random table
