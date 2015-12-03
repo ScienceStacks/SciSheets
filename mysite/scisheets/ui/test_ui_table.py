@@ -43,8 +43,11 @@ class TestUITable(TestCase):
       if isinstance(cell, str):
         num_str_col += 1
     self.assertEqual(num_str_col, NCOLSTR)
+    self.assertEqual(new_table.numColumns(), NCOL + 1)  # Include the 'row' column
+    self.assertEqual(new_table.numRows(), NROW)
 
   def testProcessCommandCellUpdate(self):
+    before_table = self.table.copy()
     COLUMN_INDEX = 3
     ROW_INDEX = 2
     NEW_VALUE = 9999
@@ -59,13 +62,20 @@ class TestUITable(TestCase):
     self.table.processCommand(cmd_dict)
     self.assertEqual(int(self.table.getCell(ROW_INDEX, COLUMN_INDEX)),
       NEW_VALUE)
+    for c in range(self.table.numColumns()):
+      self.assertEqual(before_table.getColumns()[c].getName(), 
+          self.table.getColumns()[c].getName())
+      for r in range(self.table.numRows()):
+        if not (r == ROW_INDEX and c == COLUMN_INDEX):
+          self.assertEqual(before_table.getCell(r,c), 
+              self.table.getCell(r,c))
 
   def testProcessCommandColumnDelete(self):
     COLUMN_INDEX = 3
     ROW_INDEX = None
     NEW_VALUE = None
     old_num_columns = self.table.numColumns()
-    aRow = self.table.getRow(0)
+    before_table = self.table.copy()
     deleted_column_name = self.table.getColumns()[COLUMN_INDEX].getName()
     cmd_dict = {
                 'target':  'Column',
@@ -78,9 +88,11 @@ class TestUITable(TestCase):
     self.table.processCommand(cmd_dict)
     expected_num_columns = old_num_columns - 1
     self.assertEqual(self.table.numColumns(), expected_num_columns)
-    bRow = self.table.getRow(0)
-    for k in bRow.keys():
-      self.assertEqual(bRow[k], aRow[k])
+    for r in range(self.table.numRows()):
+      after_row = self.table.getRow(r)
+      before_row = before_table.getRow(r)
+      for k in after_row.keys():
+        self.assertEqual(after_row[k], before_row[k])
 
   # TODO: Do something better with this test
   def testRender(self):

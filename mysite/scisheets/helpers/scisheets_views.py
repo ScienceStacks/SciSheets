@@ -17,10 +17,13 @@ PICKLE_KEY = "pickle_file"
 
 
 # ******************** Helper Functions *****************
-def extractDataFromRequest(request, key):
+def extractDataFromRequest(request, key, convert=False):
   # Returns the value of the key
   if request.GET.has_key(key):
-    return ut.ConvertType(request.GET.get(key))
+    if convert:
+      return ut.ConvertType(request.GET.get(key))
+    else:
+      return request.GET.get(key)
   else:
     return None
 
@@ -29,21 +32,24 @@ def createCommandDict(request):
   # that constitute the JSON structure sent in the command
   # from AJAX.
   # Input: request - HTML request object
-  # Output: result - dictionary of the command
-  result = {}
-  result['command'] = extractDataFromRequest(request, 'command')
-  result['target'] = extractDataFromRequest(request, 'target')
-  result['table_name'] = extractDataFromRequest(request, 'table')
-  result['column_index'] = extractDataFromRequest(request, 'column')
+  # Output: cmd_dict - dictionary of the command
+  cmd_dict = {}
+  cmd_dict['command'] = extractDataFromRequest(request, 'command')
+  cmd_dict['target'] = extractDataFromRequest(request, 'target')
+  cmd_dict['table_name'] = extractDataFromRequest(request, 'table')
+  cmd_dict['column_index'] = extractDataFromRequest(request, 
+      'column', convert=True)
   row_name = extractDataFromRequest(request, 'row')
-  try:
-    do_conversion = isinstance(int(row_name), int)
-  except:
-    do_conversion = False
-  if do_conversion:
-    result['row_index'] = UITable.rowIndexFromName(row_name)
-  result['value'] = extractDataFromRequest(request, 'value')
-  return result
+  if row_name is not None and len(str(row_name)) > 0:
+    cmd_dict['row_index'] = UITable.rowIndexFromName(row_name)
+  else:
+    cmd_dict['row_index'] = None  # Handles case where "row" is absent
+  cmd_dict['value'] = extractDataFromRequest(request, 'value',
+      convert=True)
+  return cmd_dict
+
+def _getTable(pickle_file):
+  return pickle.load( open(pickle_file, "rb"))
 
 def unPickleTable(request):
   # Returns the table if found
@@ -52,7 +58,7 @@ def unPickleTable(request):
     if not os.path.isfile(pickle_file):
       return None
     else:   
-      return pickle.load( open(pickle_file, "rb"))
+      return _getTable(pickle_file)
   else:
     return None
 
@@ -66,7 +72,6 @@ def pickleTable(request, table):
 
 
 # ******************** Command Processing *****************
-
 def scisheets(request, ncol, nrow):
   # Creates a new table with the specified number of columns and rows
   # considering the number of rows with strings

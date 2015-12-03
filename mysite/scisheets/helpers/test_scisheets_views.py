@@ -4,11 +4,15 @@ from mysite import settings
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
+import json
 import mysite.helpers.util as ut
 import scisheets_views as sv
 import os
 
-
+# Keys used inside the server
+DICT_NAMES =  ["command", "target", "table_name", "column_index", "row_index", "value"]
+# Parameter names in the Ajax call
+AJAX_NAMES =  ["command", "target", "table",      "column",       "row",       "value"]
 NCOL = 3
 NROW = 4
 BASE_URL = "http://localhost:8000/scisheets/"
@@ -27,21 +31,21 @@ class TestScisheetsViews(TestCase):
     middleware.process_request(request)
     request.session.save()
 
-  def _commandDictFactory(self):
+  def _ajaxCommandFactory(self):
     TARGET = 'Cell'
     COMMAND = 'Update'
     VALUE = 'XXX'
     ROW_INDEX = 1
     COLUMN_INDEX = 3
     TABLE_NAME = 'XYZ'
-    cmd_dict = {}
-    cmd_dict['target'] = TARGET
-    cmd_dict['command'] = COMMAND
-    cmd_dict['value'] = VALUE
-    cmd_dict['row_index'] = ROW_INDEX
-    cmd_dict['column_index'] = COLUMN_INDEX
-    cmd_dict['table_name'] = TABLE_NAME
-    return cmd_dict
+    ajax_cmd = {}
+    ajax_cmd['target'] = TARGET
+    ajax_cmd['command'] = COMMAND
+    ajax_cmd['value'] = VALUE
+    ajax_cmd['row'] = ROW_INDEX
+    ajax_cmd['column'] = COLUMN_INDEX
+    ajax_cmd['table'] = TABLE_NAME
+    return ajax_cmd
 
   def _createBaseTable(self):
     # Create the table
@@ -77,7 +81,7 @@ class TestScisheetsViews(TestCase):
         names.append("var%d" % n)
     for n in range(count):
       if n == 0:
-        url += "?"
+        url += "command?"
       else:
         url += "&"
       if values is None:
@@ -93,13 +97,13 @@ class TestScisheetsViews(TestCase):
           url += "%s=%s" % (names[n], None)
     return url
 
-  def _createURLFromCommandDict(self, cmd_dict, address=None):
-    # Input: cmd_dict - command dictionary from commandFactory
+  def _createURLFromAjaxCommand(self, ajax_cmd, address=None):
+    # Input: ajax_cmd - command dictionary from commandFactory
     # Output: URL
-    names = cmd_dict.keys()
+    names = ajax_cmd.keys()
     values = []
     for k in names:
-      values.append(cmd_dict[k])
+      values.append(ajax_cmd[k])
     return self._createURL(values=values, names=names, address=address)
 
   def _URL2Request(self, url):
@@ -116,33 +120,34 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(response.context.keys().issuperset(expected_keys))
 
   ''' TESTS '''
-
-  def testCreateCommandDict(rquest):
-    cmd_dict = sv.createCommandDict(self.request)
-    self.assertEqual(len(cmd_dict.keys()), len(self.cmd.keys()))
-    for k in self.cmd.keys():
-     self.assertEqual(cmd_dict[k], self.cmd[k])
      
   def testExtractDataFromRequest(self):
-    request = self._URL2Request(self._createURL(values=[0, "one"]))
-    value = sv.extractDataFromRequest(request, "var0")
+    url = self._createURL(values=[0, "one"])
+    request = self._URL2Request(url)
+    value = sv.extractDataFromRequest(request, "var0", convert=True)
     self.assertEqual(value, 0)
     value = sv.extractDataFromRequest(request, "var1")
     self.assertEqual(value, "one")
 
-  def testCreateCommandDict(self):
-    request_names = ["command", "target", "table", "column",
-                     "row", "value"]
-    values = ["update", "column", "dummy",      2,
-              4,           9999]
-    dict_names = ["command", "target", "table_name", "column_index",
-                     "row_index", "value"]
-    test_values = list(values)
-    test_values[4] -= 1  # Adjust for row index
-    request = self._URL2Request(self._createURL(names=request_names, values=values))
+  def _testCreateCommandDict(self, cmd_names, values):
+    url = self._createURL(names=cmd_names, values=values)
+    request = self._URL2Request(url)
     result = sv.createCommandDict(request)
-    for n in range(len(dict_names)):
-      self.assertEqual(result[dict_names[n]], test_values[n])
+    test_values = list(values)
+    if isinstance(test_values[4], int):
+      test_values[4] -= 1  # Adjust for row index
+    for n in range(len(DICT_NAMES)):
+      if result[DICT_NAMES[n]] is not None:
+        self.assertEqual(result[DICT_NAMES[n]], test_values[n])
+
+  def testCreateCommandDict(self):
+    values = ["Update", "Column", "dummy",      2,
+              4,           9999]
+    self._testCreateCommandDict(AJAX_NAMES, values)  # All values are present
+    for n in range(len(AJAX_NAMES)):
+      new_values = list(values)
+      new_values[n] = ''
+      self._testCreateCommandDict(AJAX_NAMES, new_values)
   
   def testPickle_unPickle(self):
     request = self._URL2Request(self._createURL(count=1))  # a request
@@ -173,28 +178,46 @@ class TestScisheetsViews(TestCase):
     ROW_INDEX =1
     COLUMN_INDEX = 2
     VALUE = 9999
-    cmd_dict = self._commandDictFactory()
-    cmd_dict['target'] = 'Cell'
-    cmd_dict['command'] = 'Update'
-    cmd_dict['row_index'] = ROW_INDEX
-    cmd_dict['column_index'] = COLUMN_INDEX
-    cmd_dict['value'] = VALUE
-    command_url = self._createURLFromCommandDict(cmd_dict, address=create_table_url)
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Cell'
+    ajax_cmd['command'] = 'Update'
+    ajax_cmd['row'] = str(ROW_INDEX)
+    ajax_cmd['column'] = COLUMN_INDEX
+    ajax_cmd['value'] = VALUE
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=create_table_url)
     response = self.client.get(command_url)
-    self._verifyResponse(response, checkSessionid=False)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("data"))
+    self.assertEqual(content["data"], "OK")
+
+  def _getTableFromResponse(self, response):
+    pickle_file = response.client.session[sv.PICKLE_KEY]
+    return sv._getTable(pickle_file)
+
+  def _testScisheetsCommandColumnDelete(self, base_url):
+    # Tests for command delete with a given base_url to consider the
+    # two use cases of the initial table and a reload
+    # Input - base_url - base URL used in the request
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    # Do the cell update
+    COLUMN_INDEX = 2
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Column'
+    ajax_cmd['command'] = 'Delete'
+    ajax_cmd['column'] = COLUMN_INDEX
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=base_url)
+    response = self.client.get(command_url)
+    # Check the table
+    table = self._getTableFromResponse(response)
+    columns = table.getColumns()
+    self.assertEqual(len(columns), NCOL)  # Added the 'row' column
+    self.assertEqual(columns[0].numCells(), NROW)
 
   def testScisheetsCommandColumnDelete(self):
-    self._createBaseTable()
-    # Do the cell update
     create_table_url = self._createBaseURL(params=TABLE_PARAMS)
-    COLUMN_INDEX = 2
-    cmd_dict = self._commandDictFactory()
-    cmd_dict['target'] = 'Column'
-    cmd_dict['command'] = 'Delete'
-    cmd_dict['column_index'] = COLUMN_INDEX
-    command_url = self._createURLFromCommandDict(cmd_dict, address=create_table_url)
-    response = self.client.get(command_url)
-    self._verifyResponse(response, checkSessionid=False)
+    self._testScisheetsCommandColumnDelete(create_table_url)
+    self._testScisheetsCommandColumnDelete(BASE_URL)
 
 
 if __name__ == '__main__':
