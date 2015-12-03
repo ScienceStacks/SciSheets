@@ -42,36 +42,38 @@ QUnit.test("table_setup", function (assert) {
   // Mock the server communication
   $.mockjax({
     url: "*",
+    contentType: 'text/json',
     responseText: {
-      status: "success"
+      success: true
     }
   });
   try {
     /* Table Tests */
     ele = document.getElementsByTagName("caption")[0];
     clickTester(ele, "TableClickMenu", -1);  // Do all items
-    assert.ok(true, "Table tests");
+    assert.ok(ele != null, "Table tests");
     /* Column Tests */
     ele = document.getElementById("yui-dt4-th-row");
     clickTester(ele, "FirstColumnClickMenu", -1);  // Do all items
-    assert.ok(true, "First column tests");
+    assert.ok(ele != null, "First column tests");
     ele = document.getElementById("yui-dt4-th-name");
     clickTester(ele, "ColumnClickMenu", -1);  // Do all items
-    assert.ok(true, "Other column tests");
+    assert.ok(ele != null, "Other column tests");
     /* Test the Row menu */
     ele = document.getElementById("yui-rec11");
     ele = ele.getElementsByClassName("yui-dt4-col-row")[0];
     clickTester(ele, "RowClickMenu", -1);  // Do all items
-    assert.ok(true, "Row tests");
+    assert.ok(ele != null, "Row tests");
     /* Test the Cell menu */
     ele = document.getElementById("yui-gen26");
     $(ele).trigger('click');
     // Get rid of the menu
     ele = document.getElementById("yui-textareaceditor1-container");
     $(ele).trigger('click');
-    assert.ok(true, "Cell tests");
+    assert.ok(ele != null, "Cell tests");
   } catch (err) {
     console.log(err.message);
+    assert.ok(false, "Cell tests failed.");
   }
 
 });

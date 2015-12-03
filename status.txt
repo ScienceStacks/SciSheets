@@ -1,6 +1,9 @@
 Serve page from Django
 
 b. javascript tests
+-- Not getting the data instantiated but can't determine where the
+   problem is. The correct variables appear to be instantiated
+   in table_setup.js. But the DOM objects aren't created.
 
 1. Implement processing for a data cell update
    a. Why am I getting "pickle.p"
