@@ -69,7 +69,13 @@ def pickleTable(request, table):
 
 def scisheets(request, ncol, nrow):
   # Creates a new table with the specified number of columns and rows
-  table = UITable.createRandomIntTable("Demo", ncol, nrow)
+  # considering the number of rows with strings
+  ncol = int(ncol)
+  nrow = int(nrow)
+  ncolstr = int(ncol/2)
+  new_ncol = ncol - ncolstr
+  table = UITable.createRandomIntTable("Demo", nrow, ncol, 
+      ncolstr=ncolstr)
   html = table.render()
   pickleTable(request, table)
   return HttpResponse(html)

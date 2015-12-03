@@ -4,9 +4,11 @@
 
 from django.shortcuts import render
 from django.template.loader import get_template
-import numpy as np
 from ..core.table import Table
 from ..core.column import Column
+from mysite.helpers import util as ut
+import numpy as np
+import random
 
 
 def makeJSONStr(column_names, data):
@@ -42,18 +44,29 @@ class UITable(Table):
       a YUI DataTable.
   '''
 
-  @staticmethod
-  def createRandomIntTable(name, nrow, ncol, low_int=0, hi_int=100):
+  @classmethod
+  def createRandomIntTable(cls, name, nrow, ncol, ncolstr=0,
+        low_int=0, hi_int=100):
     # Creates a table with random integers as values
     # Input: name - name of the table
     #        nrow - number of rows
     #        ncol - number of columns
+    #        ncolstr - number of columns with strings
     #        low_int - smallest integer
     #        hi_int - largest integer
+    ncol = int(ncol)
+    nrow = int(nrow)
     table = UITable(name)
-    for c in range(int(ncol)):
-      column = Column("Col-" + str(c))
-      values = np.random.randint(low_int, hi_int, int(nrow))
+    ncolstr = min(ncol, ncolstr)
+    ncolint = ncol - ncolstr
+    c_list = range(ncol)
+    random.shuffle(c_list)
+    for n in range(ncol):
+      column = Column("Col-" + str(n))
+      if c_list[n] < ncolint:
+        values = np.random.randint(low_int, hi_int, nrow)
+      else:
+        values = ut.randomWords(nrow)
       column.addCells(values)
       table.addColumn(column)
     return table

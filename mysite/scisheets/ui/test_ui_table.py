@@ -34,6 +34,12 @@ class TestUITable(TestCase):
   def testCreateRandomIntTable(self):
     self.assertEqual(self.table.numRows(), NROW)
     self.assertEqual(self.table.numColumns(), NCOL+1)  # Include name col
+    NCOLSTR = 2
+    new_table = ui.UITable.createRandomIntTable(TABLE_NAME,
+        NROW, NCOL, ncolstr=NCOLSTR)
+    for n in range(NCOLSTR):
+      cell = new_table.getColumns()[NCOL-n].getCells()[0]
+      self.assertTrue(isinstance(cell, str))
 
   def testProcessCommandCellUpdate(self):
     COLUMN_INDEX = 3

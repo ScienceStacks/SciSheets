@@ -1,5 +1,8 @@
 '''Utility routines.'''
 
+import random
+import string
+
 def ConvertType(v):
   # Converts to int, float, str as required
   # Input: v - string representation
@@ -21,3 +24,20 @@ def ConvertTypes(values):
   for v in values:
     results.append(ConvertType(v))
   return results
+
+def randomWords(count, size=5):
+  # Generates a sequence of random words of the same size
+  # Input: count - number of random words generated
+  #        size - size of each word
+  # Output: result - list of random words
+  return [randomWord(size=size) for n in range(count)]
+
+def randomWord(size=5):
+  # Generates a random word
+  # Input: size - size of each word
+  # Output: word
+  word = ''
+  for n in range(size):
+    word += random.choice(string.letters)
+  return word
+
