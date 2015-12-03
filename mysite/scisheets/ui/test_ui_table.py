@@ -37,9 +37,12 @@ class TestUITable(TestCase):
     NCOLSTR = 2
     new_table = ui.UITable.createRandomIntTable(TABLE_NAME,
         NROW, NCOL, ncolstr=NCOLSTR)
-    for n in range(NCOLSTR):
-      cell = new_table.getColumns()[NCOL-n].getCells()[0]
-      self.assertTrue(isinstance(cell, str))
+    num_str_col = 0
+    for n in range(1, NCOL):
+      cell = new_table.getColumns()[n].getCells()[0]
+      if isinstance(cell, str):
+        num_str_col += 1
+    self.assertEqual(num_str_col, NCOLSTR)
 
   def testProcessCommandCellUpdate(self):
     COLUMN_INDEX = 3
@@ -54,7 +57,7 @@ class TestUITable(TestCase):
                 'value': NEW_VALUE
                }
     self.table.processCommand(cmd_dict)
-    self.assertEqual(self.table.getCell(ROW_INDEX, COLUMN_INDEX),
+    self.assertEqual(int(self.table.getCell(ROW_INDEX, COLUMN_INDEX)),
       NEW_VALUE)
 
   def testProcessCommandColumnDelete(self):
