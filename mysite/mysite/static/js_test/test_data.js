@@ -1,3 +1,4 @@
+
 /*jshint newcap: true */
 /*jshint onevar: true */
 /*jshint todo: true */
@@ -15,7 +16,7 @@
 function DataSource() {
   "use strict";
   var sciSheets = new SciSheets();
-  this.tableId = "SciSheets";
+  this.tableId = "scitable";
   this.tableCaption = "New table";
   this.columnNames = ["row", "name", "address", "salary"];
   this.columnDefs = [

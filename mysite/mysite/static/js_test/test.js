@@ -38,8 +38,9 @@ function clickTester(clickElement, clickMenuName, selIndex) {
 
 QUnit.test("table_setup", function (assert) {
   "use strict";
-  var ele;
+  var ele1, ele2, ele3, ele4, ele5, ele6, ele7;
   // Mock the server communication
+  /*
   $.mockjax({
     url: "*",
     contentType: 'text/json',
@@ -47,30 +48,31 @@ QUnit.test("table_setup", function (assert) {
       success: true
     }
   });
+  */
   try {
     /* Table Tests */
-    ele = document.getElementsByTagName("caption")[0];
-    clickTester(ele, "TableClickMenu", -1);  // Do all items
-    assert.ok(ele != null, "Table tests");
+    ele1 = document.getElementsByTagName("caption")[0];
+    clickTester(ele1, "TableClickMenu", -1);  // Do all items
+    assert.ok(ele1 != null, "Table tests");
     /* Column Tests */
-    ele = document.getElementById("yui-dt4-th-row");
-    clickTester(ele, "FirstColumnClickMenu", -1);  // Do all items
-    assert.ok(ele != null, "First column tests");
-    ele = document.getElementById("yui-dt4-th-name");
-    clickTester(ele, "ColumnClickMenu", -1);  // Do all items
-    assert.ok(ele != null, "Other column tests");
+    ele2 = document.getElementById("yui-dt4-th-row");
+    clickTester(ele2, "FirstColumnClickMenu", -1);  // Do all items
+    assert.ok(ele2 != null, "First column tests");
+    ele3 = document.getElementById("yui-dt4-th-name");
+    clickTester(ele3, "ColumnClickMenu", -1);  // Do all items
+    assert.ok(ele3 != null, "Other column tests");
     /* Test the Row menu */
-    ele = document.getElementById("yui-rec11");
-    ele = ele.getElementsByClassName("yui-dt4-col-row")[0];
-    clickTester(ele, "RowClickMenu", -1);  // Do all items
-    assert.ok(ele != null, "Row tests");
+    ele4 = document.getElementById("yui-rec11");
+    ele5 = ele4.getElementsByClassName("yui-dt4-col-row")[0];
+    clickTester(ele5, "RowClickMenu", -1);  // Do all items
+    assert.ok(ele5 != null, "Row tests");
     /* Test the Cell menu */
-    ele = document.getElementById("yui-gen26");
-    $(ele).trigger('click');
+    ele6 = document.getElementById("yui-gen26");
+    $(ele6).trigger('click');
     // Get rid of the menu
-    ele = document.getElementById("yui-textareaceditor1-container");
-    $(ele).trigger('click');
-    assert.ok(ele != null, "Cell tests");
+    ele7 = document.getElementById("yui-textareaceditor1-container");
+    $(ele7).trigger('click');
+    assert.ok(ele7 != null, "Cell tests");
   } catch (err) {
     console.log(err.message);
     assert.ok(false, "Cell tests failed.");
