@@ -49,6 +49,7 @@ class TestScisheetsViews(TestCase):
 
   def _createBaseTable(self):
     # Create the table
+    # Output - response from command
     create_table_url = self._createBaseURL(params=TABLE_PARAMS)
     return self.client.get(create_table_url)
 
@@ -171,24 +172,48 @@ class TestScisheetsViews(TestCase):
     response = self.client.get(refresh_url)
     self._verifyResponse(response, checkSessionid=False)
 
-  def testScisheetsCommandCellUpdate(self):
-    self._createBaseTable()
+  def _testScisheetsCommandCellUpdate(self, row_index, val):
+    response = self._createBaseTable()
+    table = self._getTableFromResponse(response)
+    column_index = self._findColumnWithType(table, val)
     # Do the cell update
     create_table_url = self._createBaseURL(params=TABLE_PARAMS)
-    ROW_INDEX =1
-    COLUMN_INDEX = 2
-    VALUE = 9999
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Cell'
     ajax_cmd['command'] = 'Update'
-    ajax_cmd['row'] = str(ROW_INDEX)
-    ajax_cmd['column'] = COLUMN_INDEX
-    ajax_cmd['value'] = VALUE
+    ajax_cmd['row'] = table. _rowNameFromIndex(row_index)
+    ajax_cmd['column'] = column_index
+    ajax_cmd['value'] = val
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=create_table_url)
     response = self.client.get(command_url)
+    table = self._getTableFromResponse(response)
+    self.assertEqual(table.getCell(row_index, column_index), val)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("data"))
     self.assertEqual(content["data"], "OK")
+
+  def _findColumnWithType(self, table, val):
+    # Inputs: table - table being analyzed
+    #         val - value whose type is to be matched
+    # Returns the index of the column with the specified type or none
+    result = None
+    columns = table.getColumns()
+    for index in range(1, table.numColumns()):
+      col = columns[index]
+      if isinstance(val, col.getDataType()) and (result is None):
+        if isinstance(val, float) and (col.getDataType() == float):
+          result = index
+        if isinstance(val, int) and (col.getDataType() == int):
+          result = index
+        if not isinstance(val, int):
+          result = index
+    return result
+
+  def testScisheetsCommandCellUpdate(self):
+    ROW_INDEX = NROW - 1
+    self._testScisheetsCommandCellUpdate(ROW_INDEX, 9999)
+    self._testScisheetsCommandCellUpdate(ROW_INDEX, "aaa")
+    self._testScisheetsCommandCellUpdate(ROW_INDEX, "aaa bb")
 
   def _getTableFromResponse(self, response):
     pickle_file = response.client.session[sv.PICKLE_KEY]

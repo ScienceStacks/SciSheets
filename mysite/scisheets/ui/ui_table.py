@@ -45,7 +45,7 @@ class UITable(Table):
   '''
 
   @classmethod
-  def createRandomIntTable(cls, name, nrow, ncol, ncolstr=0,
+  def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
         low_int=0, hi_int=100):
     # Creates a table with random integers as values
     # Input: name - name of the table

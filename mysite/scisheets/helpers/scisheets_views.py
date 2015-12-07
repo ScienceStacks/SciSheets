@@ -79,7 +79,7 @@ def scisheets(request, ncol, nrow):
   nrow = int(nrow)
   ncolstr = int(ncol/2)
   new_ncol = ncol - ncolstr
-  table = UITable.createRandomIntTable("Demo", nrow, ncol, 
+  table = UITable.createRandomTable("Demo", nrow, ncol, 
       ncolstr=ncolstr)
   html = table.render()
   pickleTable(request, table)

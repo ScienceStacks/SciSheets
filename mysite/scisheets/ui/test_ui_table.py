@@ -28,14 +28,14 @@ class TestAuxFunctions(TestCase):
 class TestUITable(TestCase):
 
   def setUp(self):
-    self.table = ui.UITable.createRandomIntTable(TABLE_NAME,
+    self.table = ui.UITable.createRandomTable(TABLE_NAME,
         NROW, NCOL)
 
-  def testCreateRandomIntTable(self):
+  def testCreateRandomTable(self):
     self.assertEqual(self.table.numRows(), NROW)
     self.assertEqual(self.table.numColumns(), NCOL+1)  # Include name col
     NCOLSTR = 2
-    new_table = ui.UITable.createRandomIntTable(TABLE_NAME,
+    new_table = ui.UITable.createRandomTable(TABLE_NAME,
         NROW, NCOL, ncolstr=NCOLSTR)
     num_str_col = 0
     for n in range(1, NCOL):
