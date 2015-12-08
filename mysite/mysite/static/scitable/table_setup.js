@@ -42,9 +42,11 @@ YAHOO.util.Event.addListener(window, "load", function () {
   "use strict";
   YAHOO.example.InlineCellEditing = (function () {
     var myDataTable, highlightEditableCell, myDataSource,
-      id, tableElement, d, sciSheets, captionElement;
+      id, tableElement, d, sciSheets, captionElement, div_ele;
     sciSheets = new SciSheets();
     d = new DataSource();
+    div_ele = document.getElementById("TagReplacedByJS"); 
+    $(div_ele).attr('id', d.tableId);
 
     /* ----------- Code independent of data --------------*/
     // Custom formatter for "address" column to preserve line breaks
@@ -53,6 +55,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
     myDataSource.responseSchema = {
       fields: d.columnDefs
     };
+    
 
     myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,
       {
