@@ -23,6 +23,7 @@
 function SciSheets() {
   "use strict";
   this.dataTable = null;  // dataTable for this SciSheet
+  this.mock_ajax = false;
 }
 
 // Setup
@@ -81,20 +82,22 @@ SciSheets.prototype.createServerCommand = function () {
 --------------------------------------------------------------- */
 SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction) {
   "use strict";
-  $.ajax({async: true,
-    url: "command",
-    data: serverCommand,
-    success: function (result) {
-      if (!result.success) {
-        alert("Server error for cmd: " + serverCommand.command);
+  if (!this.mock_ajax) {
+    $.ajax({async: true,
+      url: "command",
+      data: serverCommand,
+      success: function (result) {
+        if (!result.success) {
+          alert("Server error for cmd: " + serverCommand.command);
+        }
+        successFunction(result.data);
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
       }
-      successFunction(result.data);
-    },
-    error: function (xhr, ajaxOptions, thrownError) {
-      alert(xhr.status);
-      alert(thrownError);
-    }
-    });
+      });
+  }
 };
 
 // EventProcessing Object

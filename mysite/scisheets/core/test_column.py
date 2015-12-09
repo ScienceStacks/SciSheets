@@ -16,6 +16,12 @@ FORMULA = "A+B"
 
 
 #############################
+# Helpers
+#############################
+def checkStrColumnType(column_type):
+  return (column_type == str) or (column_type == object)
+
+#############################
 # Tests
 #############################
 class TestColumn(unittest.TestCase):
@@ -54,7 +60,7 @@ class TestColumn(unittest.TestCase):
     column = cl.Column(COLUMN_NAME)
     column.addCells(SINGLE_STR)
     self.assertTrue(compareValues(column._data_values, SINGLE_STR))
-    self.assertEqual(column._data_type, str)
+    self.assertTrue(checkStrColumnType(column._data_type))
     column = cl.Column(COLUMN_NAME)
     column.addCells(LIST_STR)
     self.assertTrue(compareValues(column._data_values, LIST_STR))
@@ -82,7 +88,8 @@ class TestColumn(unittest.TestCase):
 
   def testDataType(self):
     self.assertEqual(self.column.getDataType(), float)
-    self.assertEqual(self.column_str.getDataType(), str)
+    column_type = self.column_str.getDataType()
+    self.assertTrue(checkStrColumnType(column_type))
 
   def testGetCells(self):
     cells = self.column.getCells()

@@ -1,13 +1,8 @@
 Serve page from Django
 
-a. Bug in scisheets processing. Need better tests for ui_table
-   to simulate processing of commands
-   (a) Need to mock page reloads for click handlers
-   (b) ajax mock isn't working correctly
-   (c) bug was that table Id must be the same as the name
-       of the div in which the table is placed, "scitable"
-
 a.1 Consider changing row_index on command submission to row_name
+
+a.2 Get rid of mockjax
 
 b. javascript tests
 -- Not getting the data instantiated but can't determine where the

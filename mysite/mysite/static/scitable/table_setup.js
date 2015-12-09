@@ -37,15 +37,15 @@
        - Change the name of a Table or Column
        - Change a row number
 */
+var sciSheets = new SciSheets();
 
 YAHOO.util.Event.addListener(window, "load", function () {
   "use strict";
   YAHOO.example.InlineCellEditing = (function () {
     var myDataTable, highlightEditableCell, myDataSource,
-      id, tableElement, d, sciSheets, captionElement, div_ele;
-    sciSheets = new SciSheets();
+      id, tableElement, d, captionElement, div_ele;
     d = new DataSource();
-    div_ele = document.getElementById("TagReplacedByJS"); 
+    div_ele = document.getElementById("TagReplacedByJS");
     $(div_ele).attr('id', d.tableId);
 
     /* ----------- Code independent of data --------------*/
@@ -55,8 +55,6 @@ YAHOO.util.Event.addListener(window, "load", function () {
     myDataSource.responseSchema = {
       fields: d.columnDefs
     };
-    
-
     myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,
       {
         caption: d.tableCaption
