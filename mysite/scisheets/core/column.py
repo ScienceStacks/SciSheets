@@ -101,6 +101,9 @@ class Column(object):
   def numCells(self):
     return len(self._data_values)
 
+  def rename(self, new_name):
+    self._name = new_name
+
   def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
     # scalars, and functions in math for columns that preceed

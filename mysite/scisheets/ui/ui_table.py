@@ -93,10 +93,14 @@ class UITable(Table):
         response["data"] = "OK"
         response["success"] = True
     if cmd_dict["target"] == "Column":
+      column = self.columnFromIndex(cmd_dict["column_index"])
       if cmd_dict['command'] == "Delete":
-        column = self.columnFromIndex(cmd_dict["column_index"])
         self.deleteColumn(column)
         num_cols = self.numColumns()
+        response["data"] = "OK"
+        response["success"] = True
+      if cmd_dict['command'] == "Rename":
+        column.rename(cmd_dict["args"][0])
         response["data"] = "OK"
         response["success"] = True
     if not response["success"]:

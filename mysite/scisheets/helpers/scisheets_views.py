@@ -17,10 +17,12 @@ PICKLE_KEY = "pickle_file"
 
 
 # ******************** Helper Functions *****************
-def extractDataFromRequest(request, key, convert=False):
+def extractDataFromRequest(request, key, convert=False, listvar=False):
   # Returns the value of the key
   if request.GET.has_key(key):
-    if convert:
+    if listvar:
+      return request.GET.getlist(key)
+    elif convert:
       return ut.ConvertType(request.GET.get(key))
     else:
       return request.GET.get(key)
@@ -37,6 +39,7 @@ def createCommandDict(request):
   cmd_dict['command'] = extractDataFromRequest(request, 'command')
   cmd_dict['target'] = extractDataFromRequest(request, 'target')
   cmd_dict['table_name'] = extractDataFromRequest(request, 'table')
+  cmd_dict['args'] = extractDataFromRequest(request, 'args[]', listvar=True)
   cmd_dict['column_index'] = extractDataFromRequest(request, 
       'column', convert=True)
   row_name = extractDataFromRequest(request, 'row')

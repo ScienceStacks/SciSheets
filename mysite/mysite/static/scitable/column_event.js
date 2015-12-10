@@ -39,6 +39,9 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       cmd.command = eleId;
       cmd.column = ep.columnIndex;
       cmd.target = "Column";
+      if (cmd.command === 'Rename') {
+        cmd.args = ["new name"];
+      }
       scisheet.sendServerCommand(cmd, function (data) {
         console.log("Server returned: " + data);
         window.location.href = 'http://localhost:8000/scisheets/';  // reload the page

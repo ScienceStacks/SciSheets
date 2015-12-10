@@ -54,6 +54,7 @@ SciSheets.prototype.createServerCommand = function () {
           table: null,   // Table name
           column: null,
           row: null,
+          args: [],
           value: null
          };
 };
