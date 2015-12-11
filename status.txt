@@ -1,5 +1,8 @@
 Serve page from Django
 
+-Trying to get jquery form to work in jqueryui/examples/form
+-Issue is that form dispable doesn't persits so that form doesn't go away. Maybe need a popup attribute?
+
 a.0 Implement rename column
  (1) Completed server side: accepts argument list. Processes Rename command.
  (2) Client side has a fixed name that is coded in column_event.js. Need a dialog.
