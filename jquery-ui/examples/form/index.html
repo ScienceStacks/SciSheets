@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>JQuery form Example Page</title>
+	<link href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css" rel="stylesheet">
+	<style>
+	body{
+		font: 80.5% "Trebuchet MS", sans-serif;
+		margin: 50px;
+	}
+	.demoHeaders {
+		margin-top: 2em;
+	}
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	select {
+		width: 200px;
+	}
+	</style>
+
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+
+
+</head>
+<body>
+
+<h1>jQuery Form</h1>
+
+<!-- Form -->
+
+<div id="contact_form">
+<form name="contact" id="myform" action="">
+  <fieldset id="myfields">
+    <label for="name" id="name_label">Name</label>
+    <input type="text" name="name" id="name" size="30" value="" class="text-input" />
+    <label class="error" for="name" id="name_error">This field is required.</label>
+     
+    <label for="email" id="email_label">Return Email</label>
+    <input type="text" name="email" id="email" size="30" value="" class="text-input" />
+    <label class="error" for="email" id="email_error">This field is required.</label>
+     
+    <label for="phone" id="phone_label">Return Phone</label>
+    <input type="text" name="phone" id="phone" size="30" value="" class="text-input" />
+    <label class="error" for="phone" id="phone_error">This field is required.</label>
+     
+      <br />
+    <input type="submit" name="submit" class="button" id="submit_btn" value="Done" />
+    <input type="submit" name="cancel" class="button" id="cancel_btn" value="Cancel" />
+  </fieldset>
+</form>
+</div>
+
+
+<script src="/home/ubuntu/SciSheets/jquery-ui/examples/form/code.js"></script>
+
+</body>
+</html>
