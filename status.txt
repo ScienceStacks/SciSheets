@@ -1,7 +1,7 @@
 Serve page from Django
 
--Trying to get jquery form to work in jqueryui/examples/form
--Issue is that form dispable doesn't persits so that form doesn't go away. Maybe need a popup attribute?
+Can get a jquery-ui popup and read entry fields. but css needs work.
+not integrated. sample code in jquery-ui/examples/form/form2.*
 
 a.0 Implement rename column
  (1) Completed server side: accepts argument list. Processes Rename command.
