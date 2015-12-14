@@ -1,33 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-
-.ui-widget-header,.ui-state-default, ui-button{
-            border: 1px solid #b9cd6d;
-            color: #FFFFFF;
-            font-weight: bold;
-         }
-</style>
 <link href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css" rel="stylesheet">
+<link href="/home/ubuntu/SciSheets/jquery-ui/examples/form/form.css" rel="stylesheet">
 <script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
 <script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
 <title>jQuery UI Dialog</title>
-<style>
-	.dlg-no-close .ui-dialog-titlebar-close {
-		display: none;
-	}
-	.dlg-no-title .ui-dialog-titlebar {
-		display: none;
-	}
-</style>
 </head>
+
 <body>
 <div id="rename-dialog" title="Rename">
   <form>
     <fieldset>
-      <label for="name">New Name</label>
-      <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all">
+      <label for="name">New Name: </label>
+      <input type="text" name="name" id="name" class="ui-widget-content">
     </fieldset>
   </form>
 </div>

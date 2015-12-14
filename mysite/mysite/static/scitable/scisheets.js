@@ -140,3 +140,10 @@ function SciSheetsUtilClick(eleId, selectedEleFunc) {
   );
   $(clickMenu).css("display", "block");
 }
+
+SciSheets.prototype.utilSendAndReload = function (cmd) {
+  this.sendServerCommand(cmd, function (data) {
+    console.log("Server returned: " + data);
+    window.location.href = 'http://localhost:8000/scisheets/';  // reload the page
+  });
+}

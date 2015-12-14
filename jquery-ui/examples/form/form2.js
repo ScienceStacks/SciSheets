@@ -6,10 +6,22 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global $, alert, YAHOO */
+/*global $, alert, YAHOO, CSSStyleDeclaration */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
+
+/*
+function css(ele) {
+  "use strict";
+  var sheets = document.styleSheets, i, rules;
+  for (i in sheets) {
+    rules = sheets[i].rules || sheets[i].cssRules;
+  }
+  return rules;
+}
+*/
+
 
 $(document).ready(function () {
   "use strict";

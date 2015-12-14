@@ -1,7 +1,9 @@
 Serve page from Django
 
-Can get a jquery-ui popup and read entry fields. but css needs work.
-not integrated. sample code in jquery-ui/examples/form/form2.*
+Not properly reference dialog name field for "Rename".
+Problem is in column_event.js; get a 500.
+
+rename sctiable.css to scisheets.css
 
 a.0 Implement rename column
  (1) Completed server side: accepts argument list. Processes Rename command.

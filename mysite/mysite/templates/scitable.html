@@ -25,7 +25,7 @@ caption {
  {% load static from staticfiles %}
 <link rel="stylesheet" type="text/css" href='{% static "yui/yui.min.css" %}'/>
 <link rel="stylesheet" type="text/css" href='{% static "jquery-ui/jquery-ui.css" %}'/>
-<link rel="stylesheet" type="text/css" href='{% static "scitable/menu.css" %}'/>
+<link rel="stylesheet" type="text/css" href='{% static "scitable/scitable.css" %}'/>
 
 <script type="text/javascript" src='{% static "yui/yui.min.js" %}'></script>
 <script type="text/javascript" src='{% static "jquery/jquery.min.js" %}'></script>
@@ -69,10 +69,15 @@ caption {
 </div>
 
 <div id="Forms">
-<form id="rename" style="width:100px;display:none">
-  New name: <input type="text" name="fname"><br>
-  <input type="button" onclick="myFunction()" value="Submit">
-</form>
+
+<div id="rename-dialog" style="width:100px;display:none">
+  <form>
+    <fieldset>
+      <label for="name">New Name: </label>
+      <input type="text" name="rename-dialog-name" id="name" class="ui-widget-content">
+    </fieldset>
+  </form>
+</div>
 </div>
 
 

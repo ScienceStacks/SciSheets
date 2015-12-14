@@ -1,0 +1,80 @@
+	body{
+		font: 80.5% "Trebuchet MS", sans-serif;
+		margin: 50px;
+	}
+	.demoHeaders {
+		margin-top: 2em;
+	}
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	select {
+		width: 200px;
+	}
+        .ui-widget-header,.ui-state-default, ui-button{
+           border: 1px solid #b9cd6d;
+           color: #FFFFFF;
+           font-weight: bold;
+        }
+	.dlg-no-close .ui-dialog-titlebar-close {
+		display: none;
+	}
+	.dlg-no-title .ui-dialog-titlebar {
+		display: none;
+	}
+        .ui-widget-content {
+          border: 1px solid #dddddd;
+          background: #eeeeee 50% top repeat-x;
+          color: #333333;
+        }
+        .ui-widget {
+           font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;
+           font-size: 0.8em;
+           position: relative;
+         }
+        .ui-widget-header {
+          border: 1px solid #e78f08;
+          background: #f6a828 20% 20% repeat-x;
+          color: #708090;
+          font-weight: bold;
+        }
+        .ui-button {
+          display: inline-block;
+          position: relative;
+          padding: 0;
+          line-height: normal;
+          margin-right: .1em;
+          cursor: pointer;
+          vertical-align: middle;
+          text-align: center;
+          overflow: visible; /* removes extra width in IE */
+          color: #333333;
+        }

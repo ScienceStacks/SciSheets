@@ -39,13 +39,27 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       cmd.command = eleId;
       cmd.column = ep.columnIndex;
       cmd.target = "Column";
+      $("#rename-dialog").css("display", "block");
       if (cmd.command === 'Rename') {
-        cmd.args = ["new name"];
+        $("#rename-dialog").dialog({
+          autoOpen: true,
+          modal: true,
+          dialogClass: "dlg-no-close",
+          buttons: {
+            "Submit": function () {
+              cmd.args = [$("#rename-dialog-name").val()];
+              $(this).dialog("close");
+              scisheet.utilSendAndReload(cmd);
+            },
+            "Cancel": function () {
+              $(this).dialog("close");
+            }
+          }
+        });
       }
-      scisheet.sendServerCommand(cmd, function (data) {
-        console.log("Server returned: " + data);
-        window.location.href = 'http://localhost:8000/scisheets/';  // reload the page
-      });
+      if (cmd.command === 'Delete') {
+        scisheet.utilSendAndReload(cmd);
+      }
     });
   }
 };
