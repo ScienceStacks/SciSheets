@@ -64,6 +64,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
 
     // Set up events
     highlightEditableCell = function (oArgs) {
+      // BUG: oArgs.target doesn't always exist (e.g., if text editor)
       var elCell = oArgs.target;
       if (YAHOO.util.Dom.hasClass(elCell, "yui-dt-editable")) {
         this.highlightCell(elCell);
@@ -87,22 +88,21 @@ YAHOO.util.Event.addListener(window, "load", function () {
       var sciSheetsColumn;
       sciSheetsColumn = new SciSheetsColumn(sciSheets);
       sciSheetsColumn.click(oArgs);
+      oArgs.event.stopPropagation();
     });
 
     /*------------------- Catch cell modifications --------------*/
-    myDataTable.subscribe("cellUpdateEvent", function (oArgs) {
-      var ep;
-      ep = new sciSheets.util.eventProcessing(sciSheets, oArgs);
-      sciSheets.cell.modify(ep);
-      alert("Modified");
-    });
+//    myDataTable.subscribe("cellUpdateEvent", function (oArgs) {
+//      var ep;
+//      ep = new sciSheets.util.eventProcessing(sciSheets, oArgs);
+//      sciSheets.cell.modify(ep);
+//      alert("Modified");
+//    });
 
     /* --------------- Catch cell clicks ------------------------*/
     // This logic routes the event to processing a row or a data cell
     //   this - table
-    //   this.getColumn(target).field - returns the column name (string)
-    //   this.getCellIndex(target) - returns int of 0 based column
-    //   this.getRecordIndex(target) - returns an int of 0 based row
+    // oArgs depends on the environment of the click
     myDataTable.subscribe("cellClickEvent", function (oArgs) {
       var ep, sciSheetsRow, sciSheetsCell;
       ep = new SciSheetsUtilEvent(sciSheets, oArgs);
@@ -113,6 +113,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
         sciSheetsCell = new SciSheetsCell(sciSheets);
         sciSheetsCell.click(oArgs);
       }
+      oArgs.event.stopPropagation();
     });
 
 

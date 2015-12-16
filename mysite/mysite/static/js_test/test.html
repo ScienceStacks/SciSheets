@@ -23,16 +23,16 @@ caption {
 </style>
 
 
-<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.css"/>
-<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css"/>
-<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/menu.css"/>
 
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scitable.css"/>
 
-<!--begin custom header content for this example-->
+<!--begin custom header content for this page-->
 <style type="text/css">
 /* custom styles for this example */
 .yui-skin-sam .yui-dt-col-address pre { font-family:arial;font-size:100%; } /* Use PRE in first col to preserve linebreaks*/
@@ -66,6 +66,15 @@ caption {
 	<li id="insert">Insert</li>
 	<li id="hide" >Hide</li>
 </ul>
+</div>
+
+<div id="rename-dialog" style="width:100px;display:none">
+  <form>
+    <fieldset>
+      <label for="name" id="rename-dialog-label">New Name: </label>
+      <input type="text" name="name" id="rename-dialog-name" class="ui-widget-content">
+    </fieldset>
+  </form>
 </div>
 
 

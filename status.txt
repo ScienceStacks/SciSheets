@@ -1,6 +1,15 @@
 Serve page from Django
 
+Not handling cell update events correctly. There are two events:
+  mouse click
+  editsave
+Have confounded this. Symptoms:
+ -Get multiple messages in CellClick
+ -Not send ajax to server to update the table
+
 Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
+
+Need tests for added python and javascript
 
 Not getting accurate column index. Use column name in pre tag?
 

@@ -18,24 +18,25 @@ function SciSheetsCell(scisheet) {
 
 SciSheetsCell.prototype.click = function (oArgs) {
   "use strict";
-  var ep, msg, cmd, scisheet;
-  scisheet = this.scisheet;
-  ep = new SciSheetsUtilEvent(scisheet, oArgs);
-  scisheet.dataTable.on('editorSaveEvent', function (oArgs) {
-    //var key = oArgs.editor.getColumn().key;
-    msg = "Clicked cell = (" + ep.rowIndex + ", " + ep.columnIndex + ").";
-    msg += " Old data: "  + oArgs.oldData + ".";
-    msg += " New data: "  + oArgs.newData + ".";
-    console.log(msg);
-    cmd = scisheet.createServerCommand();
-    cmd.command = "Update";
-    cmd.target = "Cell";
-    cmd.column = ep.columnIndex;
-    cmd.row = ep.rowIndex;
-    cmd.value = oArgs.newData;
-    scisheet.sendServerCommand(cmd, function (data) {
-      console.log("Returned: " + data);
+  var ep;
+  if (oArgs.target) {
+    ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
+    this.scisheet.dataTable.on('editorSaveEvent', function (editEvent) {
+      var msg, cmd;
+      msg = "Clicked cell = (" + ep.rowIndex + ", " + ep.columnIndex + ").";
+      msg += " Old data: "  + editEvent.oldData + ".";
+      msg += " New data: "  + editEvent.newData + ".";
+      console.log(msg);
+      cmd = this.scisheet.createServerCommand();
+      cmd.command = "Update";
+      cmd.target = "Cell";
+      cmd.column = ep.columnIndex;
+      cmd.row = ep.rowIndex;
+      cmd.value = oArgs.newData;
+      this.scisheet.sendServerCommand(cmd, function (data) {
+        console.log("Returned: " + data);
+      });
     });
-  });
-  this.scisheet.dataTable.onEventShowCellEditor(oArgs);
+    this.scisheet.dataTable.onEventShowCellEditor(oArgs);
+  }
 };

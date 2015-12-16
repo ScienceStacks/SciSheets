@@ -102,15 +102,33 @@ SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction
 };
 
 // EventProcessing Object
+// Input: scisheet - SciSheets object
+//        oArgs - argument provided to the click handler
+//                depends on the specific click event
+// Returns: Creates a SciSheetsUtil object with fields for
+//   this.scisheet - the scisheet processed
+//   this.oArgs - the arguments provided
+//   this.columnName - name of the column clicked
+//   this.rowIndex - index of the row clicked
 function SciSheetsUtilEvent(scisheet, oArgs) {
   "use strict";
   var table;
   this.scisheet = scisheet;
-  table = this.scisheet.dataTable;
-  this.target = oArgs.target;
-  this.columnName = table.getColumn(this.target).field;
-  this.columnIndex = oArgs.target.cellIndex;
-  // this.columnIndex = table.getCellIndex(this.target) + 1;
+  this.oArgs = oArgs;
+  table = scisheet.dataTable;
+  if (oArgs.target) {
+    this.target = oArgs.target;
+    this.columnName = table.getColumn(this.target).field;
+    this.columnIndex = oArgs.target.cellIndex;
+    this.rowIndex = table.getRecordIndex(this.target) + 1;
+  } else if (oArgs.editor._oColumn.key) {
+    this.target = null;
+    this.columnName = oArgs.editor._oColumn.key;
+    this.rowIndex = null;
+    this.columnIndex = null;
+  } else {
+    console.log("***Could not process oArgs.");
+  }
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }
 
@@ -142,8 +160,9 @@ function SciSheetsUtilClick(eleId, selectedEleFunc) {
 }
 
 SciSheets.prototype.utilSendAndReload = function (cmd) {
+  "use strict";
   this.sendServerCommand(cmd, function (data) {
     console.log("Server returned: " + data);
     window.location.href = 'http://localhost:8000/scisheets/';  // reload the page
   });
-}
+};
