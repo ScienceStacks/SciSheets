@@ -23,16 +23,16 @@ caption {
 </style>
 
  {% load static from staticfiles %}
-<link rel="stylesheet" type="text/css" href='{% static "yui/yui.min.css" %}'/>
-<link rel="stylesheet" type="text/css" href='{% static "jquery-ui/jquery-ui.css" %}'/>
-<link rel="stylesheet" type="text/css" href='{% static "scitable/scitable.css" %}'/>
 
 <script type="text/javascript" src='{% static "yui/yui.min.js" %}'></script>
 <script type="text/javascript" src='{% static "jquery/jquery.min.js" %}'></script>
 <script type="text/javascript" src='{% static "jquery-ui/external/jquery/jquery.js" %}'></script>
 <script type="text/javascript" src='{% static "jquery-ui/jquery-ui.js" %}'></script>
+<link rel="stylesheet" type="text/css" href='{% static "jquery-ui/jquery-ui.css" %}'/>
+<link rel="stylesheet" type="text/css" href='{% static "yui/yui.min.css" %}'/>
+<link rel="stylesheet" type="text/css" href='{% static "scitable/scitable.css" %}'/>
 
-<!--begin custom header content for this example-->
+<!--begin custom header content for this page-->
 <style type="text/css">
 /* custom styles for this example */
 .yui-skin-sam .yui-dt-col-address pre { font-family:arial;font-size:100%; } /* Use PRE in first col to preserve linebreaks*/
@@ -68,16 +68,13 @@ caption {
 </ul>
 </div>
 
-<div id="Forms">
-
 <div id="rename-dialog" style="width:100px;display:none">
   <form>
     <fieldset>
-      <label for="name">New Name: </label>
-      <input type="text" name="rename-dialog-name" id="name" class="ui-widget-content">
+      <label for="name" id="rename-dialog-label">New Name: </label>
+      <input type="text" name="name" id="rename-dialog-name" class="ui-widget-content">
     </fieldset>
   </form>
-</div>
 </div>
 
 

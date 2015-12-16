@@ -31,7 +31,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
     });
   } else {
     SciSheetsUtilClick("ColumnClickMenu", function (eleId) {
-      var msg, cmd;
+      var msg, cmd, ele;
       msg = "Column " + ep.columnIndex + " (" + ep.columnName + ")" + " clicked.";
       msg += " Selected " + eleId + ".";
       console.log(msg);
@@ -39,8 +39,11 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       cmd.command = eleId;
       cmd.column = ep.columnIndex;
       cmd.target = "Column";
-      $("#rename-dialog").css("display", "block");
+      // $("#rename-dialog").css("display", "block");
       if (cmd.command === 'Rename') {
+        // Change the dialog prompt
+        ele = $("#rename-dialog-label")[0].childNodes[0];
+        ele.nodeValue = "Rename column '" + ep.columnName + "': ";
         $("#rename-dialog").dialog({
           autoOpen: true,
           modal: true,

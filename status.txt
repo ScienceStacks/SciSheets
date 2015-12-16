@@ -1,7 +1,8 @@
 Serve page from Django
 
-Not properly reference dialog name field for "Rename".
-Problem is in column_event.js; get a 500.
+Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
+
+Not getting accurate column index. Use column name in pre tag?
 
 rename sctiable.css to scisheets.css
 
