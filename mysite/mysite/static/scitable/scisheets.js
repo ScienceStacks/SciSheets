@@ -22,6 +22,7 @@
 /* Create the SciSheets namespace */
 function SciSheets() {
   "use strict";
+  this.baseURL = "http://localhost:8000/scisheets/";
   this.dataTable = null;  // dataTable for this SciSheet
   this.mock_ajax = false;
 }
@@ -156,10 +157,16 @@ function SciSheetsUtilClick(eleId, selectedEleFunc) {
   $(clickMenu).css("display", "block");
 }
 
+SciSheets.prototype.utilReload = function () {
+  "use strict";
+  window.location.href = this.baseURL;
+}
+
 SciSheets.prototype.utilSendAndReload = function (cmd) {
   "use strict";
+  var scisheet = this;
   this.sendServerCommand(cmd, function (data) {
     console.log("Server returned: " + data);
-    window.location.href = 'http://localhost:8000/scisheets/';  // reload the page
+    scisheet.utilReload();
   });
 };

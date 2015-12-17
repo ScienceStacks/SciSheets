@@ -21,12 +21,14 @@ urlpatterns = patterns('',
     url(r'^tables/(?P<node>.+)/$', 'scisheets.views.tables'),
     url(r'^SimpleHTMLTables/', 'scisheets.views.simple_html_tables'),
     url(r'^upload/', 'scisheets.views.upload'),
-    #url(r'^scisheets/', 'scisheets.views.scisheets'),
-    url(r'^scisheets/(?P<ncol>.+)/(?P<nrow>.+)/$', 'scisheets.views.scisheets'),
-    url(r'^scisheets/(?P<ncol>.+)/(?P<nrow>.+)/command', 'scisheets.views.scisheets_command'),
-    url(r'^scisheets/$', 'scisheets.views.scisheets_reload'),
-    url(r'^scisheets/command', 'scisheets.views.scisheets_command0'),
     url(r'^tryajax/scisheets_command', 'scisheets.views.tryajax_reply'),
     url(r'^tryajax', 'scisheets.views.tryajax'),
+    # URLs used in scisheets
+    # Used to generate a scitable
+    url(r'^scisheets/(?P<ncol>.+)/(?P<nrow>.+)/$', 'scisheets.views.scisheets'),
+    # URL to load a previously created table
+    url(r'^scisheets/$', 'scisheets.views.scisheets_reload'),
+    # URL used by Ajax passing arguments as GET parameters
+    url(r'^scisheets/command', 'scisheets.views.scisheets_command0'),
 )
 urlpatterns += staticfiles_urlpatterns()

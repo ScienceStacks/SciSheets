@@ -71,6 +71,19 @@ class UITable(Table):
       table.addColumn(column)
     return table
 
+  @staticmethod
+  def _createResponse(success=False):
+    # Returns a response of the desired type
+    # Input: success - successful response if true,
+    #                  unsuccessful response if false
+    # Output: response
+    if success:
+      response = {'data': "OK", 'success': True}
+    else:
+      response = {'data': None, 'success': False}
+    return response
+  
+
   def processCommand(self, cmd_dict):
     # Processes a UI request for the Table.
     # Input: cmd_dict - dictionary with the keys
@@ -83,15 +96,15 @@ class UITable(Table):
     # Output: response - Dictionary with response
     #            data: data returned
     #            success: True/False
-    response = {'data': None, 'success': False}
+    response = self._createResponse(success=False)
+    # Table
     # Cells
     if cmd_dict["target"] == "Cell":
       if cmd_dict["command"] == "Update":
         self.updateCell(cmd_dict["value"], 
                         cmd_dict["row_index"], 
                         cmd_dict["column_index"])
-        response["data"] = "OK"
-        response["success"] = True
+        response = self._createResponse(success=True)
     if cmd_dict["target"] == "Column":
       column = self.columnFromIndex(cmd_dict["column_index"])
       if cmd_dict['command'] == "Delete":
@@ -101,8 +114,7 @@ class UITable(Table):
         response["success"] = True
       if cmd_dict['command'] == "Rename":
         column.rename(cmd_dict["args"][0])
-        response["data"] = "OK"
-        response["success"] = True
+        response = self._createResponse(success=True)
     if not response["success"]:
       NotYetImplemented
     return response

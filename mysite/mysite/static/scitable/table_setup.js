@@ -41,6 +41,11 @@ var sciSheets = new SciSheets();
 
 YAHOO.util.Event.addListener(window, "load", function () {
   "use strict";
+  // Reload the page if it's not the base URL.
+  // The server knows the current table
+  if (window.location.href !== sciSheets.baseURL) {
+    sciSheets.utilReload();
+  }
   YAHOO.example.InlineCellEditing = (function () {
     var myDataTable, highlightEditableCell, myDataSource,
       id, tableElement, d, captionElement, div_ele;

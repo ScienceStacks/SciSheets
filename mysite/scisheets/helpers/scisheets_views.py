@@ -35,6 +35,10 @@ def createCommandDict(request):
   # from AJAX.
   # Input: request - HTML request object
   # Output: cmd_dict - dictionary of the command
+  #  TARGET  COMMAND   DESCRIPTION
+  #   Cell    Update   Update the specified cell
+  #   Column  Delete   Delete the column
+  #   Column  Rename   Rename the column
   cmd_dict = {}
   cmd_dict['command'] = extractDataFromRequest(request, 'command')
   cmd_dict['target'] = extractDataFromRequest(request, 'target')
@@ -88,9 +92,10 @@ def scisheets(request, ncol, nrow):
   pickleTable(request, table)
   return HttpResponse(html)
 
-def scisheets_command(request, _, __):
-  # Handles case where command is invoked with arguments
-  return scisheets_command0(request)
+# Only neeed for "tryajax"
+#def scisheets_command(request, _, __):
+#  # Handles case where command is invoked with arguments
+#  return scisheets_command0(request)
 
 def scisheets_command0(request):
   # Invoked from Ajax within the page with a command structure
