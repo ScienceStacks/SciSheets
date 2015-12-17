@@ -135,19 +135,26 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
 //        selectedEleFunc - function that processes the selected element
 //            argument - ID of the selected element
 // Output: establishes the click handlers
-function SciSheetsUtilClick(eleId, selectedEleFunc) {
+SciSheets.prototype.utilClick = function (eleId, selectedEleFunc) {
   "use strict";
-  var clickMenu;
+  var clickMenu, scisheet, selected;
+  selected = false;
+  scisheet = this;
   clickMenu = document.getElementById(eleId);
   $(clickMenu).menu(
     {
       role: "listbox",
       select: function (event, data) {
+        selected = true;
         selectedEleFunc(event.currentTarget.firstChild.data);
-        $(clickMenu).css("display", "none");
       },
       blur: function (event, data) {
-        $(clickMenu).css("display", "none");
+        if (event.handleObj.type == "mouseout") {
+          $(clickMenu).hide()
+          if (!selected) {
+            scisheet.utilReload();  // Eliminate the highlighting
+          }
+        }
       },
       focus: function (event, data) {
         $(clickMenu).css("display", "block");
@@ -155,12 +162,12 @@ function SciSheetsUtilClick(eleId, selectedEleFunc) {
     }
   );
   $(clickMenu).css("display", "block");
-}
+};
 
 SciSheets.prototype.utilReload = function () {
   "use strict";
   window.location.href = this.baseURL;
-}
+};
 
 SciSheets.prototype.utilSendAndReload = function (cmd) {
   "use strict";

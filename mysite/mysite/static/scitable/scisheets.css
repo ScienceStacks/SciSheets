@@ -78,3 +78,13 @@
           overflow: visible; /* removes extra width in IE */
           color: #333333;
         }
+        .ui-widget-overlay {
+          background: none
+          opacity: .5;
+        }
+       .ui-widget-shadow {
+          margin: -5px 0 0 -5px;
+          padding: 5px;
+          background: none
+          border-radius: 5px;
+        }

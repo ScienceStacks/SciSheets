@@ -5,7 +5,7 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global SciSheets, $, alert, YAHOO, SciSheetsUtilClick */
+/*global SciSheets, $, alert, YAHOO */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
@@ -18,7 +18,7 @@ function SciSheetsTable(scisheet) {
 
 SciSheetsTable.prototype.click = function (oArgs) {
   "use strict";
-  SciSheetsUtilClick("TableClickMenu", function (eleId) {
+  this.scisheet.utilClick("TableClickMenu", function (eleId) {
     console.log("Table click. Selected " + eleId + ".");
   });
 };

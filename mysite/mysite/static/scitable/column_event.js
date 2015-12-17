@@ -5,7 +5,7 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global SciSheetsUtilEvent, $, alert, YAHOO, SciSheetsUtilClick */
+/*global SciSheetsUtilEvent, $, alert, YAHOO */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
@@ -23,14 +23,17 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   var ep, scisheet;
   scisheet = this.scisheet;
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
+  $(ep.target).effect("highlight", 1000000);
+  $(ep.target).toggle("highlight");
   if (ep.columnName  === ROW_NAME) {
-    SciSheetsUtilClick("FirstColumnClickMenu", function (eleId) {
+    scisheet.utilClick("FirstColumnClickMenu", function (eleId) {
       var msg;
       msg = "Row Name Column clicked.";
       console.log(msg);
+      $(ep.target).stop();
     });
   } else {
-    SciSheetsUtilClick("ColumnClickMenu", function (eleId) {
+    scisheet.utilClick("ColumnClickMenu", function (eleId) {
       var msg, cmd, ele;
       msg = "Column " + ep.columnIndex + " (" + ep.columnName + ")" + " clicked.";
       msg += " Selected " + eleId + ".";
@@ -39,7 +42,6 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       cmd.command = eleId;
       cmd.column = ep.columnIndex;
       cmd.target = "Column";
-      // $("#rename-dialog").css("display", "block");
       if (cmd.command === 'Rename') {
         // Change the dialog prompt
         ele = $("#rename-dialog-label")[0].childNodes[0];
@@ -47,6 +49,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
         $("#rename-dialog").dialog({
           autoOpen: true,
           modal: true,
+          closeOnEscape: false,
           dialogClass: "dlg-no-close",
           buttons: {
             "Submit": function () {
@@ -56,6 +59,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
             },
             "Cancel": function () {
               $(this).dialog("close");
+              scisheet.utilReload();
             }
           }
         });
