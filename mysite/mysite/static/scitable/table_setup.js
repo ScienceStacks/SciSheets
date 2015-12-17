@@ -88,16 +88,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
       var sciSheetsColumn;
       sciSheetsColumn = new SciSheetsColumn(sciSheets);
       sciSheetsColumn.click(oArgs);
-      oArgs.event.stopPropagation();
     });
-
-    /*------------------- Catch cell modifications --------------*/
-//    myDataTable.subscribe("cellUpdateEvent", function (oArgs) {
-//      var ep;
-//      ep = new sciSheets.util.eventProcessing(sciSheets, oArgs);
-//      sciSheets.cell.modify(ep);
-//      alert("Modified");
-//    });
 
     /* --------------- Catch cell clicks ------------------------*/
     // This logic routes the event to processing a row or a data cell
@@ -113,7 +104,6 @@ YAHOO.util.Event.addListener(window, "load", function () {
         sciSheetsCell = new SciSheetsCell(sciSheets);
         sciSheetsCell.click(oArgs);
       }
-      oArgs.event.stopPropagation();
     });
 
 

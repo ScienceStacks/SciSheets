@@ -108,7 +108,9 @@ SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction
 // Returns: Creates a SciSheetsUtil object with fields for
 //   this.scisheet - the scisheet processed
 //   this.oArgs - the arguments provided
+//   this.target - target of click
 //   this.columnName - name of the column clicked
+//   this.columnIndex - index of the column clicked
 //   this.rowIndex - index of the row clicked
 function SciSheetsUtilEvent(scisheet, oArgs) {
   "use strict";
@@ -116,18 +118,13 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   this.scisheet = scisheet;
   this.oArgs = oArgs;
   table = scisheet.dataTable;
-  if (oArgs.target) {
+  if (!oArgs.target) {
+    console.log("***Could not process oArgs.");
+  } else {
     this.target = oArgs.target;
     this.columnName = table.getColumn(this.target).field;
     this.columnIndex = oArgs.target.cellIndex;
     this.rowIndex = table.getRecordIndex(this.target) + 1;
-  } else if (oArgs.editor._oColumn.key) {
-    this.target = null;
-    this.columnName = oArgs.editor._oColumn.key;
-    this.rowIndex = null;
-    this.columnIndex = null;
-  } else {
-    console.log("***Could not process oArgs.");
   }
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }

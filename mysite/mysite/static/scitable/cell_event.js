@@ -18,24 +18,26 @@ function SciSheetsCell(scisheet) {
 
 SciSheetsCell.prototype.click = function (oArgs) {
   "use strict";
-  var ep;
+  var ep, scisheet;
+  scisheet = this.scisheet;
   if (oArgs.target) {
-    ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
-    this.scisheet.dataTable.on('editorSaveEvent', function (editEvent) {
+    ep = new SciSheetsUtilEvent(scisheet, oArgs);
+    scisheet.dataTable.subscribe('editorSaveEvent', function (editEvent) {
       var msg, cmd;
       msg = "Clicked cell = (" + ep.rowIndex + ", " + ep.columnIndex + ").";
       msg += " Old data: "  + editEvent.oldData + ".";
       msg += " New data: "  + editEvent.newData + ".";
       console.log(msg);
-      cmd = this.scisheet.createServerCommand();
+      cmd = scisheet.createServerCommand();
       cmd.command = "Update";
       cmd.target = "Cell";
       cmd.column = ep.columnIndex;
       cmd.row = ep.rowIndex;
-      cmd.value = oArgs.newData;
-      this.scisheet.sendServerCommand(cmd, function (data) {
+      cmd.value = editEvent.newData;
+      scisheet.sendServerCommand(cmd, function (data) {
         console.log("Returned: " + data);
       });
+      scisheet.dataTable.unsubscribe('editorSaveEvent');
     });
     this.scisheet.dataTable.onEventShowCellEditor(oArgs);
   }
