@@ -166,7 +166,9 @@ SciSheets.prototype.utilClick = function (eleId, selectedEleFunc) {
 
 SciSheets.prototype.utilReload = function () {
   "use strict";
-  window.location.href = this.baseURL;
+  if (!this.mock_ajax) {
+    window.location.href = this.baseURL;
+  }
 };
 
 SciSheets.prototype.utilSendAndReload = function (cmd) {
@@ -177,3 +179,6 @@ SciSheets.prototype.utilSendAndReload = function (cmd) {
     scisheet.utilReload();
   });
 };
+
+/* Setup the global variable */
+var sciSheets = new SciSheets();

@@ -64,6 +64,7 @@ caption {
 <ul style="width:100px;display:none" id="RowClickMenu">
 	<li id="delete" >Delete</li>
 	<li id="insert">Insert</li>
+	<li id="rename">Rename</li>
 	<li id="hide" >Hide</li>
 </ul>
 </div>
@@ -83,6 +84,15 @@ caption {
 <div id="TagReplacedByJS"></div>
 
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.js"> </script>
+// Insert before table_setup.js
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/js_test/test_data.js" type="text/javascript"></script>
+<div id="qunit">QUnit</div>
+<div id="qunit-fixture"></div>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/qunit/qunit.js"></script>
+<script src="test.js"></script>
+<script>
+  sciSheets.mock_ajax = true;
+</script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/table_event.js"> </script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/column_event.js"> </script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/row_event.js"> </script>
@@ -92,7 +102,6 @@ caption {
 <div id="qunit">QUnit</div>
 <div id="qunit-fixture"></div>
 <script src="/home/ubuntu/SciSheets/mysite/mysite/static/qunit/qunit.js"></script>
-<script src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery_mockjax/jquery.mockjax.js"></script>
 <script src="test.js"></script>
 <!-- ========= Incorporate data from server ====================== -->
 

@@ -177,7 +177,7 @@ class TestScisheetsViews(TestCase):
     table = self._getTableFromResponse(response)
     column_index = self._findColumnWithType(table, val)
     # Do the cell update
-    create_table_url = self._createBaseURL(params=TABLE_PARAMS)
+    create_table_url = self._createBaseURL()
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Cell'
     ajax_cmd['command'] = 'Update'
@@ -240,7 +240,7 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(columns[0].numCells(), NROW)
 
   def testScisheetsCommandColumnDelete(self):
-    create_table_url = self._createBaseURL(params=TABLE_PARAMS)
+    create_table_url = self._createBaseURL()
     self._testScisheetsCommandColumnDelete(create_table_url)
     self._testScisheetsCommandColumnDelete(BASE_URL)
 

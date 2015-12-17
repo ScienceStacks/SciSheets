@@ -37,7 +37,6 @@
        - Change the name of a Table or Column
        - Change a row number
 */
-var sciSheets = new SciSheets();
 
 YAHOO.util.Event.addListener(window, "load", function () {
   "use strict";

@@ -1,28 +1,22 @@
 Serve page from Django
 
-Not handling cell update events correctly. There are two events:
-  mouse click
-  editsave
-Have confounded this. Symptoms:
- -Get multiple messages in CellClick
- -Not send ajax to server to update the table
+Fixes:
+1. Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
 
-Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
+2. Need tests for added python and javascript
 
-Need tests for added python and javascript
+3. consistent use of scitable, scisheet, scisheets
 
-Not getting accurate column index. Use column name in pre tag?
+4. Get rid of mockjax (not included in code)
 
-rename sctiable.css to scisheets.css
+New feature
 
-a.0 Implement rename column
- (1) Completed server side: accepts argument list. Processes Rename command.
- (2) Client side has a fixed name that is coded in column_event.js. Need a dialog.
-     Look at jqueryui - https://jqueryui.com/dialog/#modal-form
+1. Row rename
+  Need py to move and renumber the rows
 
-a.1 Consider changing row_index on command submission to row_name
+2. Row insert
+  Handle None correctly for values in new row
 
-a.2 Get rid of mockjax
 
 b. javascript tests
 -- Not getting the data instantiated but can't determine where the
