@@ -94,6 +94,25 @@ class TestUITable(TestCase):
       for k in after_row.keys():
         self.assertEqual(after_row[k], before_row[k])
 
+  def testProcessCommandColumnRename(self):
+    COLUMN_INDEX = 3
+    ROW_INDEX = None
+    NEW_VALUE = None
+    NEW_COLUMN_NAME = "New Name"
+    cmd_dict = {
+                'target':  'Column',
+                'command': 'Rename',
+                'table_name': None,
+                'column_index': COLUMN_INDEX,
+                'row_index': ROW_INDEX,
+                'args': [NEW_COLUMN_NAME],
+                'value': NEW_VALUE,
+               }
+    old_num_columns = self.table.numColumns()
+    self.table.processCommand(cmd_dict)
+    self.assertEqual(self.table.numColumns(), old_num_columns)
+    self.assertEqual(self.table.getColumns()[COLUMN_INDEX].getName(), NEW_COLUMN_NAME)
+
   # TODO: Do something better with this test
   def testRender(self):
     html = self.table.render()

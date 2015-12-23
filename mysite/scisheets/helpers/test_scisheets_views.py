@@ -45,6 +45,7 @@ class TestScisheetsViews(TestCase):
     ajax_cmd['row'] = ROW_INDEX
     ajax_cmd['column'] = COLUMN_INDEX
     ajax_cmd['table'] = TABLE_NAME
+    ajax_cmd['args[]'] = None
     return ajax_cmd
 
   def _createBaseTable(self):
@@ -72,7 +73,7 @@ class TestScisheetsViews(TestCase):
     #        names - variable names
     #        values - values to use for each variable
     #        address - URL address
-    # Returns - a URL string
+    # Returns - a URL string with variables in the GET format
     url = address
     if values is not None:
       count = len(values)
@@ -94,8 +95,12 @@ class TestScisheetsViews(TestCase):
           url += "%s=%d" % (names[n], values[n])
         elif isinstance(values[n], float):
           url += "%s=%f" % (names[n], values[n])
-        else:
+        elif values[n] is None:
           url += "%s=%s" % (names[n], None)
+        elif isinstance(values[n], list):
+          url += "%s=%s" % (names[n], values[n])
+        else:
+          UNKNOWN_TYPE
     return url
 
   def _createURLFromAjaxCommand(self, ajax_cmd, address=None):
@@ -103,8 +108,8 @@ class TestScisheetsViews(TestCase):
     # Output: URL
     names = ajax_cmd.keys()
     values = []
-    for k in names:
-      values.append(ajax_cmd[k])
+    for name in names:
+      values.append(ajax_cmd[name])
     return self._createURL(values=values, names=names, address=address)
 
   def _URL2Request(self, url):
@@ -225,7 +230,7 @@ class TestScisheetsViews(TestCase):
     # Input - base_url - base URL used in the request
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    # Do the cell update
+    # Do the column delete
     COLUMN_INDEX = 2
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Column'
@@ -240,9 +245,32 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(columns[0].numCells(), NROW)
 
   def testScisheetsCommandColumnDelete(self):
-    create_table_url = self._createBaseURL()
-    self._testScisheetsCommandColumnDelete(create_table_url)
     self._testScisheetsCommandColumnDelete(BASE_URL)
+
+  def _testScisheetsCommandColumnRename(self, base_url):
+    # Tests for command column rename with a given base_url to consider the
+    # two use cases of the initial table and a reload
+    # Input - base_url - base URL used in the request
+    NEW_NAME = "New Column"
+    base_response = self._createBaseTable()
+    # Do the cell update
+    COLUMN_INDEX = 2
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Column'
+    ajax_cmd['command'] = 'Rename'
+    ajax_cmd['column'] = COLUMN_INDEX
+    ajax_cmd['args[]'] = NEW_NAME.replace(' ', '+')
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=base_url)
+    response = self.client.get(command_url)
+    # Check the table
+    table = self._getTableFromResponse(response)
+    columns = table.getColumns()
+    self.assertEqual(len(columns), NCOL+1)  # Added the 'row' column
+    self.assertEqual(columns[0].numCells(), NROW)
+    self.assertEqual(columns[COLUMN_INDEX].getName(), NEW_NAME)
+
+  def testScisheetsCommandColumnRename(self):
+    self._testScisheetsCommandColumnRename(BASE_URL)
 
 
 if __name__ == '__main__':
