@@ -5,7 +5,7 @@
 /*jslint plusplus: true */
 /*jshint onevar: false */
 /*global $, alert, YAHOO, SciSheets, SciSheetsColumn, SciSheetsUtilEvent */
-/*global $, SciSheetsTable, SciSheetsColumn, SciSheetsRow, SciSheetsCell, DataSource */
+/*global $, sciSheets, SciSheetsTable, SciSheetsColumn, SciSheetsRow, SciSheetsCell, DataSource */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */

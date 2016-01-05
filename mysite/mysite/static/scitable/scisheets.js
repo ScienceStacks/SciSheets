@@ -24,7 +24,8 @@ function SciSheets() {
   "use strict";
   this.baseURL = "http://localhost:8000/scisheets/";
   this.dataTable = null;  // dataTable for this SciSheet
-  this.mock_ajax = false;
+  this.mockAjax = false;
+  this.ajaxCallCount = 0;
 }
 
 // Setup
@@ -84,7 +85,8 @@ SciSheets.prototype.createServerCommand = function () {
 --------------------------------------------------------------- */
 SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction) {
   "use strict";
-  if (!this.mock_ajax) {
+  this.ajaxCallCount += 1;
+  if (!this.mockAjax) {
     $.ajax({async: true,
       url: "command",
       data: serverCommand,
@@ -149,8 +151,8 @@ SciSheets.prototype.utilClick = function (eleId, selectedEleFunc) {
         selectedEleFunc(event.currentTarget.firstChild.data);
       },
       blur: function (event, data) {
-        if (event.handleObj.type == "mouseout") {
-          $(clickMenu).hide()
+        if (event.handleObj.type === "mouseout") {
+          $(clickMenu).hide();
           if (!selected) {
             scisheet.utilReload();  // Eliminate the highlighting
           }
@@ -166,7 +168,7 @@ SciSheets.prototype.utilClick = function (eleId, selectedEleFunc) {
 
 SciSheets.prototype.utilReload = function () {
   "use strict";
-  if (!this.mock_ajax) {
+  if (!this.mockAjax) {
     window.location.href = this.baseURL;
   }
 };

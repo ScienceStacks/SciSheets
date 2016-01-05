@@ -4,6 +4,10 @@ Fixes:
 
 1. Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
 
+2. Qunit tests run in bath don't work for click simulation (but
+   running the tests in the browser works if you open the
+   test.html).
+
 3. consistent use of scitable, scisheet, scisheets
 
 4. Get rid of mockjax (not included in code)
@@ -15,6 +19,8 @@ New feature
 
 2. Row insert
   Handle None correctly for values in new row
+
+3. Column formula (just update context)
 
 
 b. javascript tests

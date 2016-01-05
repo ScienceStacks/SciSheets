@@ -46,6 +46,9 @@ SciSheetsColumn.prototype.click = function (oArgs) {
         // Change the dialog prompt
         ele = $("#rename-dialog-label")[0].childNodes[0];
         ele.nodeValue = "Rename column '" + ep.columnName + "': ";
+        if (scisheet.mockAjax) {
+          scisheet.ajaxCallCount += 1;  // Count as an Ajax call
+        }
         $("#rename-dialog").dialog({
           autoOpen: true,
           modal: true,
