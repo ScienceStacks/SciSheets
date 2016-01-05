@@ -46,6 +46,8 @@ function clickTester(clickEle, clickMenuId, selIndex) {
   }
 }
 
+// These tests only verify that there is no exception
+// when clicking through the menu options
 QUnit.test("table_setup", function (assert) {
   "use strict";
   var caption, ele2, ele3, data_table, cell_1_1, cell_1_2;
