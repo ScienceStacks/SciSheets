@@ -21,45 +21,29 @@ var CELL_1_1 = "1", CELL_1_2 = "John A. Smith";
 /* 
    Clicks on the specified option on the menu
    If selIndex < 0, then clicks on all
-   Inputs: clickElement - element whose click causes the popup menu
+   Inputs: clickEle - element whose click causes the popup menu
            clickMenuName - name of the menu that gets popped up
            selIndex - index of popup options to tests (-1 is all)
 */
-function clickTester(clickElement, clickMenuId, selIndex) {
+function clickTester(clickEle, clickMenuId, selIndex) {
   "use strict";
   var clickMenu, selectEle, i, idx,
-    selList = [];
+    selLst = [];
   // Bring up the menu
   clickMenu = document.getElementById(clickMenuId);
   if (selIndex < 0) {
     for (i = 0; i < clickMenu.children.length; i++) {
-      selList.push(i);
+      selLst.push(i);
     }
   } else {
-    selList.push(selIndex);
+    selLst.push(selIndex);
   }
-  for (i = 0; i < selList.length; i++) {
-    idx = selList[i];
-    $(clickElement).trigger('click');
+  for (i = 0; i < selLst.length; i++) {
+    idx = selLst[i];
+    $(clickEle).trigger('click');
     selectEle = clickMenu.children[idx];
     $(selectEle).trigger("click");
   }
-}
-
-/* 
-   Clicks on the specified option on the menu and provides inputs for
-     one menu option
-   Inputs: clickElement - element whose click causes the popup menu
-           popupElement - popup element to select
-           entryValue - what to enter in the entry field
-           buttonElement - button to click on
-*/
-function clickTesterWithInput(clickElement,
-    popupElement, entryValue, buttonElement) {
-  "use strict";
-  $(clickElement).trigger('click');  // Bring up the menu
-  $(popupElement).trigger('click');  // Select the option in the click menu
-  /* Need to enter value into the entry fields */
 }
 
 QUnit.test("table_setup", function (assert) {
@@ -78,7 +62,6 @@ QUnit.test("table_setup", function (assert) {
   ele3 = document.getElementById("yui-dt4-th-name");
   clickTester(ele3, "ColumnClickMenu", -1);  // Do all items
   assert.ok(ele3 !== null, "Other column tests");
-  // Test rename, which requires an input
   /* Get cell elements */
   data_table = document.getElementsByClassName("yui-dt-data")[0];
   cell_1_1 = data_table.getElementsByTagName("pre")[0];

@@ -56,6 +56,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
               cmd.args = [$("#rename-dialog-name").val()];
               $(this).dialog("close");
               scisheet.utilSendAndReload(cmd);
+              alert("Pressed Submit");
             },
             "Cancel": function () {
               $(this).dialog("close");

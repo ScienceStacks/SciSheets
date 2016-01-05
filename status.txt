@@ -1,9 +1,8 @@
 Serve page from Django
 
 Fixes:
-1. Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
 
-2. Need tests for added python and javascript
+1. Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
 
 3. consistent use of scitable, scisheet, scisheets
 
