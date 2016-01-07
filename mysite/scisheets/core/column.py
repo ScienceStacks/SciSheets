@@ -105,7 +105,7 @@ class Column(object):
     self._name = new_name
 
   # ToDo: Test
-  def replaceCells(self, newArray)
+  def replaceCells(self, newArray):
     # Input: newArray - array to replace existing array
     if len(newArray) != len(self._data_values):
       INTERNAL_ERROR
