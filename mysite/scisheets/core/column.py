@@ -104,6 +104,13 @@ class Column(object):
   def rename(self, new_name):
     self._name = new_name
 
+  # ToDo: Test
+  def replaceCells(self, newArray)
+    # Input: newArray - array to replace existing array
+    if len(newArray) != len(self._data_values):
+      INTERNAL_ERROR
+    self._data_values = np.array(newArray, dtype=self._data_type)
+
   def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
     # scalars, and functions in math for columns that preceed

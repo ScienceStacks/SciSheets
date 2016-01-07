@@ -39,6 +39,7 @@ def createCommandDict(request):
   #   Cell    Update   Update the specified cell
   #   Column  Delete   Delete the column
   #   Column  Rename   Rename the column
+  #   Row     Rename   Rename the row. May cause other rows to be renamed
   cmd_dict = {}
   cmd_dict['command'] = extractDataFromRequest(request, 'command')
   cmd_dict['target'] = extractDataFromRequest(request, 'target')

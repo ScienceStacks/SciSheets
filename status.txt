@@ -1,10 +1,15 @@
 Serve page from Django
 
+1. Rename row
+  - tests for renameRow method in core/table (and replaceCells in column)
+  - tests to handle command to rename row
+  - JS - populate response in popup menu
+
 Fixes:
 
 1. Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
 
-2. Qunit tests run in bath don't work for click simulation (but
+2. Qunit tests run in batch don't work for click simulation (but
    running the tests in the browser works if you open the
    test.html).
 

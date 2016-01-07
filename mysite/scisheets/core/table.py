@@ -261,6 +261,25 @@ class Table(ColumnContainer):
   def rowIndexFromName(name):
     return int(name) - 1
 
+  def renameRow(self, rowIndex, proposedName):
+    # Renames the row so that it is an integer value
+    # that creates the row ordering desired.
+    # Inputs: rowIndex - index of the row to change
+    #         proposedName - string of a number
+    nameColumn = self.getColumns[NAME_COLUMN_IDX]
+    names = nameColumn.getCells()
+    names[rowIndex] = str(proposedName)
+    float_names = names.astype(np.float)
+    sortIndex = np.argsort(float_names)
+    # ToDo: Use the index toNames method?
+    newNames = (np.array(range(len(names))) + 1).astype(str)
+    nameColumn.replaceCells(newNames)
+    # Update the order of values in each column
+    columns = self.getColumns()
+    for column in self.getColumns():
+      data = column.getCells()
+      column.replaceCells(data[sortIndex])
+
   def updateCell(self, value, row_index, column_index):
     # Changes the value of the identified cell
     # Inputs: value - new value for the cell

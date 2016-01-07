@@ -115,6 +115,11 @@ class UITable(Table):
       if cmd_dict['command'] == "Rename":
         column.rename(cmd_dict["args"][0])
         response = self._createResponse(success=True)
+    if cmd_dict["target"] == "Row":
+      column = self.columnFromIndex(cmd_dict["column_index"])
+      if cmd_dict['command'] == "Rename":
+        self.renameRow(cmd_dict['row_index'], cmd_dict["args"][0])
+        response = self._createResponse(success=True)
     if not response["success"]:
       NotYetImplemented
     return response
