@@ -100,6 +100,12 @@ class Table(ColumnContainer):
   def _rowNameFromIndex(self, index):
     return str(index + 1)
 
+  # TODO: Verify the index 
+  def _rowNamesFromSize(self, size):
+    # Inputs: size - number of rows
+    # Outputs: result - array of names
+    return (np.array(range(size)) + 1).astype(str)
+
   def _createNameColumn(self):
     column = Column(NAME_COLUMN_STR)
     self.addColumn(column)
@@ -266,19 +272,19 @@ class Table(ColumnContainer):
     # that creates the row ordering desired.
     # Inputs: rowIndex - index of the row to change
     #         proposedName - string of a number
-    nameColumn = self.getColumns[NAME_COLUMN_IDX]
+    nameColumn = self.getColumns()[NAME_COLUMN_IDX]
     names = nameColumn.getCells()
     names[rowIndex] = str(proposedName)
     float_names = names.astype(np.float)
-    sortIndex = np.argsort(float_names)
-    # ToDo: Use the index toNames method?
-    newNames = (np.array(range(len(names))) + 1).astype(str)
+    selIndex = np.argsort(float_names)
+    newNames = self._rowNamesFromSize(len(names))
     nameColumn.replaceCells(newNames)
     # Update the order of values in each column
     columns = self.getColumns()
     for column in self.getColumns():
-      data = column.getCells()
-      column.replaceCells(data[sortIndex])
+      if column.getName() != NAME_COLUMN_STR:
+        data = column.getCells()
+        column.replaceCells(data[selIndex])
 
   def updateCell(self, value, row_index, column_index):
     # Changes the value of the identified cell

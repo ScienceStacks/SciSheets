@@ -10,6 +10,7 @@ from util_test import createColumn, compareValues, toList
 COLUMN_NAME = "DUMMY"
 COLUMN_STR_NAME = "DUMMY STR"
 LIST = [2.0, 3.0]
+LIST1 = [20.0, 30.0]
 LIST_STR = ["aa bb", "cc"]
 TABLE = 'DUMMY'
 FORMULA = "A+B"
@@ -120,6 +121,14 @@ class TestColumn(unittest.TestCase):
     self.column.insertCell(NEW_VALUE)
     index = len(LIST)
     self.assertEqual(self.column.getCells()[index], NEW_VALUE)
+
+  def testReplaceCells(self):
+    new_array = np.array(LIST1)
+    self.column.replaceCells(new_array)
+    self.assertTrue( (self.column._data_values == new_array).all())
+    short_array = np.array(range(len(new_array) - 1))
+    with self.assertRaises(er.InternalError):
+      self.column.replaceCells(short_array)
 
 
 if __name__ == '__main__':

@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from ..core.table import Table
 from ..core.column import Column
+import ..core.errors as er
 from mysite.helpers import util as ut
 import numpy as np
 import random
@@ -99,29 +100,35 @@ class UITable(Table):
     response = self._createResponse(success=False)
     # Table
     # Cells
-    if cmd_dict["target"] == "Cell":
-      if cmd_dict["command"] == "Update":
+    target = cmd_dict["target"]
+    command = cmd_dict["command"]
+    if target == "Cell":
+      if command == "Update":
         self.updateCell(cmd_dict["value"], 
                         cmd_dict["row_index"], 
                         cmd_dict["column_index"])
-        response = self._createResponse(success=True)
-    if cmd_dict["target"] == "Column":
+      else:
+        msg = "Unimplemented %s command: %s." % (target, command)
+        raise er.NotYetImplemented(msg)
+    elif target == "Column":
       column = self.columnFromIndex(cmd_dict["column_index"])
-      if cmd_dict['command'] == "Delete":
+      if command == "Delete":
         self.deleteColumn(column)
-        num_cols = self.numColumns()
-        response["data"] = "OK"
-        response["success"] = True
-      if cmd_dict['command'] == "Rename":
+      elif command == "Rename":
         column.rename(cmd_dict["args"][0])
-        response = self._createResponse(success=True)
-    if cmd_dict["target"] == "Row":
-      column = self.columnFromIndex(cmd_dict["column_index"])
-      if cmd_dict['command'] == "Rename":
+      else:
+        msg = "Unimplemented %s command: %s." % (target, command)
+        raise er.NotYetImplemented(msg)
+    elif target == "Row":
+      if command == "Rename":
         self.renameRow(cmd_dict['row_index'], cmd_dict["args"][0])
-        response = self._createResponse(success=True)
-    if not response["success"]:
-      NotYetImplemented
+      else:
+        msg = "Unimplemented %s command: %s." % (target, command)
+        raise er.NotYetImplemented(msg)
+    else:
+        msg = "Unimplemented %s." % target
+        raise er.NotYetImplemented(msg)
+    response = self._createResponse(success=True)
     return response
   
   def render(self, table_id="scitable"):

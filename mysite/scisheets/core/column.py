@@ -4,7 +4,7 @@
 
 
 import constants as cn
-import errors as ex
+import errors as er
 import numpy as np
 
 
@@ -34,7 +34,7 @@ class Column(object):
       elif type(val) is float:
         self._data_type = float
       else:
-        raise ex.DataTypeError("%s is an unknown type" % str(val))
+        raise er.DataTypeError("%s is an unknown type" % str(val))
 
   def addCells(self, v, replace=False):
     # Input: v - value(s) to add
@@ -50,7 +50,7 @@ class Column(object):
     if self._data_type is not None:
       for e in new_data_list:
         if e is not None and (not isinstance(e, self._data_type)):
-          raise ex.DataTypeError("%g is not %s" % (e, self._data_type))
+          raise er.DataTypeError("%g is not %s" % (e, self._data_type))
     if replace:
       self._data_values = np.array(new_data_list, dtype=self._data_type)
     else:
@@ -76,7 +76,10 @@ class Column(object):
   def evaluate(self):
     # evaluates the formula, if any.
     # Replaces the data values with the formula results
-    raise ex.NotYetImplemented("evaluate")
+    raise er.NotYetImplemented("evaluate")
+
+  def getCell(self, index):
+    return self._data_values[index]
 
   def getCells(self):
     return self._data_values
@@ -105,11 +108,11 @@ class Column(object):
     self._name = new_name
 
   # ToDo: Test
-  def replaceCells(self, newArray):
-    # Input: newArray - array to replace existing array
-    if len(newArray) != len(self._data_values):
-      INTERNAL_ERROR
-    self._data_values = np.array(newArray, dtype=self._data_type)
+  def replaceCells(self, new_array):
+    # Input: new_array - array to replace existing array
+    if len(new_array) != len(self._data_values):
+      raise er.InternalError("Inconsistent lengths")
+    self._data_values = np.array(new_array, dtype=self._data_type)
 
   def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array

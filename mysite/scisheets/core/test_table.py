@@ -217,7 +217,34 @@ class TestTable(unittest.TestCase):
   def testGetCell(self):
     self.assertEqual(self.table.getCell(0, 1),
                      COLUMN1_CELLS[0])
-      
+
+  def testRowNamesFromSize(self):
+    SIZE = 5
+    table = self.table
+    row_names = table._rowNamesFromSize(SIZE)
+    self.assertEqual(len(row_names), SIZE)
+    for n in range(SIZE):
+      self.assertEqual(row_names[n], table._rowNameFromIndex(n))
+
+  def testRenameRow(self):
+    table = self.table
+    ROW_IDX = 0
+    columns = table.getColumns()
+    table_data = []
+    # Save current table data
+    for c in columns:
+      table_data.append(c.getCells())
+    # Move the first row to the end of the table
+    after_last_row_name = table._rowNameFromIndex(table.numRows())
+    table.renameRow(ROW_IDX, after_last_row_name)
+    # Test if done correctly
+    rplIdx = range(len(COLUMN1_CELLS))
+    del rplIdx[0]
+    rplIdx.append(0)
+    for c in range(1, table.numColumns()):
+      new_array = table_data[c][rplIdx]
+      for r in range(table.numRows()):
+        self.assertEqual(table.getCell(r, c), new_array[r])
 
 if __name__ == '__main__':
-    unittest.man()
+    unittest.main()
