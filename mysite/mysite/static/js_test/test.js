@@ -16,8 +16,6 @@
   Note that some of the UI tests don't work in qunit run in the command line.
   Specifically, any test that simulates a click won't happen.
 
-/*
-  Constants
 */
 
 var CELL_1_1 = "1", CELL_1_2 = "John A. Smith";
@@ -72,7 +70,8 @@ QUnit.test("table_setup", function (assert) {
   /* Table Tests */
   caption = document.getElementsByTagName("caption")[0];
   assert.ok(caption !== null, "Verify table caption");
-  expectAjaxCall = [false, false]; // Not yet implemented
+  expectAjaxCall = [false,  // Rename
+                    false]; // Delete
   clickTester(caption, "TableClickMenu", -1, assert,
       expectAjaxCall);
   // Column Tests
@@ -83,26 +82,26 @@ QUnit.test("table_setup", function (assert) {
       expectAjaxCall);
   ele3 = document.getElementById("yui-dt4-th-name");
   assert.ok(ele3 !== null, "Verify click element for menu");
-  expectAjaxCall = [false, true, false, true, false]; // Test Delete, Rename
-  //clickTester(ele3, "ColumnClickMenu", -1, assert,
-  //    expectAjaxCall);
-  // Get cell elements
+  expectAjaxCall = [false, // Insert
+                    true,  // Delete
+                    false, // Hide
+                    true,  // Rename
+                    false]; // Formula
+  // The following tests fail in batch mode
+  clickTester(ele3, "ColumnClickMenu", -1, assert,
+      expectAjaxCall);
+  // Row tests
   data_table = document.getElementsByClassName("yui-dt-data")[0];
   cell_1_1 = data_table.getElementsByTagName("pre")[0];
   assert.ok(cell_1_1.innerHTML === CELL_1_1, "Verify cell 1,1");
-  cell_1_2 = data_table.getElementsByTagName("pre")[1];
-  assert.ok(cell_1_2.innerHTML === CELL_1_2, "Verfiy cell 1,2");
-  // Test the Row menu
-  expectAjaxCall = [false, false, false, false]; // Not yet implemented
+  expectAjaxCall = [true,   // Delete
+                    false,  // Insert
+                    true,   // Rename
+                    false]; // Hide
   clickTester(cell_1_1, "RowClickMenu", -1, assert,
       expectAjaxCall);
-  // Test the Cell menu
+  // Cell menu
+  cell_1_2 = data_table.getElementsByTagName("pre")[1];
+  assert.ok(cell_1_2.innerHTML === CELL_1_2, "Verfiy cell 1,2");
   $(cell_1_2).trigger('click');
 });
-  /*
-  // Eliminate the cell menu by pressing cancel.
-  // Used if load the web page instead of running in batch
-  focus = document.activeElement;
-  cancel_button = focus.nextElementSibling.childNodes[1];
-  $(cancel_button).trigger("click");
-  */
