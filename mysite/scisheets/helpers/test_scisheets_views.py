@@ -272,6 +272,36 @@ class TestScisheetsViews(TestCase):
   def testScisheetsCommandColumnRename(self):
     self._testScisheetsCommandColumnRename(BASE_URL)
 
+  def testScisheetsCommandRowRename(self):
+    # Tests row renaming by moving the first row
+    # to the end of the table
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    table_data = table.getData()
+    num_rows = len(table_data[0])
+    num_columns = table.numColumns()
+    rplIdx = range(num_rows)
+    del rplIdx[0]
+    rplIdx.append(0)
+    new_row_name = table._rowNameFromIndex(table.numRows())
+    # Do the cell update
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Row'
+    ajax_cmd['command'] = 'Rename'
+    ajax_cmd['row'] = 1
+    ajax_cmd['args[]'] = new_row_name
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    self.assertEqual(new_table.numRows(), num_rows)
+    self.assertEqual(new_table.numColumns(), num_columns)
+    new_table_data = new_table.getData()
+    for c in range(1, num_columns):
+      expected_array = table_data[c][rplIdx]
+      b = (new_table_data[c] == expected_array).all()
+      self.assertTrue(b)
+
 
 if __name__ == '__main__':
     unittest.main()

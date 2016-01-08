@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from ..core.table import Table
 from ..core.column import Column
-import ..core.errors as er
+from ..core.errors import NotYetImplemented
 from mysite.helpers import util as ut
 import numpy as np
 import random
@@ -109,7 +109,7 @@ class UITable(Table):
                         cmd_dict["column_index"])
       else:
         msg = "Unimplemented %s command: %s." % (target, command)
-        raise er.NotYetImplemented(msg)
+        raise NotYetImplemented(msg)
     elif target == "Column":
       column = self.columnFromIndex(cmd_dict["column_index"])
       if command == "Delete":
@@ -118,16 +118,16 @@ class UITable(Table):
         column.rename(cmd_dict["args"][0])
       else:
         msg = "Unimplemented %s command: %s." % (target, command)
-        raise er.NotYetImplemented(msg)
+        raise NotYetImplemented(msg)
     elif target == "Row":
       if command == "Rename":
         self.renameRow(cmd_dict['row_index'], cmd_dict["args"][0])
       else:
         msg = "Unimplemented %s command: %s." % (target, command)
-        raise er.NotYetImplemented(msg)
+        raise NotYetImplemented(msg)
     else:
         msg = "Unimplemented %s." % target
-        raise er.NotYetImplemented(msg)
+        raise NotYetImplemented(msg)
     response = self._createResponse(success=True)
     return response
   

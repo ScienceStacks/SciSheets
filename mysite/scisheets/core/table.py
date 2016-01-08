@@ -96,6 +96,10 @@ class Table(ColumnContainer):
   def _getDataColumns(self):
     return self._columns[NAME_COLUMN_IDX+1:]
 
+  def getData(self):
+    # Returns the data values in an array ordered by column index
+    return [c.getCells() for c in self._columns]
+
   # TODO: Verify the index 
   def _rowNameFromIndex(self, index):
     return str(index + 1)

@@ -230,10 +230,7 @@ class TestTable(unittest.TestCase):
     table = self.table
     ROW_IDX = 0
     columns = table.getColumns()
-    table_data = []
-    # Save current table data
-    for c in columns:
-      table_data.append(c.getCells())
+    table_data = table.getData()
     # Move the first row to the end of the table
     after_last_row_name = table._rowNameFromIndex(table.numRows())
     table.renameRow(ROW_IDX, after_last_row_name)
@@ -242,9 +239,9 @@ class TestTable(unittest.TestCase):
     del rplIdx[0]
     rplIdx.append(0)
     for c in range(1, table.numColumns()):
-      new_array = table_data[c][rplIdx]
-      for r in range(table.numRows()):
-        self.assertEqual(table.getCell(r, c), new_array[r])
+      expected_array = table_data[c][rplIdx]
+      b = (columns[c].getCells() == expected_array).all()
+      self.assertTrue(b)
 
 if __name__ == '__main__':
     unittest.main()
