@@ -122,6 +122,8 @@ class UITable(Table):
     elif target == "Row":
       if command == "Rename":
         self.renameRow(cmd_dict['row_index'], cmd_dict["args"][0])
+      elif command == "Delete":
+        self.deleteRows([cmd_dict['row_index']])
       else:
         msg = "Unimplemented %s command: %s." % (target, command)
         raise NotYetImplemented(msg)

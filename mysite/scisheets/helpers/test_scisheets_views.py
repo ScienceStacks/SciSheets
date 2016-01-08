@@ -302,6 +302,32 @@ class TestScisheetsViews(TestCase):
       b = (new_table_data[c] == expected_array).all()
       self.assertTrue(b)
 
+  def testScisheetsCommandRowDelete(self):
+    ROW_IDX = 1
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    table_data = table.getData()
+    num_rows = len(table_data[0])
+    num_columns = table.numColumns()
+    rplIdx = range(num_rows)
+    del rplIdx[ROW_IDX - 1]
+    # Do the cell update
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Row'
+    ajax_cmd['command'] = 'Delete'
+    ajax_cmd['row'] = ROW_IDX
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    self.assertEqual(new_table.numRows(), num_rows - 1)
+    self.assertEqual(new_table.numColumns(), num_columns)
+    new_table_data = new_table.getData()
+    for c in range(1, num_columns):
+      expected_array = table_data[c][rplIdx]
+      b = (new_table_data[c] == expected_array).all()
+      self.assertTrue(b)
+
 
 if __name__ == '__main__':
     unittest.main()

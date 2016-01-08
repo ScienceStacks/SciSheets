@@ -1,9 +1,7 @@
 Serve page from Django
 
-1. Rename row
-  - tests for renameRow method in core/table (and replaceCells in column)
-  - tests to handle command to rename row
-  - JS - populate response in popup menu
+1. Rename delete
+  - Implement server side in ui_table and table to do rowDelete(row_index)
 
 Fixes:
 
