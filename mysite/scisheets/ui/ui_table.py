@@ -66,9 +66,11 @@ class UITable(Table):
       column = Column("Col-" + str(n))
       if c_list[n] < ncolint - 1:
         values = np.random.randint(low_int, hi_int, nrow)
+        values_ext = values.tolist()
       else:
-        values = ut.randomWords(nrow)
-      column.addCells(values)
+        values_ext = ut.randomWords(nrow)
+      #values_ext.append(None)
+      column.addCells(np.array(values_ext))
       table.addColumn(column)
     return table
 
@@ -120,10 +122,14 @@ class UITable(Table):
         msg = "Unimplemented %s command: %s." % (target, command)
         raise NotYetImplemented(msg)
     elif target == "Row":
+      row_index = cmd_dict['row_index']
       if command == "Rename":
-        self.renameRow(cmd_dict['row_index'], cmd_dict["args"][0])
+        self.renameRow(row_index, cmd_dict["args"][0])
       elif command == "Delete":
-        self.deleteRows([cmd_dict['row_index']])
+        self.deleteRows([row_index])
+      elif command == "Insert":
+        row = self.getRow()
+        self.addRow(row, row_index)  # Append to end of table
       else:
         msg = "Unimplemented %s command: %s." % (target, command)
         raise NotYetImplemented(msg)

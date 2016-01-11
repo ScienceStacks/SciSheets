@@ -1,7 +1,8 @@
 Serve page from Django
 
-1. Rename delete
-  - Implement server side in ui_table and table to do rowDelete(row_index)
+1. Row Insert
+  - Add test in scisheets_view to verify ajax to insert a row
+  - JS codes
 
 Fixes:
 

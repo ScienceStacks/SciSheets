@@ -14,7 +14,7 @@ class Column(object):
     self._name = name
     self._data_type = data_type
     if self._data_type is not None:
-      self._data_values = np.array([], dtype=self._data_type)
+      self._data_values = np.array([], dtype=object)
     else:
       self._data_values = np.array([])
     self._formula = None
@@ -52,11 +52,11 @@ class Column(object):
         if e is not None and (not isinstance(e, self._data_type)):
           raise er.DataTypeError("%g is not %s" % (e, self._data_type))
     if replace:
-      self._data_values = np.array(new_data_list, dtype=self._data_type)
+      self._data_values = np.array(new_data_list, dtype=object)
     else:
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
-      self._data_values = np.array(full_data_list, dtype=self._data_type)
+      self._data_values = np.array(full_data_list, dtype=object)
 
   def copy(self):
     # Returns a copy of this object
@@ -71,7 +71,7 @@ class Column(object):
     data_list = self._data_values.tolist()
     for nn in indicies:
       del data_list[nn]
-    self._data_values = np.array(data_list, dtype=self._data_type)
+    self._data_values = np.array(data_list, dtype=object)
 
   def evaluate(self):
     # evaluates the formula, if any.
@@ -99,7 +99,7 @@ class Column(object):
     if index is None:
       index = len(self._data_values)
     data_list.insert(index, val)
-    self._data_values = np.array(data_list, dtype=self._data_type)
+    self._data_values = np.array(data_list, dtype=object)
 
   def numCells(self):
     return len(self._data_values)
@@ -112,7 +112,7 @@ class Column(object):
     # Input: new_array - array to replace existing array
     if len(new_array) != len(self._data_values):
       raise er.InternalError("Inconsistent lengths")
-    self._data_values = np.array(new_array, dtype=self._data_type)
+    self._data_values = np.array(new_array, dtype=object)
 
   def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array

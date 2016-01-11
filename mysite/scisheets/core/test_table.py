@@ -104,6 +104,13 @@ class TestTable(unittest.TestCase):
     column = self.columns[1]
     cells = column.getCells()
     self.assertEqual(cells[3], row[COLUMN1])
+    #
+    self.table.addRow(row, 0.1)  # Make it the first row
+    expected_rows += 1
+    self.assertEqual(self.table.numRows(), expected_rows)
+    column = self.columns[1]
+    cells = column.getCells()
+    self.assertEqual(cells[0], row[COLUMN1])
 
   def testCopy(self):
     new_table = self.table.copy()

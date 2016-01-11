@@ -92,6 +92,13 @@ class Table(ColumnContainer):
     super(Table, self).__init__(name)
     self._createNameColumn()
 
+  def _updateNameColumn(self):
+    names = []
+    if len(self._columns) > 1:
+      for nn in range(self._columns[1].numCells()):
+        names.append(self._rowNameFromIndex(nn))
+      self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
+
   # Data columns are those that have user data. The "row" column is excluded.
   def _getDataColumns(self):
     return self._columns[NAME_COLUMN_IDX+1:]
@@ -121,13 +128,6 @@ class Table(ColumnContainer):
     adj_rows = self.numRows() - column.numCells()
     if adj_rows > 0:
       column.addCells(np.repeat(NONE_ARRAY, adj_rows))
-
-  def _updateNameColumn(self):
-    names = []
-    if len(self._columns) > 1:
-      for nn in range(self._columns[1].numCells()):
-        names.append(self._rowNameFromIndex(nn))
-      self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
   def _validateTable(self):
     # Checks that the table is internally consistent
@@ -194,8 +194,8 @@ class Table(ColumnContainer):
 
   def addRow(self, row, index=None):
     # Input: row - Row to add
-    #        index - index where Row is added
-    #                if None, then appended
+    #        ext_index - index where Row is added, may be a float
+    #                    if None, then appended
     if index is None:
       index = self.numRows()
     for column in self._columns:
@@ -204,6 +204,23 @@ class Table(ColumnContainer):
       else:
         column.insertCell(None, index)
     self._updateNameColumn()
+    self._validateTable()
+
+  def addRow(self, row, ext_index=None):
+    # Input: row - Row to add
+    #        ext_index - index where Row is added, may be a float
+    #                    if None, then appended
+    initial_index = self.numRows()
+    if ext_index is None:
+      proposed_name = str(initial_index)
+    else:
+      proposed_name = str(ext_index)
+    for column in self._columns:
+      if row.has_key(column.getName()):
+        column.insertCell(row[column.getName()], initial_index)
+      else:
+        column.insertCell(None, initial_index)
+    self.renameRow(initial_index, proposed_name)  # put the row in the right place
     self._validateTable()
 
   def copy(self):
@@ -271,14 +288,14 @@ class Table(ColumnContainer):
   def rowIndexFromName(name):
     return int(name) - 1
 
-  def renameRow(self, rowIndex, proposedName):
+  def renameRow(self, rowIndex, proposed_name):
     # Renames the row so that it is an integer value
     # that creates the row ordering desired.
     # Inputs: rowIndex - index of the row to change
-    #         proposedName - string of a number
+    #         proposed_name - string of a number
     nameColumn = self.getColumns()[NAME_COLUMN_IDX]
     names = nameColumn.getCells()
-    names[rowIndex] = str(proposedName)
+    names[rowIndex] = str(proposed_name)
     float_names = names.astype(np.float)
     selIndex = np.argsort(float_names)
     newNames = self._rowNamesFromSize(len(names))
