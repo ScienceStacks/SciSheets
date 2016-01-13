@@ -192,35 +192,22 @@ class Table(ColumnContainer):
       self._validateTable()
       done = True
 
-  def addRow(self, row, index=None):
-    # Input: row - Row to add
-    #        ext_index - index where Row is added, may be a float
-    #                    if None, then appended
-    if index is None:
-      index = self.numRows()
-    for column in self._columns:
-      if row.has_key(column.getName()):
-        column.insertCell(row[column.getName()], index)
-      else:
-        column.insertCell(None, index)
-    self._updateNameColumn()
-    self._validateTable()
-
   def addRow(self, row, ext_index=None):
     # Input: row - Row to add
     #        ext_index - index where Row is added, may be a float
     #                    if None, then appended
-    initial_index = self.numRows()
+    proposed_index = self.numRows()  # Index of new row
     if ext_index is None:
-      proposed_name = str(initial_index)
+      proposed_name = self._rowNameFromIndex(proposed_index)
     else:
-      proposed_name = str(ext_index)
+      proposed_name = self._rowNameFromIndex(ext_index)
     for column in self._columns:
       if row.has_key(column.getName()):
-        column.insertCell(row[column.getName()], initial_index)
+        column.insertCell(row[column.getName()])
       else:
-        column.insertCell(None, initial_index)
-    self.renameRow(initial_index, proposed_name)  # put the row in the right place
+        column.insertCell(None)
+    last_index = self.numRows() - 1
+    self.renameRow(last_index, proposed_name)  # put the row in the right place
     self._validateTable()
 
   def copy(self):

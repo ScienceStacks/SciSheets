@@ -129,7 +129,10 @@ class UITable(Table):
         self.deleteRows([row_index])
       elif command == "Insert":
         row = self.getRow()
-        self.addRow(row, row_index)  # Append to end of table
+        self.addRow(row, row_index - 0.1)  # Add a new row before 
+      elif command == "Append":
+        row = self.getRow()
+        self.addRow(row, row_index + 0.1)  # Add a new row after
       else:
         msg = "Unimplemented %s command: %s." % (target, command)
         raise NotYetImplemented(msg)

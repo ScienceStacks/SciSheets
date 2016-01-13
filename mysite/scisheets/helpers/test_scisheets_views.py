@@ -8,6 +8,7 @@ import json
 import mysite.helpers.util as ut
 import scisheets_views as sv
 import os
+import numpy as np
 
 # Keys used inside the server
 DICT_NAMES =  ["command", "target", "table_name", "column_index", "row_index", "value"]
@@ -327,6 +328,57 @@ class TestScisheetsViews(TestCase):
       expected_array = table_data[c][rplIdx]
       b = (new_table_data[c] == expected_array).all()
       self.assertTrue(b)
+
+  def _addRow(self, command, cur_pos, new_pos):
+    # Inputs: command - string of command to issue
+    #         cur_pos - current row name
+    #                   index (int)
+    #                   LAST - append to end
+    #         new_pos - row name of new cell
+    #                   index  (int)
+    #                   LAST - last row in table
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    table_data = table.getData()
+    num_rows = table.numRows()
+    num_columns = table.numColumns()
+    if cur_pos == "LAST":
+      row_name = num_rows
+    else:
+      row_name = int(cur_pos)
+    # Do the cell update
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Row'
+    ajax_cmd['command'] = command
+    ajax_cmd['row'] = row_name
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    if new_pos == "LAST":
+      row_idx = new_table.numRows() - 1
+    else:
+      row_idx = int(new_pos) - 1
+    self.assertEqual(new_table.numRows(), num_rows + 1)
+    self.assertEqual(new_table.numColumns(), num_columns)
+    # New row should have all none values
+    new_row = new_table.getRow(row_idx)
+    values = []
+    for k in new_row.keys():
+      if k != 'row':
+        values.append(new_row[k])
+    b = np.equal(np.array(values), None).all()
+    self.assertTrue(b)  # New row should be 'None'
+
+  def testScisheetsCommandRowInsert(self):
+    self._addRow("Insert", 1, 1)
+    self._addRow("Insert", "LAST", 4)
+    self._addRow("Insert", 2, 2)
+
+  def testScisheetsCommandRowAppend(self):
+    self._addRow("Append", 1, 2)
+    self._addRow("Append", "LAST", "LAST")
+    self._addRow("Append", 2, 3)
 
 
 if __name__ == '__main__':

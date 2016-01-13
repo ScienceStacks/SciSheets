@@ -54,6 +54,8 @@ def createCommandDict(request):
     cmd_dict['row_index'] = None  # Handles case where "row" is absent
   cmd_dict['value'] = extractDataFromRequest(request, 'value',
       convert=True)
+  if cmd_dict['row_index'] == -1:
+    import pdb; pdb.set_trace()
   return cmd_dict
 
 def _getTable(pickle_file):
