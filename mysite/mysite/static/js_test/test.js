@@ -37,7 +37,7 @@ function clickTester(clickEle,
                      expectAjaxCall) {
   "use strict";
   var clickMenu, selectEle, i, idx, madeAjaxCall,
-    selLst = [];
+    selLst = [], isOk;
   // Bring up the menu
   clickMenu = document.getElementById(clickMenuId);
   if (selIndex < 0) {
@@ -54,8 +54,11 @@ function clickTester(clickEle,
     selectEle = clickMenu.children[idx];
     $(selectEle).trigger("click");
     madeAjaxCall = sciSheets.ajaxCallCount > 0;
-    assert.ok(madeAjaxCall === expectAjaxCall[idx],
-        "clickTester");
+    isOk = madeAjaxCall === expectAjaxCall[idx];
+    if (!isOk) {
+      alert("Not ok");
+    }
+    assert.ok(isOk, "clickTester");
   }
 }
 
@@ -82,11 +85,14 @@ QUnit.test("table_setup", function (assert) {
       expectAjaxCall);
   ele3 = document.getElementById("yui-dt4-th-name");
   assert.ok(ele3 !== null, "Verify click element for menu");
-  expectAjaxCall = [false, // Insert
-                    true,  // Delete
-                    false, // Hide
-                    true,  // Rename
-                    false]; // Formula
+  expectAjaxCall = [
+    false, // Append
+    true,  // Delete
+    false, // Formula
+    false, // Hide
+    false, // Insert
+    true  // Rename
+  ];
   // The following tests fail in batch mode
   clickTester(ele3, "ColumnClickMenu", -1, assert,
       expectAjaxCall);
@@ -94,10 +100,13 @@ QUnit.test("table_setup", function (assert) {
   data_table = document.getElementsByClassName("yui-dt-data")[0];
   cell_1_1 = data_table.getElementsByTagName("pre")[0];
   assert.ok(cell_1_1.innerHTML === CELL_1_1, "Verify cell 1,1");
-  expectAjaxCall = [true,   // Delete
-                    false,  // Insert
-                    true,   // Rename
-                    false]; // Hide
+  expectAjaxCall = [
+    true,   // Append
+    true,   // Delete
+    false,  // Hide
+    true,  // Insert
+    true   // Rename
+  ];
   clickTester(cell_1_1, "RowClickMenu", -1, assert,
       expectAjaxCall);
   // Cell menu

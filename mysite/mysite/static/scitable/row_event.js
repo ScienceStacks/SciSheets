@@ -32,6 +32,12 @@ SciSheetsRow.prototype.click = function (oArgs) {
     cmd.command = eleId;
     cmd.row = ep.rowIndex;
     cmd.target = "Row";
+    if (cmd.command === 'Insert') {
+      scisheet.utilSendAndReload(cmd);
+    }
+    if (cmd.command === 'Append') {
+      scisheet.utilSendAndReload(cmd);
+    }
     if (cmd.command === 'Rename') {
       // Change the dialog prompt
       ele = $("#rename-dialog-label")[0].childNodes[0];
