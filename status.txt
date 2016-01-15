@@ -1,8 +1,10 @@
 Serve page from Django
 
-1. Row Insert
-  - Add test in scisheets_view to verify ajax to insert a row
-  - JS codes
+1. Column Insert, Append
+  - Do server side to insert a column at a column index
+  - JS codes (simple like Row)
+
+2. Formula
 
 Fixes:
 

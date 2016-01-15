@@ -34,11 +34,11 @@ class TestUITable(TestCase):
   def testCreateRandomTable(self):
     self.assertEqual(self.table.numRows(), NROW)
     self.assertEqual(self.table.numColumns(), NCOL+1)  # Include name col
-    NCOLSTR = 2
+    NCOLSTR = min(2, NCOL)
     new_table = ui.UITable.createRandomTable(TABLE_NAME,
         NROW, NCOL, ncolstr=NCOLSTR)
     num_str_col = 0
-    for n in range(1, NCOL):
+    for n in range(1, NCOL+1):  # Added the name column
       cell = new_table.getColumns()[n].getCells()[0]
       if isinstance(cell, str):
         num_str_col += 1

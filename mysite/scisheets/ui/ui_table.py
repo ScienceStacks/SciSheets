@@ -64,7 +64,7 @@ class UITable(Table):
     random.shuffle(c_list)
     for n in range(ncol):
       column = Column("Col-" + str(n))
-      if c_list[n] < ncolint - 1:
+      if c_list[n] <= ncolint - 1:
         values = np.random.randint(low_int, hi_int, nrow)
         values_ext = values.tolist()
       else:
