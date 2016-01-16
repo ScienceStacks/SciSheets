@@ -1,8 +1,12 @@
 Serve page from Django
 
 1. Column Insert, Append
-  - Do server side to insert a column at a column index
-  - JS codes (simple like Row)
+  - JS codes (simple like Row) - requires inputting the name
+    of the new column
+
+1.5 Implement
+  -Move column - give a 1-indexed float
+  -Change rename row to move to a new position
 
 2. Formula
 

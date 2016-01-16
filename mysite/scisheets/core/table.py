@@ -166,21 +166,18 @@ class Table(ColumnContainer):
     #            or the same number as the existing table
     if index is None:
       index = len(self._columns)
-    done = False
     # Case 1: NameColumn
-    if self.numColumns() == 0 and not done:
+    if self.numColumns() == 0:
       self.insertColumn(column, index=index)
       column.setTable(self)
-      done = True
     # Case 2: First column after name column
-    if self.numColumns() == 1 and not done:
+    elif self.numColumns() == 1:
       self.insertColumn(column, index=index)
       column.setTable(self)
       self._updateNameColumn()
       self._validateTable()
-      done = True
     # Case 3: Subsequent columns
-    if self.numColumns() > 1 and not done:
+    else:
       if (column.numCells() != self.numRows() and
           column.numCells() > 0):
         msg = "Invalid number of cells"
@@ -190,7 +187,6 @@ class Table(ColumnContainer):
         column.setTable(self)
         self._adjustColumnLength(column)
       self._validateTable()
-      done = True
 
   def addRow(self, row, ext_index=None):
     # Input: row - Row to add

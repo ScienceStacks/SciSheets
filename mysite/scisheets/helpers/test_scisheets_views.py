@@ -329,23 +329,16 @@ class TestScisheetsViews(TestCase):
       b = (new_table_data[c] == expected_array).all()
       self.assertTrue(b)
 
-  def _addRow(self, command, cur_pos, new_pos):
+  def _addRow(self, command, cur_idx, new_idx):
     # Inputs: command - string of command to issue
-    #         cur_pos - current row name
-    #                   index (int)
-    #                   LAST - append to end
-    #         new_pos - row name of new cell
-    #                   index  (int)
-    #                   LAST - last row in table
+    #         cur_idx - index of the current row
+    #         new_idx - index of the new row
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     table_data = table.getData()
     num_rows = table.numRows()
     num_columns = table.numColumns()
-    if cur_pos == "LAST":
-      row_name = num_rows
-    else:
-      row_name = int(cur_pos)
+    row_name = table._rowNameFromIndex(cur_idx)
     # Do the cell update
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Row'
@@ -355,14 +348,10 @@ class TestScisheetsViews(TestCase):
     response = self.client.get(command_url)
     # Check the table
     new_table = self._getTableFromResponse(response)
-    if new_pos == "LAST":
-      row_idx = new_table.numRows() - 1
-    else:
-      row_idx = int(new_pos) - 1
     self.assertEqual(new_table.numRows(), num_rows + 1)
     self.assertEqual(new_table.numColumns(), num_columns)
     # New row should have all none values
-    new_row = new_table.getRow(row_idx)
+    new_row = new_table.getRow(new_idx)
     values = []
     for k in new_row.keys():
       if k != 'row':
@@ -371,14 +360,52 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(b)  # New row should be 'None'
 
   def testScisheetsCommandRowInsert(self):
-    self._addRow("Insert", 1, 1)
-    self._addRow("Insert", "LAST", 4)
+    self._addRow("Insert", 0, 0)
+    self._addRow("Insert", NROW - 1, NROW - 1)
     self._addRow("Insert", 2, 2)
 
   def testScisheetsCommandRowAppend(self):
-    self._addRow("Append", 1, 2)
-    self._addRow("Append", "LAST", "LAST")
+    self._addRow("Append", 0, 1)
+    self._addRow("Append", NROW - 1, NROW)
     self._addRow("Append", 2, 3)
+
+  def _addColumn(self, command, cur_idx, new_idx):
+    # Inputs: command - string of command to issue
+    #         cur_idx - index of the current column
+    #         new_idx - index of the new column
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    table_data = table.getData()
+    num_rows = table.numRows()
+    num_columns = table.numColumns()
+    # Do the cell update
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Column'
+    ajax_cmd['command'] = command
+    ajax_cmd['column'] = cur_idx
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    self.assertEqual(new_table.numColumns(), num_columns + 1)
+    self.assertEqual(new_table.numRows(), num_rows)
+    # New row should have all none values
+    new_column = new_table.getColumns()[new_idx]
+    self.assertTrue(new_column.numCells(), num_rows)
+    b = np.equal(new_column.getCells(), None).all()
+    if not b:
+      import pdb; pdb.set_trace()
+    self.assertTrue(b)
+
+  def testScisheetsCommandColumnInsert(self):
+    self._addColumn("Insert", 1, 1)
+    self._addColumn("Insert", 2, 2)
+    self._addColumn("Insert", NCOL, NCOL)
+
+  def testScisheetsCommandColumnAppend(self):
+    self._addColumn("Append", 1, 2)
+    self._addColumn("Append", 2, 3)
+    self._addColumn("Append", NCOL, NCOL+1)
 
 
 if __name__ == '__main__':

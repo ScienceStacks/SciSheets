@@ -114,7 +114,15 @@ class UITable(Table):
         raise NotYetImplemented(msg)
     elif target == "Column":
       column = self.columnFromIndex(cmd_dict["column_index"])
-      if command == "Delete":
+      if (command == "Append") or (command == "Insert"):
+        name = cmd_dict["args"][0]
+        new_column = Column(name)
+        increment = 0
+        if command == "Append":
+          increment = 1
+        new_column_index = cmd_dict["column_index"] + increment
+        self.addColumn(new_column, new_column_index)
+      elif command == "Delete":
         self.deleteColumn(column)
       elif command == "Rename":
         column.rename(cmd_dict["args"][0])
@@ -124,7 +132,8 @@ class UITable(Table):
     elif target == "Row":
       row_index = cmd_dict['row_index']
       if command == "Rename":
-        self.renameRow(row_index, cmd_dict["args"][0])
+        new_name = cmd_dict["args"][0]
+        self.renameRow(row_index, new_name)
       elif command == "Delete":
         self.deleteRows([row_index])
       elif command == "Insert":

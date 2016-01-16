@@ -37,8 +37,12 @@ def createCommandDict(request):
   # Output: cmd_dict - dictionary of the command
   #  TARGET  COMMAND   DESCRIPTION
   #   Cell    Update   Update the specified cell
+  #   Column  Append   Add a new column to the right of the current
+  #   Column  Insert   Add a new column to the left of the current
   #   Column  Delete   Delete the column
   #   Column  Rename   Rename the column
+  #   Row     Append   Add a new row after the current row
+  #   Row     Insert   Add a new row before the current row
   #   Row     Rename   Rename the row. May cause other rows to be renamed
   cmd_dict = {}
   cmd_dict['command'] = extractDataFromRequest(request, 'command')
