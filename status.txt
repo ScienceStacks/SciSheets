@@ -1,9 +1,10 @@
 Serve page from Django
 
 1. Column Move
-  - Server code (no arguments required)
-  - JS codes (simple like Row) - requires inputting the name
-    of the new column
+  - Server code (needs destination column name)
+    completed indexFromColumn
+    updated ui_table and write tests
+  - JS codes (simple like Row) - requires inputting the dest. name
 
 1.5 Implement
   -Column Move>Before/After (select column/row)

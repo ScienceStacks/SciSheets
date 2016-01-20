@@ -1,5 +1,6 @@
 alias h=". $HOME/SciSheets/bin/scisheets_cd.sh ."
 alias m=". $HOME/SciSheets/bin/scisheets_cd.sh mysite/mysite"
+alias rs=". $HOME/SciSheets/bin/rs.sh"
 alias s=". $HOME/SciSheets/bin/scisheets_cd.sh mysite/scisheets"
 alias t=". $HOME/SciSheets/bin/scisheets_cd.sh mysite/mysite/templates"
 alias y=". $HOME/SciSheets/bin/scisheets_cd.sh yui"

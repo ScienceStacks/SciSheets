@@ -54,6 +54,13 @@ class ColumnContainer(object):
   def getName(self):
     return self._name
 
+  def indexFromColumn(self, column):
+    # Finds the index of the specified column
+    for n  in range(self.numColumns()):
+      if self._columns[n] == column:
+        return n
+    return None
+
   def insertColumn(self, column, index=None):
     idx = index
     if idx is None:

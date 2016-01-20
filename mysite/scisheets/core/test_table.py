@@ -250,5 +250,11 @@ class TestTable(unittest.TestCase):
       b = (columns[c].getCells() == expected_array).all()
       self.assertTrue(b)
 
+  def testColumnFromIndex(self):
+    columns = self.table.getColumns()
+    for n in range(self.table.numColumns()):
+      column = columns[n]
+      self.assertEqual(n , self.table.indexFromColumn(column))
+
 if __name__ == '__main__':
     unittest.main()
