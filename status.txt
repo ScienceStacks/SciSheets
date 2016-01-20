@@ -1,12 +1,15 @@
 Serve page from Django
 
-1. Column Insert, Append
+1. Column Move
+  - Server code (no arguments required)
   - JS codes (simple like Row) - requires inputting the name
     of the new column
 
 1.5 Implement
-  -Move column - give a 1-indexed float
-  -Change rename row to move to a new position
+  -Column Move>Before/After (select column/row)
+  -AddNew>Before/After (column/row)
+  -clickMenuTester - checks for child nodes
+  -cut and paste for column and rows?
 
 2. Formula
 

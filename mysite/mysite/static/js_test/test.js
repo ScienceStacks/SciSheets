@@ -86,11 +86,11 @@ QUnit.test("table_setup", function (assert) {
   ele3 = document.getElementById("yui-dt4-th-name");
   assert.ok(ele3 !== null, "Verify click element for menu");
   expectAjaxCall = [
-    false, // Append
+    true, // Append
     true,  // Delete
     false, // Formula
     false, // Hide
-    false, // Insert
+    true, // Insert
     true  // Rename
   ];
   // The following tests fail in batch mode
@@ -105,7 +105,7 @@ QUnit.test("table_setup", function (assert) {
     true,   // Delete
     false,  // Hide
     true,  // Insert
-    true   // Rename
+    true   // Move
   ];
   clickTester(cell_1_1, "RowClickMenu", -1, assert,
       expectAjaxCall);

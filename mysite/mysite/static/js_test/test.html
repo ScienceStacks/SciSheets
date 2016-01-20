@@ -67,7 +67,7 @@ caption {
 	<li id="delete" >Delete</li>
 	<li id="hide" >Hide</li>
 	<li id="insert">Insert</li>
-	<li id="rename">Rename</li>
+	<li id="move">Move</li>
 </ul>
 </div>
 
@@ -76,6 +76,15 @@ caption {
     <fieldset>
       <label for="name" id="rename-dialog-label">New Name: </label>
       <input type="text" name="name" id="rename-dialog-name" class="ui-widget-content">
+    </fieldset>
+  </form>
+</div>
+
+<div id="moverow-dialog" style="width:100px;display:none">
+  <form>
+    <fieldset>
+      <label for="name" id="moverow-dialog-label">New Position: </label>
+      <input type="text" name="name" id="moverow-dialog-name" class="ui-widget-content">
     </fieldset>
   </form>
 </div>

@@ -182,5 +182,36 @@ SciSheets.prototype.utilSendAndReload = function (cmd) {
   });
 };
 
+/* ---------- Dialog management ---------------*/
+SciSheets.prototype.utilRename = function (cmd, newPrompt) {
+  // Change the dialog prompt
+  "use strict";
+  var ele, scisheet;
+  scisheet = this;
+  ele = $("#rename-dialog-label")[0].childNodes[0];
+  ele.nodeValue = newPrompt;
+  if (scisheet.mockAjax) {
+    scisheet.ajaxCallCount += 1;  // Count as an Ajax call
+  }
+  $("#rename-dialog").dialog({
+    autoOpen: true,
+    modal: true,
+    closeOnEscape: false,
+    dialogClass: "dlg-no-close",
+    buttons: {
+      "Submit": function () {
+        cmd.args = [$("#rename-dialog-name").val()];
+        $(this).dialog("close");
+        scisheet.utilSendAndReload(cmd);
+        alert("Pressed Submit");
+      },
+      "Cancel": function () {
+        $(this).dialog("close");
+        scisheet.utilReload();
+      }
+    }
+  });
+};
+
 /* Setup the global variable */
 var sciSheets = new SciSheets();

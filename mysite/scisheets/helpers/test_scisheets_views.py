@@ -273,7 +273,7 @@ class TestScisheetsViews(TestCase):
   def testScisheetsCommandColumnRename(self):
     self._testScisheetsCommandColumnRename(BASE_URL)
 
-  def testScisheetsCommandRowRename(self):
+  def testScisheetsCommandRowMove(self):
     # Tests row renaming by moving the first row
     # to the end of the table
     base_response = self._createBaseTable()
@@ -288,7 +288,7 @@ class TestScisheetsViews(TestCase):
     # Do the cell update
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Row'
-    ajax_cmd['command'] = 'Rename'
+    ajax_cmd['command'] = 'Move'
     ajax_cmd['row'] = 1
     ajax_cmd['args[]'] = new_row_name
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)

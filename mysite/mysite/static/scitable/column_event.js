@@ -34,7 +34,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
     });
   } else {
     scisheet.utilClick("ColumnClickMenu", function (eleId) {
-      var msg, cmd, ele;
+      var msg, cmd, newPrompt;
       msg = "Column " + ep.columnIndex + " (" + ep.columnName + ")" + " clicked.";
       msg += " Selected " + eleId + ".";
       console.log(msg);
@@ -42,34 +42,19 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       cmd.command = eleId;
       cmd.column = ep.columnIndex;
       cmd.target = "Column";
-      if (cmd.command === 'Rename') {
-        // Change the dialog prompt
-        ele = $("#rename-dialog-label")[0].childNodes[0];
-        ele.nodeValue = "Rename column '" + ep.columnName + "': ";
-        if (scisheet.mockAjax) {
-          scisheet.ajaxCallCount += 1;  // Count as an Ajax call
-        }
-        $("#rename-dialog").dialog({
-          autoOpen: true,
-          modal: true,
-          closeOnEscape: false,
-          dialogClass: "dlg-no-close",
-          buttons: {
-            "Submit": function () {
-              cmd.args = [$("#rename-dialog-name").val()];
-              $(this).dialog("close");
-              scisheet.utilSendAndReload(cmd);
-              alert("Pressed Submit");
-            },
-            "Cancel": function () {
-              $(this).dialog("close");
-              scisheet.utilReload();
-            }
-          }
-        });
+      if (cmd.command === 'Append') {
+        scisheet.utilRename(cmd, "New column name");
       }
       if (cmd.command === 'Delete') {
         scisheet.utilSendAndReload(cmd);
+      }
+      if (cmd.command === 'Insert') {
+        scisheet.utilRename(cmd, "New column name");
+      }
+      if (cmd.command === 'Rename') {
+        // Change the dialog prompt
+        newPrompt = "Rename column '" + ep.columnName + "': ";
+        scisheet.utilRename(cmd, newPrompt);
       }
     });
   }

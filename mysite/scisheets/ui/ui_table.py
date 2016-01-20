@@ -131,7 +131,7 @@ class UITable(Table):
         raise NotYetImplemented(msg)
     elif target == "Row":
       row_index = cmd_dict['row_index']
-      if command == "Rename":
+      if command == "Move":
         new_name = cmd_dict["args"][0]
         self.renameRow(row_index, new_name)
       elif command == "Delete":

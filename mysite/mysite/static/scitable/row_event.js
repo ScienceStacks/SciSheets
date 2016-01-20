@@ -38,21 +38,21 @@ SciSheetsRow.prototype.click = function (oArgs) {
     if (cmd.command === 'Append') {
       scisheet.utilSendAndReload(cmd);
     }
-    if (cmd.command === 'Rename') {
+    if (cmd.command === 'Move') {
       // Change the dialog prompt
-      ele = $("#rename-dialog-label")[0].childNodes[0];
-      ele.nodeValue = "Rename row '" + ep.rowIndex + "': ";
+      ele = $("#moverow-dialog-label")[0].childNodes[0];
+      ele.nodeValue = "Move row '" + ep.rowIndex + "': ";
       if (scisheet.mockAjax) {
         scisheet.ajaxCallCount += 1;  // Count as an Ajax call
       }
-      $("#rename-dialog").dialog({
+      $("#moverow-dialog").dialog({
         autoOpen: true,
         modal: true,
         closeOnEscape: false,
         dialogClass: "dlg-no-close",
         buttons: {
           "Submit": function () {
-            cmd.args = [$("#rename-dialog-name").val()];
+            cmd.args = [$("#moverow-dialog-name").val()];
             $(this).dialog("close");
             scisheet.utilSendAndReload(cmd);
             alert("Pressed Submit");
