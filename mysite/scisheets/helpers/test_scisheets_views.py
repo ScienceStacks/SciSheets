@@ -389,7 +389,7 @@ class TestScisheetsViews(TestCase):
     new_table = self._getTableFromResponse(response)
     self.assertEqual(new_table.numColumns(), num_columns + 1)
     self.assertEqual(new_table.numRows(), num_rows)
-    # New row should have all none values
+    # New column should have all None values
     new_column = new_table.getColumns()[new_idx]
     self.assertTrue(new_column.numCells(), num_rows)
     b = np.equal(new_column.getCells(), None).all()
@@ -406,6 +406,45 @@ class TestScisheetsViews(TestCase):
     self._addColumn("Append", 1, 2)
     self._addColumn("Append", 2, 3)
     self._addColumn("Append", NCOL, NCOL+1)
+
+  def _moveColumn(self, column_idx_to_move, dest_column_name):
+    # Inputs: command - string of command to issue
+    #         cur_idx - index of the current column
+    #         new_idx - index of the new column
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    table_data = table.getData()
+    num_rows = table.numRows()
+    num_columns = table.numColumns()
+    moved_column = table.columnFromIndex(column_idx_to_move)
+    dest_column = table.columnFromName(dest_column_name)
+    expected_index = table.indexFromColumn(dest_column)
+    # Do the cell update
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Move"
+    ajax_cmd['column'] = column_idx_to_move
+    ajax_cmd['args[]'] = dest_column_name
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    self.assertEqual(new_table.numColumns(), num_columns)
+    self.assertEqual(new_table.numRows(), num_rows)
+    # New column should have all None values
+    column = new_table.getColumns()[expected_index]
+    self.assertEqual(column.getName(), moved_column.getName())
+    b = np.equal(column.getCells(), moved_column.getCells()).all()
+    if not b:
+      import pdb; pdb.set_trace()
+    self.assertTrue(b)
+  
+  def _makeColumnName(self, column_index):
+    return "Col-%d" % column_index
+
+  def testScisheetsCommandColumnMove(self):
+    # The column names are "row", "Col-0", ...
+    self._moveColumn(1, self._makeColumnName(NCOL-1))  # Make it the last column
 
 
 if __name__ == '__main__':

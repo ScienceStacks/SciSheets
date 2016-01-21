@@ -16,6 +16,7 @@ COLUMN1 = "DUMMY1 COLUMN"
 COLUMN2 = "DUMMY2 COLUMN"
 COLUMN3 = "DUMMY3 COLUMN"
 COLUMN4 = "DUMMY4 COLUMN"
+COLUMN5 = "DUMMY5 COLUMN"
 TABLE_NAME = "DUMMY TABLE"
 LIST = [2.0, 3.0]
 LIST2 = [3.0]
@@ -23,6 +24,7 @@ TABLE = 'DUMMY'
 FORMULA = "A+B"
 COLUMN1_CELLS = ["one", "two", "three"]
 COLUMN2_CELLS = [10.0, 20.0, 30.0]
+COLUMN5_CELLS = [100.0, 200.0, 300.0]
 
 
 #############################
@@ -38,6 +40,9 @@ class TestTable(unittest.TestCase):
     column2 = cl.Column(COLUMN2)
     column2.addCells(COLUMN2_CELLS)
     self.table.addColumn(column2)
+    column5 = cl.Column(COLUMN5)
+    column5.addCells(COLUMN5_CELLS)
+    self.table.addColumn(column5)
     self.columns = self.table.getColumns()
 
   def testConstructor(self):
@@ -136,7 +141,7 @@ class TestTable(unittest.TestCase):
       self.assertTrue(isinstance(c, cl.Column))
 
   def testNumColumns(self):
-    self.assertEqual(self.table.numColumns(), 3)
+    self.assertEqual(self.table.numColumns(), 4)
 
   def testNumRows(self):
     self.assertEqual(self.table.numRows(), len(COLUMN2_CELLS))
@@ -150,10 +155,15 @@ class TestTable(unittest.TestCase):
     row['row'] = self.table._rowNameFromIndex(rowidx)
     self.assertEqual(row, self.table.getRow(index=rowidx))
 
-  def testMoveColumn(self):
+  def testMoveColumn1(self):
     column2 = self.table.columnFromName(COLUMN2)
     self.table.moveColumn(column2, 1)
     self.assertEqual(self.table._columns[1].getName(), COLUMN2)
+
+  def testMoveColumn2(self):
+    column1 = self.table.columnFromName(COLUMN1)
+    self.table.moveColumn(column1, 2)
+    self.assertEqual(self.table._columns[2].getName(), COLUMN1)
 
   def testColumnFromIndex(self):
     COLUMN2_INDEX = 1

@@ -56,10 +56,7 @@ class ColumnContainer(object):
 
   def indexFromColumn(self, column):
     # Finds the index of the specified column
-    for n  in range(self.numColumns()):
-      if self._columns[n] == column:
-        return n
-    return None
+    return self._columns.index(column)
 
   def insertColumn(self, column, index=None):
     idx = index
@@ -71,7 +68,7 @@ class ColumnContainer(object):
     # Moves the column to the specified index
     # Input: column - column to move
     #        new_index - new index for column
-    cur_index = self._columns.index(column)
+    cur_index = self.indexFromColumn(column)
     del self._columns[cur_index]
     self._columns.insert(new_index, column)
  

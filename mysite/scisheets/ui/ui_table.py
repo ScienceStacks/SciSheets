@@ -75,15 +75,16 @@ class UITable(Table):
     return table
 
   @staticmethod
-  def _createResponse(success=False):
+  def _createResponse(success=False, message="OK"):
     # Returns a response of the desired type
     # Input: success - successful response if true,
     #                  unsuccessful response if false
+    #        message - text sent back
     # Output: response
     if success:
-      response = {'data': "OK", 'success': True}
+      response = {'data': message, 'success': True}
     else:
-      response = {'data': None, 'success': False}
+      response = {'data': message, 'success': False}
     return response
   
 
@@ -124,6 +125,15 @@ class UITable(Table):
         self.addColumn(new_column, new_column_index)
       elif command == "Delete":
         self.deleteColumn(column)
+      elif command == "Move":
+        try:
+          dest_column = self.columnFromName(cmd_dict["args"][0])
+          new_column_index = self.indexFromColumn(dest_column)
+          cur_column = self.columnFromIndex(cmd_dict["column_index"])
+          self.moveColumn(cur_column, new_column_index)
+        except Exception as e:
+          response = self._createResponse(success=False, message=str(e))
+          return response
       elif command == "Rename":
         column.rename(cmd_dict["args"][0])
       else:

@@ -40,6 +40,7 @@ def createCommandDict(request):
   #   Column  Append   Add a new column to the right of the current
   #   Column  Insert   Add a new column to the left of the current
   #   Column  Delete   Delete the column
+  #   Column  Move     Move the column to another position
   #   Column  Rename   Rename the column
   #   Row     Append   Add a new row after the current row
   #   Row     Insert   Add a new row before the current row
