@@ -91,8 +91,11 @@ SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction
       url: "command",
       data: serverCommand,
       success: function (result) {
+        var msg;
         if (!result.success) {
-          alert("Server error for cmd: " + serverCommand.command);
+          msg = "Server error for cmd: " + serverCommand.command;
+          msg += "\n" + result.data;
+          alert(msg);
         }
         successFunction(result.data);
       },
