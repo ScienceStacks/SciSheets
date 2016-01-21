@@ -1,8 +1,6 @@
 Serve page from Django
 
 1. Column Move
-  - Server code (needs destination column name)
-    Test for invalid column and the data returned
   - JS codes (simple like Row) - requires inputting the dest. name
     Handle invalid column; need prompt for column name of move pos
 
@@ -25,6 +23,8 @@ Fixes:
 3. consistent use of scitable, scisheet, scisheets
 
 4. Get rid of mockjax (not included in code)
+
+5. Better error message when server isn't responding
 
 New feature
 

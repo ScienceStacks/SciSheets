@@ -156,13 +156,14 @@ class UITable(Table):
     elif command == "Delete":
       self.deleteColumn(column)
     elif command == "Move":
+      dest_column_name = cmd_dict["args"][0]
       try:
-        dest_column = self.columnFromName(cmd_dict["args"][0])
+        dest_column = self.columnFromName(dest_column_name)
         new_column_index = self.indexFromColumn(dest_column)
         cur_column = self.columnFromIndex(cmd_dict["column_index"])
         self.moveColumn(cur_column, new_column_index)
-      except Exception as error:
-        pass
+      except Exception:
+        error = "Column %s does not exist." % dest_column_name
     elif command == "Rename":
       proposed_name = cmd_dict["args"][0]
       if not self.renameColumn(column, proposed_name):

@@ -51,6 +51,9 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       if (cmd.command === 'Insert') {
         scisheet.utilRename(cmd, "New column name");
       }
+      if (cmd.command === 'Move') {
+        scisheet.utilRename(cmd, "Insert before column");
+      }
       if (cmd.command === 'Rename') {
         // Change the dialog prompt
         newPrompt = "Rename column '" + ep.columnName + "': ";
