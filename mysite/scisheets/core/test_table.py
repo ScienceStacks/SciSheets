@@ -266,5 +266,13 @@ class TestTable(unittest.TestCase):
       column = columns[n]
       self.assertEqual(n , self.table.indexFromColumn(column))
 
+  def testRenameColumn(self):
+    column = self.table.columnFromName(COLUMN1)
+    b = self.table.renameColumn(column, COLUMN1)
+    self.assertFalse(b)
+    new_name = "%s-extra" % COLUMN1
+    b = self.table.renameColumn(column, new_name)
+    self.assertTrue(b)
+
 if __name__ == '__main__':
     unittest.main()

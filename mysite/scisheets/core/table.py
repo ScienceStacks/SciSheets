@@ -275,6 +275,17 @@ class Table(ColumnContainer):
   def rowIndexFromName(name):
     return int(name) - 1
 
+  def renameColumn(self, column, proposed_name):
+    # Renames the column, checking for a duplicate
+    # Inputs: column - column object
+    #         proposed_name - string for name
+    # Outputs: Boolean indicating success or failure
+    names = [c.getName() for c in self.getColumns()]
+    b = all([name != proposed_name for name in names])
+    if b:
+      column.rename(proposed_name)
+    return b
+
   def renameRow(self, rowIndex, proposed_name):
     # Renames the row so that it is an integer value
     # that creates the row ordering desired.

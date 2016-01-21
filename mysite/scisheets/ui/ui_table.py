@@ -164,7 +164,9 @@ class UITable(Table):
       except Exception as error:
         pass
     elif command == "Rename":
-      column.rename(cmd_dict["args"][0])
+      proposed_name = cmd_dict["args"][0]
+      if not self.renameColumn(column, proposed_name):
+        error = "%s is a duplicate column name." % proposed_name
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)

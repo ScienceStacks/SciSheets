@@ -248,11 +248,12 @@ class TestScisheetsViews(TestCase):
   def testScisheetsCommandColumnDelete(self):
     self._testScisheetsCommandColumnDelete(BASE_URL)
 
-  def _testScisheetsCommandColumnRename(self, base_url):
+  def _testScisheetsCommandColumnRename(self, base_url, new_name, is_successful_outcome):
     # Tests for command column rename with a given base_url to consider the
     # two use cases of the initial table and a reload
     # Input - base_url - base URL used in the request
-    NEW_NAME = "New Column"
+    #         new_name - new column name
+    #         is_successful_outcome - Boolean whether rename is successful
     base_response = self._createBaseTable()
     # Do the cell update
     COLUMN_INDEX = 2
@@ -260,18 +261,26 @@ class TestScisheetsViews(TestCase):
     ajax_cmd['target'] = 'Column'
     ajax_cmd['command'] = 'Rename'
     ajax_cmd['column'] = COLUMN_INDEX
-    ajax_cmd['args[]'] = NEW_NAME.replace(' ', '+')
+    ajax_cmd['args[]'] = new_name.replace(' ', '+')
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=base_url)
     response = self.client.get(command_url)
+    returned_data = json.loads(response.getvalue())
     # Check the table
-    table = self._getTableFromResponse(response)
-    columns = table.getColumns()
-    self.assertEqual(len(columns), NCOL+1)  # Added the 'row' column
-    self.assertEqual(columns[0].numCells(), NROW)
-    self.assertEqual(columns[COLUMN_INDEX].getName(), NEW_NAME)
+    if not is_successful_outcome:
+      self.assertFalse(returned_data['success'])
+    else:
+      self.assertTrue(returned_data['success'])
+      table = self._getTableFromResponse(response)
+      columns = table.getColumns()
+      self.assertEqual(len(columns), NCOL+1)  # Added the 'row' column
+      self.assertEqual(columns[0].numCells(), NROW)
+      self.assertEqual(columns[COLUMN_INDEX].getName(), new_name)
 
   def testScisheetsCommandColumnRename(self):
-    self._testScisheetsCommandColumnRename(BASE_URL)
+    new_name = 'row'  # duplicate name
+    self._testScisheetsCommandColumnRename(BASE_URL, new_name, False)
+    NEW_NAME = "New Column"
+    self._testScisheetsCommandColumnRename(BASE_URL, NEW_NAME, True)
 
   def testScisheetsCommandRowMove(self):
     # Tests row renaming by moving the first row
