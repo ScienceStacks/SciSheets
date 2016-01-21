@@ -2,9 +2,9 @@ Serve page from Django
 
 1. Column Move
   - Server code (needs destination column name)
-    completed indexFromColumn
-    updated ui_table and write tests
+    Test for invalid column and the data returned
   - JS codes (simple like Row) - requires inputting the dest. name
+    Handle invalid column; need prompt for column name of move pos
 
 1.5 Implement
   -Column Move>Before/After (select column/row)
