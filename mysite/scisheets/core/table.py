@@ -9,6 +9,7 @@ from column import Column
 import errors as er
 import column as cl
 import numpy as np
+from table_evaluator import TableEvaluator
 
 NAME_COLUMN_STR = "row"
 NAME_COLUMN_IDX = 0
@@ -236,6 +237,12 @@ class Table(ColumnContainer):
       column.deleteCells(indicies)
     self._updateNameColumn()
 
+  def evaluate(self):
+    # Evaluates formulas in the table
+    # Output: Error from table evaluation or None
+    te = TableEvaluator(self)
+    return te.evaluate()
+
   def getRow(self, index=None):
     # input: index - row desired
     #        if None, then a row of None is returned
@@ -315,7 +322,6 @@ class Table(ColumnContainer):
     #         column_index - 0-based index of the column
     column = self.columnFromIndex(column_index)
     column.updateCell(value, row_index)
-
 
   def updateRow(self, row, index):
     # Updates the row in place. Only changes values

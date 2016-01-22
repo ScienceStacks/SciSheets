@@ -13,7 +13,8 @@ LIST = [2.0, 3.0]
 LIST1 = [20.0, 30.0]
 LIST_STR = ["aa bb", "cc"]
 TABLE = 'DUMMY'
-FORMULA = "A+B"
+VALID_FORMULA = "a + b*math.cos(x)"
+INVALID_FORMULA = "a + b*math.cos(x"
 
 
 #############################
@@ -29,9 +30,9 @@ class TestColumn(unittest.TestCase):
 
   def setUp(self):
     self.column = createColumn(COLUMN_NAME, data=LIST, table=None,
-        formula=FORMULA)
+        formula=VALID_FORMULA)
     self.column_str = createColumn(COLUMN_STR_NAME, data=LIST_STR, 
-        table=None, formula=FORMULA)
+        table=None, formula=VALID_FORMULA)
 
   def testConstructor(self):
     column = cl.Column(COLUMN_NAME)
@@ -84,9 +85,6 @@ class TestColumn(unittest.TestCase):
     self.column.deleteCells([INDEX])
     self.assertEqual(self.column._data_values[INDEX], LIST[NON_INDEX])
 
-  def testEvaluate(self):
-    self.assertRaises(er.NotYetImplemented, self.column.evaluate)
-
   def testDataType(self):
     self.assertEqual(self.column.getDataType(), float)
     column_type = self.column_str.getDataType()
@@ -103,8 +101,12 @@ class TestColumn(unittest.TestCase):
     self.assertEqual(self.column.getName(), COLUMN_NAME)
 
   def testSetFormula(self):
-    self.column.setFormula(FORMULA)
-    self.assertEqual(self.column._formula, FORMULA)
+    error = self.column.setFormula(VALID_FORMULA)
+    self.assertIsNone(error)
+    self.assertEqual(self.column._formula, VALID_FORMULA)
+    error = self.column.setFormula(INVALID_FORMULA)
+    self.assertIsNotNone(error)
+    self.assertEqual(self.column._formula, VALID_FORMULA)
 
   def testSetTable(self):
     self.column.setTable(TABLE)

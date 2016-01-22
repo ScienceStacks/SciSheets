@@ -73,11 +73,6 @@ class Column(object):
       del data_list[nn]
     self._data_values = np.array(data_list, dtype=object)
 
-  def evaluate(self):
-    # evaluates the formula, if any.
-    # Replaces the data values with the formula results
-    raise er.NotYetImplemented("evaluate")
-
   def getCell(self, index):
     return self._data_values[index]
 
@@ -118,7 +113,15 @@ class Column(object):
     # A formula is a valid python expression of a mix of numpy.array
     # scalars, and functions in math for columns that preceed
     # this column in the table.
-    self._formula = formula
+    # Inputs: formula - valid python expression
+    # Outputs: error - string giving error encountered
+    try:
+      _ = compile(formula, "string", "eval")  # Compilation checks syntax
+      self._formula = formula
+      error = None
+    except Exception as e:
+      error = "%s: %s" % (e[0], e[1][3])
+    return error
 
   def setTable(self, table):
     # Sets the table being used for this column
