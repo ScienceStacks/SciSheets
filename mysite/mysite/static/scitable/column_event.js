@@ -26,7 +26,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
   if (ep.columnName  === ROW_NAME) {
-    scisheet.utilClick("FirstColumnClickMenu", function (eleId) {
+    scisheet.utilClick("NameColumnClickMenu", function (eleId) {
       var msg;
       msg = "Row Name Column clicked.";
       console.log(msg);
