@@ -1,14 +1,24 @@
 Serve page from Django
 
-1. Column Move
-  - JS codes (simple like Row) - requires inputting the dest. name
-    Handle invalid column; need prompt for column name of move pos
+1. Column Formula
+   Server side:
+     -Evaluate a formula and populate the data for the column,
+      handling dependencies and using python math, pandas, stat
+
+1.1 Spreadsheet export
+
+1.2 Iterate
 
 1.5 Implement
   -Column Move>Before/After (select column/row)
   -AddNew>Before/After (column/row)
   -clickMenuTester - checks for child nodes
   -cut and paste for column and rows?
+  -Table save using pickle (and a db name)
+  -Table open
+ 
+2.1 DEPENDENCIES
+    Python math, pandas, stat 
 
 2. Formula
 

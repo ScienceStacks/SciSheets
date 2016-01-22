@@ -156,16 +156,17 @@ class TestTable(unittest.TestCase):
     self.assertEqual(row, self.table.getRow(index=rowidx))
 
   def testMoveColumn1(self):
-    DEST_IDX = 2
+    # Move column 2 to be after column 0
+    DEST_IDX = 0
     column2 = self.table.columnFromName(COLUMN2)
     self.table.moveColumn(column2, DEST_IDX)
-    self.assertEqual(self.table._columns[DEST_IDX].getName(), COLUMN2)
+    self.assertEqual(self.table._columns[DEST_IDX+1].getName(), COLUMN2)
 
   def testMoveColumn2(self):
+    # Move column 1 to be after column 3
     DEST_IDX = 3
     column1 = self.table.columnFromName(COLUMN1)
     self.table.moveColumn(column1, DEST_IDX)
-    import pdb; pdb.set_trace()
     self.assertEqual(self.table._columns[DEST_IDX].getName(), COLUMN1)
 
   def testColumnFromIndex(self):
