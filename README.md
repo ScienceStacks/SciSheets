@@ -26,3 +26,5 @@ To install on a virgin VM:
 6. cd SciSheets
 
 7. bash setup.sh
+
+Note that you will also need to install pandas if you want to make use of its python packages.

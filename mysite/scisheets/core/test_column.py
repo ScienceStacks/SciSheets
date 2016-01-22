@@ -21,7 +21,7 @@ INVALID_FORMULA = "a + b*math.cos(x"
 # Helpers
 #############################
 def checkStrColumnType(column_type):
-  return (column_type == str) or (column_type == object)
+  return (column_type == '|S1000') or (column_type == object)
 
 #############################
 # Tests

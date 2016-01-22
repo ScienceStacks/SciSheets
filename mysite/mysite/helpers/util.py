@@ -1,7 +1,7 @@
 '''Utility routines.'''
 
-import random
-import string
+import random as random
+import string as string
 
 def ConvertType(v):
   # Converts to int, float, str as required
@@ -40,4 +40,3 @@ def randomWord(size=5):
   for n in range(size):
     word += random.choice(string.letters)
   return word
-

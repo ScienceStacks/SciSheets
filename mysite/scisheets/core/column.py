@@ -6,6 +6,7 @@
 import constants as cn
 import errors as er
 import numpy as np
+from util import findTypeForData
 
 
 class Column(object):
@@ -14,31 +15,24 @@ class Column(object):
     self._name = name
     self._data_type = data_type
     if self._data_type is not None:
-      self._data_values = np.array([], dtype=object)
+      self._data_values = np.array([], dtype=data_type)
     else:
       self._data_values = np.array([])
     self._formula = None
     self._owning_table = None
 
-  def _setDataType(self, val):
-    # Assigns the type setting based on the type of val,
-    # assuming that there are no existing data.
-    # Input: val - a value to add to the column
-    if len(self._data_values) == 0 and self._data_type is None:
-      if val is None:
-        pass
-      elif type(val) is str:
-        self._data_type = object 
-      elif type(val) is int:
-        self._data_type = int
-      elif type(val) is float:
-        self._data_type = float
-      else:
-        raise er.DataTypeError("%s is an unknown type" % str(val))
+  def _setDataType(self, data):
+    # Sets the numpy data type for the data in the array
+    # Input: data_list - list of data to add
+    proposed_type = findTypeForData(data)
+    if proposed_type is not object:
+      self._data_type = proposed_type
 
   def addCells(self, v, replace=False):
     # Input: v - value(s) to add
     #        replace - if True, then replace existing cells
+    # Refines the type to be more specific, if needed.
+    # 
     if isinstance(v, list):
       new_data_list = v
     elif isinstance(v, np.ndarray):
@@ -46,17 +40,13 @@ class Column(object):
     else:
       new_data_list = [v]
     # Verify the type
-    self._setDataType(new_data_list[0])
-    if self._data_type is not None:
-      for e in new_data_list:
-        if e is not None and (not isinstance(e, self._data_type)):
-          raise er.DataTypeError("%g is not %s" % (e, self._data_type))
+    self._setDataType(new_data_list)
     if replace:
-      self._data_values = np.array(new_data_list, dtype=object)
+      self._data_values = np.array(new_data_list, dtype=self._data_type)
     else:
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
-      self._data_values = np.array(full_data_list, dtype=object)
+      self._data_values = np.array(full_data_list, dtype=self._data_type)
 
   def copy(self):
     # Returns a copy of this object
@@ -89,7 +79,7 @@ class Column(object):
     # Input: val - value to insert
     #        index - where it is inserted
     #                appended to end if None
-    self._setDataType(val)
+    self._setDataType([val])
     data_list = self._data_values.tolist()
     if index is None:
       index = len(self._data_values)
@@ -131,5 +121,5 @@ class Column(object):
     # Input: val - value to insert
     #        index - index of cell being updated
     #                appended to end if None
-    self._setDataType(val)
+    self._setDataType([val])
     self._data_values[index] = val
