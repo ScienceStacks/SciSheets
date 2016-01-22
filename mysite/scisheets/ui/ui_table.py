@@ -158,8 +158,11 @@ class UITable(Table):
     elif command == "Move":
       dest_column_name = cmd_dict["args"][0]
       try:
-        dest_column = self.columnFromName(dest_column_name)
-        new_column_index = self.indexFromColumn(dest_column)
+        if dest_column_name == "LAST":
+          new_column_index = self.numColumns() - 1
+        else:
+          dest_column = self.columnFromName(dest_column_name)
+          new_column_index = self.indexFromColumn(dest_column)
         cur_column = self.columnFromIndex(cmd_dict["column_index"])
         self.moveColumn(cur_column, new_column_index)
       except Exception:

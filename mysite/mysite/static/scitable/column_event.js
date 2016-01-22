@@ -52,7 +52,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
         scisheet.utilRename(cmd, "New column name");
       }
       if (cmd.command === 'Move') {
-        scisheet.utilRename(cmd, "Insert before column");
+        scisheet.utilRename(cmd, "Insert after column");
       }
       if (cmd.command === 'Rename') {
         // Change the dialog prompt

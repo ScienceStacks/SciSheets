@@ -64,13 +64,16 @@ class ColumnContainer(object):
       idx = len(self._columns)
     self._columns.insert(idx, column)
 
-  def moveColumn(self, column, new_index):
+  def moveColumn(self, column, new_idx):
     # Moves the column to the specified index
     # Input: column - column to move
-    #        new_index - new index for column
-    cur_index = self.indexFromColumn(column)
-    del self._columns[cur_index]
-    self._columns.insert(new_index, column)
+    #        new_idx - new index for column
+    cur_idx = self.indexFromColumn(column)
+    ins_idx = new_idx + 1
+    if cur_idx < new_idx:
+      ins_idx -= 1
+    del self._columns[cur_idx]
+    self._columns.insert(ins_idx, column)
  
   def numColumns(self):
     return len(self._columns)
