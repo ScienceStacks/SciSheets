@@ -72,6 +72,9 @@ class Column(object):
   def getDataType(self):
     return self._data_type
 
+  def getFormula(self):
+    return self._formula
+
   def getName(self):
     return self._name
 

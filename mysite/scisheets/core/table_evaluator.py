@@ -11,5 +11,24 @@ class TableEvaluator(object):
     self.table = table
 
   def evaluate(self):
-    # 1. Get the column names
-    NotYetImplemented
+    # Evaluates the formulas in a Table and assigns the results
+    # to the formula columns
+    # Outputs: errror - errors from execution or None
+    # Notes: (1) Cannot put "exec" in another method
+    #            since the objects created won't be accessible
+    error = None
+    for column in self.table.getColumns():
+      statement = "%s = column.getCells()" % column.getName()
+      exec(statement)
+    for column in self.table.getColumns():
+      formula = column.getFormula()
+      if formula is not None:
+        try:
+          values = eval(formula)
+          column.addCells(values, replace=True)
+          statement = "%s = column.getCells()" % column.getName()
+          exec(statement)
+        except Exception as e:
+          error = "Error in formula %s: %s" % (formula, str(e))
+          break
+    return error

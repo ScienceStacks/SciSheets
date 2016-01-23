@@ -2,8 +2,12 @@ Serve page from Django
 
 1. Column Formula
    Server side:
-     -Evaluate a formula and populate the data for the column,
-      handling dependencies and using python math, pandas, stat
+     -Handle multiple formulas by iteration
+     -Check handling of None values
+   Client side
+     -Set formula, don't allow updates to cells in formula columns,
+      show formula when do a formula edit
+      
 
 1.1 Spreadsheet export
 
