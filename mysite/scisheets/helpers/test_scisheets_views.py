@@ -6,6 +6,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
 import json
 import mysite.helpers.util as ut
+from scisheets.core.util import findTypeForData
 import scisheets_views as sv
 import os
 import numpy as np
@@ -204,15 +205,11 @@ class TestScisheetsViews(TestCase):
     # Returns the index of the column with the specified type or none
     result = None
     columns = table.getColumns()
+    numpy_type = findTypeForData([val])
     for index in range(1, table.numColumns()):
       col = columns[index]
-      if isinstance(val, col.getDataType()) and (result is None):
-        if isinstance(val, float) and (col.getDataType() == float):
-          result = index
-        if isinstance(val, int) and (col.getDataType() == int):
-          result = index
-        if not isinstance(val, int):
-          result = index
+      if numpy_type == col.getDataType():
+        result = index
     return result
 
   def testScisheetsCommandCellUpdate(self):
@@ -443,7 +440,13 @@ class TestScisheetsViews(TestCase):
     # New column should have all None values
     column = new_table.getColumns()[expected_index]
     self.assertEqual(column.getName(), moved_column.getName())
-    b = np.equal(column.getCells(), moved_column.getCells()).all()
+    try:
+      b = np.equal(column.getCells(), moved_column.getCells()).all()
+    except:
+      # Need to promote type to object
+      old_cells = np.array(column.getCells(), dtype=object)
+      new_cells = np.array(moved_column.getCells(), dtype=object)
+      b = np.equal(old_cells, new_cells).all()
     if not b:
       import pdb; pdb.set_trace()
     self.assertTrue(b)

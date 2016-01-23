@@ -54,14 +54,6 @@ class TestHelpers(TestCase):
     response = self.client.post(CLIENT_URL, post_dict)
     self.assertEqual(response.status_code, 200)
 
-  def testUpload(self):
-    CLIENT_URL = '/codons/'
-    response = self.client.get(CLIENT_URL)
-    self.assertEqual(response.status_code, 200)
-    post_dict = {'filename': TEST_DATA_FILENAME}
-    response = self.client.post(CLIENT_URL, post_dict)
-    self.assertEqual(response.status_code, 200)
-
 
 if __name__ == '__main__':
     unittest.main()

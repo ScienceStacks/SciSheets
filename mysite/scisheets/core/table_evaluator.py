@@ -3,7 +3,7 @@
 # Create name scopes for evaluation
 import math as m
 import numpy as n
-import pandas as p
+#import pandas as p
 
 class TableEvaluator(object):
 

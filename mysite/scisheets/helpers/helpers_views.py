@@ -33,7 +33,7 @@ class NameForm(forms.Form):
 def letter(request):
   now = datetime.datetime.now()
   t = get_template('test_template.html')
-  html = t.render(Context({'person_name': 'John', 'current_date': now}))
+  html = t.render({'person_name': 'John', 'current_date': now})
   return HttpResponse(html)
 
 def plot(request, filename):
@@ -46,14 +46,14 @@ def plot(request, filename):
   ycrds = c2j.GetYCrds()
   points = c2j.GetPoints()
   headers = c2j.GetHeaders()
-  ctx = Context({
+  ctx = {
       'data': points, 
       'xcrds': xcrds, 
       'ycrds': ycrds,
       'xlabel': headers[1],
       'ylabel': headers[0],
       'values': headers[2],
-      })
+      }
   t_heatmap = get_template('heatmap.html')
   html = t_heatmap.render(ctx)
   return HttpResponse(html)
