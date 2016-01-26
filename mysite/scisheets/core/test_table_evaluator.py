@@ -16,6 +16,7 @@ COLUMN2 = "A"
 COLUMN3 = "DUMMY3"
 COLUMN4 = "DUMMY4"
 COLUMN5 = "B"
+COLUMNC = "C"
 COLUMN_VALID_FORMULA = "VALID_FORMULA"
 COLUMN_INVALID_FORMULA = "INVALID_FORMULA"
 TABLE_NAME = "DUMMY_TABLE"
@@ -23,10 +24,12 @@ LIST = [2.0, 3.0]
 LIST2 = [3.0]
 TABLE = 'DUMMY'
 VALID_FORMULA = "n.sin(A) + B"
+SECOND_VALID_FORMULA = "n.cos(C)"
 INVALID_FORMULA = "n.cun(A)" # Invalid function
 COLUMN1_CELLS = ["one", "two", "three"]
 COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
+COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
 
 
 #############################
@@ -36,23 +39,21 @@ class TestTable(unittest.TestCase):
 
   def setUp(self):
     self.table = createTable(TABLE_NAME)
-    column1 = cl.Column(COLUMN1)
-    column1.addCells(COLUMN1_CELLS)
-    self.table.addColumn(column1)
-    column2 = cl.Column(COLUMN2)
-    column2.addCells(COLUMN2_CELLS)
-    self.table.addColumn(column2)
-    self.column_a = column2
-    column5 = cl.Column(COLUMN5)
-    column5.addCells(COLUMN5_CELLS)
-    self.column_b = column5
-    self.table.addColumn(column5)
-    self.columns = self.table.getColumns()
-    column_valid_formula = cl.Column(COLUMN_VALID_FORMULA)
-    column_valid_formula.setFormula(VALID_FORMULA)
-    self.table.addColumn(column_valid_formula)
-    self.column_valid_formula = column_valid_formula
+    self._addColumn(COLUMN1, cells=COLUMN1_CELLS)   
+    self.column_a = self._addColumn(COLUMN2, cells=COLUMN2_CELLS)   
+    self.column_b = self._addColumn(COLUMN5, cells=COLUMN5_CELLS)   
+    self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)   
+    self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA, formula=VALID_FORMULA)
     self.te = TableEvaluator(self.table)
+
+  def _addColumn(self, name, cells=None, formula=None):
+    column = cl.Column(name)
+    if formula is not None:
+      column.setFormula(formula)
+    if cells is not None:
+      column.addCells(cells)
+    self.table.addColumn(column)
+    return column
 
   def testConstructor(self):
     te = TableEvaluator(self.table)
@@ -76,6 +77,12 @@ class TestTable(unittest.TestCase):
     te = TableEvaluator(self.table)
     error = te.evaluate()
     self.assertIsNotNone(error)
+
+  def testEvaluateTwoFormulas(self):
+    self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
+    te = TableEvaluator(self.table)
+    error = te.evaluate()
+    self.assertIsNone(error)
 
 
 if __name__ == '__main__':

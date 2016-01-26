@@ -2,8 +2,8 @@ Serve page from Django
 
 1. Column Formula
    Server side:
-     -Handle multiple formulas by iteration
-     -Check handling of None values
+     -Test scitable_views (make Random Table have valid python
+      variable names as column names.)
    Client side
      -Set formula, don't allow updates to cells in formula columns,
       show formula when do a formula edit
