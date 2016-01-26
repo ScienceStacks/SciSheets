@@ -23,7 +23,7 @@ LIST = [2.0, 3.0]
 LIST2 = [3.0]
 TABLE = 'DUMMY'
 VALID_FORMULA = "n.sin(A) + B"
-INVALID_FORMULA = "n.sin(A / 0"
+INVALID_FORMULA = "n.cun(A)" # Invalid function
 COLUMN1_CELLS = ["one", "two", "three"]
 COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
@@ -71,12 +71,10 @@ class TestTable(unittest.TestCase):
 
   def testEvaluateError(self):
     column_invalid_formula = cl.Column(COLUMN_INVALID_FORMULA)
-    error = column_invalid_formula.setFormula(INVALID_FORMULA)
+    column_invalid_formula.setFormula(INVALID_FORMULA)
     self.table.addColumn(column_invalid_formula)
     te = TableEvaluator(self.table)
-    error_evaluate = te.evaluate()
-    if error_evaluate is not None:
-      error += error_evaluate
+    error = te.evaluate()
     self.assertIsNotNone(error)
 
 

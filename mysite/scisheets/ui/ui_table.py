@@ -111,6 +111,8 @@ class UITable(Table):
     else:
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
+    if error is None:
+      error = self.evaluate()  # Evaluate the formulas in the table
     response = self._createResponse(error)
     return response
 

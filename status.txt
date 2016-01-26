@@ -12,73 +12,15 @@ Serve page from Django
 1.1 Spreadsheet export
 
 1.2 Iterate
-
-1.5 Implement
-  -Column Move>Before/After (select column/row)
-  -AddNew>Before/After (column/row)
-  -clickMenuTester - checks for child nodes
-  -cut and paste for column and rows?
-  -Table save using pickle (and a db name)
-  -Table open
  
 2.1 DEPENDENCIES
-    Python math, pandas, stat 
+    Python math, pandas, seaborn
 
 2. Formula
 
 Fixes:
 
-1. Getting lots of CSS errors. Properties Alpha and touch-action aren't defined.
-
-2. Qunit tests run in batch don't work for click simulation (but
-   running the tests in the browser works if you open the
-   test.html).
-
-3. consistent use of scitable, scisheet, scisheets
-
-4. Get rid of mockjax (not included in code)
-
-5. Better error message when server isn't responding
-
 New feature
-
-1. Row rename
-  Need py to move and renumber the rows
-
-2. Row insert
-  Handle None correctly for values in new row
-
-3. Column formula (just update context)
-
-
-b. javascript tests
--- Not getting the data instantiated but can't determine where the
-   problem is. The correct variables appear to be instantiated
-   in table_setup.js. But the DOM objects aren't created.
-
-1. Implement processing for a data cell update
-   a. Why am I getting "pickle.p"
-   a. Provide tests for js & python new code
-
-1.1 Implement column delete.
-   a. Command is sent to delete the column
-   b. Success function causes the page to be reloaded.
-
-2. Provide for updates to tables
-  a. values - ajax interface to change values, retain table between calls
-  b. columns
-  c. rows
-
-3. Implement ITERATE function
-
-3. Tests
-   a. Display unnested random table
-   b. Do nested random table
 
 4. Export to python - 4 files: function.py, test_function.py, 
    input.dat, output.dat. test_function runs function.py with
-   input.dat and verifies that output.dat is produced.
-
-5. Can I do an import if write functions as methods in a special
-   class? That way, python import of function.py will provide
-   the right metadata.
