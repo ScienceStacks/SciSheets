@@ -88,7 +88,7 @@ QUnit.test("table_setup", function (assert) {
   expectAjaxCall = [
     true, // Append
     true,  // Delete
-    false, // Formula
+    true, // Formula
     false, // Hide
     true, // Insert
     true, // Move

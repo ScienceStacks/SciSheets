@@ -187,11 +187,13 @@ SciSheets.prototype.utilSendAndReload = function (cmd) {
 };
 
 /* ---------- Dialog management ---------------*/
-SciSheets.prototype.utilRename = function (cmd, newPrompt) {
+SciSheets.prototype.utilRename = function (cmd, newPrompt, defaultValue) {
   // Change the dialog prompt
   "use strict";
-  var ele, scisheet;
+  var ele, scisheet, eleInput;
   scisheet = this;
+  eleInput = $("#rename-dialog-name")[0];
+  eleInput.value = defaultValue;
   ele = $("#rename-dialog-label")[0].childNodes[0];
   ele.nodeValue = newPrompt;
   if (scisheet.mockAjax) {

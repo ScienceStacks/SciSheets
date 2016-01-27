@@ -32,4 +32,5 @@ function DataSource() {
     {row: "4", name: "John D. Smith", address: "1623 Some Street", salary: "0.092"},
     {row: "5", name: "Joan E. Jones", address: "3217 Another Ave", salary: "23456"}
   ];
+  this.formulas = {row: "", name: "", address: "", salary: ""};
 }

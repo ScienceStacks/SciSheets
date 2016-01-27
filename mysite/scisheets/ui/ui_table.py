@@ -31,7 +31,10 @@ def makeJSONStr(column_names, data):
     result += "{"
     for c in range(number_of_columns):
       if isinstance(data[c], list):
-        item = data[c][r]
+        if len(data[c]) - 1 < r:
+          item = ""  # Handle ragged columns
+        else:
+          item = data[c][r]
       else:
         item = data[c]
       if item is None:

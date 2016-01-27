@@ -34,7 +34,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
     });
   } else {
     scisheet.utilClick("ColumnClickMenu", function (eleId) {
-      var msg, cmd, newPrompt;
+      var msg, cmd, newPrompt, formula;
       msg = "Column " + ep.columnIndex + " (" + ep.columnName + ")" + " clicked.";
       msg += " Selected " + eleId + ".";
       console.log(msg);
@@ -43,21 +43,25 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       cmd.column = ep.columnIndex;
       cmd.target = "Column";
       if (cmd.command === 'Append') {
-        scisheet.utilRename(cmd, "New column name");
+        scisheet.utilRename(cmd, "New column name", "");
       }
       if (cmd.command === 'Delete') {
         scisheet.utilSendAndReload(cmd);
       }
+      if (cmd.command === 'Formula') {
+        formula = scisheet.formulas[ep.columnName];
+        scisheet.utilRename(cmd, "Change formula", formula);
+      }
       if (cmd.command === 'Insert') {
-        scisheet.utilRename(cmd, "New column name");
+        scisheet.utilRename(cmd, "New column name", "");
       }
       if (cmd.command === 'Move') {
-        scisheet.utilRename(cmd, "Insert after column");
+        scisheet.utilRename(cmd, "Insert after column", "");
       }
       if (cmd.command === 'Rename') {
         // Change the dialog prompt
         newPrompt = "Rename column '" + ep.columnName + "': ";
-        scisheet.utilRename(cmd, newPrompt);
+        scisheet.utilRename(cmd, newPrompt, "");
       }
     });
   }
