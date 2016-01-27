@@ -464,7 +464,6 @@ class TestScisheetsViews(TestCase):
     #         isValid - is a valid formula
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    table_data = table.getData()
     column = table.columnFromIndex(column_idx)
     old_formula = column.getFormula()
     # Reset the formula
@@ -490,6 +489,33 @@ class TestScisheetsViews(TestCase):
   def testScisheetsCommandColumnFormula(self):
     self._formulaColumn(NCOL - 1, "n.sin(x)", True)  # Valid formula
     self._formulaColumn(NCOL - 1, "n.sin(2.3", False)  # Invalid formula
+
+  def _evaluateTable(self, formula, isValid):
+    # Inputs: formula - new formula for column
+    #         isValid - is a valid formula
+    base_response = self._createBaseTable()
+    # Change the formula
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Formula"
+    ajax_cmd['column'] = NCOL - 1
+    ajax_cmd['args[]'] = formula
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    error = new_table.evaluate()
+    if isValid:
+      self.assertTrue(content["success"])
+    else:
+      import pdb; pdb.set_trace()
+      self.assertFalse(content["success"])
+
+  def testScisheetsTableEvaluate(self):
+    self._evaluateTable("n.sin(x)", False)  # Invalid formula
+    self._evaluateTable("n.sin(3.2)", False)  # Valid formula
 
 
 if __name__ == '__main__':

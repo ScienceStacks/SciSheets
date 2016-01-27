@@ -2,8 +2,7 @@ Serve page from Django
 
 1. Column Formula
    Server side:
-     -Test scitable_views (make Random Table have valid python
-      variable names as column names.)
+     -scitable tests aren't passing
    Client side
      -Set formula, don't allow updates to cells in formula columns,
       show formula when do a formula edit
