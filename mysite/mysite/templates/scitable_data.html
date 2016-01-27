@@ -2,7 +2,8 @@
 /* Creates the object DataSource that contains server data */
 function DataSource() {
   "use strict";
-  var sciSheets = new SciSheets();
+  var sciSheets, formula_array;
+  sciSheets = new SciSheets();
   this.tableCaption = "{{ table_caption }}";
   this.tableId = "{{ table_id }}";
   this.columnNames = [
@@ -24,5 +25,7 @@ function DataSource() {
     {% endif %}
   {% endfor %}
   this.dataSource = JSON.parse({{ data|safe }});
+  formula_array = JSON.parse({{ formulas|safe }});
+  this.formulas = formula_array[0];
 }
 </script>

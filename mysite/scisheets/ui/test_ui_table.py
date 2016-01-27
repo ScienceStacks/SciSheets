@@ -9,6 +9,7 @@ import json
 # Constants
 COLUMN_NAMES = ['A', 'B', 'C']
 DATA = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]
+DATA_STRING = ['AA', 'BB', 'CC']
 NCOL = 4
 NROW = 3
 TABLE_NAME = "MY TABLE"
@@ -16,13 +17,17 @@ TABLE_NAME = "MY TABLE"
 
 class TestAuxFunctions(TestCase):
 
-  def testMakeJSONStr(self):
-    json_str = ui.makeJSONStr(COLUMN_NAMES, DATA)
+  def _testMakeJSONStr(self, column_names, column_data, data_type):
+    json_str = ui.makeJSONStr(column_names, column_data)
     converted = json.loads(json_str[1:-1])
     self.assertTrue(isinstance(converted, list))
-    self.assertEqual(len(converted), len(COLUMN_NAMES))
-    for n in range(len(COLUMN_NAMES)):
+    self.assertEqual(len(converted[0]), len(column_names))
+    for n in range(len(converted)):
       self.assertTrue(isinstance(converted[n], dict))
+
+  def testMakeJSONStr(self):
+    self._testMakeJSONStr(COLUMN_NAMES, DATA, list)
+    self._testMakeJSONStr(COLUMN_NAMES, DATA_STRING, str)
     
 
 class TestUITable(TestCase):

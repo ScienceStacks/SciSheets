@@ -16,7 +16,7 @@ DDIR_YUI=$(DDIR)/yui
 DDIR_JQUERY=$(DDIR)/jquery
 DDIR_JQUERYUI=$(DDIR)/jquery-ui
 DDIR_JQUERYMOCKJAX=$(DDIR)/jquery_mockjax
-DDIR_QUNIT=$(DDIR)/QUNIT
+DDIR_QUNIT=$(DDIR)/qunit
 
 N=$(B)/node_modules
 YUI=$(CDIR)/yui

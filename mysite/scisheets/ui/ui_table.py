@@ -16,19 +16,29 @@ def makeJSONStr(column_names, data):
   # Creates a string that javascript parses into JSON in
   # the format expected by YUI datatable
   # Input: column_names - list of variables
-  #        data - list of array data
-  # Output: result - JSON parseable string
+  #        data - list of array data or a list of values
+  # Output: result - JSON parseable string as an array
   number_of_columns = len(column_names)
   if len(data) > 0:
-    number_of_rows = len(data[0])
+    if isinstance(data[0], list):
+      number_of_rows = len(data[0])
+    else:
+      number_of_rows = 1
   else:
     number_of_rows = 0
   result = "'["
   for r in range(number_of_rows):
     result += "{"
     for c in range(number_of_columns):
-      result += ('"' + column_names[c] + '": ' + 
-          '"' + str(data[c][r]) + '"')
+      if isinstance(data[c], list):
+        item = data[c][r]
+      else:
+        item = data[c]
+      if item is None:
+        value = ""
+      else:
+        value = str(item)
+      result += '"' + column_names[c] + '": ' + '"' + value + '"'
       if c != number_of_columns - 1:
         result += ","
       else:
@@ -209,12 +219,15 @@ class UITable(Table):
     # Output: html rendering of the Table
     column_names = [c.getName() for c in self._columns]
     column_data = [c.getCells().tolist() for c in self._columns]
+    formulas = [c.getFormula() for c in self._columns]
+    formula_json = makeJSONStr(column_names, formulas)
     data = makeJSONStr(column_names, column_data)
     ctx_dict = {'column_names': column_names,
                 'final_column_name': column_names[-1],
                 'table_caption': self.getName(),
                 'table_id': table_id,
                 'data': data,
+                'formulas': formula_json,
                }
     html = get_template('scitable.html').render(ctx_dict)
     return html
