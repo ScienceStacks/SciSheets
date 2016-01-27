@@ -63,7 +63,7 @@ class UITable(Table):
     c_list = range(ncol)
     random.shuffle(c_list)
     for n in range(ncol):
-      column = Column("Col-" + str(n))
+      column = Column("Col_" + str(n))
       if c_list[n] <= ncolint - 1:
         values = np.random.randint(low_int, hi_int, nrow)
         values_ext = values.tolist()
@@ -111,8 +111,6 @@ class UITable(Table):
     else:
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
-    if error is None:
-      error = self.evaluate()  # Evaluate the formulas in the table
     response = self._createResponse(error)
     return response
 
@@ -157,6 +155,9 @@ class UITable(Table):
       self.addColumn(new_column, new_column_index)
     elif command == "Delete":
       self.deleteColumn(column)
+    elif command == "Formula":
+      formula = cmd_dict["args"][0]
+      error = column.setFormula(formula)
     elif command == "Move":
       dest_column_name = cmd_dict["args"][0]
       try:
@@ -204,6 +205,7 @@ class UITable(Table):
   def render(self, table_id="scitable"):
     # Input: table_id - how the table is identified in the HTML
     # Output: html rendering of the Table
+    self.evaluate()
     column_names = [c.getName() for c in self._columns]
     column_data = [c.getCells().tolist() for c in self._columns]
     data = makeJSONStr(column_names, column_data)

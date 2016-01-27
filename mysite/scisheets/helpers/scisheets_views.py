@@ -40,6 +40,7 @@ def createCommandDict(request):
   #   Column  Append   Add a new column to the right of the current
   #   Column  Insert   Add a new column to the left of the current
   #   Column  Delete   Delete the column
+  #   Column  Formula  Change the column's formula
   #   Column  Move     Move the column to another position
   #                      The name LAST is used for last column
   #   Column  Rename   Rename the column

@@ -414,9 +414,9 @@ class TestScisheetsViews(TestCase):
     self._addColumn("Append", NCOL, NCOL+1)
 
   def _moveColumn(self, column_idx_to_move, dest_column_name):
-    # Inputs: command - string of command to issue
-    #         cur_idx - index of the current column
-    #         new_idx - index of the new column
+    # Inputs: column_idx_to_move - index of column to be moved
+    #         dest_column_name - name of the dest column after
+    #         which the column is to be moved
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     table_data = table.getData()
@@ -452,11 +452,44 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(b)
   
   def _makeColumnName(self, column_index):
-    return "Col-%d" % column_index
+    return "Col_%d" % column_index
 
   def testScisheetsCommandColumnMove(self):
-    # The column names are "row", "Col-0", ...
+    # The column names are "row", "Col_0", ...
     self._moveColumn(1, self._makeColumnName(NCOL-1))  # Make it the last column
+
+  def _formulaColumn(self, column_idx, formula, isValid):
+    # Inputs: column_idx - index of column whose formula is changed
+    #         formula - new formula for column
+    #         isValid - is a valid formula
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    table_data = table.getData()
+    column = table.columnFromIndex(column_idx)
+    old_formula = column.getFormula()
+    # Reset the formula
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Formula"
+    ajax_cmd['column'] = column_idx
+    ajax_cmd['args[]'] = formula
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    new_column = new_table.columnFromIndex(column_idx)
+    if isValid:
+      self.assertTrue(content["success"])
+      self.assertEqual(formula, new_column.getFormula())
+    else:
+      self.assertFalse(content["success"])
+      self.assertEqual(old_formula, new_column.getFormula())
+
+  def testScisheetsCommandColumnFormula(self):
+    self._formulaColumn(NCOL - 1, "n.sin(x)", True)  # Valid formula
+    self._formulaColumn(NCOL - 1, "n.sin(2.3", False)  # Invalid formula
 
 
 if __name__ == '__main__':
