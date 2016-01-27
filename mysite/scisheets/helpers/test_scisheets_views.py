@@ -487,7 +487,7 @@ class TestScisheetsViews(TestCase):
       self.assertEqual(old_formula, new_column.getFormula())
 
   def testScisheetsCommandColumnFormula(self):
-    self._formulaColumn(NCOL - 1, "n.sin(x)", True)  # Valid formula
+    self._formulaColumn(NCOL - 1, "n.sin(2.3)", True)  # Valid formula
     self._formulaColumn(NCOL - 1, "n.sin(2.3", False)  # Invalid formula
 
   def _evaluateTable(self, formula, isValid):
@@ -510,12 +510,11 @@ class TestScisheetsViews(TestCase):
     if isValid:
       self.assertTrue(content["success"])
     else:
-      import pdb; pdb.set_trace()
       self.assertFalse(content["success"])
 
   def testScisheetsTableEvaluate(self):
     self._evaluateTable("n.sin(x)", False)  # Invalid formula
-    self._evaluateTable("n.sin(3.2)", False)  # Valid formula
+    self._evaluateTable("n.sin(3.2)", True)  # Valid formula
 
 
 if __name__ == '__main__':

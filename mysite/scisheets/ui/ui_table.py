@@ -111,6 +111,8 @@ class UITable(Table):
     else:
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
+    if error is None:
+      error = self.evaluate()
     response = self._createResponse(error)
     return response
 
@@ -205,7 +207,6 @@ class UITable(Table):
   def render(self, table_id="scitable"):
     # Input: table_id - how the table is identified in the HTML
     # Output: html rendering of the Table
-    self.evaluate()
     column_names = [c.getName() for c in self._columns]
     column_data = [c.getCells().tolist() for c in self._columns]
     data = makeJSONStr(column_names, column_data)

@@ -34,11 +34,16 @@ class TableEvaluator(object):
         formula = column.getFormula()
         try:
           values = eval(formula)
-          column.addCells(values, replace=True)
-          statement = "%s = column.getCells()" % column.getName()
+          statement = "%s = values" % column.getName()
           exec(statement)
         except Exception as e:
           if nn == num_formulas - 1:  # Only assign the error on the last loop
             error = "Error in formula %s: %s" % (formula, str(e))
             break
+    # Only update the table if there is no error
+    if error is None:
+      for column in formula_columns:
+        statement = "new_values  = %s" % column.getName()
+        exec(statement)
+        column.addCells(new_values, replace=True)
     return error
