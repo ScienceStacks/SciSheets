@@ -23,9 +23,9 @@ TABLE_NAME = "DUMMY_TABLE"
 LIST = [2.0, 3.0]
 LIST2 = [3.0]
 TABLE = 'DUMMY'
-VALID_FORMULA = "n.sin(A) + B"
-SECOND_VALID_FORMULA = "n.cos(C)"
-INVALID_FORMULA = "n.cun(A)" # Invalid function
+VALID_FORMULA = "np.sin(A) + B"
+SECOND_VALID_FORMULA = "np.cos(C)"
+INVALID_FORMULA = "np.cun(A)" # Invalid function
 COLUMN1_CELLS = ["one", "two", "three"]
 COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
@@ -82,6 +82,19 @@ class TestTable(unittest.TestCase):
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
     te = TableEvaluator(self.table)
     error = te.evaluate()
+    self.assertIsNone(error)
+
+  def testEvaluateWithNoneValues(self):
+    table = self.table
+    row = table.getRow()
+    table.addRow(row, 0.1)  # Add a new row after
+    error = self.te.evaluate()
+    self.assertIsNotNone(error)
+    new_row = table.getRow()
+    new_row['A'] = 1
+    new_row['B'] = 1
+    table.updateRow(new_row, 1)
+    error = self.te.evaluate()
     self.assertIsNone(error)
 
 

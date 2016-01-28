@@ -1,8 +1,8 @@
 '''Evaluates formulas in a Table.'''
 
 # Create name scopes for evaluation
-import math as m
-import numpy as n
+import math as mt
+import numpy as np
 
 class TableEvaluator(object):
 
@@ -40,10 +40,9 @@ class TableEvaluator(object):
           if nn == num_formulas - 1:  # Only assign the error on the last loop
             error = "Error in formula %s: %s" % (formula, str(e))
             break
-    # Only update the table if there is no error
-    if error is None:
-      for column in formula_columns:
-        statement = "new_values  = %s" % column.getName()
-        exec(statement)
-        column.addCells(new_values, replace=True)
+    # Update the table
+    for column in formula_columns:
+      statement = "new_values  = %s" % column.getName()
+      exec(statement)
+      column.addCells(new_values, replace=True)
     return error

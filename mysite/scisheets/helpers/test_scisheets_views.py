@@ -6,7 +6,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
 import json
 import mysite.helpers.util as ut
-from scisheets.core.util import findTypeForData
+from scisheets.core.util import findDatatypeForValues
 import scisheets_views as sv
 import os
 import numpy as np
@@ -205,7 +205,7 @@ class TestScisheetsViews(TestCase):
     # Returns the index of the column with the specified type or none
     result = None
     columns = table.getColumns()
-    numpy_type = findTypeForData([val])
+    numpy_type = findDatatypeForValues([val])
     for index in range(1, table.numColumns()):
       col = columns[index]
       if numpy_type == col.getDataType():
@@ -487,8 +487,8 @@ class TestScisheetsViews(TestCase):
       self.assertEqual(old_formula, new_column.getFormula())
 
   def testScisheetsCommandColumnFormula(self):
-    self._formulaColumn(NCOL - 1, "n.sin(2.3)", True)  # Valid formula
-    self._formulaColumn(NCOL - 1, "n.sin(2.3", False)  # Invalid formula
+    self._formulaColumn(NCOL - 1, "np.sin(2.3)", True)  # Valid formula
+    self._formulaColumn(NCOL - 1, "np.sin(2.3", False)  # Invalid formula
 
   def _evaluateTable(self, formula, isValid):
     # Inputs: formula - new formula for column
@@ -513,8 +513,8 @@ class TestScisheetsViews(TestCase):
       self.assertFalse(content["success"])
 
   def testScisheetsTableEvaluate(self):
-    self._evaluateTable("n.sin(x)", False)  # Invalid formula
-    self._evaluateTable("n.sin(3.2)", True)  # Valid formula
+    self._evaluateTable("np.sin(x)", False)  # Invalid formula
+    self._evaluateTable("np.sin(3.2)", True)  # Valid formula
 
 
 if __name__ == '__main__':

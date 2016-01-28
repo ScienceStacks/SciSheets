@@ -6,7 +6,7 @@
 import constants as cn
 import errors as er
 import numpy as np
-from util import findTypeForData
+from util import findDatatypeForValues
 
 
 class Column(object):
@@ -21,13 +21,6 @@ class Column(object):
     self._formula = None
     self._owning_table = None
 
-  def _setDataType(self, data):
-    # Sets the numpy data type for the data in the array
-    # Input: data_list - list of data to add
-    proposed_type = findTypeForData(data)
-    if proposed_type is not object:
-      self._data_type = proposed_type
-
   def addCells(self, v, replace=False):
     # Input: v - value(s) to add
     #        replace - if True, then replace existing cells
@@ -40,13 +33,13 @@ class Column(object):
     else:
       new_data_list = [v]
     # Verify the type
-    self._setDataType(new_data_list)
     if replace:
       self._data_values = np.array(new_data_list, dtype=self._data_type)
     else:
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
       self._data_values = np.array(full_data_list, dtype=self._data_type)
+    self._datatypeFromValues(values=new_data_list)
 
   def copy(self):
     # Returns a copy of this object
@@ -82,7 +75,7 @@ class Column(object):
     # Input: val - value to insert
     #        index - where it is inserted
     #                appended to end if None
-    self._setDataType([val])
+    self._datatypeFromValues(values=[val])
     data_list = self._data_values.tolist()
     if index is None:
       index = len(self._data_values)
@@ -101,6 +94,19 @@ class Column(object):
     if len(new_array) != len(self._data_values):
       raise er.InternalError("Inconsistent lengths")
     self._data_values = np.array(new_array, dtype=object)
+
+  def _datatypeFromValues(self, values=None):
+    # Sets the numpy values type for the values in the array
+    # Input: values - enumerable values
+    #                 if None, use the columns current values
+    # Sets the most specific type for the column
+    if values is None:
+      values = self._data_values
+    proposed_type = findDatatypeForValues(values)
+    if proposed_type is not object:
+      self._data_type = proposed_type
+      self._data_values = np.array(self._data_values, 
+                                   dtype=self._data_type)
 
   def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
@@ -124,5 +130,5 @@ class Column(object):
     # Input: val - value to insert
     #        index - index of cell being updated
     #                appended to end if None
-    self._setDataType([val])
     self._data_values[index] = val
+    self._datatypeFromValues()
