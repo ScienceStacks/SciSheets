@@ -113,3 +113,6 @@ STATICFILES_DIRS = (
 # Heatmap constants
 UPLOAD_FILE_TABLE = 'heatmap_uploadedfiles'
 UPLOAD_DIR = os.path.join(BASE_DIR, 'mysite/uploads/')
+
+# Scisheets constants
+SCISHEETS_USER_PYTHON_DIRECTORY = os.path.join(BASE_DIR, 'user/guest/')

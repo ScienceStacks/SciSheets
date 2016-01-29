@@ -57,7 +57,7 @@ class TestTable(unittest.TestCase):
 
   def testConstructor(self):
     te = TableEvaluator(self.table)
-    self.assertEqual(te.table.getName(), TABLE_NAME)
+    self.assertEqual(te._table.getName(), TABLE_NAME)
 
   def testEvaluate(self):
     error = self.te.evaluate()

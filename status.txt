@@ -1,14 +1,13 @@
 Serve page from Django
 
 1. Column Formula
-   Server side:
-     -scitable tests aren't passing
    Client side
-     -Set formula, don't allow updates to cells in formula columns,
-      show formula when do a formula edit
-      
+     -Don't allow updates to cells in a column with a non-None formula
 
-1.1 Spreadsheet export
+2. Import user functions in the direction SETTINGS.SCITABLE_USER_DIRECTORY
+
+3. Table export to SETTINGS.SCITABLE_USER_DIRECTORY
+      
 
 1.2 Iterate
  

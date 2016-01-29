@@ -8,6 +8,7 @@ from ..core.table import Table
 from ..core.column import Column
 from ..core.errors import NotYetImplemented
 from mysite.helpers import util as ut
+from mysite import settings as st
 import numpy as np
 import random
 
@@ -125,7 +126,7 @@ class UITable(Table):
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
     if error is None:
-      error = self.evaluate()
+      error = self.evaluate(user_directory=st.SCISHEETS_USER_PYTHON_DIRECTORY)
     response = self._createResponse(error)
     return response
 

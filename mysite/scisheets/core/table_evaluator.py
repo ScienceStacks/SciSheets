@@ -7,9 +7,11 @@ import numpy as np
 class TableEvaluator(object):
 
   def __init__(self, table):
-    self.table = table
+    # Inputs: table - table to evaluate
+    self._table = table
 
-  def evaluate(self):
+  def evaluate(self, user_directory=None):
+    # Inputs: user_directory - directory where user functions are located
     # Evaluates the formulas in a Table and assigns the results
     # to the formula columns
     # Outputs: errror - errors from execution or None
@@ -19,14 +21,14 @@ class TableEvaluator(object):
     #            between formulas
     # Find the formula columns
     formula_columns = []
-    for column in self.table.getColumns():
+    for column in self._table.getColumns():
       if column.getFormula() is not None:
         formula_columns.append(column)
     num_formulas = len(formula_columns)
     error = None
     for nn in range(num_formulas):
       # Assign the values on each iteration
-      for column in self.table.getColumns():
+      for column in self._table.getColumns():
         statement = "%s = column.getCells()" % column.getName()
         exec(statement)
       # Evaluate the formulas
