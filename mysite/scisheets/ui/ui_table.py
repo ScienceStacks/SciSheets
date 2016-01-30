@@ -126,7 +126,8 @@ class UITable(Table):
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
     if error is None:
-      error = self.evaluate(user_directory=st.SCISHEETS_USER_PYTHON_DIRECTORY)
+      error = self.evaluate(user_directory=st.SCISHEETS_USER_PYDIR,
+                            import_path=st.SCISHEETS_USER_PYPATH)
     response = self._createResponse(error)
     return response
 

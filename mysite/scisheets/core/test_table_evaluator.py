@@ -1,5 +1,6 @@
 '''Tests for table_evaluator'''
 
+import os
 import table as tb 
 import column as cl
 import errors as er
@@ -24,12 +25,15 @@ LIST = [2.0, 3.0]
 LIST2 = [3.0]
 TABLE = 'DUMMY'
 VALID_FORMULA = "np.sin(A) + B"
+VALID_FORMULA_WITH_USER_FUNCTION = "np.sin(A) + timesTwo(B)"
 SECOND_VALID_FORMULA = "np.cos(C)"
 INVALID_FORMULA = "np.cun(A)" # Invalid function
 COLUMN1_CELLS = ["one", "two", "three"]
 COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
 COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
+CUR_DIR = os.path.dirname(os.path.realpath(__file__))
+IMPORT_PATHS = ["", "scisheets.core"]
 
 
 #############################
@@ -95,6 +99,27 @@ class TestTable(unittest.TestCase):
     new_row['B'] = 1
     table.updateRow(new_row, 1)
     error = self.te.evaluate()
+    self.assertIsNone(error)
+
+  def testFindPythonFiles(self):
+    this_file = os.path.split(__file__)[1]
+    FILE_ABSENT = this_file # Test file shouldn't be present
+    FILE_PRESENT = this_file[5:]  # File being tested should be present
+    if FILE_PRESENT[-1] == 'c':
+      FILE_PRESENT = FILE_PRESENT[:-1]  # Handle executing from .pyc
+    python_files = TableEvaluator._findPythonFiles(CUR_DIR)
+    self.assertTrue(python_files.index(FILE_PRESENT) > -1)
+    with self.assertRaises(ValueError):
+      python_files.index(FILE_ABSENT)
+
+  def testEvaluateWithUserFunction(self):
+    self.column_valid_formula.setFormula(VALID_FORMULA_WITH_USER_FUNCTION)
+    # At most one path will work
+    for path in IMPORT_PATHS:
+      try:
+        error = self.te.evaluate(user_directory=CUR_DIR, import_path=path)
+      except:
+        pass
     self.assertIsNone(error)
 
 

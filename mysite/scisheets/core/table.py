@@ -237,11 +237,12 @@ class Table(ColumnContainer):
       column.deleteCells(indicies)
     self._updateNameColumn()
 
-  def evaluate(self, user_directory=None):
+  def evaluate(self, user_directory=None, import_path=None):
     # Evaluates formulas in the table
     # Output: Error from table evaluation or None
     te = TableEvaluator(self)
-    return te.evaluate(user_directory=user_directory)
+    return te.evaluate(user_directory=user_directory, 
+                       import_path=import_path)
 
   def getRow(self, index=None):
     # input: index - row desired
