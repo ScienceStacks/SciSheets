@@ -38,7 +38,7 @@ class Column(object):
     else:
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
-      self._data_values = np.array(full_data_list, dtype=self._data_type)
+      self._data_values = np.array(full_data_list, dtype=object)
     self._datatypeFromValues(values=new_data_list)
 
   def copy(self):

@@ -103,7 +103,7 @@ class Table(ColumnContainer):
   def _updateNameColumn(self):
     names = []
     if len(self._columns) > 1:
-      for nn in range(self._columns[1].numCells()):
+      for nn in range(self._columns[NAME_COLUMN_IDX + 1].numCells()):
         names.append(self._rowNameFromIndex(nn))
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
@@ -129,13 +129,18 @@ class Table(ColumnContainer):
     column = Column(NAME_COLUMN_STR)
     self.addColumn(column)
 
-  def _adjustColumnLength(self, column):
+  def _adjustColumnLength(self, columns):
     # Inserts values of None so that column
     # has the same length as the table
+    # Input: columns - either a single column or a list
+    if isinstance(columns, cl.Column):
+      columns = [columns]
     NONE_ARRAY = np.array([None])
-    adj_rows = self.numRows() - column.numCells()
-    if adj_rows > 0:
-      column.addCells(np.repeat(NONE_ARRAY, adj_rows))
+    num_rows = self.numRows()
+    for column in columns:
+      adj_rows = num_rows - column.numCells()
+      if adj_rows > 0:
+        column.addCells(np.repeat(NONE_ARRAY, adj_rows))
 
   def _validateTable(self):
     # Checks that the table is internally consistent
@@ -280,7 +285,7 @@ class Table(ColumnContainer):
     self._updateNameColumn()
 
   def numRows(self):
-    return self._columns[NAME_COLUMN_IDX].numCells()
+    return max([c.numCells() for c in self._columns])
 
   @staticmethod
   def rowIndexFromName(name):
@@ -323,6 +328,14 @@ class Table(ColumnContainer):
     #         column_index - 0-based index of the column
     column = self.columnFromIndex(column_index)
     column.updateCell(value, row_index)
+
+  def updateColumn(self, column, cells):
+    # Replaces the cells in the column with those provided
+    # Input: column - column to update
+    #        cells - cells to change
+    column.addCells(cells, replace=True)
+    self._adjustColumnLength(self._columns)
+    self._updateNameColumn()
 
   def updateRow(self, row, index):
     # Updates the row in place. Only changes values

@@ -95,5 +95,6 @@ class TableEvaluator(object):
     for column in formula_columns:
       statement = "new_values  = %s" % column.getName()
       exec(statement)
-      column.addCells(new_values, replace=True)
+      self._table.updateColumn(column, new_values)
+      #column.addCells(new_values, replace=True)
     return error
