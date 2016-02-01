@@ -73,8 +73,8 @@ class TableEvaluator(object):
       for s in statements:
         try:
           exec(s)
-        except:
-          import pdb; pdb.set_trace()
+        except Exception as e:
+          return str(e)
     for nn in range(num_formulas):
       # Assign the values on each iteration
       for column in self._table.getColumns():

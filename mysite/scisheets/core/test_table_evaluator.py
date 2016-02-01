@@ -115,12 +115,18 @@ class TestTable(unittest.TestCase):
   def testEvaluateWithUserFunction(self):
     self.column_valid_formula.setFormula(VALID_FORMULA_WITH_USER_FUNCTION)
     # At most one path will work
+    errors = []
     for path in IMPORT_PATHS:
-      try:
-        error = self.te.evaluate(user_directory=CUR_DIR, import_path=path)
-      except:
-        pass
-    self.assertIsNone(error)
+      errors.append(self.te.evaluate(user_directory=CUR_DIR, import_path=path))
+    self.assertTrue(errors.index(None) > -1)
+
+  def testEvaluateForRowAddition(self):
+    # Tests a formula that should increase the number of rows.
+    num_rows = self.table.numRows()
+    formula = "range(%d)" % (num_rows + 1)
+    self.column_valid_formula.setFormula(formula)
+    self.table.evaluate()
+    self.assertEqual(self.table.numRows(), num_rows + 1)
 
 
 if __name__ == '__main__':
