@@ -96,5 +96,4 @@ class TableEvaluator(object):
       statement = "new_values  = %s" % column.getName()
       exec(statement)
       self._table.updateColumn(column, new_values)
-      #column.addCells(new_values, replace=True)
     return error

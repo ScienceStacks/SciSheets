@@ -336,6 +336,8 @@ class Table(ColumnContainer):
     column.addCells(cells, replace=True)
     self._adjustColumnLength(self._columns)
     self._updateNameColumn()
+    num_rows = self.numRows()
+    data = [(c.getName(), c.getCells()) for c in self._columns]
 
   def updateRow(self, row, index):
     # Updates the row in place. Only changes values

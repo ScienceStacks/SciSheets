@@ -120,13 +120,27 @@ class TestTable(unittest.TestCase):
       errors.append(self.te.evaluate(user_directory=CUR_DIR, import_path=path))
     self.assertTrue(errors.index(None) > -1)
 
-  def testEvaluateForRowAddition(self):
+  def testEvaluateFormulaWithRowAddition(self):
     # Tests a formula that should increase the number of rows.
     num_rows = self.table.numRows()
     formula = "range(%d)" % (num_rows + 1)
     self.column_valid_formula.setFormula(formula)
     self.table.evaluate()
     self.assertEqual(self.table.numRows(), num_rows + 1)
+
+  def testEvaluateRowInsert(self):
+    ROW_INDEX = 1
+    new_row = self.table.getRow()
+    self.table.insertRow(new_row, index=ROW_INDEX)
+    error = self.table.evaluate()
+    self.assertIsNotNone(error)  # sin is not defined for None values
+    new_row['A'] = 0.5
+    new_row['B'] = 0.6
+    self.table.updateRow(new_row, index=ROW_INDEX)
+    error = self.table.evaluate()
+    self.assertIsNone(error)  # Formula should work
+    import pdb; pdb.set_trace()
+    
 
 
 if __name__ == '__main__':
