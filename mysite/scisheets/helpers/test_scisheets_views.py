@@ -276,7 +276,7 @@ class TestScisheetsViews(TestCase):
   def testScisheetsCommandColumnRename(self):
     new_name = 'row'  # duplicate name
     self._testScisheetsCommandColumnRename(BASE_URL, new_name, False)
-    NEW_NAME = "New Column"
+    NEW_NAME = "New_Column"
     self._testScisheetsCommandColumnRename(BASE_URL, NEW_NAME, True)
 
   def testScisheetsCommandRowMove(self):
@@ -513,8 +513,9 @@ class TestScisheetsViews(TestCase):
       self.assertFalse(content["success"])
 
   def testScisheetsTableEvaluate(self):
-    self._evaluateTable("np.sin(x)", False)  # Invalid formula
     self._evaluateTable("np.sin(3.2)", True)  # Valid formula
+    self._evaluateTable("range(1000)", True)  # Test large
+    self._evaluateTable("np.sin(x)", False)  # Invalid formula
 
 
 if __name__ == '__main__':

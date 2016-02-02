@@ -45,12 +45,22 @@ class TableEvaluator(object):
     return statements
 
   def _formulaColumns(self):
-    # Returns the formula columns
+    # Returns: formula_columns, non_formula_columns
     formula_columns = []
+    non_formula_columns = []
     for column in self._table.getColumns():
-      if column.getFormula() is not None:
+      if column.getFormula() is None:
+        null_formula = True
+      else:
+        if len((column.getFormula()).strip()) == 0:
+          null_formula = True
+        else:
+          null_formula = False
+      if null_formula:
+        non_formula_columns.append(column)
+      else:
         formula_columns.append(column)
-    return formula_columns
+    return formula_columns, non_formula_columns
 
   def evaluate(self, user_directory=None, import_path=None):
     # Inputs: user_directory - directory where user functions are located
@@ -64,7 +74,7 @@ class TableEvaluator(object):
     #            between formulas
     # Find the formula columns
     error = None
-    formula_columns = self._formulaColumns()
+    formula_columns, _ = self._formulaColumns()
     num_formulas = len(formula_columns)
     # Get the user functions into the name space
     if user_directory is not None and import_path is not None:
@@ -75,11 +85,15 @@ class TableEvaluator(object):
           exec(s)
         except Exception as e:
           return str(e)
-    for nn in range(num_formulas):
-      # Assign the values on each iteration
-      for column in self._table.getColumns():
-        statement = "%s = column.getCells()" % column.getName()
+    # Assign do the initial assignments
+    for column in self._table.getColumns():
+      statement = "%s = column.getCells()" % column.getName()
+      try:
         exec(statement)
+      except Exception as e:
+        import pdb; pdb.set_trace()
+       
+    for nn in range(num_formulas):
       # Evaluate the formulas
       for column in formula_columns:
         formula = column.getFormula()

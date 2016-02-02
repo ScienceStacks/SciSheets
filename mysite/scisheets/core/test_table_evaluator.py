@@ -128,6 +128,14 @@ class TestTable(unittest.TestCase):
     self.table.evaluate()
     self.assertEqual(self.table.numRows(), num_rows + 1)
 
+  def testEvaluateFormulaWithLargeRowAddition(self):
+    # Tests a formula that should increase the number of rows.
+    NUM_ROWS = 1000
+    formula = "range(%d)" % NUM_ROWS
+    self.column_valid_formula.setFormula(formula)
+    self.table.evaluate()
+    self.assertEqual(self.table.numRows(), NUM_ROWS)
+
   def testEvaluateRowInsert(self):
     ROW_INDEX = 1
     new_row = self.table.getRow()
@@ -139,7 +147,16 @@ class TestTable(unittest.TestCase):
     self.table.updateRow(new_row, index=ROW_INDEX)
     error = self.table.evaluate()
     self.assertIsNone(error)  # Formula should work
-    import pdb; pdb.set_trace()
+
+  def testEvalWithMixedTypes(self):
+    self.column_b.setFormula("range(len(A))")
+    self.column_valid_formula.setFormula("np.sin(np.array(B, dtype=float)")
+    self.table.evaluate()
+    for v in self.column_valid_formula.getCells():
+      if v is None:
+        import pdb; pdb.set_trace()
+      self.assertIsNotNone(v)
+
     
 
 

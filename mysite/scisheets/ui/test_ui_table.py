@@ -103,7 +103,7 @@ class TestUITable(TestCase):
     COLUMN_INDEX = 3
     ROW_INDEX = None
     NEW_VALUE = None
-    NEW_COLUMN_NAME = "New Name"
+    NEW_COLUMN_NAME = "New_Name"
     cmd_dict = {
                 'target':  'Column',
                 'command': 'Rename',
