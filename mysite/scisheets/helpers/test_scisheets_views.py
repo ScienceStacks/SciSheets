@@ -389,6 +389,7 @@ class TestScisheetsViews(TestCase):
     ajax_cmd['target'] = 'Column'
     ajax_cmd['command'] = command
     ajax_cmd['column'] = cur_idx
+    ajax_cmd['args[]'] = 'Yet_Another_Column'
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Check the table

@@ -85,7 +85,7 @@ class TableEvaluator(object):
           exec(s)
         except Exception as e:
           return str(e)
-    # Assign do the initial assignments
+    # Do the initial assignments
     for column in self._table.getColumns():
       statement = "%s = column.getCells()" % column.getName()
       try:
