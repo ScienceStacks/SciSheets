@@ -6,6 +6,8 @@ from os import listdir
 from os.path import isfile, join, dirname
 import math as mt
 import numpy as np
+import pandas as pd
+import scipy as sp
 
 DEFAULT_FUNCTION_NAME = "MyFunction"
 
