@@ -3,9 +3,11 @@
 # Create name scopes for evaluation
 from util import findDatatypeForValues
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, dirname
 import math as mt
 import numpy as np
+
+DEFAULT_FUNCTION_NAME = "MyFunction"
 
 class TableEvaluator(object):
 
@@ -118,3 +120,85 @@ class TableEvaluator(object):
       exec(statement)
       self._table.updateColumn(column, new_values)
     return error
+ 
+  @staticmethod 
+  def _indent(statements, indent_level):
+    # Inputs: statements - list of statements
+    #         indent_level - integer level of indentation
+    # Output: List of indented statements
+    indents = " " * 2*indent_level
+    result = []
+    for s in statements:
+      result.append("%s%s" % (indents, s))
+    return result
+
+  def export(self, 
+             function_name=None,
+             output=None,
+             inputs=[],
+             file_name=None,
+             user_directory=None, 
+             import_path=None):
+    # Exports the table as python code
+    # Inputs: function_name - string name of the function to be created
+    #         output - name of the column that is output from the function
+    #         inputs - list of column names that are input to the function
+    #         file_name - name of the file where the function is placed
+    #         user_directory - directory where user functions are located
+    #         import_path - import path for files in the user directory
+    # Outputs: errror - errors from the export
+    # Notes: (1) Cannot put "exec" in another method
+    #            since the objects created won't be accessible
+    #        (2) Iterate N (#formulas) times to handle dependencies
+    #            between formulas
+    # Initializations
+    indent = 0
+    error = None
+    if function_name is None:
+      function_name = DEFAULT_FUNCTION_NAME
+    statements = []  # List of statements in the file
+    formula_columns, _ = self._formulaColumns()
+    num_formulas = len(formula_columns)
+    if user_directory is None:
+      user_directory = dirname(__file__)
+      import_path = ""
+    # File header
+    header_comments = '''
+# File generated as a SciSheets table export
+
+    '''
+    statements.extend(TableEvaluator._indent([header_comments], indent))
+    # Imports
+    import_statements = ['''
+from os import listdir
+from os.path import isfile, join
+import math as mt
+import numpy as np
+
+    ''']
+    if user_directory is not None and import_path is not None:
+      import_statements.extend(TableEvaluator._importStatements(user_directory, 
+                                                                import_path))
+    statements.extend(TableEvaluator._indent(import_statements, indent))
+    # Function definition
+    statement = "def %s(" % function_name
+    for name in inputs:
+      statement += "%s," % name
+    statement += "):"
+    statements.extend(TableEvaluator._indent([statement], indent))
+    indent += 1
+    # Do the initial variable assignments
+    assignment_statements = []
+    for column in self._table.getColumns():
+      ### BUG - need commans in the lists
+      statement = "%s = %s" % (column.getName(), str(column.getCells()))
+      assignment_statements.append(statement)
+    statements.extend(TableEvaluator._indent(assignment_statements, indent))
+    # Evaluate the formulas
+    eval_statements = ["#Evaluate the formulas"]
+    # Write the file
+    if file_name is None:
+      filename = "%s.py" % function_name
+    file_path = join(user_directory, filename)
+    with open(file_path, "w") as f:
+      f.writelines(["%s\n" % s for s in statements])

@@ -157,6 +157,11 @@ class TestTable(unittest.TestCase):
         import pdb; pdb.set_trace()
       self.assertIsNotNone(v)
 
+  def testExport(self):
+    self.table.export(function_name="my_test", 
+                      output=COLUMN_VALID_FORMULA)
+
+
     
 
 

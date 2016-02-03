@@ -242,6 +242,10 @@ class Table(ColumnContainer):
       column.deleteCells(indicies)
     self._updateNameColumn()
 
+  def export(self, **kwargs):
+    te = TableEvaluator(self)
+    return te.export(**kwargs)
+
   def evaluate(self, user_directory=None, import_path=None):
     # Evaluates formulas in the table
     # Output: Error from table evaluation or None
