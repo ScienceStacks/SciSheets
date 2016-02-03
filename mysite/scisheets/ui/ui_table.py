@@ -174,7 +174,10 @@ class UITable(Table):
       self.deleteColumn(column)
     elif command == "Formula":
       formula = cmd_dict["args"][0]
-      error = column.setFormula(formula)
+      if len(formula.strip()) == 0:
+        error = column.setFormula(None)
+      else:
+        error = column.setFormula(formula)
     elif command == "Move":
       dest_column_name = cmd_dict["args"][0]
       try:

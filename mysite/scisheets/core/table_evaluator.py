@@ -1,10 +1,11 @@
 '''Evaluates formulas in a Table.'''
 
 # Create name scopes for evaluation
-import math as mt
-import numpy as np
+from util import findDatatypeForValues
 from os import listdir
 from os.path import isfile, join
+import math as mt
+import numpy as np
 
 class TableEvaluator(object):
 
@@ -50,13 +51,6 @@ class TableEvaluator(object):
     non_formula_columns = []
     for column in self._table.getColumns():
       if column.getFormula() is None:
-        null_formula = True
-      else:
-        if len((column.getFormula()).strip()) == 0:
-          null_formula = True
-        else:
-          null_formula = False
-      if null_formula:
         non_formula_columns.append(column)
       else:
         formula_columns.append(column)
@@ -96,17 +90,30 @@ class TableEvaluator(object):
     for nn in range(num_formulas):
       # Evaluate the formulas
       for column in formula_columns:
+        # Create the full statement so that a formula can contain
+        # other assignment statements
         formula = column.getFormula()
+        formula_statement = "values = %s" % formula
         try:
-          values = eval(formula)
-          statement = "%s = values" % column.getName()
-          exec(statement)
+          exec(formula_statement)
+          # Handle the case of a single value
+          try:
+            _ = iter(values)
+          except:
+            values = [values]
+          datatype = findDatatypeForValues(values)
+          assignment_statement = (
+              "%s = np.array(values, dtype=datatype)" % column.getName()
+              )
+          exec(assignment_statement)
         except Exception as e:
           if nn == num_formulas - 1:  # Only assign the error on the last loop
             error = "Error in formula %s: %s" % (formula, str(e))
             break
     # Update the table
-    for column in formula_columns:
+    # All columns are updated because there may be compound statements
+    # that update non-formula columns
+    for column in self._table.getColumns():
       statement = "new_values  = %s" % column.getName()
       exec(statement)
       self._table.updateColumn(column, new_values)

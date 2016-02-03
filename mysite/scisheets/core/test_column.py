@@ -47,7 +47,7 @@ class TestColumn(unittest.TestCase):
     column = cl.Column(COLUMN_NAME)
     column.addCells(SINGLE_FLOAT)
     self.assertTrue(compareValues(column._data_values, SINGLE_FLOAT))
-    self.assertEqual(column._data_type, float)
+    self.assertEqual(column._datatype, float)
     column = cl.Column(COLUMN_NAME)
     column.addCells(LIST_FLOAT)
     self.assertTrue(compareValues(column._data_values, LIST_FLOAT))
@@ -62,7 +62,7 @@ class TestColumn(unittest.TestCase):
     column = cl.Column(COLUMN_NAME)
     column.addCells(SINGLE_STR)
     self.assertTrue(compareValues(column._data_values, SINGLE_STR))
-    self.assertTrue(checkStrColumnType(column._data_type))
+    self.assertTrue(checkStrColumnType(column._datatype))
     column = cl.Column(COLUMN_NAME)
     column.addCells(LIST_STR)
     self.assertTrue(compareValues(column._data_values, LIST_STR))
@@ -73,7 +73,7 @@ class TestColumn(unittest.TestCase):
   def testCopy(self):
     column_copy = self.column.copy()
     self.assertEqual(self.column._name, column_copy._name)
-    self.assertEqual(self.column._data_type, column_copy._data_type)
+    self.assertEqual(self.column._datatype, column_copy._datatype)
     self.assertTrue(compareValues(self.column._data_values, 
         column_copy._data_values))
     self.assertEqual(self.column._formula, column_copy._formula)

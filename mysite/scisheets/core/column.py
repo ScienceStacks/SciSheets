@@ -13,8 +13,8 @@ class Column(object):
 
   def __init__(self, name, data_type=None):
     self._name = name
-    self._data_type = data_type
-    if self._data_type is not None:
+    self._datatype = data_type
+    if self._datatype is not None:
       self._data_values = np.array([], dtype=data_type)
     else:
       self._data_values = np.array([])
@@ -32,19 +32,20 @@ class Column(object):
       new_data_list = v.tolist()
     else:
       new_data_list = [v]
-    # Verify the type
+    # Construct the full list
     if replace:
-      self._data_values = np.array(new_data_list, dtype=self._data_type)
+      full_data_list = new_data_list
     else:
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
-      self._data_values = np.array(full_data_list, dtype=object)
-    self._datatypeFromValues(values=new_data_list)
+    self._datatypeFromValues(full_data_list)
+    # Must update the array using the correct data type
+    self._data_values = np.array(full_data_list, dtype=self._datatype)
 
   def copy(self):
     # Returns a copy of this object
     result = Column(self._name, 
-                    data_type = self._data_type)
+                    data_type = self._datatype)
     result.setFormula(self._formula)
     result.addCells(self._data_values)
     return result
@@ -63,7 +64,7 @@ class Column(object):
     return self._data_values
 
   def getDataType(self):
-    return self._data_type
+    return self._datatype
 
   def getFormula(self):
     return self._formula
@@ -75,12 +76,12 @@ class Column(object):
     # Input: val - value to insert
     #        index - where it is inserted
     #                appended to end if None
-    self._datatypeFromValues(values=[val])
     data_list = self._data_values.tolist()
     if index is None:
       index = len(self._data_values)
     data_list.insert(index, val)
-    self._data_values = np.array(data_list, dtype=object)
+    self._datatypeFromValues(values=data_list)
+    self._data_values = np.array(data_list, dtype=self._datatype)
 
   def numCells(self):
     return len(self._data_values)
@@ -102,11 +103,7 @@ class Column(object):
     # Sets the most specific type for the column
     if values is None:
       values = self._data_values
-    proposed_type = findDatatypeForValues(values)
-    if proposed_type is not object:
-      self._data_type = proposed_type
-      self._data_values = np.array(self._data_values, 
-                                   dtype=self._data_type)
+    self._datatype = findDatatypeForValues(values)
 
   def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
@@ -114,12 +111,22 @@ class Column(object):
     # this column in the table.
     # Inputs: formula - valid python expression
     # Outputs: error - string giving error encountered
-    try:
-      _ = compile(formula, "string", "eval")  # Compilation checks syntax
-      self._formula = formula
+    if formula is not None:
+      # Make the expression into a statement to allow for compound
+      # statements
+      statement = "_ = %s" % formula
+      try:
+        _ = compile(statement, "string", "exec")  # Compilation checks syntax
+        self._formula = formula
+        error = None
+      except Exception as e:
+        if isinstance(e, tuple) and (len(e) == 3):
+          error = "%s: %s" % (e[0], e[1][3])
+        else:
+          error = str(e)
+    else:
+      self._formula = None
       error = None
-    except Exception as e:
-      error = "%s: %s" % (e[0], e[1][3])
     return error
 
   def setTable(self, table):
@@ -130,5 +137,7 @@ class Column(object):
     # Input: val - value to insert
     #        index - index of cell being updated
     #                appended to end if None
-    self._data_values[index] = val
-    self._datatypeFromValues()
+    values = self._data_values.tolist()
+    values[index] = val
+    self._datatypeFromValues(values=values)
+    self._data_values = np.array(values, dtype=self._datatype)
