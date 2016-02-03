@@ -158,8 +158,8 @@ class TestTable(unittest.TestCase):
       self.assertIsNotNone(v)
 
   def testExport(self):
-    return
     self.table.export(function_name="my_test", 
+                      inputs=["A", "B"],
                       output=COLUMN_VALID_FORMULA)
 
 

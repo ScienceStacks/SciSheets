@@ -182,16 +182,18 @@ import numpy as np
     statements.extend(TableEvaluator._indent(import_statements, indent))
     # Function definition
     statement = "def %s(" % function_name
-    for name in inputs:
-      statement += "%s," % name
+    statement += ",".join(inputs)
     statement += "):"
     statements.extend(TableEvaluator._indent([statement], indent))
     indent += 1
     # Do the initial variable assignments
-    assignment_statements = []
+    assignment_statements = ["# Do initial assignments"]
     for column in self._table.getColumns():
       ### BUG - need commans in the lists
-      statement = "%s = %s" % (column.getName(), str(column.getCells()))
+      statement = "%s = np.array(%s, dtype='%s')" % (
+          column.getName(), 
+          str(column.getCells().tolist()),
+          column.getDataType())
       assignment_statements.append(statement)
     statements.extend(TableEvaluator._indent(assignment_statements, indent))
     # Evaluate the formulas
