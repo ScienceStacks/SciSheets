@@ -42,3 +42,5 @@ echo "source scisheets_alias.sh" >> $HOME/.bashrc
 cd $REPO_DIR
 make Makefile clean
 make Makefile yui
+# Install python packages needed
+conda install pandas
