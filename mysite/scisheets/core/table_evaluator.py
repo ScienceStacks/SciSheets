@@ -91,8 +91,9 @@ class TableEvaluator(object):
       except Exception as e:
         import pdb; pdb.set_trace()
        
+    # Evaluate the formulas. Handle dependencies
+    # by repeatedly evaluating the formulas
     for nn in range(num_formulas):
-      # Evaluate the formulas
       for column in formula_columns:
         # Create the full statement so that a formula can contain
         # other assignment statements
@@ -134,18 +135,47 @@ class TableEvaluator(object):
       result.append("%s%s" % (indents, s))
     return result
 
+  @staticmethod
+  def _extractDtype(dtype):
+    dtype_str = str(dtype)
+    result = "object"
+    try:
+      ck_type = "float"
+      dtype_str.index(ck_type)
+      result = ck_type
+    except:
+      try:
+        ck_type = "int"
+        dtype_str.index(ck_type)
+        result = ck_type
+      except:
+        try:
+          dtype_str.index('|S')
+          result = "'%s'" % dtype
+        except:
+          pass
+    return result
+
+  @staticmethod
+  def _makeAssignment(column):
+    statement = "%s = np.array(%s, dtype=%s)" % (
+        column.getName(), 
+        str(column.getCells().tolist()),
+        TableEvaluator._extractDtype(column.getDataType()))
+    return statement
+
   def export(self, 
              function_name=None,
-             output=None,
+             outputs=[],
              inputs=[],
-             file_name=None,
+             file_path=None,
              user_directory=None, 
              import_path=None):
     # Exports the table as python code
     # Inputs: function_name - string name of the function to be created
-    #         output - name of the column that is output from the function
+    #         outputs - names of the columns that is output from the function
     #         inputs - list of column names that are input to the function
-    #         file_name - name of the file where the function is placed
+    #         file_path - path to the file to be written
     #         user_directory - directory where user functions are located
     #         import_path - import path for files in the user directory
     # Outputs: errror - errors from the export
@@ -176,6 +206,8 @@ from os import listdir
 from os.path import isfile, join
 import math as mt
 import numpy as np
+import pandas as pd
+import scipy as sp
 
     ''']
     if user_directory is not None and import_path is not None:
@@ -188,21 +220,74 @@ import numpy as np
     statement += "):"
     statements.extend(TableEvaluator._indent([statement], indent))
     indent += 1
+
     # Do the initial variable assignments
     assignment_statements = ["# Do initial assignments"]
     for column in self._table.getColumns():
-      ### BUG - need commans in the lists
-      statement = "%s = np.array(%s, dtype='%s')" % (
-          column.getName(), 
-          str(column.getCells().tolist()),
-          column.getDataType())
-      assignment_statements.append(statement)
+      if not(column.getName() in inputs):
+        statement = TableEvaluator._makeAssignment(column)
+        assignment_statements.append(statement)
     statements.extend(TableEvaluator._indent(assignment_statements, indent))
+
     # Evaluate the formulas
     eval_statements = ["#Evaluate the formulas"]
+    statement = "for nn in range(%d):" % num_formulas
+    statements.extend(TableEvaluator._indent([statement], indent))
+    indent += 1
+    for column in formula_columns:
+      formula = column.getFormula()
+      statement = "try:"
+      statements.extend(TableEvaluator._indent([statement], indent))
+      indent += 1
+      statement = "%s = %s" % (column.getName(), formula)
+      statements.extend(TableEvaluator._indent([statement], indent))
+      indent -= 1
+      statement = "except Exception as e:"
+      statements.extend(TableEvaluator._indent([statement], indent))
+      indent += 1
+      statement = "if nn == %d:" % (num_formulas-1)
+      statements.extend(TableEvaluator._indent([statement], indent))
+      indent += 1
+      statement = "print('error in formula %s: '" % formula 
+      statement += " + str(e))"
+      statements.extend(TableEvaluator._indent([statement], indent))
+      statement = "break"
+      statements.extend(TableEvaluator._indent([statement], indent))
+      indent -= 2
+
+    # Write the return statement
+    indent -= 1
+    statement = "return "
+    for nn in range(len(outputs)):
+      if nn == len(outputs) - 1:
+        suffix = ""
+      else:
+        suffix = ", "
+      statement = "%s%s%s" % (statement, suffix, outputs[nn])
+    statements.extend(TableEvaluator._indent([statement], indent))
+    
+
+    # Write the test code
+    indent = 0
+    statement = '''
+if __name__ == '__main__':'''
+    statements.extend(TableEvaluator._indent([statement], indent))
+    indent += 1
+    test_statements = []
+    for column_name in inputs:
+      column = self._table.columnFromName(column_name)
+      statement = TableEvaluator._makeAssignment(column)
+      test_statements.append(statement)
+    statement = "%s(" % function_name
+    statement += ",".join(inputs)
+    statement += ")"
+    full_statement = "print '%s=' + str(%s)" % (statement, statement)
+    test_statements.append(full_statement)
+    statements.extend(TableEvaluator._indent(test_statements, indent))
+    
     # Write the file
-    if file_name is None:
-      filename = "%s.py" % function_name
-    file_path = join(user_directory, filename)
+    if file_path is None:
+      file_name = "%s.py" % function_name
+      file_path = join(user_directory, file_name)
     with open(file_path, "w") as f:
       f.writelines(["%s\n" % s for s in statements])

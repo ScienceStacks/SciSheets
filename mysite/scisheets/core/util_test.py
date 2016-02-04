@@ -3,8 +3,11 @@
 '''
 
 import column as cl
+import contextlib
 import table as tb
 import numpy as np
+import StringIO
+import sys
 
 
 def toList(v):
@@ -41,3 +44,14 @@ def createTable(name, column_name=None):
     column = cl.Column(name)
     table.addColumn(column)
   return table
+
+@contextlib.contextmanager
+def stdoutIO(stdout=None):
+  # Captures standard output
+  # Usage: with stdoutIO() as s:
+  old = sys.stdout
+  if stdout is None:
+      stdout = StringIO.StringIO()
+  sys.stdout = stdout
+  yield stdout
+  sys.stdout = old

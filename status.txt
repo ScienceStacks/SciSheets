@@ -1,13 +1,9 @@
 Serve page from Django
 
-1. Column Formula
+1. Export
    Client side
-     -Don't allow updates to cells in a column with a non-None formula
+     -inputs for file_name, inputs, outputs
 
-2. Import user functions in the direction SETTINGS.SCITABLE_USER_DIRECTORY
-
-3. Table export to SETTINGS.SCITABLE_USER_DIRECTORY
-      
 
 1.2 Iterate
  

@@ -5,8 +5,10 @@ import table as tb
 import column as cl
 import errors as er
 import numpy as np
+from os.path import join, dirname
+import shutil
 from table_evaluator import TableEvaluator
-from util_test import createColumn, createTable
+from util_test import createColumn, createTable, stdoutIO
 import unittest
 
 
@@ -158,12 +160,29 @@ class TestTable(unittest.TestCase):
       self.assertIsNotNone(v)
 
   def testExport(self):
-    self.table.export(function_name="my_test", 
-                      inputs=["A", "B"],
-                      output=COLUMN_VALID_FORMULA)
-
-
-    
+    # Two formula columns
+    FUNCTION_NAME = "my_test"
+    FILE_NAME = "%s.py" % FUNCTION_NAME
+    FILE_PATH = join(dirname(__file__), FILE_NAME)
+    self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
+    self.table.export(function_name=FUNCTION_NAME,
+                      file_path = FILE_PATH,
+                      inputs=["B"],
+                      outputs=[COLUMN_VALID_FORMULA])
+    error = None
+    try:
+      with stdoutIO() as s:
+        execfile(FILE_NAME)
+      success = True
+    except Exception as e:
+      success = False
+      print (str(e))
+    self.assertTrue(success)
+    try:
+      os.remove("/tmp/%s" % FILE_NAME)  # Delete the file created
+    except:
+      pass
+    shutil.move(FILE_PATH, "/tmp")  # Put in temp
 
 
 if __name__ == '__main__':
