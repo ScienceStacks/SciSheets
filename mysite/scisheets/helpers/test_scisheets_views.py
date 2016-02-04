@@ -441,13 +441,8 @@ class TestScisheetsViews(TestCase):
     # New column should have all None values
     column = new_table.getColumns()[expected_index]
     self.assertEqual(column.getName(), moved_column.getName())
-    try:
-      b = np.equal(column.getCells(), moved_column.getCells()).all()
-    except:
-      # Need to promote type to object
-      old_cells = np.array(column.getCells(), dtype=object)
-      new_cells = np.array(moved_column.getCells(), dtype=object)
-      b = np.equal(old_cells, new_cells).all()
+    b = all([column.getCells()[n] == moved_column.getCells()[n] 
+             for n in range(column.numCells())])
     if not b:
       import pdb; pdb.set_trace()
     self.assertTrue(b)

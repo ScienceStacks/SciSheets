@@ -8,6 +8,7 @@ import math as mt
 import numpy as np
 import pandas as pd
 import scipy as sp
+import scipy.stats as ss
 
 DEFAULT_FUNCTION_NAME = "MyFunction"
 

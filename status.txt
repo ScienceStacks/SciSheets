@@ -1,6 +1,8 @@
 Serve page from Django
 
 1. Export
+   Server
+     -plumb through and test in scisheets_views
    Client side
      -inputs for file_name, inputs, outputs
 

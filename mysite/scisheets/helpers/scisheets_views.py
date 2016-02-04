@@ -14,6 +14,8 @@ import pickle
 import tempfile
 
 PICKLE_KEY = "pickle_file"
+USE_LOCAL_FILE = True
+LOCAL_FILE = "scisheet_table.pcl"
 
 
 # ******************** Helper Functions *****************
@@ -81,8 +83,12 @@ def unPickleTable(request):
 
 def pickleTable(request, table):
   if not request.session.has_key(PICKLE_KEY):
-    fh = tempfile.NamedTemporaryFile()
-    request.session[PICKLE_KEY] = fh.name  # Just get the name
+    if USE_LOCAL_FILE:
+      fh = open(LOCAL_FILE, "w")
+      request.session[PICKLE_KEY] = LOCAL_FILE
+    else:
+      fh = tempfile.NamedTemporaryFile()
+      request.session[PICKLE_KEY] = fh.name  # Just get the name
     fh.close()
   pickle_file = request.session.get(PICKLE_KEY)
   pickle.dump(table, open(pickle_file, "wb"))
