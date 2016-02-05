@@ -10,7 +10,7 @@ sed '/table_setup.js/r insert.html' < test4.html > test5.html
 sed '/load static from/s/^.*$//' < test5.html > test6.html
 sed '/include "scitable_data.html/s/^.*$//' < test6.html > test.html
 mv test?.html /tmp
-echo "****Running tests in batch may cause some to fail. Continue?"
-echo "    Consider opening test.html in a browser."
-read dummy
+#echo "****Running tests in batch may cause some to fail. Continue?"
+#echo "    Consider opening test.html in a browser."
+#read dummy
 bash qunit.sh test.html

@@ -82,16 +82,14 @@ def unPickleTable(request):
     return None
 
 def pickleTable(request, table):
-  if not request.session.has_key(PICKLE_KEY):
-    if USE_LOCAL_FILE:
-      fh = open(LOCAL_FILE, "w")
-      request.session[PICKLE_KEY] = LOCAL_FILE
-    else:
+  if USE_LOCAL_FILE:
+    request.session[PICKLE_KEY] = LOCAL_FILE
+  else:
+    if not request.session.has_key(PICKLE_KEY):
       fh = tempfile.NamedTemporaryFile()
       request.session[PICKLE_KEY] = fh.name  # Just get the name
-    fh.close()
-  pickle_file = request.session.get(PICKLE_KEY)
-  pickle.dump(table, open(pickle_file, "wb"))
+      fh.close()
+  pickle.dump(table, open(request.session[PICKLE_KEY], "wb"))
 
 
 # ******************** Command Processing *****************

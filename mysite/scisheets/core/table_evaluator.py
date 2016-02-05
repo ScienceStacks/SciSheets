@@ -264,7 +264,7 @@ import scipy as sp
         suffix = ""
       else:
         suffix = ", "
-      statement = "%s%s%s" % (statement, suffix, outputs[nn])
+      statement = "%s%s%s" % (statement, outputs[nn], suffix)
     statements.extend(TableEvaluator._indent([statement], indent))
     
 

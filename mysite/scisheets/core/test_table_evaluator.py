@@ -186,6 +186,21 @@ class TestTable(unittest.TestCase):
       pass
     shutil.move(FILE_PATH, "/tmp")  # Put in temp
 
+  def testMechaelisMenton(self):
+    return
+    self.table = createTable("MechaelisMenton")
+    self._addColumn("THDPA", cells=[0.01, 0.05, 0.12, 0.2, 0.5, 1.0])
+    self._addColumn("V", cells=[0.110, 0.19, 0.21, 0.22, 0.21, 0.24])
+    self._addColumn("INV_THDPA", formula = "1/THDPA")
+    self._addColumn("INV_V", formula = "1/V")
+    self._addColumn("INTERCEPT", formula = "intercept(INV_THDPA, INV_V)")
+    self._addColumn("SLOPE", formula = "slope(INV_THDPA, INV_V)")
+    self._addColumn("Vmax", formula = "1/INTERCEPT")
+    self._addColumn("KM", formula="Vmax*SLOPE")
+    self.table.export(function_name="MechaelisMenton",
+                      inputs=["THDPA", "V"],
+                      outputs=["Vmax", "KM"])
+
 
 if __name__ == '__main__':
     unittest.main()
