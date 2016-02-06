@@ -7,8 +7,10 @@ from os.path import isfile, join, dirname
 import math as mt
 import numpy as np
 import pandas as pd
+import random
 import scipy as sp
 import scipy.stats as ss
+import string
 
 DEFAULT_FUNCTION_NAME = "MyFunction"
 
@@ -60,6 +62,39 @@ class TableEvaluator(object):
       else:
         formula_columns.append(column)
     return formula_columns, non_formula_columns
+
+  @staticmethod
+  def createStatementFromFormula(formula, assigned_variable=None):
+    # Makes the formula into a statement.
+    # A formula may be an expression, one or more statements, 
+    # an expression followed by one or more statements.
+    # Input: formula - formula as specified
+    #        assigned_variable - variable to assign if
+    #        the formula leads with an expression
+    # Outputs: statement - if a valid formula
+    # Exception: Not a valid statement         
+    SIZE = 10
+    if assigned_variable is None:
+      var_as_list = [random.choice(string.letters)
+                     for n in range(SIZE)]
+      assigned_variable = "".join(var_as_list)
+    try:
+      error = None
+      statement = "%s = %s" % (assigned_variable, formula)
+      _ = compile(statement, "string", "exec")
+    except Exception as e:
+      error = str(e)
+    if error is not None:
+      try:
+        error = None
+        statement = formula
+        _ = compile(statement, "string", "exec")
+      except Exception as e:
+        error = str(e)
+    if error is not None:
+      raise Exception(e)
+    else:
+      return statement
 
   def evaluate(self, user_directory=None, import_path=None):
     # Inputs: user_directory - directory where user functions are located

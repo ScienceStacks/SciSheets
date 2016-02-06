@@ -1,7 +1,7 @@
 '''Utility routines.'''
 
-import random as random
-import string as string
+import random
+import string
 
 def ConvertType(v):
   # Converts to int, float, str as required

@@ -1,5 +1,10 @@
 Serve page from Django
 
+0.1 Generalize formula to include statements
+  (a) test makeStatementFromFormula
+  (b) Findal all formula evaluations (evaluate, export) and
+      set Formula. Use makeStatementFromFormula to verify, get stmt
+
 1. Export
    Server
      -plumb through and test in scisheets_views
