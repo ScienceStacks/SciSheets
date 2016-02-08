@@ -132,6 +132,17 @@ class TestColumn(unittest.TestCase):
     with self.assertRaises(er.InternalError):
       self.column.replaceCells(short_array)
 
+  def testMakeStatementFromFormula(self):
+    EXPR = "np.sin(3)"
+    VARIABLE = "A"
+    expected_stmt = "%s = %s" % (VARIABLE, EXPR)
+    self.column._makeStatementFromFormula(EXPR, VARIABLE)
+    self.assertEqual(self.column.getFormulaStatement(),
+                     expected_stmt)
+    self.column._makeStatementFromFormula(expected_stmt, VARIABLE)
+    self.assertEqual(self.column.getFormulaStatement(),
+                     expected_stmt)
+
 
 if __name__ == '__main__':
     unittest.main()

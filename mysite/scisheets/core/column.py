@@ -128,8 +128,8 @@ class Column(object):
       return None
     try:
       exception_stmt = None
+      _ = compile(formula, "string", "eval")
       statement = "%s = %s" % (assigned_variable, formula)
-      _ = compile(statement, "string", "exec")
     except Exception as e:
       exception_stmt = e
     if exception_stmt is not None:

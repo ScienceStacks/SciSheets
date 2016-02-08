@@ -41,7 +41,7 @@ IMPORT_PATHS = ["", "scisheets.core"]
 #############################
 # Tests
 #############################
-class TestTable(unittest.TestCase):
+class TestTableEvaluator(unittest.TestCase):
 
   def setUp(self):
     self.table = createTable(TABLE_NAME)
@@ -200,7 +200,52 @@ class TestTable(unittest.TestCase):
     self.table.export(function_name="MechaelisMenton",
                       inputs=["THDPA", "V"],
                       outputs=["Vmax", "KM"])
+ 
+  @staticmethod 
+  def _countNonNone(array):
+    return len([x for x in array if x is not None])
 
+  def _testFormulaVariations(self, formula1, formula2, len1, len2):
+     # Checks compound formulas of different combinations.
+     # Input: formula1 - valid python expression
+     #        formula2 - valid python statement for column A or ""
+     #        len1 - length of the array created by formula1
+     #        len2 - length of the array created by formula2
+     if len(formula2) == 0:
+       formula = formula1
+       self.column_valid_formula.setFormula(formula)
+       self.assertIsNone(self.te.evaluate())
+       self.assertEqual(
+           TestTableEvaluator._countNonNone(self.column_valid_formula.getCells()), 
+                        len1)
+     else:
+       formula = "%s; %s" % (formula1, formula2)
+       self.column_valid_formula.setFormula(formula)
+       self.assertIsNone(self.te.evaluate())
+       self.assertEqual(
+           TestTableEvaluator._countNonNone(self.column_valid_formula.getCells()), 
+                        len1)
+       self.assertEqual(
+           TestTableEvaluator._countNonNone(self.column_a.getCells()), 
+           len2)
+    
+
+  def testFormulaVariations(self):
+    # TODO: Need test that checks no changing current column if I have a statement
+    #       assigning to another column
+    SIZE = 10
+    LIST_EXPR = "[n for n in range(%d)]" % SIZE
+    SCALAR_EXPR = "np.sin(3.1)"
+    LIST_STMT = "A = np.array([n for n in range(%d)])" % SIZE
+    LIST_STMT1 = "VALID_FORMULA = np.array([n for n in range(%d)])" % SIZE
+    SCALAR_STMT = "A = np.sin(3.1)"
+    SCALAR_STMT1 = "VALID_FORMUAL = np.sin(3.1)"
+    self._testFormulaVariations(LIST_EXPR, "", SIZE, 0)
+    self._testFormulaVariations(SCALAR_EXPR, "", 1, 0)
+    self._testFormulaVariations(LIST_STMT, SCALAR_STMT, 1, 1)
+    self._testFormulaVariations(SCALAR_STMT1, SCALAR_STMT, 1, 1)
+    self._testFormulaVariations(LIST_STMT1, LIST_STMT, SIZE, SIZE)
+    
 
 if __name__ == '__main__':
     unittest.main()

@@ -100,6 +100,7 @@ class TableEvaluator(object):
       for column in formula_columns:
         try:
           exec(column.getFormulaStatement())
+          # TODO: Delete the following code?
           # Handle the case of a single value and consider
           # Assignments to other columns
 #          if column.getName() in locals:
