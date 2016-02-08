@@ -20,6 +20,7 @@ class Column(object):
       self._data_values = np.array([])
     self._formula = None
     self._owning_table = None
+    self._formula_statement = None  # Formula as a statement
 
   def addCells(self, v, replace=False):
     # Input: v - value(s) to add
@@ -69,6 +70,9 @@ class Column(object):
   def getFormula(self):
     return self._formula
 
+  def getFormulaStatement(self):
+    return self._formula_statement
+
   def getName(self):
     return self._name
 
@@ -105,28 +109,69 @@ class Column(object):
       values = self._data_values
     self._datatype = findDatatypeForValues(values)
 
+  def _makeStatementFromFormula(self, formula, assigned_variable):
+    # TODO: Need tests
+    # TODO: Improve the way that detect an expression vs. a statement
+    #       so that the correct exception is returned
+    # Makes the formula into a statement.
+    # A formula may be an expression, one or more statements, 
+    # an expression followed by one or more statements.
+    # Assigns the value the _formula_statement
+    # Input: formula - formula as specified
+    #        assigned_variable - variable to assign if
+    #                            the formula leads with an expression
+    # Output: exception - exception from formula evaluation or None
+    # Notes: (a) _formula_statement is changed only if formula
+    #            is valid
+    if formula is None:
+      self._formula_statement = None
+      return None
+    try:
+      exception_stmt = None
+      statement = "%s = %s" % (assigned_variable, formula)
+      _ = compile(statement, "string", "exec")
+    except Exception as e:
+      exception_stmt = e
+    if exception_stmt is not None:
+      try:
+        exception_expr = None
+        statement = formula
+        _ = compile(statement, "string", "exec")
+      except Exception as e:
+        exception_expr = e
+    if (exception_stmt is not None) and (exception_expr is not None):
+      # Guess whether is is intended to be a statement or an expression
+      # so that the correct error message can be delivered.
+      try:
+        pos = formula.index("=")  # See if there's an assignment
+        isStmt = True
+      except:
+        isStmt = False
+      if isStmt:
+        exception = exception_stmt
+      else:
+        exception = exception_expr
+    else:
+      exception = None
+    if exception is None:
+      self._formula_statement = statement
+    return exception
+
   def setFormula(self, formula):
     # A formula is a valid python expression of a mix of numpy.array
     # scalars, and functions in math for columns that preceed
     # this column in the table.
     # Inputs: formula - valid python expression
     # Outputs: error - string giving error encountered
-    if formula is not None:
-      # Make the expression into a statement to allow for compound
-      # statements
-      statement = "_ = %s" % formula
-      try:
-        _ = compile(statement, "string", "exec")  # Compilation checks syntax
-        self._formula = formula
-        error = None
-      except Exception as e:
-        if isinstance(e, tuple) and (len(e) == 3):
-          error = "%s: %s" % (e[0], e[1][3])
-        else:
-          error = str(e)
+    error = None
+    exception = self._makeStatementFromFormula(formula, self.getName())
+    if exception is None:
+      self._formula = formula
     else:
-      self._formula = None
-      error = None
+      if isinstance(exception, tuple) and (len(exception) == 3):
+        error = "%s: %s" % (e[0], e[1][3])
+      else:
+        error = str(exception)
     return error
 
   def setTable(self, table):

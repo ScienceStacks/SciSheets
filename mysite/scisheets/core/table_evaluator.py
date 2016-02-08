@@ -63,39 +63,6 @@ class TableEvaluator(object):
         formula_columns.append(column)
     return formula_columns, non_formula_columns
 
-  @staticmethod
-  def createStatementFromFormula(formula, assigned_variable=None):
-    # Makes the formula into a statement.
-    # A formula may be an expression, one or more statements, 
-    # an expression followed by one or more statements.
-    # Input: formula - formula as specified
-    #        assigned_variable - variable to assign if
-    #        the formula leads with an expression
-    # Outputs: statement - if a valid formula
-    # Exception: Not a valid statement         
-    SIZE = 10
-    if assigned_variable is None:
-      var_as_list = [random.choice(string.letters)
-                     for n in range(SIZE)]
-      assigned_variable = "".join(var_as_list)
-    try:
-      error = None
-      statement = "%s = %s" % (assigned_variable, formula)
-      _ = compile(statement, "string", "exec")
-    except Exception as e:
-      error = str(e)
-    if error is not None:
-      try:
-        error = None
-        statement = formula
-        _ = compile(statement, "string", "exec")
-      except Exception as e:
-        error = str(e)
-    if error is not None:
-      raise Exception(e)
-    else:
-      return statement
-
   def evaluate(self, user_directory=None, import_path=None):
     # Inputs: user_directory - directory where user functions are located
     #         import_path - import path for files in the user directory
@@ -131,25 +98,23 @@ class TableEvaluator(object):
     # by repeatedly evaluating the formulas
     for nn in range(num_formulas):
       for column in formula_columns:
-        # Create the full statement so that a formula can contain
-        # other assignment statements
-        formula = column.getFormula()
-        formula_statement = "values = %s" % formula
         try:
-          exec(formula_statement)
-          # Handle the case of a single value
-          try:
-            _ = iter(values)
-          except:
-            values = [values]
-          datatype = findDatatypeForValues(values)
-          assignment_statement = (
-              "%s = np.array(values, dtype=datatype)" % column.getName()
-              )
-          exec(assignment_statement)
+          exec(column.getFormulaStatement())
+          # Handle the case of a single value and consider
+          # Assignments to other columns
+#          if column.getName() in locals:
+#            try:
+#              _ = iter(column.getName())
+#            except:
+#              values = [column.getName()]
+#          datatype = findDatatypeForValues(values)
+#          assignment_statement = (
+#              "%s = np.array(values, dtype=datatype)" % column.getName()
+#              )
+#          exec(assignment_statement)
         except Exception as e:
           if nn == num_formulas - 1:  # Only assign the error on the last loop
-            error = "Error in formula %s: %s" % (formula, str(e))
+            error = "Error in formula %s: %s" % (column.getFormula(), str(e))
             break
     # Update the table
     # All columns are updated because there may be compound statements
@@ -271,12 +236,11 @@ import scipy as sp
     statements.extend(TableEvaluator._indent([statement], indent))
     indent += 1
     for column in formula_columns:
-      formula = column.getFormula()
       statement = "try:"
       statements.extend(TableEvaluator._indent([statement], indent))
       indent += 1
-      statement = "%s = %s" % (column.getName(), formula)
-      statements.extend(TableEvaluator._indent([statement], indent))
+      statements.extend(TableEvaluator._indent(
+          [column.getFormulaStatement()], indent))
       indent -= 1
       statement = "except Exception as e:"
       statements.extend(TableEvaluator._indent([statement], indent))
