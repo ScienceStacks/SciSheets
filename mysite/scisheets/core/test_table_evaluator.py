@@ -160,21 +160,20 @@ class TestTableEvaluator(unittest.TestCase):
       self.assertIsNotNone(v)
 
   def testExport(self):
-    # TODO: Fix this test
-    return
     # Two formula columns
     FUNCTION_NAME = "my_test"
     FILE_NAME = "%s.py" % FUNCTION_NAME
     FILE_PATH = join(dirname(__file__), FILE_NAME)
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
+    self.table.evaluate()
     self.table.export(function_name=FUNCTION_NAME,
                       file_path = FILE_PATH,
-                      inputs=["B"],
-                      outputs=[COLUMN_VALID_FORMULA])
+                      inputs=[COLUMNC, COLUMN5],
+                      outputs=[COLUMN_VALID_FORMULA, COLUMN2])
     error = None
     try:
       with stdoutIO() as s:
-        execfile(FILE_NAME)
+        execfile(FILE_PATH)
       success = True
     except Exception as e:
       success = False

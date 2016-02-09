@@ -249,8 +249,7 @@ import scipy as sp
       statement = "if nn == %d:" % (num_formulas-1)
       statements.extend(TableEvaluator._indent([statement], indent))
       indent += 1
-      statement = "print('error in formula %s: '" % formula 
-      statement += " + str(e))"
+      statement = "raise Exception(e)"
       statements.extend(TableEvaluator._indent([statement], indent))
       statement = "break"
       statements.extend(TableEvaluator._indent([statement], indent))
@@ -258,15 +257,9 @@ import scipy as sp
 
     # Write the return statement
     indent -= 1
-    statement = "return "
-    for nn in range(len(outputs)):
-      if nn == len(outputs) - 1:
-        suffix = ""
-      else:
-        suffix = ", "
-      statement = "%s%s%s" % (statement, outputs[nn], suffix)
+    output_str = ",".join(outputs)
+    statement = "return %s" % output_str
     statements.extend(TableEvaluator._indent([statement], indent))
-    
 
     # Write the test code
     indent = 0
@@ -279,11 +272,27 @@ if __name__ == '__main__':'''
       column = self._table.columnFromName(column_name)
       statement = TableEvaluator._makeAssignment(column)
       test_statements.append(statement)
-    statement = "%s(" % function_name
+    statement = output_str
+    statement += " = %s(" % function_name
     statement += ",".join(inputs)
     statement += ")"
-    full_statement = "print '%s=' + str(%s)" % (statement, statement)
-    test_statements.append(full_statement)
+    test_statements.append(statement)
+    statement = "b = True"
+    test_statements.append(statement)
+    for column_name in outputs:
+      column = self._table.columnFromName(column_name)
+      statement = "b = b and  (abs(%s - np.array(%s))/%s < 0.01).all()" % (column_name, 
+                                                         str(column.getCells().tolist()), 
+                                                         column_name)
+      test_statements.append(statement)
+    statement = "if b:"
+    test_statements.append(statement)
+    statement = "print ('OK.')"
+    test_statements.extend(TableEvaluator._indent([statement], 1))
+    statement = "else:"
+    test_statements.append(statement)
+    statement = "print ('Test failed for %s')" % function_name
+    test_statements.extend(TableEvaluator._indent([statement], 1))
     statements.extend(TableEvaluator._indent(test_statements, indent))
     
     # Write the file
