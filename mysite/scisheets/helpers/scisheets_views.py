@@ -129,5 +129,6 @@ def scisheets_reload(request):
   if table is None:
     html = "No session found"
   else:
+    table.evaluate()
     html = table.render()
   return HttpResponse(html)
