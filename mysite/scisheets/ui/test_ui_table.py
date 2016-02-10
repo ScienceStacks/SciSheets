@@ -120,10 +120,19 @@ class TestUITable(TestCase):
 
   # TODO: Do something better with this test
   def testRender(self):
+    Col_0 = self.table.getColumns()[1]
+    Col_0.setFormula("Col_1 = 'x'")
+    self.table.evaluate()
     html = self.table.render()
     self.assertIsNotNone(html)
-    
 
+  def testAddEscapesToQuotes(self):
+    list_of_str = ["xy", "x'y'"]
+    mod_list_of_str = ui.UITable._addEscapesToQuotes(list_of_str)
+    self.assertEqual(mod_list_of_str[1].index("\\"), 1)
+    list_of_str = range(3)
+    mod_list_of_str = ui.UITable._addEscapesToQuotes(list_of_str)
+    self.assertTrue(list_of_str == mod_list_of_str)
 
 if __name__ == '__main__':
     unittest.man()

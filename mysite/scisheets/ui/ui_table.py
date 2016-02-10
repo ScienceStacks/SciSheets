@@ -9,6 +9,7 @@ from ..core.column import Column
 from ..core.errors import NotYetImplemented
 from mysite.helpers import util as ut
 from mysite import settings as st
+import collections
 import numpy as np
 import random
 
@@ -221,13 +222,31 @@ class UITable(Table):
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
     return error
+
+  @staticmethod
+  def _addEscapesToQuotes(iter_str):
+    # Puts in the \ escape character for quotes, ' & "
+    # Input: iterable of strings
+    # Output: list with inserted escapes
+    result = []
+    for item in iter_str:
+      if isinstance(item, str):
+        new_item = item.replace('"', '\\\\"')
+        newer_item = new_item.replace("'", "\\\\'")
+        result.append(newer_item)
+      else:
+        result.append(item)
+    return result
   
   def render(self, table_id="scitable"):
     # Input: table_id - how the table is identified in the HTML
     # Output: html rendering of the Table
     column_names = [c.getName() for c in self._columns]
-    column_data = [c.getCells().tolist() for c in self._columns]
-    formulas = [c.getFormula() for c in self._columns]
+    raw_column_data = [UITable._addEscapesToQuotes(c.getCells()) 
+                       for c in self._columns]
+    column_data = UITable._addEscapesToQuotes(raw_column_data)
+    raw_formulas = [c.getFormula() for c in self._columns]
+    formulas = UITable._addEscapesToQuotes(raw_formulas)
     formula_json = makeJSONStr(column_names, formulas)
     data = makeJSONStr(column_names, column_data)
     ctx_dict = {'column_names': column_names,

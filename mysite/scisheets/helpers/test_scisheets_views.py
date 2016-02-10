@@ -511,7 +511,7 @@ class TestScisheetsViews(TestCase):
   def testScisheetsTableEvaluate(self):
     self._evaluateTable("np.sin(3.2)", True)  # Valid formula
     self._evaluateTable("range(1000)", True)  # Test large
-    formula = "np.sin(np.array(Col_1, dtype=float));B =  Col_1**3"
+    formula = "Col_2 = np.sin(np.array(Col_1, dtype=float));B =  Col_1**3"
     self._evaluateTable(formula, True)  # Compound formula
     self._evaluateTable("np.sin(x)", False)  # Invalid formula
 
