@@ -242,19 +242,28 @@ class UITable(Table):
     # Input: table_id - how the table is identified in the HTML
     # Output: html rendering of the Table
     column_names = [c.getName() for c in self._columns]
-    raw_column_data = [UITable._addEscapesToQuotes(c.getCells()) 
-                       for c in self._columns]
-    column_data = UITable._addEscapesToQuotes(raw_column_data)
+    column_data = [c.getCells().tolist() for c in self._columns]
     raw_formulas = [c.getFormula() for c in self._columns]
-    formulas = UITable._addEscapesToQuotes(raw_formulas)
-    formula_json = makeJSONStr(column_names, formulas)
+    formulas = []
+    for ff in raw_formulas:
+      if ff is None or (ff == "None"):
+        formulas.append("''")
+      else:
+        formulas.append('"' + ff + '"')
+    formula_dict = {}
+    for nn in range(len(column_names)):
+      formula_dict[column_names[nn]] = formulas[nn]
+    #formula_json = makeJSONStr(column_names, formulas)
     data = makeJSONStr(column_names, column_data)
+    indicies = range(len(column_names))
     ctx_dict = {'column_names': column_names,
                 'final_column_name': column_names[-1],
                 'table_caption': self.getName(),
                 'table_id': table_id,
                 'data': data,
-                'formulas': formula_json,
+                'formula_dict': formula_dict,
+                'num_cols': len(column_names),
+                'count': 1,
                }
     html = get_template('scitable.html').render(ctx_dict)
     return html
