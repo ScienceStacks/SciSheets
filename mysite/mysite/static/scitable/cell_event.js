@@ -34,9 +34,7 @@ SciSheetsCell.prototype.click = function (oArgs) {
       cmd.column = ep.columnIndex;
       cmd.row = ep.rowIndex;
       cmd.value = editEvent.newData;
-      scisheet.sendServerCommand(cmd, function (data) {
-        console.log("Returned: " + data);
-      });
+      scisheet.utilSendAndReload(cmd);
       scisheet.dataTable.unsubscribe('editorSaveEvent');
     });
     this.scisheet.dataTable.onEventShowCellEditor(oArgs);
