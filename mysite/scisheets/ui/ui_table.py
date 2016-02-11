@@ -11,6 +11,7 @@ from mysite.helpers import util as ut
 from mysite import settings as st
 import collections
 import numpy as np
+import os
 import random
 
 
@@ -136,10 +137,35 @@ class UITable(Table):
     # Processes a UI request for a Table
     # Input: cmd_dict - dictionary with the keys
     # Output: error from exception (may be none)
+    target = "Table"
     error = None
     command = cmd_dict["command"]
-    msg = "Unimplemented Table command: %s." % command
-    raise NotYetImplemented(msg)
+    if command == "Export":
+      args_list = eval(cmd_dict['args'][0])
+      POS_FUNC = 0
+      POS_FILE = 1
+      POS_INP_CNT = 2
+      POS_OUT_CNT = 3
+      POS_INPS = 4
+      function_name = args_list[POS_FUNC]
+      file_name = "%s.py" % args_list[POS_FILE]
+      num_inputs = int(args_list[POS_INP_CNT])
+      num_outputs = int(args_list[POS_OUT_CNT])
+      inp_end  = POS_INPS + num_inputs
+      out_end = inp_end + num_outputs
+      inputs = args_list[POS_INPS:inp_end]
+      outputs = args_list[inp_end:out_end]
+      file_path = os.path.join(st.SCISHEETS_USER_PYDIR, file_name)
+      error = self.export(function_name=function_name,
+                          inputs=inputs,
+                          outputs=outputs,
+                          file_path=file_path,
+                          user_directory=st.SCISHEETS_USER_PYDIR,
+                          import_path=st.SCISHEETS_USER_PYPATH)
+    else:
+      msg = "Unimplemented %s command: %s." % (target, command)
+      raise NotYetImplemented(msg)
+    return error
 
   def _cellCommand(self, cmd_dict):
     # Processes a UI request for a Cell

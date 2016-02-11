@@ -168,15 +168,15 @@ class TableEvaluator(object):
 
   def export(self, 
              function_name=None,
-             outputs=[],
              inputs=[],
+             outputs=[],
              file_path=None,
              user_directory=None, 
              import_path=None):
     # Exports the table as python code
     # Inputs: function_name - string name of the function to be created
-    #         outputs - names of the columns that is output from the function
     #         inputs - list of column names that are input to the function
+    #         outputs - names of the columns that is output from the function
     #         file_path - path to the file to be written
     #         user_directory - directory where user functions are located
     #         import_path - import path for files in the user directory
@@ -202,7 +202,7 @@ class TableEvaluator(object):
 
     '''
     statements.extend(TableEvaluator._indent([header_comments], indent))
-    # Imports
+    # Construct the imports
     import_statements = ['''
 from os import listdir
 from os.path import isfile, join
@@ -214,7 +214,7 @@ import scipy as sp
     ''']
     if user_directory is not None and import_path is not None:
       import_statements.extend(TableEvaluator._importStatements(user_directory, 
-                                                                import_path))
+                                                                ""))
     statements.extend(TableEvaluator._indent(import_statements, indent))
     # Function definition
     statement = "def %s(" % function_name
@@ -236,6 +236,8 @@ import scipy as sp
     statement = "for nn in range(%d):" % num_formulas
     statements.extend(TableEvaluator._indent([statement], indent))
     indent += 1
+    statement = "pass"  # Ensure that there's at least one statement
+    statements.extend(TableEvaluator._indent([statement], indent))
     for column in formula_columns:
       statement = "try:"
       statements.extend(TableEvaluator._indent([statement], indent))

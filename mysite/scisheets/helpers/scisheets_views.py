@@ -38,6 +38,7 @@ def createCommandDict(request):
   # Input: request - HTML request object
   # Output: cmd_dict - dictionary of the command
   #  TARGET  COMMAND   DESCRIPTION
+  #   Table   Export   Export the table into python
   #   Cell    Update   Update the specified cell
   #   Column  Append   Add a new column to the right of the current
   #   Column  Insert   Add a new column to the left of the current

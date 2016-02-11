@@ -486,7 +486,7 @@ class TestScisheetsViews(TestCase):
     self._formulaColumn(NCOL - 1, "np.sin(2.3)", True)  # Valid formula
     self._formulaColumn(NCOL - 1, "np.sin(2.3", False)  # Invalid formula
 
-  def _evaluateTable(self, formula, isValid):
+  def _evaluateTable(self, formula, isValid, col_idx=NCOL-1):
     # Inputs: formula - new formula for column
     #         isValid - is a valid formula
     base_response = self._createBaseTable()
@@ -494,7 +494,7 @@ class TestScisheetsViews(TestCase):
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
-    ajax_cmd['column'] = NCOL - 1
+    ajax_cmd['column'] = col_idx
     ajax_cmd['args[]'] = formula
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -514,6 +514,27 @@ class TestScisheetsViews(TestCase):
     formula = "Col_2 = np.sin(np.array(Col_1, dtype=float));B =  Col_1**3"
     self._evaluateTable(formula, True)  # Compound formula
     self._evaluateTable("np.sin(x)", False)  # Invalid formula
+
+  def testScisheetsTableExport(self):
+    # Populate the table with a couple of formulas
+    FORMULA = "range(10)"
+    FILE_NAME = "export_test"
+    FUNC_NAME = "ss_export_test"
+    self._evaluateTable(FORMULA, True)
+    # Do the export
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Table"
+    ajax_cmd['command'] = "Export"
+    inputs = ["Col_1"]
+    outputs = ["Col_%d" % (NCOL-1), "Col_%d" % (NCOL-2)]
+    arg_list = [FUNC_NAME, FILE_NAME, len(inputs), len(outputs)]
+    arg_list.extend(inputs)
+    arg_list.extend(outputs)
+    ajax_cmd['args[]'] = arg_list
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
 
 
 if __name__ == '__main__':
