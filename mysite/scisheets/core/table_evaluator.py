@@ -204,10 +204,11 @@ class TableEvaluator(object):
     statements.extend(TableEvaluator._indent([header_comments], indent))
     # Construct the imports
     import_statements = ['''
-from os import listdir
-from os.path import isfile, join
+from _compare_arrays import compareArrays
 import math as mt
 import numpy as np
+from os import listdir
+from os.path import isfile, join
 import pandas as pd
 import scipy as sp
 
@@ -232,33 +233,32 @@ import scipy as sp
     statements.extend(TableEvaluator._indent(assignment_statements, indent))
 
     # Evaluate the formulas
-    eval_statements = ["#Evaluate the formulas"]
-    statement = "for nn in range(%d):" % num_formulas
-    statements.extend(TableEvaluator._indent([statement], indent))
-    indent += 1
-    statement = "pass"  # Ensure that there's at least one statement
-    statements.extend(TableEvaluator._indent([statement], indent))
-    for column in formula_columns:
-      statement = "try:"
+    if len(formula_columns) > 0:
+      eval_statements = ["#Evaluate the formulas"]
+      statement = "for nn in range(%d):" % num_formulas
       statements.extend(TableEvaluator._indent([statement], indent))
       indent += 1
-      statements.extend(TableEvaluator._indent(
-          [column.getFormulaStatement()], indent))
+      for column in formula_columns:
+        statement = "try:"
+        statements.extend(TableEvaluator._indent([statement], indent))
+        indent += 1
+        statements.extend(TableEvaluator._indent(
+            [column.getFormulaStatement()], indent))
+        indent -= 1
+        statement = "except Exception as e:"
+        statements.extend(TableEvaluator._indent([statement], indent))
+        indent += 1
+        statement = "if nn == %d:" % (num_formulas-1)
+        statements.extend(TableEvaluator._indent([statement], indent))
+        indent += 1
+        statement = "raise Exception(e)"
+        statements.extend(TableEvaluator._indent([statement], indent))
+        statement = "break"
+        statements.extend(TableEvaluator._indent([statement], indent))
+        indent -= 2
       indent -= 1
-      statement = "except Exception as e:"
-      statements.extend(TableEvaluator._indent([statement], indent))
-      indent += 1
-      statement = "if nn == %d:" % (num_formulas-1)
-      statements.extend(TableEvaluator._indent([statement], indent))
-      indent += 1
-      statement = "raise Exception(e)"
-      statements.extend(TableEvaluator._indent([statement], indent))
-      statement = "break"
-      statements.extend(TableEvaluator._indent([statement], indent))
-      indent -= 2
 
     # Write the return statement
-    indent -= 1
     output_str = ",".join(outputs)
     statement = "return %s" % output_str
     statements.extend(TableEvaluator._indent([statement], indent))
@@ -283,9 +283,9 @@ if __name__ == '__main__':'''
     test_statements.append(statement)
     for column_name in outputs:
       column = self._table.columnFromName(column_name)
-      statement = "b = b and  (abs(%s - np.array(%s))/%s < 0.01).all()" % (column_name, 
-                                                         str(column.getCells().tolist()), 
-                                                         column_name)
+      statement = "b and compareArrays(%s, %s)" % (
+          column_name, 
+          str(column.getCells().tolist())) 
       test_statements.append(statement)
     statement = "if b:"
     test_statements.append(statement)
