@@ -73,8 +73,9 @@ QUnit.test("table_setup", function (assert) {
   /* Table Tests */
   caption = document.getElementsByTagName("caption")[0];
   assert.ok(caption !== null, "Verify table caption");
-  expectAjaxCall = [false,  // Rename
-                    false]; // Delete
+  expectAjaxCall = [false,  // Delete
+                    false,  // Export
+                    false]; // Rename
   clickTester(caption, "TableClickMenu", -1, assert,
       expectAjaxCall);
   // Column Tests

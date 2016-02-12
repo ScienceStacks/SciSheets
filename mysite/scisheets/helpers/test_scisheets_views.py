@@ -511,14 +511,13 @@ class TestScisheetsViews(TestCase):
   def testScisheetsTableEvaluate(self):
     self._evaluateTable("np.sin(3.2)", True)  # Valid formula
     self._evaluateTable("range(1000)", True)  # Test large
-    formula = "Col_2 = np.sin(np.array(Col_1, dtype=float));B =  Col_1**3"
+    formula = "Col_2 = np.sin(np.array(range(10), dtype=float));B =  Col_1**3"
     self._evaluateTable(formula, True)  # Compound formula
     self._evaluateTable("np.sin(x)", False)  # Invalid formula
 
   def testScisheetsTableExport(self):
     # Populate the table with a couple of formulas
     FORMULA = "range(10)"
-    FILE_NAME = "export_test"
     FUNC_NAME = "ss_export_test"
     self._evaluateTable(FORMULA, True)
     # Do the export
@@ -527,7 +526,7 @@ class TestScisheetsViews(TestCase):
     ajax_cmd['command'] = "Export"
     inputs = ["Col_1"]
     outputs = ["Col_%d" % (NCOL-1), "Col_%d" % (NCOL-2)]
-    arg_list = [FUNC_NAME, FILE_NAME, len(inputs), len(outputs)]
+    arg_list = [FUNC_NAME, len(inputs), len(outputs)]
     arg_list.extend(inputs)
     arg_list.extend(outputs)
     ajax_cmd['args[]'] = arg_list

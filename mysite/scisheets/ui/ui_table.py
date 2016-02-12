@@ -143,12 +143,11 @@ class UITable(Table):
     if command == "Export":
       args_list = eval(cmd_dict['args'][0])
       POS_FUNC = 0
-      POS_FILE = 1
-      POS_INP_CNT = 2
-      POS_OUT_CNT = 3
-      POS_INPS = 4
+      POS_INP_CNT = POS_FUNC + 1
+      POS_OUT_CNT = POS_INP_CNT + 1
+      POS_INPS = POS_OUT_CNT + 1
       function_name = args_list[POS_FUNC]
-      file_name = "%s.py" % args_list[POS_FILE]
+      file_name = "%s.py" % function_name
       num_inputs = int(args_list[POS_INP_CNT])
       num_outputs = int(args_list[POS_OUT_CNT])
       inp_end  = POS_INPS + num_inputs

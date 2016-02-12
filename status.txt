@@ -1,10 +1,10 @@
 Serve page from Django
 
 1. Export
-   Server
-     -Fix so verification tests work
-   Client side
-     -inputs for file_name, inputs, outputs
+   Server side
+      -Ajax produces: function-name, "list of inputs", "list of outputs"
+      -ui_table must unpack the input and output lists
+      -change the tests
 
 
 1.2 Iterate

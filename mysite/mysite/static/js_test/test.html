@@ -49,6 +49,7 @@ caption {
 <div id="ClickMenus">
 <ul style="width:100px;display:none" id="TableClickMenu">
 	<li id="delete" >Delete</li>
+	<li id="export" >Export</li>
 	<li id="rename">Rename</li>
 </ul>
 <ul style="width:100px;display:none" id="ColumnClickMenu">
@@ -72,11 +73,11 @@ caption {
 </ul>
 </div>
 
-<div id="rename-dialog" style="width:100px;display:none">
+<div id="rename-dialog" style="width:100px;display:none;resize:both;overflow:auto" >
   <form>
     <fieldset>
       <label for="name" id="rename-dialog-label">New Name: </label>
-      <input type="text" name="name" id="rename-dialog-name" value="xxx" class="ui-widget-content">
+      <input type="text" name="name" id="rename-dialog-name" value="xxx" size="1000" class="ui-widget-content">
     </fieldset>
   </form>
 </div>
@@ -86,6 +87,23 @@ caption {
     <fieldset>
       <label for="name" id="moverow-dialog-label">New Position: </label>
       <input type="text" name="name" id="moverow-dialog-name" class="ui-widget-content">
+    </fieldset>
+  </form>
+</div>
+
+<div id="export-dialog" style="width:100px;display:none;resize:both;overflow:auto" >
+  <form>
+    <fieldset>
+      <label for="function-name" id="export-dialog-function-name-label">Function name: </label>
+      <input type="text" name="function-name" id="export-dialog-function-name" size="1000" class="ui-widget-content">
+    </fieldset>
+    <fieldset>
+      <label for="inputs" id="export-dialog-inputs-label">List of input columns: </label>
+      <input type="text" name="inputs" id="export-dialog-inputs" size="1000" class="ui-widget-content">
+    </fieldset>
+    <fieldset>
+      <label for="outputs" id="export-dialog-outputs-label">List of output columns: </label>
+      <input type="text" name="outputs" id="export-dialog-outputs" size="1000" class="ui-widget-content">
     </fieldset>
   </form>
 </div>
