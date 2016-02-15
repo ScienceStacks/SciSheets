@@ -23,7 +23,9 @@ SciSheetsColumn.prototype.formula = function (cmd, formula) {
   var scisheet, eleTextarea;
   scisheet = this.scisheet;
   eleTextarea = $("#formula-textarea")[0];
-  eleTextarea.value = formula;
+  if (formula != "") {
+    eleTextarea.value = formula;
+  }
   if (scisheet.mockAjax) {
     scisheet.ajaxCallCount += 1;  // Count as an Ajax call
   }
