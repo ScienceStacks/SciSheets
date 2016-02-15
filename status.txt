@@ -1,5 +1,8 @@
 Serve page from Django
 
+0. Use textarea for formula width
+  -Strings need to have \n returned?"
+
 1. Export
    Server side
       -Ajax produces: function-name, "list of inputs", "list of outputs"

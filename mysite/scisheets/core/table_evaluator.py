@@ -100,19 +100,6 @@ class TableEvaluator(object):
       for column in formula_columns:
         try:
           exec(column.getFormulaStatement())
-          # TODO: Delete the following code?
-          # Handle the case of a single value and consider
-          # Assignments to other columns
-#          if column.getName() in locals:
-#            try:
-#              _ = iter(column.getName())
-#            except:
-#              values = [column.getName()]
-#          datatype = findDatatypeForValues(values)
-#          assignment_statement = (
-#              "%s = np.array(values, dtype=datatype)" % column.getName()
-#              )
-#          exec(assignment_statement)
         except Exception as e:
           if nn == num_formulas - 1:  # Only assign the error on the last loop
             error = "Error in formula %s: %s" % (column.getFormula(), str(e))

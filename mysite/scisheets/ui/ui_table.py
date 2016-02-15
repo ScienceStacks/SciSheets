@@ -13,6 +13,7 @@ import collections
 import numpy as np
 import os
 import random
+import re
 
 
 def makeJSONStr(column_names, data):
@@ -133,7 +134,21 @@ class UITable(Table):
     response = self._createResponse(error)
     return response
 
+  staticmethod
+  def _extracListFromString(list_as_str):
+    # TODO: Test
+    # Input: list_as_str - comma or blank separated tokens
+    # Output: result - list of the separated tokens
+    #         error - error string or None
+    result = re.findall(r'(?ms)\W*(\w+)', txt)
+    for name in result:
+      if self.columnFromName(name) is None:
+        error = "Unknown column name: %s" % name
+        return result, error
+    return result, None
+
   def _tableCommand(self, cmd_dict):
+    # TODO: Test
     # Processes a UI request for a Table
     # Input: cmd_dict - dictionary with the keys
     # Output: error from exception (may be none)
@@ -143,24 +158,21 @@ class UITable(Table):
     if command == "Export":
       args_list = eval(cmd_dict['args'][0])
       POS_FUNC = 0
-      POS_INP_CNT = POS_FUNC + 1
-      POS_OUT_CNT = POS_INP_CNT + 1
-      POS_INPS = POS_OUT_CNT + 1
+      POS_INPUTS = 1
+      POS_OUTPUTS = 2
       function_name = args_list[POS_FUNC]
-      file_name = "%s.py" % function_name
-      num_inputs = int(args_list[POS_INP_CNT])
-      num_outputs = int(args_list[POS_OUT_CNT])
-      inp_end  = POS_INPS + num_inputs
-      out_end = inp_end + num_outputs
-      inputs = args_list[POS_INPS:inp_end]
-      outputs = args_list[inp_end:out_end]
-      file_path = os.path.join(st.SCISHEETS_USER_PYDIR, file_name)
-      error = self.export(function_name=function_name,
-                          inputs=inputs,
-                          outputs=outputs,
-                          file_path=file_path,
-                          user_directory=st.SCISHEETS_USER_PYDIR,
-                          import_path=st.SCISHEETS_USER_PYPATH)
+      inputs, error = self._exractListFromString(args_list[POS_INPUTS])
+      if error is None:
+        outputs, error = self._exractListFromString(args_list[POS_OUTPUTS])
+        if error is None:
+          file_name = "%s.py" % function_name
+          file_path = os.path.join(st.SCISHEETS_USER_PYDIR, file_name)
+          error = self.export(function_name=function_name,
+                              inputs=inputs,
+                              outputs=outputs,
+                              file_path=file_path,
+                              user_directory=st.SCISHEETS_USER_PYDIR,
+                              import_path=st.SCISHEETS_USER_PYPATH)
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)

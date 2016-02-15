@@ -17,11 +17,40 @@ function SciSheetsColumn(scisheet) {
   "use strict";
   this.scisheet = scisheet;
 }
+SciSheetsColumn.prototype.formula = function (cmd, formula) {
+  // Change the dialog prompt
+  "use strict";
+  var scisheet, eleTextarea;
+  scisheet = this.scisheet;
+  eleTextarea = $("#formula-textarea")[0];
+  eleTextarea.value = formula;
+  if (scisheet.mockAjax) {
+    scisheet.ajaxCallCount += 1;  // Count as an Ajax call
+  }
+  $("#formula-dialog").dialog({
+    autoOpen: true,
+    modal: true,
+    closeOnEscape: false,
+    dialogClass: "dlg-no-close",
+    buttons: {
+      "Submit": function () {
+        cmd.args = [eleTextarea.value];
+        $(this).dialog("close");
+        scisheet.utilSendAndReload(cmd);
+      },
+      "Cancel": function () {
+        $(this).dialog("close");
+        scisheet.utilReload();
+      }
+    }
+  });
+};
 
 SciSheetsColumn.prototype.click = function (oArgs) {
   "use strict";
-  var ep, scisheet;
+  var ep, scisheet, scisheetColumn, formula;
   scisheet = this.scisheet;
+  scisheetColumn = this;
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
@@ -34,7 +63,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
     });
   } else {
     scisheet.utilClick("ColumnClickMenu", function (eleId) {
-      var msg, cmd, newPrompt, formula;
+      var msg, cmd, newPrompt;
       msg = "Column " + ep.columnIndex + " (" + ep.columnName + ")" + " clicked.";
       msg += " Selected " + eleId + ".";
       console.log(msg);
@@ -50,7 +79,8 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       }
       if (cmd.command === 'Formula') {
         formula = scisheet.formulas[ep.columnName];
-        scisheet.utilRename(cmd, "Change formula", formula);
+        scisheetColumn.formula(cmd, formula);
+        //scisheet.utilRename(cmd, "Change formula", formula);
       }
       if (cmd.command === 'Insert') {
         scisheet.utilRename(cmd, "New column name", "");
