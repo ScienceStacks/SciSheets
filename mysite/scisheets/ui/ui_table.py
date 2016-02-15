@@ -286,11 +286,10 @@ class UITable(Table):
       if ff is None or (ff == "None"):
         formulas.append("''")
       else:
-        formulas.append('"' + ff + '"')
+        formulas.append('`' + ff + '`')
     formula_dict = {}
     for nn in range(len(column_names)):
       formula_dict[column_names[nn]] = formulas[nn]
-    #formula_json = makeJSONStr(column_names, formulas)
     data = makeJSONStr(column_names, column_data)
     indicies = range(len(column_names))
     ctx_dict = {'column_names': column_names,
