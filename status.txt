@@ -1,16 +1,10 @@
 Serve page from Django
 
-0. Find bug in export of compound interest
-
 1. Export
    Server side
-      -Ajax produces: function-name, "list of inputs", "list of outputs"
-      -ui_table must unpack the input and output lists
-      -change the tests
+      -Better tests. Cleanup
 
 
-1.2 Iterate
- 
 2.1 DEPENDENCIES
     Python math, pandas, seaborn
 
