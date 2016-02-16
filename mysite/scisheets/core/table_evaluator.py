@@ -121,7 +121,8 @@ class TableEvaluator(object):
     indents = " " * 2*indent_level
     result = []
     for s in statements:
-      result.append("%s%s" % (indents, s))
+      new_s = s.replace("\n","\n" + indents)
+      result.append("%s%s" % (indents, new_s))
     return result
 
   @staticmethod
