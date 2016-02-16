@@ -524,11 +524,9 @@ class TestScisheetsViews(TestCase):
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Table"
     ajax_cmd['command'] = "Export"
-    inputs = ["Col_1"]
-    outputs = ["Col_%d" % (NCOL-1), "Col_%d" % (NCOL-2)]
-    arg_list = [FUNC_NAME, len(inputs), len(outputs)]
-    arg_list.extend(inputs)
-    arg_list.extend(outputs)
+    inputs = "Col_1"
+    outputs = "Col_%d, Col_%d" % (NCOL-1, NCOL-2)
+    arg_list = [FUNC_NAME, inputs, outputs]
     ajax_cmd['args[]'] = arg_list
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)

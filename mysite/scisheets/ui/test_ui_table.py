@@ -18,8 +18,8 @@ TABLE_NAME = "MY TABLE"
 class TestAuxFunctions(TestCase):
 
   def _testMakeJSONStr(self, column_names, column_data, data_type):
-    json_str = ui.makeJSONStr(column_names, column_data)
-    converted = json.loads(json_str[1:-1])
+    json_str = ui.makeJSON(column_names, column_data)
+    converted = json.loads(json_str.replace("`", '"'))
     self.assertTrue(isinstance(converted, list))
     self.assertEqual(len(converted[0]), len(column_names))
     for n in range(len(converted)):

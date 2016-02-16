@@ -16,12 +16,12 @@ import random
 import re
 
 
-def makeJSONStr(column_names, data):
-  # Creates a string that javascript parses into JSON in
+def makeJSON(column_names, data):
+  # Creates a valid JSON for javascript in
   # the format expected by YUI datatable
   # Input: column_names - list of variables
   #        data - list of array data or a list of values
-  # Output: result - JSON parseable string as an array
+  # Output: result - JSON as an array
   number_of_columns = len(column_names)
   if len(data) > 0:
     if isinstance(data[0], list):
@@ -30,7 +30,7 @@ def makeJSONStr(column_names, data):
       number_of_rows = 1
   else:
     number_of_rows = 0
-  result = "'["
+  result = "["
   for r in range(number_of_rows):
     result += "{"
     for c in range(number_of_columns):
@@ -45,14 +45,14 @@ def makeJSONStr(column_names, data):
         value = ""
       else:
         value = str(item)
-      result += '"' + column_names[c] + '": ' + '"' + value + '"'
+      result += '"' + column_names[c] + '": ' + '`' + value + '`'
       if c != number_of_columns - 1:
         result += ","
       else:
         result += "}"
     if r < number_of_rows -1:
       result += ","
-  result += "]'"
+  result += "]"
   return result
 
 
@@ -134,13 +134,12 @@ class UITable(Table):
     response = self._createResponse(error)
     return response
 
-  staticmethod
-  def _extracListFromString(list_as_str):
+  def _extractListFromString(self, list_as_str):
     # TODO: Test
     # Input: list_as_str - comma or blank separated tokens
     # Output: result - list of the separated tokens
     #         error - error string or None
-    result = re.findall(r'(?ms)\W*(\w+)', txt)
+    result = re.findall(r'(?ms)\W*(\w+)', list_as_str)
     for name in result:
       if self.columnFromName(name) is None:
         error = "Unknown column name: %s" % name
@@ -156,14 +155,18 @@ class UITable(Table):
     error = None
     command = cmd_dict["command"]
     if command == "Export":
-      args_list = eval(cmd_dict['args'][0])
+      args_list = cmd_dict['args']
+      # TODO: Create correct format for argument in test
+      if isinstance(args_list, list):
+        if len(args_list) != 3:
+          args_list = eval(cmd_dict['args'][0])
       POS_FUNC = 0
       POS_INPUTS = 1
       POS_OUTPUTS = 2
       function_name = args_list[POS_FUNC]
-      inputs, error = self._exractListFromString(args_list[POS_INPUTS])
+      inputs, error = self._extractListFromString(args_list[POS_INPUTS])
       if error is None:
-        outputs, error = self._exractListFromString(args_list[POS_OUTPUTS])
+        outputs, error = self._extractListFromString(args_list[POS_OUTPUTS])
         if error is None:
           file_name = "%s.py" % function_name
           file_path = os.path.join(st.SCISHEETS_USER_PYDIR, file_name)
@@ -290,7 +293,7 @@ class UITable(Table):
     formula_dict = {}
     for nn in range(len(column_names)):
       formula_dict[column_names[nn]] = formulas[nn]
-    data = makeJSONStr(column_names, column_data)
+    data = makeJSON(column_names, column_data)
     indicies = range(len(column_names))
     ctx_dict = {'column_names': column_names,
                 'final_column_name': column_names[-1],

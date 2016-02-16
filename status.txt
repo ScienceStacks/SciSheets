@@ -1,7 +1,6 @@
 Serve page from Django
 
-0. Use textarea for formula width
-  -Strings need to have \n returned?"
+0. Find bug in export of compound interest
 
 1. Export
    Server side

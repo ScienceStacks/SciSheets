@@ -24,7 +24,7 @@ function DataSource() {
      ,
     {% endif %}
   {% endfor %}
-  this.dataSource = JSON.parse({{ data|safe }});
+  this.dataSource = {{ data|safe }};
   this.formulas = {
   {% for key, value in formula_dict.items %}
     "{{ key  }}":
