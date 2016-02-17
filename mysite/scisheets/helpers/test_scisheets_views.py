@@ -533,6 +533,32 @@ class TestScisheetsViews(TestCase):
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
 
+  def _tableTrim(self, row_idx, expected_number_rows):
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    table_data = table.getData()
+    row_name = table._rowNameFromIndex(row_idx)
+    # Add the row
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Row'
+    ajax_cmd['command'] = 'Append'
+    ajax_cmd['row'] = row_name
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    # Do the trim
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Table'
+    ajax_cmd['command'] = 'Trim'
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    self.assertEqual(new_table.numRows(), expected_number_rows)
+
+  def testScisheetsTableTrim(self):
+    self._tableTrim(0, NROW+1)
+    self._tableTrim(NROW, NROW)
+
 
 if __name__ == '__main__':
     unittest.main()

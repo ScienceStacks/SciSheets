@@ -59,5 +59,8 @@ SciSheetsTable.prototype.click = function (oArgs) {
     if (cmd.command === 'Export') {
       scisheetTable.utilExportDialog(cmd);
     }
+    if (cmd.command === 'Trim') {
+      scisheet.utilSendAndReload(cmd);
+    }
   });
 };

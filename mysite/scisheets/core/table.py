@@ -1,4 +1,3 @@
-# TODO: Trim unneeded rows of None if cells are deleted
 '''
   Implements the table class for SciSheets.
 
@@ -324,6 +323,20 @@ class Table(ColumnContainer):
       if column.getName() != NAME_COLUMN_STR:
         data = column.getCells()
         column.replaceCells(data[selIndex])
+
+  def trimRows(self):
+    # Removes all consequative rows at the end of the table
+    # that have None values in the data columns
+    num_rows = self.numRows()
+    row_indxs = range(num_rows)
+    row_indxs.sort(reverse=True)
+    for ii in row_indxs:
+      row = self.getRow(index=ii)
+      del row[NAME_COLUMN_STR]
+      if all([x is None for x in row.values()]):
+        self.deleteRows([ii])
+      else:
+        break
 
   def updateCell(self, value, row_index, column_index):
     # Changes the value of the identified cell

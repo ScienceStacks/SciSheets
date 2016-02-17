@@ -176,6 +176,8 @@ class UITable(Table):
                               file_path=file_path,
                               user_directory=st.SCISHEETS_USER_PYDIR,
                               import_path=st.SCISHEETS_USER_PYPATH)
+    elif command == "Trim":
+      self.trimRows()
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)

@@ -278,5 +278,18 @@ class TestTable(unittest.TestCase):
     b = self.table.renameColumn(column, new_name)
     self.assertTrue(b)
 
+  def testTrimRows(self):
+    num_rows = self.table.numRows()
+    self.table.trimRows()
+    self.assertEqual(num_rows, self.table.numRows())
+    row = self.table.getRow()
+    self.table.addRow(row)
+    self.table.trimRows()
+    self.assertEqual(num_rows, self.table.numRows())
+    self.table.addRow(row, ext_index=0)
+    self.table.trimRows()
+    self.assertEqual(num_rows+1, self.table.numRows())
+
+
 if __name__ == '__main__':
     unittest.main()
