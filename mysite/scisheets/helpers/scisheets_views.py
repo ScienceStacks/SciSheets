@@ -39,6 +39,7 @@ def createCommandDict(request):
   # Output: cmd_dict - dictionary of the command
   #  TARGET  COMMAND   DESCRIPTION
   #   Table   Export   Export the table into python
+  #   Table   Rename   Change the table name. Must be a valid python name
   #   Table   Trim     Remove None rows from the end of the table
   #   Cell    Update   Update the specified cell
   #   Column  Append   Add a new column to the right of the current

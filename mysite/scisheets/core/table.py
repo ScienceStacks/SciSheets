@@ -82,6 +82,20 @@ class ColumnContainer(object):
     index = self._columns.index(column)
     del self._columns[index]
 
+  def setName(self, name):
+    # Inputs: name - new table name
+    # Outputs: error - error string if invalid name
+    #                  else None
+    try:
+      _ = compile(name, "string", "eval")
+      error = None
+      self._name = name
+    except Exception as e:
+      error = str(e)
+    return error
+    
+    
+
 
 class Table(ColumnContainer):
   # Implements full table functionality.

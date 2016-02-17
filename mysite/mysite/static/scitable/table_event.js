@@ -59,6 +59,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
     if (cmd.command === 'Export') {
       scisheetTable.utilExportDialog(cmd);
     }
+    if (cmd.command === 'Rename') {
+      scisheet.utilRename(cmd, "New table name", "");
+    }
     if (cmd.command === 'Trim') {
       scisheet.utilSendAndReload(cmd);
     }

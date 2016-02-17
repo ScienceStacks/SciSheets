@@ -176,6 +176,9 @@ class UITable(Table):
                               file_path=file_path,
                               user_directory=st.SCISHEETS_USER_PYDIR,
                               import_path=st.SCISHEETS_USER_PYPATH)
+    elif command == "Rename":
+      proposed_name = cmd_dict['args'][0]
+      error = self.setName(proposed_name)
     elif command == "Trim":
       self.trimRows()
     else:

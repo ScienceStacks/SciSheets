@@ -559,6 +559,33 @@ class TestScisheetsViews(TestCase):
     self._tableTrim(0, NROW+1)
     self._tableTrim(NROW, NROW)
 
+  def _tableRename(self, new_name, is_valid_name):
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    old_name = table.getName()
+    # Rename the table
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Table'
+    ajax_cmd['command'] = 'Rename'
+    ajax_cmd['args[]'] = new_name
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    # Check the result
+    new_table = self._getTableFromResponse(response)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
+    if is_valid_name:
+      content = json.loads(response.content)
+      self.assertTrue(content["success"])
+      self.assertEqual(new_table.getName(), new_name)
+    else:
+      self.assertFalse(content["success"])
+      self.assertEqual(new_table.getName(), old_name)
+
+  def testScisheetsTableRename(self):
+    self._tableRename("valid_name", True)
+    self._tableRename("invalid_name!", False)
+
 
 if __name__ == '__main__':
     unittest.main()
