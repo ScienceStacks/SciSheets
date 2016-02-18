@@ -39,6 +39,9 @@ def createCommandDict(request):
   # Output: cmd_dict - dictionary of the command
   #  TARGET  COMMAND   DESCRIPTION
   #   Table   Export   Export the table into python
+  #   Table   ListTableFiles Returns a list of the table files
+  #   Table   Open     Changes the current Table to that with the
+  #                    specified name (without extension)
   #   Table   Rename   Change the table name. Must be a valid python name
   #   Table   Trim     Remove None rows from the end of the table
   #   Cell    Update   Update the specified cell

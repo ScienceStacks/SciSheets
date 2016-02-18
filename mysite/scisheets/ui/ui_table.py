@@ -91,13 +91,17 @@ class UITable(Table):
       table.addColumn(column)
     return table
 
-  @staticmethod
-  def _createResponse(error):
+  def _createResponse(self, error):
     # Returns a response of the desired type
     # Input: error - result of processing a command
     #                (may be None)
     # Output: response
     if error is None:
+      new_error = self.evaluate(user_directory=st.SCISHEETS_USER_PYDIR,
+                                import_path=st.SCISHEETS_USER_PYPATH)
+    else:
+      new_error = error
+    if new_error is None:
       response = {'data': "OK", 'success': True}
     else:
       response = {'data': str(error), 'success': False}
@@ -118,20 +122,16 @@ class UITable(Table):
     #            success: True/False
     target = cmd_dict["target"]
     if target == "Cell":
-      error = self._cellCommand(cmd_dict)
+      response = self._cellCommand(cmd_dict)
     elif target == "Column":
-      error = self._columnCommand(cmd_dict)
+      response = self._columnCommand(cmd_dict)
     elif target == "Row":
-      error = self._rowCommand(cmd_dict)
+      response = self._rowCommand(cmd_dict)
     elif target == "Table":
-      error = self._tableCommand(cmd_dict)
+      response = self._tableCommand(cmd_dict)
     else:
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
-    if error is None:
-      error = self.evaluate(user_directory=st.SCISHEETS_USER_PYDIR,
-                            import_path=st.SCISHEETS_USER_PYPATH)
-    response = self._createResponse(error)
     return response
 
   def _extractListFromString(self, list_as_str):
@@ -146,11 +146,19 @@ class UITable(Table):
         return result, error
     return result, None
 
+  def _listTableFiles(self):
+    # TODO: Tests
+    # Output: returns as response that contains the list of table files in data
+    LENSFX = len(".pcl")
+    file_list = [ff[:-LENSFX] for ff in os.listdir(st.BASE_DIR) 
+                 if ff[-LENSFX:] == '.pcl']
+    return {'data': file_list, 'success': True}
+
   def _tableCommand(self, cmd_dict):
     # TODO: Test
     # Processes a UI request for a Table
     # Input: cmd_dict - dictionary with the keys
-    # Output: error from exception (may be none)
+    # Output: response - response to user
     target = "Table"
     error = None
     command = cmd_dict["command"]
@@ -176,20 +184,29 @@ class UITable(Table):
                               file_path=file_path,
                               user_directory=st.SCISHEETS_USER_PYDIR,
                               import_path=st.SCISHEETS_USER_PYPATH)
+          response = self._createResponse(error)
+    elif command == "ListTableFiles":
+      response = self._listTableFiles()
+    elif command == "Open":
+      file_name = cmd_dict['args'][0]
+      file_path = os.path.join(st.BASE_DIR, "%s.pcl" % file_name)
+      SET_CURRENT_FILE(file_path) # This is current in the session variable.
     elif command == "Rename":
       proposed_name = cmd_dict['args'][0]
       error = self.setName(proposed_name)
+      response = self._createResponse(error)
     elif command == "Trim":
       self.trimRows()
+      response = self._createResponse(error)
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    return error
+    return response
 
   def _cellCommand(self, cmd_dict):
     # Processes a UI request for a Cell
     # Input: cmd_dict - dictionary with the keys
-    # Output: error from exception (may be none)
+    # Output: response - response to user
     error = None
     command = cmd_dict["command"]
     if command == "Update":
@@ -199,12 +216,13 @@ class UITable(Table):
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    return error
+    response = self._createResponse(error)
+    return response
 
   def _columnCommand(self, cmd_dict):
     # Processes a UI request for a Column
     # Input: cmd_dict - dictionary with the keys
-    # Output: error from exception (may be none)
+    # Output: response - response to user
     error = None
     command = cmd_dict["command"]
     column = self.columnFromIndex(cmd_dict["column_index"])
@@ -243,12 +261,13 @@ class UITable(Table):
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    return error
+    response = self._createResponse(error)
+    return response
 
   def _rowCommand(self, cmd_dict):
     # Processes a UI request for a Row
     # Input: cmd_dict - dictionary with the keys
-    # Output: error from exception (may be none)
+    # Output: response - response to user
     error = None
     command = cmd_dict["command"]
     row_index = cmd_dict['row_index']
@@ -266,7 +285,8 @@ class UITable(Table):
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    return error
+    response = self._createResponse(error)
+    return response
 
   @staticmethod
   def _addEscapesToQuotes(iter_str):

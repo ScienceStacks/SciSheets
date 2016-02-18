@@ -1,5 +1,17 @@
 Serve page from Django
 
+0. Table/Open: 
+ A. GetFileList
+    Client sends cmd=Table/GetFileList
+    Server responds with result.data = ListOfFiles. 
+      -Implemented but not tested.
+    Client creates a selectmenu with the ListOfFiles (see jquery-ui/selectmenu)
+ B. Open File
+    Client sends cmd=Table/Open args[FileToOpen]
+    Server changes table to the desired file and replies "OK"
+    Client reloads the page
+ 
+
 1. Export
    Server side
       -Better tests. Cleanup
