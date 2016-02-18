@@ -1,6 +1,5 @@
 '''
   Implements the table class for SciSheets.
-
 '''
 
 
@@ -13,8 +12,11 @@ from table_evaluator import TableEvaluator
 NAME_COLUMN_STR = "row"
 NAME_COLUMN_IDX = 0
 
+
 class Row(dict):
-  " Container of values for a row"
+  """
+  Container of values for a row
+  """
   pass
 
 
@@ -22,9 +24,10 @@ class Row(dict):
 # Table objects
 #####################################
 
+
 class ColumnContainer(object):
   '''
-  A ColumnContainer can add and delete columns. 
+  A ColumnContainer can add and delete columns.
   It has no concept of Rows.
   It treats columns as independent objects.
   '''
@@ -34,108 +37,153 @@ class ColumnContainer(object):
     self._columns = []  # array of column objects in table sequence
 
   def columnFromIndex(self, index):
-    # Returns the column object at the index
+    """
+    Returns the column object at the index
+    """
     return self._columns[index]
 
   def columnFromName(self, name):
-    # Finds a column with the specified name or None
-    for c in self._columns:
-      if c.getName() == name:
-        return c
+    """
+    Finds a column with the specified name or None
+    Inputs: name - name of the column
+    Outputs: column - column object
+    """
+    for  column in self._columns:
+      if  column.getName() == name:
+        return  column
     return None
 
   def getCell(self, row_index, column_index):
+    """
+    Returns the numpy array of the cells in the column
+    """
     return self._columns[column_index].getCells()[row_index]
 
   def getColumns(self):
-    # Returns a list with the column objects in sequence
+    """
+    Returns a list with the column objects in sequence
+    """
     return self._columns
 
   def getName(self):
+    """
+    Returns the table name
+    """
     return self._name
 
   def indexFromColumn(self, column):
-    # Finds the index of the specified column
+    """
+    Finds the index of the specified column
+    """
     return self._columns.index(column)
 
   def insertColumn(self, column, index=None):
+    """
+    Inserts the column after the specified column index
+    Inputs: column object
+            index - column index
+    """
     idx = index
     if idx is None:
       idx = len(self._columns)
     self._columns.insert(idx, column)
 
   def moveColumn(self, column, new_idx):
-    # Moves the column to the specified index
-    # Input: column - column to move
-    #        new_idx - new index for column
+    """
+    Moves the column to the specified index
+    Input: column - column to move
+           new_idx - new index for column
+    """
     cur_idx = self.indexFromColumn(column)
     ins_idx = new_idx + 1
     if cur_idx < new_idx:
       ins_idx -= 1
     del self._columns[cur_idx]
     self._columns.insert(ins_idx, column)
- 
+
   def numColumns(self):
+    """
+    Returns the number of columns in the table
+    """
     return len(self._columns)
 
   def removeColumn(self, column):
+    """
+    Removes the column object from the table
+    """
     index = self._columns.index(column)
     del self._columns[index]
 
   def setName(self, name):
-    # Inputs: name - new table name
-    # Outputs: error - error string if invalid name
-    #                  else None
+    """
+    Inputs: name - new table name
+    Outputs: error - error string if invalid name
+                     else None
+    """
     try:
       _ = compile(name, "string", "eval")
       error = None
       self._name = name
-    except Exception as e:
-      error = str(e)
+    except SyntaxError as err:
+      error = str(err)
     return error
-    
-    
 
 
 class Table(ColumnContainer):
-  # Implements full table functionality.
-  # Feature 1: Maintains consistency
-  #   between columns as to column lengths 
-  #   column names are unique
-  # Feature 2: Knows about rows
-  #   add rows
-  #   delete rows
-  #   rows have a name as specified in the row column
-  # The primary object for referencing a column is the column object.
-  # The primary object for referencing a row is the row index
+  """
+  Implements full table functionality.
+  Feature 1: Maintains consistency
+    between columns as to column lengths
+    column names are unique
+  Feature 2: Knows about rows
+    add rows
+    delete rows
+    rows have a name as specified in the row column
+  The primary object for referencing a column is the column object.
+  The primary object for referencing a row is the row index
+  """
 
   def __init__(self, name):
     super(Table, self).__init__(name)
     self._createNameColumn()
 
   def _updateNameColumn(self):
+    """
+    Changes the cells in the name column to be consecutive ints.
+    """
     names = []
+    num_cells = self._columns[NAME_COLUMN_IDX + 1].numCells()
     if len(self._columns) > 1:
-      for nn in range(self._columns[NAME_COLUMN_IDX + 1].numCells()):
-        names.append(self._rowNameFromIndex(nn))
+      for row_num in range(num_cells):
+        names.append(self._rowNameFromIndex(row_num))
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
   # Data columns are those that have user data. The "row" column is excluded.
   def _getDataColumns(self):
-    return self._columns[NAME_COLUMN_IDX+1:]
+    """
+    Returns the data for a column
+    """
+    return self._columns[NAME_COLUMN_IDX + 1:]
 
   def getData(self):
-    # Returns the data values in an array ordered by column index
+    """
+    Returns the data values in an array ordered by column index
+    """
     return [c.getCells() for c in self._columns]
 
-  # TODO: Verify the index 
+  # TODO: Verify the index
   def _rowNameFromIndex(self, index):
+    """
+    Create the row name from its index
+    """
     return str(index + 1)
 
-  # TODO: Verify the index 
+  # TODO: Verify the index
   def _rowNamesFromSize(self, size):
-    # Inputs: size - number of rows
-    # Outputs: result - array of names
+    """
+    Inputs: size - number of rows
+    Outputs: result - array of names
+    """
     return (np.array(range(size)) + 1).astype(str)
 
   def _createNameColumn(self):
@@ -164,11 +212,12 @@ class Table(ColumnContainer):
     num_rows = len(self.columnFromName(NAME_COLUMN_STR).getCells())
     for column in self._columns:
       if  column.numCells() != num_rows:
-        raise er.InternalError("In Table %s, Column %s differs in its number of rows." % 
-            (self.getName(), column.getName()))
+        msg = "In Table %s, Column %s differs in its number of rows."
+        raise er.InternalError(msg) % (self.getName(), column.getName())
     # Verify that the first Column is the Name Column
     if self._columns[0].getName() != NAME_COLUMN_STR:
-      raise er.InternalError("In Table %s, first column is not 'row' column" % self.getName())
+      msg = "In Table %s, first column is not 'row' column" % self.getName()
+      raise er.InternalError(msg)
     # Verify that names are unique
     names = []
     for col in self._columns:
@@ -183,9 +232,9 @@ class Table(ColumnContainer):
       if actual_row_name != expected_row_name:
         raise er.InternalError("In Table %s, invalid row name at index %d: %s"
             % (self.getName(), n, actual_row_name))
-     
+
   def addColumn(self, column, index=None):
-    # Adds a column to the table. 
+    # Adds a column to the table.
     # Adjusts the Column length to that of the table
     # Input: column - column object
     # Notes: (1) A new column may have either no cells
@@ -224,7 +273,7 @@ class Table(ColumnContainer):
     else:
       proposed_name = self._rowNameFromIndex(ext_index)
     for column in self._columns:
-      if row.has_key(column.getName()):
+      if column.getName() in row:
         column.insertCell(row[column.getName()])
       else:
         column.insertCell(None)
@@ -263,7 +312,7 @@ class Table(ColumnContainer):
     # Evaluates formulas in the table
     # Output: Error from table evaluation or None
     te = TableEvaluator(self)
-    return te.evaluate(user_directory=user_directory, 
+    return te.evaluate(user_directory=user_directory,
                        import_path=import_path)
 
   def getRow(self, index=None):
@@ -286,9 +335,9 @@ class Table(ColumnContainer):
     if idx is None:
       idx = self.numRows()
     for n in range(self.numColumns()):
-      column =  self._columns[n]
+      column = self._columns[n]
       name = column.getName()
-      if (name in row.keys()):
+      if name in row.keys():
         column.insertCell(row[name], idx)
       else:
         column.insertCell(None, idx)
@@ -378,7 +427,7 @@ class Table(ColumnContainer):
     # Assigns the value of the NAME_COLUMN
     row[NAME_COLUMN_STR] = self._rowNameFromIndex(index)
     for n in range(self.numColumns()):
-      column =  self._columns[n]
+      column = self._columns[n]
       name = column.getName()
       if name in row.keys():
         column.updateCell(row[name], index)

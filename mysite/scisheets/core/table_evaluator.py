@@ -14,6 +14,7 @@ import string
 
 DEFAULT_FUNCTION_NAME = "MyFunction"
 
+
 class TableEvaluator(object):
 
   def __init__(self, table):
@@ -30,9 +31,9 @@ class TableEvaluator(object):
     IGNORE_PREFIX = ['main_', 'test_', '__']
     files = [f for f in listdir(dir) if isfile(join(dir, f))]
     for f in files:
-      b = np.array([f.find(p, 0, len(p)) == -1 
+      b = np.array([f.find(p, 0, len(p)) == -1
                     for p in IGNORE_PREFIX]).all() 
-      if  b and f[-len(PY_SUFFIX):] == PY_SUFFIX:
+      if b and f[- len(PY_SUFFIX):] == PY_SUFFIX:
         python_files.append(f)
     return python_files
 
@@ -89,11 +90,7 @@ class TableEvaluator(object):
     # Do the initial assignments
     for column in self._table.getColumns():
       statement = "%s = column.getCells()" % column.getName()
-      try:
-        exec(statement)
-      except Exception as e:
-        import pdb; pdb.set_trace()
-       
+      exec(statement)
     # Evaluate the formulas. Handle dependencies
     # by repeatedly evaluating the formulas
     for nn in range(num_formulas):
@@ -121,7 +118,7 @@ class TableEvaluator(object):
     indents = " " * 2*indent_level
     result = []
     for s in statements:
-      new_s = s.replace("\n","\n" + indents)
+      new_s = s.replace("\n", "\n" + indents)
       result.append("%s%s" % (indents, new_s))
     return result
 

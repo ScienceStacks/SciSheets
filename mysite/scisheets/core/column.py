@@ -26,7 +26,6 @@ class Column(object):
     # Input: v - value(s) to add
     #        replace - if True, then replace existing cells
     # Refines the type to be more specific, if needed.
-    # 
     if isinstance(v, list):
       new_data_list = v
     elif isinstance(v, np.ndarray):
@@ -45,8 +44,8 @@ class Column(object):
 
   def copy(self):
     # Returns a copy of this object
-    result = Column(self._name, 
-                    data_type = self._datatype)
+    result = Column(self._name,
+                    data_type=self._datatype)
     result.setFormula(self._formula)
     result.addCells(self._data_values)
     return result
@@ -114,7 +113,7 @@ class Column(object):
     # TODO: Improve the way that detect an expression vs. a statement
     #       so that the correct exception is returned
     # Makes the formula into a statement.
-    # A formula may be an expression, one or more statements, 
+    # A formula may be an expression, one or more statements,
     # an expression followed by one or more statements.
     # Assigns the value the _formula_statement
     # Input: formula - formula as specified
