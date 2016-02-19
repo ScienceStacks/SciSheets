@@ -3,7 +3,7 @@ Serve page from Django
 0. Table/Open: 
  A. GetFileList
     Client sends cmd=Table/GetFileList
-    Server responds with result.data = ListOfFiles. 
+    Server responds with result.data = ListOfFiles. File access commands should be done in scisheets_views
       -Implemented but not tested.
     Client creates a selectmenu with the ListOfFiles (see jquery-ui/selectmenu)
  B. Open File

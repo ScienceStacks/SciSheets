@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Context
 from ..core.column import Column
-from ..ui.dj_table import DJTable
+from ..ui.dt_table import DTTable
 import mysite.helpers.util as ut
 import json
 import numpy as np
@@ -64,7 +64,7 @@ def createCommandDict(request):
       'column', convert=True)
   row_name = extractDataFromRequest(request, 'row')
   if row_name is not None and len(str(row_name)) > 0:
-    cmd_dict['row_index'] = DJTable.rowIndexFromName(row_name)
+    cmd_dict['row_index'] = DTTable.rowIndexFromName(row_name)
   else:
     cmd_dict['row_index'] = None  # Handles case where "row" is absent
   cmd_dict['value'] = extractDataFromRequest(request, 'value',
@@ -106,7 +106,7 @@ def scisheets(request, ncol, nrow):
   nrow = int(nrow)
   ncolstr = int(ncol/2)
   new_ncol = ncol - ncolstr
-  table = DJTable.createRandomTable("Demo", nrow, ncol, 
+  table = DTTable.createRandomTable("Demo", nrow, ncol, 
       ncolstr=ncolstr)
   html = table.render()
   pickleTable(request, table)

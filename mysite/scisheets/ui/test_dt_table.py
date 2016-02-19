@@ -1,7 +1,9 @@
-'''Tests for UITable.'''
+"""
+Tests for YUI DataTable renderings.
+"""
 
 from mysite import settings
-import dj_table as dj
+import dt_table as dt
 from django.test import TestCase  # Provides mocks
 import json
 
@@ -18,7 +20,7 @@ TABLE_NAME = "MY TABLE"
 class TestAuxFunctions(TestCase):
 
   def _testMakeJSONStr(self, column_names, column_data, data_type):
-    json_str = dj.makeJSON(column_names, column_data)
+    json_str = dt.makeJSON(column_names, column_data)
     converted = json.loads(json_str.replace("`", '"'))
     self.assertTrue(isinstance(converted, list))
     self.assertEqual(len(converted[0]), len(column_names))
@@ -33,7 +35,7 @@ class TestAuxFunctions(TestCase):
 class TestUITable(TestCase):
 
   def setUp(self):
-    self.table = dj.DJTable.createRandomTable(TABLE_NAME,
+    self.table = dt.DTTable.createRandomTable(TABLE_NAME,
         NROW, NCOL)
 
   # TODO: Do something better with this test

@@ -265,5 +265,5 @@ class UITable(Table):
         result.append(item)
     return result
 
-  def render(self):
+  def render(self, table_id="scitable"):
     raise InternalError("Must override render method.")

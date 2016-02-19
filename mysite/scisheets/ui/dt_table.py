@@ -1,5 +1,5 @@
 '''
-  Django specific rendering of tables
+  YUI DataTable specific rendering of tables
 '''
 
 from django.shortcuts import render
@@ -50,9 +50,9 @@ def makeJSON(column_names, data):
   return result
 
 
-class DJTable(UITable):
+class DTTable(UITable):
   """
-  Does rendersing specific to Django
+  Does rendersing specific to YUI DataTable
   """
 
   def render(self, table_id="scitable"):
