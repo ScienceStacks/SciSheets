@@ -90,7 +90,12 @@ class TableEvaluator(object):
     # Do the initial assignments
     for column in self._table.getColumns():
       statement = "%s = column.getCells()" % column.getName()
-      exec(statement)
+      try:
+        exec(statement)
+      except SyntaxError as err:
+        error = str(err)
+        STOPHERE
+        return error
     # Evaluate the formulas. Handle dependencies
     # by repeatedly evaluating the formulas
     for nn in range(num_formulas):

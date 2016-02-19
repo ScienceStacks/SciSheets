@@ -17,11 +17,13 @@ import re
 
 
 def makeJSON(column_names, data):
-  # Creates a valid JSON for javascript in
-  # the format expected by YUI datatable
-  # Input: column_names - list of variables
-  #        data - list of array data or a list of values
-  # Output: result - JSON as an array
+  """
+  Creates a valid JSON for javascript in
+  the format expected by YUI datatable
+  Input: column_names - list of variables
+         data - list of array data or a list of values
+  Output: result - JSON as an array
+  """
   number_of_columns = len(column_names)
   if len(data) > 0:
     if isinstance(data[0], list):
@@ -57,21 +59,23 @@ def makeJSON(column_names, data):
 
 
 class UITable(Table):
-  ''' 
-      Extends the Table class to provide rendering of the Table as
-      a YUI DataTable.
-  '''
+  """
+  Extends the Table class to provide rendering of the Table as
+  a YUI DataTable.
+  """
 
   @classmethod
   def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
         low_int=0, hi_int=100):
-    # Creates a table with random integers as values
-    # Input: name - name of the table
-    #        nrow - number of rows
-    #        ncol - number of columns
-    #        ncolstr - number of columns with strings
-    #        low_int - smallest integer
-    #        hi_int - largest integer
+    """
+    Creates a table with random integers as values
+    Input: name - name of the table
+           nrow - number of rows
+           ncol - number of columns
+           ncolstr - number of columns with strings
+           low_int - smallest integer
+           hi_int - largest integer
+    """
     ncol = int(ncol)
     nrow = int(nrow)
     table = UITable(name)
@@ -228,12 +232,14 @@ class UITable(Table):
     column = self.columnFromIndex(cmd_dict["column_index"])
     if (command == "Append") or (command == "Insert"):
       name = cmd_dict["args"][0]
-      new_column = Column(name)
-      increment = 0
-      if command == "Append":
-        increment = 1
-      new_column_index = cmd_dict["column_index"] + increment
-      self.addColumn(new_column, new_column_index)
+      error = Column.isPermittedName(name)
+      if error is None:
+        new_column = Column(name)
+        increment = 0
+        if command == "Append":
+          increment = 1
+        new_column_index = cmd_dict["column_index"] + increment
+        self.addColumn(new_column, new_column_index)
     elif command == "Delete":
       self.deleteColumn(column)
     elif command == "Formula":

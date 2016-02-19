@@ -8,7 +8,7 @@ from util_test import createColumn, compareValues, toList
 
 # Constants
 COLUMN_NAME = "DUMMY"
-COLUMN_STR_NAME = "DUMMY STR"
+COLUMN_STR_NAME = "DUMMY_STR"
 LIST = [2.0, 3.0]
 LIST1 = [20.0, 30.0]
 LIST_STR = ["aa bb", "cc"]

@@ -128,7 +128,7 @@ class ColumnContainer(object):
       error = str(err)
     return error
 
-
+# pylint: disable=R0904
 class Table(ColumnContainer):
   """
   Implements full table functionality.
@@ -155,7 +155,7 @@ class Table(ColumnContainer):
     num_cells = self._columns[NAME_COLUMN_IDX + 1].numCells()
     if len(self._columns) > 1:
       for row_num in range(num_cells):
-        names.append(self._rowNameFromIndex(row_num))
+        names.append(Table._rowNameFromIndex(row_num))
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
   # Data columns are those that have user data. The "row" column is excluded.
@@ -172,14 +172,16 @@ class Table(ColumnContainer):
     return [c.getCells() for c in self._columns]
 
   # TODO: Verify the index
-  def _rowNameFromIndex(self, index):
+  @staticmethod
+  def _rowNameFromIndex(index):
     """
     Create the row name from its index
     """
     return str(index + 1)
 
   # TODO: Verify the index
-  def _rowNamesFromSize(self, size):
+  @staticmethod
+  def _rowNamesFromSize(size):
     """
     Inputs: size - number of rows
     Outputs: result - array of names
@@ -187,25 +189,32 @@ class Table(ColumnContainer):
     return (np.array(range(size)) + 1).astype(str)
 
   def _createNameColumn(self):
+    """
+    Creates the name column for the table
+    """
     column = Column(NAME_COLUMN_STR)
     self.addColumn(column)
 
   def _adjustColumnLength(self, columns):
-    # Inserts values of None so that column
-    # has the same length as the table
-    # Input: columns - either a single column or a list
+    """
+    Inserts values of None so that column
+        has the same length as the table
+    Input: columns - either a single column or a list
+    """
     if isinstance(columns, cl.Column):
       columns = [columns]
-    NONE_ARRAY = np.array([None])
+    none_array = np.array([None])
     num_rows = self.numRows()
     for column in columns:
       adj_rows = num_rows - column.numCells()
       if adj_rows > 0:
-        column.addCells(np.repeat(NONE_ARRAY, adj_rows))
+        column.addCells(np.repeat(none_array, adj_rows))
 
   def _validateTable(self):
-    # Checks that the table is internally consistent
-    # Verify that there is at least one column
+    """
+    Checks that the table is internally consistent
+    Verify that there is at least one column
+    """
     if len(self._columns) < 1:
       raise er.InternalError("Table %s has no columns." % self._name)
     # Verify that all columns have the same number of cells
@@ -226,19 +235,35 @@ class Table(ColumnContainer):
       raise er.DuplicateColumnName("Duplicate names in Table %s"
           % self.getName())
     # Verify the sequence of row names
-    for n in range(self.numRows()):
-      expected_row_name = self._rowNameFromIndex(n)
-      actual_row_name = self._columns[NAME_COLUMN_IDX].getCells()[n]
+    for nrow in range(self.numRows()):
+      expected_row_name = Table._rowNameFromIndex(nrow)
+      actual_row_name = self._columns[NAME_COLUMN_IDX].getCells()[nrow]
       if actual_row_name != expected_row_name:
-        raise er.InternalError("In Table %s, invalid row name at index %d: %s"
-            % (self.getName(), n, actual_row_name))
+        msg = ("In Table %s, invalid row name at index %d: %s" %
+                self.getName(), nrow, actual_row_name)
+        raise er.InternalError(msg)
 
   def addColumn(self, column, index=None):
-    # Adds a column to the table.
-    # Adjusts the Column length to that of the table
-    # Input: column - column object
-    # Notes: (1) A new column may have either no cells
-    #            or the same number as the existing table
+    """
+    Adds a column to the table.
+    Adjusts the Column length to that of the table
+    Input: column - column object
+    Output: error - text if there is a problem with the column
+                    None if no problem
+    Notes: (1) A new column may have either no cells
+               or the same number as the existing table
+    """
+    error = None
+    # Check for problems with this column
+    is_ok = all([c.getName() != column.getName() for c in self._columns])
+    if not is_ok:
+      error = "**%s is a duplicate name" % column.getName()
+      return error
+    else:
+      error = cl.Column.isPermittedName(column.getName())
+      if error is not None:
+        return error
+    # Handle the different cases of adding a columng
     if index is None:
       index = len(self._columns)
     # Case 1: NameColumn
@@ -264,14 +289,16 @@ class Table(ColumnContainer):
       self._validateTable()
 
   def addRow(self, row, ext_index=None):
-    # Input: row - Row to add
-    #        ext_index - index where Row is added, may be a float
-    #                    if None, then appended
+    """
+    Input: row - Row to add
+           ext_index - index where Row is added, may be a float
+                       if None, then appended
+    """
     proposed_index = self.numRows()  # Index of new row
     if ext_index is None:
-      proposed_name = self._rowNameFromIndex(proposed_index)
+      proposed_name = Table._rowNameFromIndex(proposed_index)
     else:
-      proposed_name = self._rowNameFromIndex(ext_index)
+      proposed_name = Table._rowNameFromIndex(ext_index)
     for column in self._columns:
       if column.getName() in row:
         column.insertCell(row[column.getName()])
@@ -282,21 +309,29 @@ class Table(ColumnContainer):
     self._validateTable()
 
   def copy(self):
-    # Returns a copy of this object
+    """
+    Returns a copy of this object
+    """
     new_table = Table(self._name)
-    for c in self._getDataColumns():
-      new_column = cl.Column(c.getName())
-      new_column.addCells(c.getCells())
+    for column in self._getDataColumns():
+      new_column = cl.Column(column.getName())
+      new_column.addCells(column.getCells())
       new_table.addColumn(new_column)
     return new_table
 
   def deleteColumn(self, column):
-    # Deletes a column from the table.
-    # Input: column - column obj to delete
+    """
+    Deletes a column from the table.
+    Input: column - column obj to delete
+    """
     column.setTable(None)
     self.removeColumn(column)
 
   def deleteRows(self, indicies):
+    """
+    Deletes rows
+    Inputs: indicies - index of rows to delete
+    """
     # Input: indicies - list of rows to delete
     indicies.sort()
     indicies.reverse()
@@ -305,37 +340,49 @@ class Table(ColumnContainer):
     self._updateNameColumn()
 
   def export(self, **kwargs):
-    te = TableEvaluator(self)
-    return te.export(**kwargs)
+    """
+    Exports the table to a python program
+    """
+    table_evaluator = TableEvaluator(self)
+    return table_evaluator.export(**kwargs)
 
   def evaluate(self, user_directory=None, import_path=None):
-    # Evaluates formulas in the table
-    # Output: Error from table evaluation or None
-    te = TableEvaluator(self)
-    return te.evaluate(user_directory=user_directory,
-                       import_path=import_path)
+    """
+    Evaluates formulas in the table
+    Input: user_directory - full directory path where user modules
+                            are placed
+           import_path - where modules to import are located
+    Output: Error from table evaluation or None
+    """
+    table_evaluator = TableEvaluator(self)
+    return table_evaluator.evaluate(user_directory=user_directory,
+                                    import_path=import_path)
 
   def getRow(self, index=None):
-    # input: index - row desired
-    #        if None, then a row of None is returned
+    """
+    input: index - row desired
+           if None, then a row of None is returned
+    """
     row = Row()
-    for c in self._columns:
+    for column in self._columns:
       if index is None:
-        row[c.getName()] = None
+        row[column.getName()] = None
       else:
-        row[c.getName()] = c.getCells()[index]
+        row[column.getName()] = column.getCells()[index]
     return row
 
   def insertRow(self, row, index=None):
-    # Inserts the row in the desired index in the table
-    # Input: row - a Row
-    #        index - index in the table where the row is inserted
-    # Assigns the value of the NAME_COLUMN
+    """
+    Inserts the row in the desired index in the table
+    Input: row - a Row
+           index - index in the table where the row is inserted
+    Assigns the value of the NAME_COLUMN
+    """
     idx = index
     if idx is None:
       idx = self.numRows()
-    for n in range(self.numColumns()):
-      column = self._columns[n]
+    for ncol in range(self.numColumns()):
+      column = self._columns[ncol]
       name = column.getName()
       if name in row.keys():
         column.insertCell(row[name], idx)
@@ -344,90 +391,108 @@ class Table(ColumnContainer):
     self._updateNameColumn()
 
   def moveRow(self, index1, index2):
-    # Moves the row at index1 to index2
+    """
+    Moves the row at index1 to index2
+    """
     row = self.getRow(index1)
     self.deleteRows([index1])
     self.insertRow(row, index2)
     self._updateNameColumn()
 
   def numRows(self):
+    """
+    Returns the number of rows in the table
+    """
     return max([c.numCells() for c in self._columns])
 
   @staticmethod
   def rowIndexFromName(name):
+    """
+    Returns the row index for the row name
+    """
     return int(name) - 1
 
   def renameColumn(self, column, proposed_name):
-    # Renames the column, checking for a duplicate
-    # Inputs: column - column object
-    #         proposed_name - string for name
-    # Outputs: Boolean indicating success or failure
+    """
+    Renames the column, checking for a duplicate
+    Inputs: column - column object
+            proposed_name - string for name
+    Outputs: Boolean indicating success or failure
+    """
     names = [c.getName() for c in self.getColumns()]
-    b = all([name != proposed_name for name in names])
-    if b:
+    bool_test = all([name != proposed_name for name in names])
+    if bool_test:
       column.rename(proposed_name)
-    return b
+    return bool_test
 
-  def renameRow(self, rowIndex, proposed_name):
-    # Renames the row so that it is an integer value
-    # that creates the row ordering desired.
-    # Inputs: rowIndex - index of the row to change
-    #         proposed_name - string of a number
-    nameColumn = self.getColumns()[NAME_COLUMN_IDX]
-    names = nameColumn.getCells()
-    names[rowIndex] = str(proposed_name)
+  def renameRow(self, row_index, proposed_name):
+    """
+    Renames the row so that it is an integer value
+    that creates the row ordering desired.
+    Inputs: row_index - index of the row to change
+            proposed_name - string of a number
+    """
+    name_column = self.getColumns()[NAME_COLUMN_IDX]
+    names = name_column.getCells()
+    names[row_index] = str(proposed_name)
     float_names = names.astype(np.float)
-    selIndex = np.argsort(float_names)
-    newNames = self._rowNamesFromSize(len(names))
-    nameColumn.replaceCells(newNames)
+    sel_index = np.argsort(float_names)
+    new_names = Table._rowNamesFromSize(len(names))
+    name_column.replaceCells(new_names)
     # Update the order of values in each column
     columns = self.getColumns()
-    for column in self.getColumns():
+    for column in columns:
       if column.getName() != NAME_COLUMN_STR:
         data = column.getCells()
-        column.replaceCells(data[selIndex])
+        column.replaceCells(data[sel_index])
 
   def trimRows(self):
-    # Removes all consequative rows at the end of the table
-    # that have None values in the data columns
+    """
+    Removes all consequative rows at the end of the table
+    that have None values in the data columns
+    """
     num_rows = self.numRows()
     row_indxs = range(num_rows)
     row_indxs.sort(reverse=True)
-    for ii in row_indxs:
-      row = self.getRow(index=ii)
+    for index in row_indxs:
+      row = self.getRow(index=index)
       del row[NAME_COLUMN_STR]
       if all([x is None for x in row.values()]):
-        self.deleteRows([ii])
+        self.deleteRows([index])
       else:
         break
 
   def updateCell(self, value, row_index, column_index):
-    # Changes the value of the identified cell
-    # Inputs: value - new value for the cell
-    #         row_index - 0-based index of the row
-    #         column_index - 0-based index of the column
+    """
+    Changes the value of the identified cell
+    Inputs: value - new value for the cell
+            row_index - 0-based index of the row
+            column_index - 0-based index of the column
+    """
     column = self.columnFromIndex(column_index)
     column.updateCell(value, row_index)
 
   def updateColumn(self, column, cells):
-    # Replaces the cells in the column with those provided
-    # Input: column - column to update
-    #        cells - cells to change
+    """
+    Replaces the cells in the column with those provided
+    Input: column - column to update
+           cells - cells to change
+    """
     column.addCells(cells, replace=True)
     self._adjustColumnLength(self._columns)
     self._updateNameColumn()
-    num_rows = self.numRows()
-    data = [(c.getName(), c.getCells()) for c in self._columns]
 
   def updateRow(self, row, index):
-    # Updates the row in place. Only changes values
-    # that are specified in row.
-    # Input: row - Row
-    #        index - index of row to change
-    # Assigns the value of the NAME_COLUMN
-    row[NAME_COLUMN_STR] = self._rowNameFromIndex(index)
-    for n in range(self.numColumns()):
-      column = self._columns[n]
+    """
+    Updates the row in place. Only changes values
+    that are specified in row.
+    Input: row - Row
+           index - index of row to change
+    Assigns the value of the NAME_COLUMN
+    """
+    row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
+    for ncol in range(self.numColumns()):
+      column = self._columns[ncol]
       name = column.getName()
       if name in row.keys():
         column.updateCell(row[name], index)

@@ -11,13 +11,13 @@ import unittest
 
 
 # Constants
-COLUMN = "DUMMY COLUMN"
-COLUMN1 = "DUMMY1 COLUMN"
-COLUMN2 = "DUMMY2 COLUMN"
-COLUMN3 = "DUMMY3 COLUMN"
-COLUMN4 = "DUMMY4 COLUMN"
-COLUMN5 = "DUMMY5 COLUMN"
-TABLE_NAME = "DUMMY TABLE"
+COLUMN = "DUMMY_COLUMN"
+COLUMN1 = "DUMMY1_COLUMN"
+COLUMN2 = "DUMMY2_COLUMN"
+COLUMN3 = "DUMMY3_COLUMN"
+COLUMN4 = "DUMMY4_COLUMN"
+COLUMN5 = "DUMMY5_COLUMN"
+TABLE_NAME = "DUMMY_TABLE"
 LIST = [2.0, 3.0]
 LIST2 = [3.0]
 TABLE = 'DUMMY'
@@ -64,7 +64,7 @@ class TestTable(unittest.TestCase):
     self.assertEqual(self.table._columns[0].numCells(),
                      self.table._columns[1].numCells())
 
-  def testaddColumn(self):
+  def testAddColumn(self):
     table = createTable(TABLE_NAME)
     # Add an empty column
     column = cl.Column(COLUMN)
@@ -72,8 +72,8 @@ class TestTable(unittest.TestCase):
     table.addColumn(column)
     # Add a column with the same name
     self.assertEqual(table._columns[1], column)
-    with self.assertRaises(er.DuplicateColumnName):
-      table.addColumn(column)
+    error = table.addColumn(column)
+    self.assertIsNotNone(error)
     table = createTable(TABLE_NAME)
     # Add a column with data
     column = cl.Column(COLUMN1)
@@ -152,7 +152,7 @@ class TestTable(unittest.TestCase):
     row[COLUMN1] = '10'
     row[COLUMN2] = 20.0
     self.table.updateRow(row, rowidx)
-    row['row'] = self.table._rowNameFromIndex(rowidx)
+    row['row'] = tb.Table._rowNameFromIndex(rowidx)
     self.assertEqual(row, self.table.getRow(index=rowidx))
 
   def testMoveColumn1(self):
@@ -242,10 +242,10 @@ class TestTable(unittest.TestCase):
   def testRowNamesFromSize(self):
     SIZE = 5
     table = self.table
-    row_names = table._rowNamesFromSize(SIZE)
+    row_names = tb.Table._rowNamesFromSize(SIZE)
     self.assertEqual(len(row_names), SIZE)
     for n in range(SIZE):
-      self.assertEqual(row_names[n], table._rowNameFromIndex(n))
+      self.assertEqual(row_names[n], tb.Table._rowNameFromIndex(n))
 
   def testRenameRow(self):
     table = self.table
@@ -253,7 +253,7 @@ class TestTable(unittest.TestCase):
     columns = table.getColumns()
     table_data = table.getData()
     # Move the first row to the end of the table
-    after_last_row_name = table._rowNameFromIndex(table.numRows())
+    after_last_row_name = tb.Table._rowNameFromIndex(table.numRows())
     table.renameRow(ROW_IDX, after_last_row_name)
     # Test if done correctly
     rplIdx = range(len(COLUMN1_CELLS))
@@ -274,7 +274,7 @@ class TestTable(unittest.TestCase):
     column = self.table.columnFromName(COLUMN1)
     b = self.table.renameColumn(column, COLUMN1)
     self.assertFalse(b)
-    new_name = "%s-extra" % COLUMN1
+    new_name = "%s_extra" % COLUMN1
     b = self.table.renameColumn(column, new_name)
     self.assertTrue(b)
 
