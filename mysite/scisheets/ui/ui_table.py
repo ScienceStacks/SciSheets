@@ -2,11 +2,9 @@
   Extends the Table class to display a table and respond to UI events
 '''
 
-from django.shortcuts import render
-from django.template.loader import get_template
 from ..core.table import Table
 from ..core.column import Column
-from ..core.errors import NotYetImplemented
+from ..core.errors import NotYetImplemented, InternalError
 from mysite.helpers import util as ut
 from mysite import settings as st
 import collections
@@ -14,48 +12,6 @@ import numpy as np
 import os
 import random
 import re
-
-
-def makeJSON(column_names, data):
-  """
-  Creates a valid JSON for javascript in
-  the format expected by YUI datatable
-  Input: column_names - list of variables
-         data - list of array data or a list of values
-  Output: result - JSON as an array
-  """
-  number_of_columns = len(column_names)
-  if len(data) > 0:
-    if isinstance(data[0], list):
-      number_of_rows = len(data[0])
-    else:
-      number_of_rows = 1
-  else:
-    number_of_rows = 0
-  result = "["
-  for r in range(number_of_rows):
-    result += "{"
-    for c in range(number_of_columns):
-      if isinstance(data[c], list):
-        if len(data[c]) - 1 < r:
-          item = ""  # Handle ragged columns
-        else:
-          item = data[c][r]
-      else:
-        item = data[c]
-      if item is None:
-        value = ""
-      else:
-        value = str(item)
-      result += '"' + column_names[c] + '": ' + '`' + value + '`'
-      if c != number_of_columns - 1:
-        result += ","
-      else:
-        result += "}"
-    if r < number_of_rows -1:
-      result += ","
-  result += "]"
-  return result
 
 
 class UITable(Table):
@@ -78,7 +34,7 @@ class UITable(Table):
     """
     ncol = int(ncol)
     nrow = int(nrow)
-    table = UITable(name)
+    table = cls(name)
     ncolstr = min(ncol, ncolstr)
     ncolint = ncol - ncolstr
     c_list = range(ncol)
@@ -308,32 +264,6 @@ class UITable(Table):
       else:
         result.append(item)
     return result
-  
-  def render(self, table_id="scitable"):
-    # Input: table_id - how the table is identified in the HTML
-    # Output: html rendering of the Table
-    column_names = [c.getName() for c in self._columns]
-    column_data = [c.getCells().tolist() for c in self._columns]
-    raw_formulas = [c.getFormula() for c in self._columns]
-    formulas = []
-    for ff in raw_formulas:
-      if ff is None or (ff == "None"):
-        formulas.append("''")
-      else:
-        formulas.append('`' + ff + '`')
-    formula_dict = {}
-    for nn in range(len(column_names)):
-      formula_dict[column_names[nn]] = formulas[nn]
-    data = makeJSON(column_names, column_data)
-    indicies = range(len(column_names))
-    ctx_dict = {'column_names': column_names,
-                'final_column_name': column_names[-1],
-                'table_caption': self.getName(),
-                'table_id': table_id,
-                'data': data,
-                'formula_dict': formula_dict,
-                'num_cols': len(column_names),
-                'count': 1,
-               }
-    html = get_template('scitable.html').render(ctx_dict)
-    return html
+
+  def render(self):
+    raise InternalError("Must override render method.")
