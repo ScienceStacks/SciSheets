@@ -2,6 +2,7 @@
 
 # Create name scopes for evaluation
 from util import findDatatypeForValues
+import sys
 from os import listdir
 from os.path import isfile, join, dirname
 import math as mt
@@ -38,19 +39,18 @@ class TableEvaluator(object):
     return python_files
 
   @staticmethod
-  def _importStatements(user_directory, import_path):
+  def _importStatements(user_directory, exclude_list):
     # Inputs: user_directory - directory to search for user python files
-    #         import_path - path to import the file
+    #         exclude_list - files to exclude
     # Returns a list of import statements for files in the user directory
-    python_files = TableEvaluator._findPythonFiles(user_directory)
+    files = TableEvaluator._findPythonFiles(user_directory)
+    python_files = [ff for ff in files if ff not in exclude_list]
     statements = []
     for f in python_files:
-      if len(import_path) > 0:
-        prefix = "%s." % import_path
-      else:
-        prefix = ""
-      statement = "from %s%s import *" % (prefix, f[:-3])
+      statement = "from %s import *" % f[:-3]
       statements.append(statement)
+    # Update the python path to find the imports
+    sys.path.append(user_directory)
     return statements
 
   def _formulaColumns(self):
@@ -64,9 +64,8 @@ class TableEvaluator(object):
         formula_columns.append(column)
     return formula_columns, non_formula_columns
 
-  def evaluate(self, user_directory=None, import_path=None):
+  def evaluate(self, user_directory=None):
     # Inputs: user_directory - directory where user functions are located
-    #         import_path - import path for files in the user directory
     # Evaluates the formulas in a Table and assigns the results
     # to the formula columns
     # Outputs: errror - errors from execution or None
@@ -78,10 +77,9 @@ class TableEvaluator(object):
     error = None
     formula_columns, _ = self._formulaColumns()
     num_formulas = len(formula_columns)
-    # Get the user functions into the name space
-    if user_directory is not None and import_path is not None:
-      statements = TableEvaluator._importStatements(user_directory, 
-                                                    import_path)
+    # Do the imports
+    if user_directory is not None:
+      statements = TableEvaluator._importStatements(user_directory, []) 
       for s in statements:
         try:
           exec(s)
@@ -94,7 +92,6 @@ class TableEvaluator(object):
         exec(statement)
       except SyntaxError as err:
         error = str(err)
-        STOPHERE
         return error
     # Evaluate the formulas. Handle dependencies
     # by repeatedly evaluating the formulas
@@ -161,15 +158,13 @@ class TableEvaluator(object):
              inputs=[],
              outputs=[],
              file_path=None,
-             user_directory=None, 
-             import_path=None):
+             user_directory=None): 
     # Exports the table as python code
     # Inputs: function_name - string name of the function to be created
     #         inputs - list of column names that are input to the function
     #         outputs - names of the columns that is output from the function
     #         file_path - path to the file to be written
     #         user_directory - directory where user functions are located
-    #         import_path - import path for files in the user directory
     # Outputs: errror - errors from the export
     # Notes: (1) Cannot put "exec" in another method
     #            since the objects created won't be accessible
@@ -183,9 +178,6 @@ class TableEvaluator(object):
     statements = []  # List of statements in the file
     formula_columns, _ = self._formulaColumns()
     num_formulas = len(formula_columns)
-    if user_directory is None:
-      user_directory = dirname(__file__)
-      import_path = ""
     # File header
     header_comments = '''
 # File generated as a SciSheets table export
@@ -203,9 +195,8 @@ import pandas as pd
 import scipy as sp
 
     ''']
-    if user_directory is not None and import_path is not None:
-      import_statements.extend(TableEvaluator._importStatements(user_directory, 
-                                                                ""))
+    if user_directory is not None:
+      import_statements.extend(TableEvaluator._importStatements(user_directory, [])) 
     statements.extend(TableEvaluator._indent(import_statements, indent))
     # Function definition
     statement = "def %s(" % function_name

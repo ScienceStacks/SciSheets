@@ -34,7 +34,8 @@ COLUMN1_CELLS = ["one", "two", "three"]
 COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
 COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
-CUR_DIR = os.path.dirname(os.path.realpath(__file__))
+TEST_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                       'test_dir')
 IMPORT_PATHS = ["", "scisheets.core"]
 
 
@@ -104,23 +105,14 @@ class TestTableEvaluator(unittest.TestCase):
     self.assertIsNone(error)
 
   def testFindPythonFiles(self):
-    this_file = os.path.split(__file__)[1]
-    FILE_ABSENT = this_file # Test file shouldn't be present
-    FILE_PRESENT = this_file[5:]  # File being tested should be present
-    if FILE_PRESENT[-1] == 'c':
-      FILE_PRESENT = FILE_PRESENT[:-1]  # Handle executing from .pyc
-    python_files = TableEvaluator._findPythonFiles(CUR_DIR)
-    self.assertTrue(python_files.index(FILE_PRESENT) > -1)
-    with self.assertRaises(ValueError):
-      python_files.index(FILE_ABSENT)
+    test_file = "dummy.py"
+    python_files = TableEvaluator._findPythonFiles(TEST_DIR)
+    self.assertTrue(python_files.index(test_file) > -1)
 
   def testEvaluateWithUserFunction(self):
     self.column_valid_formula.setFormula(VALID_FORMULA_WITH_USER_FUNCTION)
-    # At most one path will work
-    errors = []
-    for path in IMPORT_PATHS:
-      errors.append(self.te.evaluate(user_directory=CUR_DIR, import_path=path))
-    self.assertTrue(errors.index(None) > -1)
+    errors = self.te.evaluate(user_directory=TEST_DIR)
+    self.assertIsNone(errors)
 
   def testEvaluateFormulaWithRowAddition(self):
     # Tests a formula that should increase the number of rows.
@@ -163,11 +155,12 @@ class TestTableEvaluator(unittest.TestCase):
     # Two formula columns
     FUNCTION_NAME = "my_test"
     FILE_NAME = "%s.py" % FUNCTION_NAME
-    FILE_PATH = join(dirname(__file__), FILE_NAME)
+    FILE_PATH = join(TEST_DIR, FILE_NAME)
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
     self.table.evaluate()
     self.table.export(function_name=FUNCTION_NAME,
                       file_path = FILE_PATH,
+                      user_directory = TEST_DIR,
                       inputs=[COLUMNC, COLUMN5],
                       outputs=[COLUMN_VALID_FORMULA, COLUMN2])
     error = None
@@ -177,7 +170,7 @@ class TestTableEvaluator(unittest.TestCase):
       success = True
     except Exception as e:
       success = False
-      print (str(e))
+      error = str(e)
     self.assertTrue(success)
     try:
       os.remove("/tmp/%s" % FILE_NAME)  # Delete the file created

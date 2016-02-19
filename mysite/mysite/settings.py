@@ -115,5 +115,6 @@ UPLOAD_FILE_TABLE = 'heatmap_uploadedfiles'
 UPLOAD_DIR = os.path.join(BASE_DIR, 'mysite/uploads/')
 
 # Scisheets constants
-SCISHEETS_USER_PYDIR = os.path.join(BASE_DIR, 'user/guest/')
-SCISHEETS_USER_PYPATH = "user.guest"
+SCISHEETS_USER_PYDIR = os.path.join(BASE_DIR, 'user/guest/python')
+SCISHEETS_USER_TBLDIR = os.path.join(BASE_DIR, 'user/guest/tables')
+# Dir for user tables

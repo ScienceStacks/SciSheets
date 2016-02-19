@@ -57,14 +57,13 @@ class UITable(Table):
     #                (may be None)
     # Output: response
     if error is None:
-      new_error = self.evaluate(user_directory=st.SCISHEETS_USER_PYDIR,
-                                import_path=st.SCISHEETS_USER_PYPATH)
+      new_error = self.evaluate(user_directory=st.SCISHEETS_USER_PYDIR)
     else:
       new_error = error
     if new_error is None:
       response = {'data': "OK", 'success': True}
     else:
-      response = {'data': str(error), 'success': False}
+      response = {'data': str(new_error), 'success': False}
     return response
   
 
@@ -106,14 +105,6 @@ class UITable(Table):
         return result, error
     return result, None
 
-  def _listTableFiles(self):
-    # TODO: Tests
-    # Output: returns as response that contains the list of table files in data
-    LENSFX = len(".pcl")
-    file_list = [ff[:-LENSFX] for ff in os.listdir(st.BASE_DIR) 
-                 if ff[-LENSFX:] == '.pcl']
-    return {'data': file_list, 'success': True}
-
   def _tableCommand(self, cmd_dict):
     # TODO: Test
     # Processes a UI request for a Table
@@ -142,11 +133,8 @@ class UITable(Table):
                               inputs=inputs,
                               outputs=outputs,
                               file_path=file_path,
-                              user_directory=st.SCISHEETS_USER_PYDIR,
-                              import_path=st.SCISHEETS_USER_PYPATH)
+                              user_directory=st.SCISHEETS_USER_PYDIR)
           response = self._createResponse(error)
-    elif command == "ListTableFiles":
-      response = self._listTableFiles()
     elif command == "Open":
       file_name = cmd_dict['args'][0]
       file_path = os.path.join(st.BASE_DIR, "%s.pcl" % file_name)

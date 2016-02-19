@@ -344,19 +344,18 @@ class Table(ColumnContainer):
     Exports the table to a python program
     """
     table_evaluator = TableEvaluator(self)
-    return table_evaluator.export(**kwargs)
+    error = table_evaluator.export(**kwargs)
+    return error
 
-  def evaluate(self, user_directory=None, import_path=None):
+  def evaluate(self, user_directory=None):
     """
     Evaluates formulas in the table
     Input: user_directory - full directory path where user modules
                             are placed
-           import_path - where modules to import are located
     Output: Error from table evaluation or None
     """
     table_evaluator = TableEvaluator(self)
-    return table_evaluator.evaluate(user_directory=user_directory,
-                                    import_path=import_path)
+    return table_evaluator.evaluate(user_directory=user_directory)
 
   def getRow(self, index=None):
     """
