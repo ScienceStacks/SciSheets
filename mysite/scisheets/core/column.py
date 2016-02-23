@@ -15,6 +15,7 @@ class Column(object):
   """
 
   def __init__(self, name, data_type=None):
+    self._name = None
     self.setName(name)
     self._datatype = data_type
     if self._datatype is not None:
