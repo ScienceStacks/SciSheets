@@ -16,6 +16,37 @@ function SciSheetsTable(scisheet) {
   this.scisheet = scisheet;
 }
 
+SciSheetsTable.prototype.utilSelectFile = function (fileNames) {
+  // Inputs: fileNames - array of file names to select
+  "use strict";
+  var options, n, ele, name, selMenu, scisheet, cmd, selFunction;
+  // List of selection options
+  selMenu = $("#select-file");
+  selFunction = function () {
+    cmd = scisheet.createServerCommand();
+    cmd.args = [this.id];
+    cmd.command = "OpenFile";
+    $(selMenu).css("display", "none");
+    scisheet.utilSendAndReload(cmd);
+  };
+  scisheet = this.scisheet;
+  // Function performed on the user selection
+  // Set the id of each option to the file name
+  options = "";
+  for (n = 0; n <  fileNames.length; n++) {
+    name = fileNames[n];
+    options = options + "<option id='" + name + "'>"
+              + name + "</option>";
+  }
+  $('select').append(options);
+  for (n = 0; n < fileNames.length; n++) {
+    ele = "#" + fileNames[n];
+    $(ele).click(selFunction);
+  }
+  $(selMenu).css("display", "block");
+  $(selMenu).find('select').selectmenu('refresh');
+};
+
 SciSheetsTable.prototype.utilExportDialog = function (cmd) {
   // Inputs: cmd - command to process
   "use strict";
@@ -58,6 +89,13 @@ SciSheetsTable.prototype.click = function (oArgs) {
     cmd.target = "Table";
     if (cmd.command === 'Export') {
       scisheetTable.utilExportDialog(cmd);
+    }
+    if (cmd.command === 'Open') {
+      cmd.command = 'ListTableFiles';
+      scisheet.sendServerCommand(cmd, function (names) {
+        // User selects the file to open
+        scisheetTable.utilSelectFile(names);
+      });
     }
     if (cmd.command === 'Rename') {
       scisheet.utilRename(cmd, "New table name", "");

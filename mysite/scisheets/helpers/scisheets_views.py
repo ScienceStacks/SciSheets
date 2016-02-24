@@ -131,11 +131,11 @@ def scisheets_command0(request):
   cmd_dict = createCommandDict(request)
   command_result = _processUserEnvrionmentCommand(cmd_dict)
   if command_result is None:
-    # Use table processing to handle command unrelated to the environment
+    # Use table processing command
     table = unPickleTable(request)
     command_result = table.processCommand(cmd_dict)
+    pickleTable(request, table)  # Save table modifications
   json_str = json.dumps(command_result)
-  pickleTable(request, table)  # Save table modifications
   return HttpResponse(json_str, content_type="application/json")
 
 def _processUserEnvrionmentCommand(cmd_dict):

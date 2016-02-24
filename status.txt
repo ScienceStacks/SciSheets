@@ -3,8 +3,11 @@ Serve page from Django
 0. Table/Open: 
  A. GetFileList
     Client sends cmd=Table/GetFileList
+     Change tests: Include "Open", has 2 Ajax calls (tests fails)
     Server responds with result.data = ListOfFiles. File access commands should be done in scisheets_views
-      -Implemented but not tested.
+      -Need to process OpenFile command: change the pickle file
+       to that specified in the arguments
+      -Don't have dummy_file in user/guests
     Client creates a selectmenu with the ListOfFiles (see jquery-ui/selectmenu)
  B. Open File
     Client sends cmd=Table/Open args[FileToOpen]

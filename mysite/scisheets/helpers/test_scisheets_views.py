@@ -167,19 +167,19 @@ class TestScisheetsViews(TestCase):
     new_table = sv.unPickleTable(request)
     self.assertEqual(new_table.getName(), table.getName())
 
-  def testScisheets(self):
+  def test(self):
     # Test creation of the initial random table
     response = self._createBaseTable()
     self._verifyResponse(response)
 
-  def testScisheetsCommandReload(self):
+  def testCommandReload(self):
     self._createBaseTable()
     # Do the refresh
     refresh_url = self._createBaseURL()
     response = self.client.get(refresh_url)
     self._verifyResponse(response, checkSessionid=False)
 
-  def _testScisheetsCommandCellUpdate(self, row_index, val):
+  def _testCommandCellUpdate(self, row_index, val):
     response = self._createBaseTable()
     table = self._getTableFromResponse(response)
     column_index = self._findColumnWithType(table, val)
@@ -212,17 +212,17 @@ class TestScisheetsViews(TestCase):
         result = index
     return result
 
-  def testScisheetsCommandCellUpdate(self):
+  def testCommandCellUpdate(self):
     ROW_INDEX = NROW - 1
-    self._testScisheetsCommandCellUpdate(ROW_INDEX, 9999)
-    self._testScisheetsCommandCellUpdate(ROW_INDEX, "aaa")
-    self._testScisheetsCommandCellUpdate(ROW_INDEX, "aaa bb")
+    self._testCommandCellUpdate(ROW_INDEX, 9999)
+    self._testCommandCellUpdate(ROW_INDEX, "aaa")
+    self._testCommandCellUpdate(ROW_INDEX, "aaa bb")
 
   def _getTableFromResponse(self, response):
     pickle_file = response.client.session[sv.PICKLE_KEY]
     return sv._getTable(pickle_file)
 
-  def _testScisheetsCommandColumnDelete(self, base_url):
+  def _testCommandColumnDelete(self, base_url):
     # Tests for command delete with a given base_url to consider the
     # two use cases of the initial table and a reload
     # Input - base_url - base URL used in the request
@@ -242,10 +242,10 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(len(columns), NCOL)  # Added the 'row' column
     self.assertEqual(columns[0].numCells(), NROW)
 
-  def testScisheetsCommandColumnDelete(self):
-    self._testScisheetsCommandColumnDelete(BASE_URL)
+  def testCommandColumnDelete(self):
+    self._testCommandColumnDelete(BASE_URL)
 
-  def _testScisheetsCommandColumnRename(self, base_url, new_name, is_successful_outcome):
+  def _testCommandColumnRename(self, base_url, new_name, is_successful_outcome):
     # Tests for command column rename with a given base_url to consider the
     # two use cases of the initial table and a reload
     # Input - base_url - base URL used in the request
@@ -273,13 +273,13 @@ class TestScisheetsViews(TestCase):
       self.assertEqual(columns[0].numCells(), NROW)
       self.assertEqual(columns[COLUMN_INDEX].getName(), new_name)
 
-  def testScisheetsCommandColumnRename(self):
+  def testCommandColumnRename(self):
     new_name = 'row'  # duplicate name
-    self._testScisheetsCommandColumnRename(BASE_URL, new_name, False)
+    self._testCommandColumnRename(BASE_URL, new_name, False)
     NEW_NAME = "New_Column"
-    self._testScisheetsCommandColumnRename(BASE_URL, NEW_NAME, True)
+    self._testCommandColumnRename(BASE_URL, NEW_NAME, True)
 
-  def testScisheetsCommandRowMove(self):
+  def testCommandRowMove(self):
     # Tests row renaming by moving the first row
     # to the end of the table
     base_response = self._createBaseTable()
@@ -309,7 +309,7 @@ class TestScisheetsViews(TestCase):
       b = (new_table_data[c] == expected_array).all()
       self.assertTrue(b)
 
-  def testScisheetsCommandRowDelete(self):
+  def testCommandRowDelete(self):
     ROW_IDX = 1
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
@@ -365,12 +365,12 @@ class TestScisheetsViews(TestCase):
     b = np.equal(np.array(values), None).all()
     self.assertTrue(b)  # New row should be 'None'
 
-  def testScisheetsCommandRowInsert(self):
+  def testCommandRowInsert(self):
     self._addRow("Insert", 0, 0)
     self._addRow("Insert", NROW - 1, NROW - 1)
     self._addRow("Insert", 2, 2)
 
-  def testScisheetsCommandRowAppend(self):
+  def testCommandRowAppend(self):
     self._addRow("Append", 0, 1)
     self._addRow("Append", NROW - 1, NROW)
     self._addRow("Append", 2, 3)
@@ -404,12 +404,12 @@ class TestScisheetsViews(TestCase):
       import pdb; pdb.set_trace()
     self.assertTrue(b)
 
-  def testScisheetsCommandColumnInsert(self):
+  def testCommandColumnInsert(self):
     self._addColumn("Insert", 1, 1)
     self._addColumn("Insert", 2, 2)
     self._addColumn("Insert", NCOL, NCOL)
 
-  def testScisheetsCommandColumnAppend(self):
+  def testCommandColumnAppend(self):
     self._addColumn("Append", 1, 2)
     self._addColumn("Append", 2, 3)
     self._addColumn("Append", NCOL, NCOL+1)
@@ -450,7 +450,7 @@ class TestScisheetsViews(TestCase):
   def _makeColumnName(self, column_index):
     return "Col_%d" % column_index
 
-  def testScisheetsCommandColumnMove(self):
+  def testCommandColumnMove(self):
     # The column names are "row", "Col_0", ...
     self._moveColumn(1, self._makeColumnName(NCOL-1))  # Make it the last column
 
@@ -482,7 +482,7 @@ class TestScisheetsViews(TestCase):
       self.assertFalse(content["success"])
       self.assertEqual(old_formula, new_column.getFormula())
 
-  def testScisheetsCommandColumnFormula(self):
+  def testCommandColumnFormula(self):
     self._formulaColumn(NCOL - 1, "np.sin(2.3)", True)  # Valid formula
     self._formulaColumn(NCOL - 1, "np.sin(2.3", False)  # Invalid formula
 
@@ -508,14 +508,14 @@ class TestScisheetsViews(TestCase):
     else:
       self.assertFalse(content["success"])
 
-  def testScisheetsTableEvaluate(self):
+  def testTableEvaluate(self):
     self._evaluateTable("np.sin(3.2)", True)  # Valid formula
     self._evaluateTable("range(1000)", True)  # Test large
     formula = "Col_2 = np.sin(np.array(range(10), dtype=float));B =  Col_1**3"
     self._evaluateTable(formula, True)  # Compound formula
     self._evaluateTable("np.sin(x)", False)  # Invalid formula
 
-  def testScisheetsTableExport(self):
+  def testTableExport(self):
     # Populate the table with a couple of formulas
     FORMULA = "range(10)"
     FUNC_NAME = "ss_export_test"
@@ -555,7 +555,7 @@ class TestScisheetsViews(TestCase):
     new_table = self._getTableFromResponse(response)
     self.assertEqual(new_table.numRows(), expected_number_rows)
 
-  def testScisheetsTableTrim(self):
+  def testTableTrim(self):
     self._tableTrim(0, NROW+1)
     self._tableTrim(NROW, NROW)
 
@@ -582,9 +582,21 @@ class TestScisheetsViews(TestCase):
       self.assertFalse(content["success"])
       self.assertEqual(new_table.getName(), old_name)
 
-  def testScisheetsTableRename(self):
+  def testTableRename(self):
     self._tableRename("valid_name", True)
     self._tableRename("invalid_name!", False)
+
+  def testTableListTableFiles(self):
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Table'
+    ajax_cmd['command'] = 'ListTableFiles'
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue("success" in content)
+    self.assertTrue(content["success"])
+    self.assertTrue("data" in content)
+    self.assertTrue("dummy_file" in content["data"])
 
 
 if __name__ == '__main__':

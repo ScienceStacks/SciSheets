@@ -28,15 +28,15 @@ var CELL_1_1 = "1", CELL_1_2 = "John A. Smith";
            clickMenuName - name of the menu that gets popped up
            selIndex - index of popup options to tests (-1 is all)
            assert - assert object
-           expectAjaxCall - Boolean list indicating if Ajax call
+           expectedAjaxCalls - int count of Ajax calls made
 */
 function clickTester(clickEle,
                      clickMenuId,
                      selIndex,
                      assert,
-                     expectAjaxCall) {
+                     expectedAjaxCalls) {
   "use strict";
-  var clickMenu, selectEle, i, idx, madeAjaxCall,
+  var clickMenu, selectEle, i, idx,
     selLst = [], isOk;
   // Bring up the menu
   clickMenu = document.getElementById(clickMenuId);
@@ -53,8 +53,7 @@ function clickTester(clickEle,
     $(clickEle).trigger('click');
     selectEle = clickMenu.children[idx];
     $(selectEle).trigger("click");
-    madeAjaxCall = sciSheets.ajaxCallCount > 0;
-    isOk = madeAjaxCall === expectAjaxCall[idx];
+    isOk = sciSheets.ajaxCallCount === expectedAjaxCalls[idx];
     if (!isOk) {
       alert("Not ok");
     }
@@ -67,51 +66,49 @@ function clickTester(clickEle,
 QUnit.test("table_setup", function (assert) {
   "use strict";
   var caption, ele2, ele3, data_table, cell_1_1, cell_1_2,
-    expectAjaxCall;
+    expectAjaxCalls;
   /* Mock Ajax */
   sciSheets.mockAjax = true;
   /* Table Tests */
   caption = document.getElementsByTagName("caption")[0];
   assert.ok(caption !== null, "Verify table caption");
-  expectAjaxCall = [false,  // Delete
-                    true,  // Export
-                    true, // Rename
-                    true]; // Trim
+  expectAjaxCalls = [0,  // Delete
+                    1,  // Export
+                    1,  // Open
+                    1, // Rename
+                    1]; // Trim
   clickTester(caption, "TableClickMenu", -1, assert,
-      expectAjaxCall);
+      expectAjaxCalls);
   // Column Tests
   ele2 = document.getElementById("yui-dt4-th-row");
   assert.ok(ele2 !== null, "Verify click element for name row");
-  expectAjaxCall = [false]; // Not yet implemented
-  clickTester(ele2, "NameColumnClickMenu", -1, assert,
-      expectAjaxCall);
   ele3 = document.getElementById("yui-dt4-th-name");
   assert.ok(ele3 !== null, "Verify click element for menu");
-  expectAjaxCall = [
-    true, // Append
-    true,  // Delete
-    true, // Formula
-    false, // Hide
-    true, // Insert
-    true, // Move
-    true  // Rename
+  expectAjaxCalls = [
+    1, // Append
+    1,  // Delete
+    1, // Formula
+    0, // Hide
+    1, // Insert
+    1, // Move
+    1  // Rename
   ];
   // The following tests fail in batch mode
   clickTester(ele3, "ColumnClickMenu", -1, assert,
-      expectAjaxCall);
+      expectAjaxCalls);
   // Row tests
   data_table = document.getElementsByClassName("yui-dt-data")[0];
   cell_1_1 = data_table.getElementsByTagName("pre")[0];
   assert.ok(cell_1_1.innerHTML === CELL_1_1, "Verify cell 1,1");
-  expectAjaxCall = [
-    true,   // Append
-    true,   // Delete
-    false,  // Hide
-    true,  // Insert
-    true   // Move
+  expectAjaxCalls = [
+    1,   // Append
+    1,   // Delete
+    0,  // Hide
+    1,  // Insert
+    1   // Move
   ];
   clickTester(cell_1_1, "RowClickMenu", -1, assert,
-      expectAjaxCall);
+      expectAjaxCalls);
   // Cell menu
   cell_1_2 = data_table.getElementsByTagName("pre")[1];
   assert.ok(cell_1_2.innerHTML === CELL_1_2, "Verfiy cell 1,2");
