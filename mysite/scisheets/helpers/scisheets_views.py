@@ -10,9 +10,9 @@ import os
 import pickle
 import tempfile
 
-PICKLE_KEY = "pickle_file"
+TABLE_FILE_KEY = "pickle_file"
 USE_LOCAL_FILE = True
-LOCAL_FILE = os.path.join(st.SCISHEETS_USER_TBLDIR, "scisheet_table.pcl")
+LOCAL_FILE = "scisheet_table"
 
 
 # ******************** Helper Functions *****************
@@ -39,6 +39,8 @@ def createCommandDict(request):
   Output: cmd_dict - dictionary of the command
    TARGET  COMMAND   DESCRIPTION
     Table   Export   Export the table into python
+    Table   FileOpen Change the current Table file to
+                     what is specified in the args list
     Table   ListTableFiles Returns a list of the table files
     Table   Open     Changes the current Table to that with the
                      specified name (without extension)
@@ -74,37 +76,59 @@ def createCommandDict(request):
     raise InternalError("Invalid row_index: %d" % cmd_dict['row_index'])
   return cmd_dict
 
-def _getTable(pickle_file):
+def _getTable(table_file):
   """
   Get the table from the file
   """
-  return pickle.load(open(pickle_file, "rb"))
+  fh = open(table_file, "rb")
+  return pickle.load(fh)
+
+
+def _setTableFile(request, file_name):
+  """
+  Sets the file path in the session key
+  Input: request - request for the session
+         file_name - name of file without extension
+  """
+  table_file = "%s.pcl" % file_name
+  table_file_path = os.path.join(st.SCISHEETS_USER_TBLDIR, table_file)
+  if not os.path.isfile(table_file_path):
+    raise InternalError("Could not find Table file %s"
+        % table_file_path)
+  request.session[TABLE_FILE_KEY] = table_file_path
+
+def _getTableFile(request):
+  """
+  Sets the file path in the session key
+  Input: request - request for the session
+  Output: file path or None if not found
+  """
+  if TABLE_FILE_KEY in request.session:
+    return request.session[TABLE_FILE_KEY]
+  else:
+    return None
 
 def unPickleTable(request):
   """
  Returns the table if found
   """
-  if request.session.has_key(PICKLE_KEY):
-    pickle_file = request.session.get(PICKLE_KEY)
-    if not os.path.isfile(pickle_file):
-      return None
-    else:
-      return _getTable(pickle_file)
-  else:
+  table_file = _getTableFile(request)
+  if table_file is None:
     return None
+  else:
+    return _getTable(table_file)
 
 def pickleTable(request, table):
   """
   Serialize the table into its file
   """
   if USE_LOCAL_FILE:
-    request.session[PICKLE_KEY] = LOCAL_FILE
+    _setTableFile(request, LOCAL_FILE)
   else:
-    if not request.session.has_key(PICKLE_KEY):
-      handle = tempfile.NamedTemporaryFile()
-      request.session[PICKLE_KEY] = handle.name  # Just get the name
-      handle.close()
-  pickle.dump(table, open(request.session[PICKLE_KEY], "wb"))
+    handle = tempfile.NamedTemporaryFile()
+    request.session[TABLE_FILE_KEY] = handle.name  # Just get the name
+    handle.close()
+  pickle.dump(table, open(request.session[TABLE_FILE_KEY], "wb"))
 
 
 # ******************** Command Processing *****************
@@ -151,8 +175,8 @@ def _processUserEnvrionmentCommand(cmd_dict):
   if target == 'Table':
     if cmd_dict['command'] == "ListTableFiles":
       response = _listTableFiles()
-  else:
-    response = None
+    if cmd_dict['command'] == "OpenTableFile":
+      _setTableFile(cmd_dict['args'][0])
   return response
 
 # TODO: Tests

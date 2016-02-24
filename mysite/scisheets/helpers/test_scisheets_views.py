@@ -21,6 +21,37 @@ BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
 
 
+class DummyFile(object):
+  """
+  Creation and removal of a dummy file
+  """
+  
+  def __init__(self, path, name):
+    """
+    Inputs: path - path where file should be created
+            name - name of the file
+    """
+    self._path = path
+    self._name = name
+    self._full_path = os.path.join(self._path, self._name)
+    self._exists = False
+    
+  def create(self):
+    if not self._exists:
+      fh = open(self._full_path, "w")
+      fh.close()
+      self._exists = True
+
+  def destroy(self):
+    if self._exists:
+      os.remove(self._full_path)
+      self._exists = False
+
+  def name(self):
+    return self._name
+  
+
+
 class TestScisheetsViews(TestCase):
  
   def setUp(self):
@@ -163,7 +194,7 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(sv.unPickleTable(request), None)
     table = Table("test")
     sv.pickleTable(request, table)
-    self.assertTrue(request.session.has_key(sv.PICKLE_KEY))
+    self.assertTrue(request.session.has_key(sv.TABLE_FILE_KEY))
     new_table = sv.unPickleTable(request)
     self.assertEqual(new_table.getName(), table.getName())
 
@@ -219,7 +250,7 @@ class TestScisheetsViews(TestCase):
     self._testCommandCellUpdate(ROW_INDEX, "aaa bb")
 
   def _getTableFromResponse(self, response):
-    pickle_file = response.client.session[sv.PICKLE_KEY]
+    pickle_file = response.client.session[sv.TABLE_FILE_KEY]
     return sv._getTable(pickle_file)
 
   def _testCommandColumnDelete(self, base_url):
@@ -587,6 +618,8 @@ class TestScisheetsViews(TestCase):
     self._tableRename("invalid_name!", False)
 
   def testTableListTableFiles(self):
+    test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
+    test_file.create()
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
     ajax_cmd['command'] = 'ListTableFiles'
@@ -596,7 +629,9 @@ class TestScisheetsViews(TestCase):
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
     self.assertTrue("data" in content)
-    self.assertTrue("dummy_file" in content["data"])
+    file_name = test_file.name()[:-4]
+    self.assertTrue(file_name in content["data"])
+    test_file.destroy()
 
 
 if __name__ == '__main__':

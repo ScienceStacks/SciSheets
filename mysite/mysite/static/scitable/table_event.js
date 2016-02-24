@@ -25,7 +25,7 @@ SciSheetsTable.prototype.utilSelectFile = function (fileNames) {
   selFunction = function () {
     cmd = scisheet.createServerCommand();
     cmd.args = [this.id];
-    cmd.command = "OpenFile";
+    cmd.command = "OpenTableFile";
     $(selMenu).css("display", "none");
     scisheet.utilSendAndReload(cmd);
   };
