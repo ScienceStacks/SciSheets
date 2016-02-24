@@ -84,7 +84,7 @@ class TestTable(unittest.TestCase):
     column = cl.Column(COLUMN4)
     column.addCells(LIST)
     column.addCells(LIST)
-    with self.assertRaises(er.InvalidColumnStructureForAddToTable):
+    with self.assertRaises(er.InternalError):
       table.addColumn(column)
 
   def testGetRow(self):

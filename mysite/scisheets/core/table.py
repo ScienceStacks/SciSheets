@@ -281,7 +281,7 @@ class Table(ColumnContainer):
       if (column.numCells() != self.numRows() and
           column.numCells() > 0):
         msg = "Invalid number of cells"
-        raise er.InvalidColumnStructureForAddToTable(msg)
+        raise er.InternalError(msg)
       else:
         self.insertColumn(column, index=index)
         column.setTable(self)

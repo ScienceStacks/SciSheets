@@ -4,7 +4,7 @@ import column as cl
 import unittest
 import errors as er
 import numpy as np
-from util_test import createColumn, compareValues, toList
+from util_test import createColumn, compareValues
 
 # Constants
 COLUMN_NAME = "DUMMY"
@@ -21,17 +21,23 @@ INVALID_FORMULA = "a + b*math.cos(x"
 # Helpers
 #############################
 def checkStrColumnType(column_type):
+  """
+  Checks the column data type
+  """
   return (column_type == '|S1000') or (column_type == object)
 
 #############################
 # Tests
 #############################
+# pylint: disable=W0212
+# pylint: disable=C0111
+# pylint: disable=R0904
 class TestColumn(unittest.TestCase):
 
   def setUp(self):
     self.column = createColumn(COLUMN_NAME, data=LIST, table=None,
         formula=VALID_FORMULA)
-    self.column_str = createColumn(COLUMN_STR_NAME, data=LIST_STR, 
+    self.column_str = createColumn(COLUMN_STR_NAME, data=LIST_STR,
         table=None, formula=VALID_FORMULA)
 
   def testConstructor(self):
@@ -41,49 +47,49 @@ class TestColumn(unittest.TestCase):
     self.assertIsNone(column._formula)
 
   def testAddCellsFloat(self):
-    SINGLE_FLOAT = 1.0
-    LIST_FLOAT = [2.0, 3.0]
-    ARRAY = np.array(LIST_FLOAT)
+    single_float = 1.0
+    list_float = [2.0, 3.0]
+    test_array = np.array(list_float)
     column = cl.Column(COLUMN_NAME)
-    column.addCells(SINGLE_FLOAT)
-    self.assertTrue(compareValues(column._data_values, SINGLE_FLOAT))
+    column.addCells(single_float)
+    self.assertTrue(compareValues(column._data_values, single_float))
     self.assertEqual(column._datatype, float)
     column = cl.Column(COLUMN_NAME)
-    column.addCells(LIST_FLOAT)
-    self.assertTrue(compareValues(column._data_values, LIST_FLOAT))
+    column.addCells(list_float)
+    self.assertTrue(compareValues(column._data_values, list_float))
     column = cl.Column(COLUMN_NAME)
-    column.addCells(ARRAY)
-    self.assertTrue(compareValues(column._data_values, ARRAY))
+    column.addCells(test_array)
+    self.assertTrue(compareValues(column._data_values, test_array))
 
   def testAddCellsStr(self):
-    SINGLE_STR = "cccc ccc"
-    LIST_STR = ["aa", "bbb bb"]
-    ARRAY = np.array(LIST_STR)
+    single_str = "cccc ccc"
+    new_list_str = ["aa", "bbb bb"]
+    test_array = np.array(new_list_str)
     column = cl.Column(COLUMN_NAME)
-    column.addCells(SINGLE_STR)
-    self.assertTrue(compareValues(column._data_values, SINGLE_STR))
+    column.addCells(single_str)
+    self.assertTrue(compareValues(column._data_values, single_str))
     self.assertTrue(checkStrColumnType(column._datatype))
     column = cl.Column(COLUMN_NAME)
-    column.addCells(LIST_STR)
-    self.assertTrue(compareValues(column._data_values, LIST_STR))
+    column.addCells(new_list_str)
+    self.assertTrue(compareValues(column._data_values, new_list_str))
     column = cl.Column(COLUMN_NAME)
-    column.addCells(ARRAY)
-    self.assertTrue(compareValues(column._data_values, ARRAY))
+    column.addCells(test_array)
+    self.assertTrue(compareValues(column._data_values, test_array))
 
   def testCopy(self):
     column_copy = self.column.copy()
     self.assertEqual(self.column._name, column_copy._name)
     self.assertEqual(self.column._datatype, column_copy._datatype)
-    self.assertTrue(compareValues(self.column._data_values, 
+    self.assertTrue(compareValues(self.column._data_values,
         column_copy._data_values))
     self.assertEqual(self.column._formula, column_copy._formula)
     self.assertIsNone(column_copy._owning_table)
 
   def testDeleteCells(self):
-    INDEX = 0
-    NON_INDEX = 1
-    self.column.deleteCells([INDEX])
-    self.assertEqual(self.column._data_values[INDEX], LIST[NON_INDEX])
+    valid_index = 0
+    not_an_index = 1
+    self.column.deleteCells([valid_index])
+    self.assertEqual(self.column._data_values[valid_index], LIST[not_an_index])
 
   def testDataType(self):
     self.assertEqual(self.column.getDataType(), float)
@@ -113,36 +119,36 @@ class TestColumn(unittest.TestCase):
     self.assertEqual(self.column._owning_table, TABLE)
 
   def testUpdateCell(self):
-    INDEX = 0
-    new_value = LIST[INDEX] + 10
-    self.column.updateCell(new_value, INDEX)
-    self.assertEqual(self.column._data_values[INDEX], new_value)
+    valid_index = 0
+    new_value = LIST[valid_index] + 10
+    self.column.updateCell(new_value, valid_index)
+    self.assertEqual(self.column._data_values[valid_index], new_value)
 
   def testInsertCell(self):
-    NEW_VALUE = 30
-    self.column.insertCell(NEW_VALUE)
+    new_value = 30
+    self.column.insertCell(new_value)
     index = len(LIST)
-    self.assertEqual(self.column.getCells()[index], NEW_VALUE)
+    self.assertEqual(self.column.getCells()[index], new_value)
 
   def testReplaceCells(self):
     new_array = np.array(LIST1)
     self.column.replaceCells(new_array)
-    self.assertTrue( (self.column._data_values == new_array).all())
+    self.assertTrue((self.column._data_values == new_array).all())
     short_array = np.array(range(len(new_array) - 1))
     with self.assertRaises(er.InternalError):
       self.column.replaceCells(short_array)
 
   def testMakeStatementFromFormula(self):
-    EXPR = "np.sin(3)"
-    VARIABLE = "A"
-    expected_stmt = "%s = %s" % (VARIABLE, EXPR)
-    self.column._makeStatementFromFormula(EXPR, VARIABLE)
+    expr = "np.sin(3)"
+    variable = "A"
+    expected_stmt = "%s = %s" % (variable, expr)
+    self.column._makeStatementFromFormula(expr, variable)
     self.assertEqual(self.column.getFormulaStatement(),
                      expected_stmt)
-    self.column._makeStatementFromFormula(expected_stmt, VARIABLE)
+    self.column._makeStatementFromFormula(expected_stmt, variable)
     self.assertEqual(self.column.getFormulaStatement(),
                      expected_stmt)
 
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()
