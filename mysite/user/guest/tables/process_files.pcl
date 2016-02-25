@@ -1,8 +1,8 @@
 ccopy_reg
 _reconstructor
 p0
-(cscisheets.ui.ui_table
-UITable
+(cscisheets.ui.dt_table
+DTTable
 p1
 c__builtin__
 object

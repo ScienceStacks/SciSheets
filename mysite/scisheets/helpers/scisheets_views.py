@@ -122,12 +122,17 @@ def pickleTable(request, table):
   """
   Serialize the table into its file
   """
-  if USE_LOCAL_FILE:
-    _setTableFile(request, LOCAL_FILE)
-  else:
-    handle = tempfile.NamedTemporaryFile()
-    request.session[TABLE_FILE_KEY] = handle.name  # Just get the name
-    handle.close()
+  have_table_file = False
+  if TABLE_FILE_KEY in request.session:
+    if request.session[TABLE_FILE_KEY] is not None:
+      have_table_file = True
+  if not have_table_file:
+    if USE_LOCAL_FILE:
+      _setTableFile(request, LOCAL_FILE)
+    else:
+      handle = tempfile.NamedTemporaryFile()
+      request.session[TABLE_FILE_KEY] = handle.name
+      handle.close()
   pickle.dump(table, open(request.session[TABLE_FILE_KEY], "wb"))
 
 
