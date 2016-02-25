@@ -153,7 +153,7 @@ def scisheets_command0(request):
   Output returned - HTTP response
   """
   cmd_dict = createCommandDict(request)
-  command_result = _processUserEnvrionmentCommand(cmd_dict)
+  command_result = _processUserEnvrionmentCommand(request, cmd_dict)
   if command_result is None:
     # Use table processing command
     table = unPickleTable(request)
@@ -162,22 +162,24 @@ def scisheets_command0(request):
   json_str = json.dumps(command_result)
   return HttpResponse(json_str, content_type="application/json")
 
-def _processUserEnvrionmentCommand(cmd_dict):
+def _processUserEnvrionmentCommand(request, cmd_dict):
   """
   Processes commands that relate to the environment in which
   the user is executing.
-  Inputs: cmd_dict - command informat extracted from the request
-  Outputs: response - JSON structure returned to the user
+  Input: request - includes command structure in the GET
+         cmd_dict - command informat extracted from the request
+  Outputs: command_result - JSON structure returned to the user
                       None if the command is not a user environment command
   """
-  response = None
+  command_result = None
   target = cmd_dict["target"]
   if target == 'Table':
     if cmd_dict['command'] == "ListTableFiles":
-      response = _listTableFiles()
+      command_result = _listTableFiles()
     if cmd_dict['command'] == "OpenTableFile":
-      _setTableFile(cmd_dict['args'][0])
-  return response
+      _setTableFile(request, cmd_dict['args'][0])
+      command_result = {'data': "OK", 'success': True}
+  return command_result
 
 # TODO: Tests
 def _listTableFiles():

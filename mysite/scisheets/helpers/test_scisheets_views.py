@@ -4,11 +4,13 @@ from mysite import settings
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
+from ..ui.dt_table import DTTable
 import json
 import mysite.helpers.util as ut
 from scisheets.core.util import findDatatypeForValues
 import scisheets_views as sv
 import os
+import pickle
 import numpy as np
 
 # Keys used inside the server
@@ -38,8 +40,8 @@ class DummyFile(object):
     
   def create(self):
     if not self._exists:
-      fh = open(self._full_path, "w")
-      fh.close()
+      table = DTTable(self._name)
+      pickle.dump(table, open(self._full_path, "wb"))
       self._exists = True
 
   def destroy(self):
@@ -47,8 +49,9 @@ class DummyFile(object):
       os.remove(self._full_path)
       self._exists = False
 
-  def name(self):
-    return self._name
+  def nameWithoutExtension(self):
+    pos = self._name.index(".")
+    return self._name[:pos]
   
 
 
@@ -620,6 +623,8 @@ class TestScisheetsViews(TestCase):
   def testTableListTableFiles(self):
     test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
     test_file.create()
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
     ajax_cmd['command'] = 'ListTableFiles'
@@ -629,8 +634,22 @@ class TestScisheetsViews(TestCase):
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
     self.assertTrue("data" in content)
-    file_name = test_file.name()[:-4]
-    self.assertTrue(file_name in content["data"])
+    self.assertTrue(test_file.nameWithoutExtension() in content["data"])
+    test_file.destroy()
+
+  # TODO: Need a real table pickle file, not just a dummy
+  def testTableOpenTableFiles(self):
+    test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
+    test_file.create()
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Table'
+    ajax_cmd['command'] = 'OpenTableFile'
+    ajax_cmd['args[]'] = test_file.nameWithoutExtension()
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue("success" in content)
+    self.assertTrue(content["success"])
     test_file.destroy()
 
 
