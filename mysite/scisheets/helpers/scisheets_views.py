@@ -39,12 +39,11 @@ def createCommandDict(request):
   Output: cmd_dict - dictionary of the command
    TARGET  COMMAND   DESCRIPTION
     Table   Export   Export the table into python
-    Table   FileOpen Change the current Table file to
-                     what is specified in the args list
     Table   ListTableFiles Returns a list of the table files
-    Table   Open     Changes the current Table to that with the
-                     specified name (without extension)
+    Table   OpenTableFile Change the current Table file to
+                     what is specified in the args list
     Table   Rename   Change the table name. Must be a valid python name
+    Table   Save     Save the table to the specified table file
     Table   Trim     Remove None rows from the end of the table
     Cell    Update   Update the specified cell
     Column  Append   Add a new column to the right of the current
@@ -83,8 +82,18 @@ def _getTable(table_file):
   fh = open(table_file, "rb")
   return pickle.load(fh)
 
+def _getFileNameWithoutExtension(file_path):
+  """
+  Input: file_path - full path to the file
+  Output: file_name - just the name, without extension
+  """
+  if file_path is None:
+    return None
+  full_file_name = os.path.split(file_path)[1]
+  pos = full_file_name.index(".")
+  return full_file_name[:pos]
 
-def _setTableFile(request, file_name):
+def _setTableFilepath(request, file_name, verify=True):
   """
   Sets the file path in the session key
   Input: request - request for the session
@@ -92,12 +101,13 @@ def _setTableFile(request, file_name):
   """
   table_file = "%s.pcl" % file_name
   table_file_path = os.path.join(st.SCISHEETS_USER_TBLDIR, table_file)
-  if not os.path.isfile(table_file_path):
-    raise InternalError("Could not find Table file %s"
-        % table_file_path)
+  if verify:
+    if not os.path.isfile(table_file_path):
+      raise InternalError("Could not find Table file %s"
+          % table_file_path)
   request.session[TABLE_FILE_KEY] = table_file_path
 
-def _getTableFile(request):
+def _getTableFilepath(request):
   """
   Sets the file path in the session key
   Input: request - request for the session
@@ -112,11 +122,11 @@ def unPickleTable(request):
   """
  Returns the table if found
   """
-  table_file = _getTableFile(request)
-  if table_file is None:
+  table_file_path = _getTableFilepath(request)
+  if table_file_path is None:
     return None
   else:
-    return _getTable(table_file)
+    return _getTable(table_file_path)
 
 def pickleTable(request, table):
   """
@@ -128,7 +138,7 @@ def pickleTable(request, table):
       have_table_file = True
   if not have_table_file:
     if USE_LOCAL_FILE:
-      _setTableFile(request, LOCAL_FILE)
+      _setTableFilepath(request, LOCAL_FILE)
     else:
       handle = tempfile.NamedTemporaryFile()
       request.session[TABLE_FILE_KEY] = handle.name
@@ -147,7 +157,8 @@ def scisheets(request, ncol, nrow):
   ncolstr = int(ncol/2)
   table = DTTable.createRandomTable("Demo", nrow, ncol,
       ncolstr=ncolstr)
-  html = table.render()
+  table_file = _getFileNameWithoutExtension(_getTableFilepath(request))
+  html = table.render(table_file=table_file)
   pickleTable(request, table)
   return HttpResponse(html)
 
@@ -182,7 +193,12 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
     if cmd_dict['command'] == "ListTableFiles":
       command_result = _listTableFiles()
     if cmd_dict['command'] == "OpenTableFile":
-      _setTableFile(request, cmd_dict['args'][0])
+      _setTableFilepath(request, cmd_dict['args'][0])
+      command_result = {'data': "OK", 'success': True}
+    if cmd_dict['command'] == "Save":
+      table = unPickleTable(request)
+      _setTableFilepath(request, cmd_dict['args'][0], verify=False)
+      pickleTable(request, table)  # Save table in the new path
       command_result = {'data': "OK", 'success': True}
   return command_result
 
@@ -205,5 +221,6 @@ def scisheets_reload(request):
     html = "No session found"
   else:
     table.evaluate()
-    html = table.render()
+    table_file = _getFileNameWithoutExtension(_getTableFilepath(request))
+    html = table.render(table_file=table_file)
   return HttpResponse(html)

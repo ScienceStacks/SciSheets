@@ -50,12 +50,23 @@ def makeJSON(column_names, data):
   return result
 
 
+
 class DTTable(UITable):
   """
   Does rendersing specific to YUI DataTable
   """
 
-  def render(self, table_id="scitable"):
+  @staticmethod
+  def _formatStringForJS(in_string):
+    """
+    Formats the string so that it can be assigned as a value 
+    in javascript
+    Input: in_string - string to format
+    Output: formated string
+    """
+    return "`%s`" % str(in_string)
+
+  def render(self, table_id="scitable", table_file=""):
     """
     Input: table_id - how the table is identified in the HTML
     Output: html rendering of the Table
@@ -68,7 +79,7 @@ class DTTable(UITable):
       if ff is None or (ff == "None"):
         formulas.append("''")
       else:
-        formulas.append('`' + ff + '`')
+        formulas.append(DTTable._formatStringForJS(ff))
     formula_dict = {}
     for nn in range(len(column_names)):
       formula_dict[column_names[nn]] = formulas[nn]
@@ -82,6 +93,8 @@ class DTTable(UITable):
                 'formula_dict': formula_dict,
                 'num_cols': len(column_names),
                 'count': 1,
+                'table_file': DTTable._formatStringForJS(table_file),
+                'table_file': "''",
                }
     html = get_template('scitable.html').render(ctx_dict)
     return html

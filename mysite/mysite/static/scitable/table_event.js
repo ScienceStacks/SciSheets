@@ -101,6 +101,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
     if (cmd.command === 'Rename') {
       scisheet.utilRename(cmd, "New table name", "");
     }
+    if (cmd.command === 'Save') {
+      scisheet.utilRename(cmd, "Table file name", scisheet.tableFile);
+    }
     if (cmd.command === 'Trim') {
       scisheet.utilSendAndReload(cmd);
     }

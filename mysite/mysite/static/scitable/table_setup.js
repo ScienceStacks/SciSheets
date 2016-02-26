@@ -66,6 +66,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
         );
     sciSheets.setup(myDataTable);
     sciSheets.formulas = d.formulas;
+    sciSheets.tableFile = d.tableFile;
 
     // Set up events
     highlightEditableCell = function (oArgs) {

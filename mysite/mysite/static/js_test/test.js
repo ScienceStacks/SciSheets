@@ -76,6 +76,7 @@ QUnit.test("table_setup", function (assert) {
                     1,  // Export
                     1,  // Open
                     1, // Rename
+                    1, // Save
                     1]; // Trim
   clickTester(caption, "TableClickMenu", -1, assert,
       expectAjaxCalls);

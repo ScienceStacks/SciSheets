@@ -47,13 +47,20 @@ caption {
 
 <!-- =============================== -->
 <div id="ClickMenus">
+
+<select name="select-file" id="select-file" data-native-menu="false" style="display:none">
+  <option>Select a Table file</option>	
+</select> 	
+
 <ul style="width:100px;display:none" id="TableClickMenu">
 	<li id="delete" >Delete</li>
 	<li id="export" >Export</li>
 	<li id="open" >Open</li>
 	<li id="rename">Rename</li>
+	<li id="save">Save</li>
 	<li id="trim">Trim</li>
 </ul>
+
 <ul style="width:100px;display:none" id="ColumnClickMenu">
 	<li id="append">Append</li>
 	<li id="delete" >Delete</li>
@@ -63,9 +70,11 @@ caption {
 	<li id="move">Move</li>
 	<li id="rename">Rename</li>
 </ul>
+
 <ul style="width:100px;display:none" id="NameColumnClickMenu">
 	<li id="hide">Hide</li>
 </ul>
+
 <ul style="width:100px;display:none" id="RowClickMenu">
 	<li id="append">Append</li>
 	<li id="delete" >Delete</li>
@@ -115,10 +124,6 @@ caption {
     </fieldset>
   </form>
 </div>
-
-<select name="select-file" id="select-file" data-native-menu="false" style="display:none">
-  <option>Select a Table file</option>	
-</select> 	
 
 <!-- =============================== -->
 

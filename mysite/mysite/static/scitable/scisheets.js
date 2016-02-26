@@ -27,6 +27,7 @@ function SciSheets() {
   this.mockAjax = false;
   this.ajaxCallCount = 0;
   this.formulas = null;  // Dictionary by column name of formulas
+  this.tableFile = null;  // No file specified for the table
 }
 
 // Setup
