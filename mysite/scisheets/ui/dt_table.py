@@ -64,7 +64,7 @@ class DTTable(UITable):
     Input: in_string - string to format
     Output: formated string
     """
-    return "`%s`" % str(in_string)
+    return '`%s`' % str(in_string)
 
   def render(self, table_id="scitable", table_file=""):
     """
@@ -94,7 +94,6 @@ class DTTable(UITable):
                 'num_cols': len(column_names),
                 'count': 1,
                 'table_file': DTTable._formatStringForJS(table_file),
-                'table_file': "''",
                }
     html = get_template('scitable.html').render(ctx_dict)
     return html
