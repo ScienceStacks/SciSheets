@@ -46,7 +46,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
     sciSheets.utilReload();
   }
   YAHOO.example.InlineCellEditing = (function () {
-    var myDataTable, highlightEditableCell, myDataSource,
+    var myDataTable, highlightEditableCell, myDataSource, tableHeader,
       id, tableElement, d, captionElement, div_ele;
     d = new DataSource();
     div_ele = document.getElementById("TagReplacedByJS");
@@ -59,9 +59,10 @@ YAHOO.util.Event.addListener(window, "load", function () {
     myDataSource.responseSchema = {
       fields: d.columnDefs
     };
+    tableHeader = d.tableCaption + " (Table File: " + d.tableFile + ")";
     myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,
       {
-        caption: d.tableCaption
+        caption: tableHeader
       }
         );
     sciSheets.setup(myDataTable);

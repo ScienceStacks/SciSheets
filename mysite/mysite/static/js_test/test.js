@@ -72,7 +72,7 @@ QUnit.test("table_setup", function (assert) {
   /* Table Tests */
   caption = document.getElementsByTagName("caption")[0];
   assert.ok(caption !== null, "Verify table caption");
-  expectAjaxCalls = [0,  // Delete
+  expectAjaxCalls = [1,  // Delete
                     1,  // Export
                     1,  // Open
                     1, // Rename

@@ -13,6 +13,7 @@ import tempfile
 TABLE_FILE_KEY = "pickle_file"
 USE_LOCAL_FILE = True
 LOCAL_FILE = "scisheet_table"
+EMPTY_TABLE_FILE = "_empty_table"
 
 
 # ******************** Helper Functions *****************
@@ -38,6 +39,8 @@ def createCommandDict(request):
   Input: request - HTML request object
   Output: cmd_dict - dictionary of the command
    TARGET  COMMAND   DESCRIPTION
+    Table   Delete   Delete the table file and switch to the
+                     using a random file
     Table   Export   Export the table into python
     Table   ListTableFiles Returns a list of the table files
     Table   OpenTableFile Change the current Table file to
@@ -93,14 +96,17 @@ def _getFileNameWithoutExtension(file_path):
   pos = full_file_name.index(".")
   return full_file_name[:pos]
 
+def _createTableFilepath(file_name):
+  table_file = "%s.pcl" % file_name
+  return os.path.join(st.SCISHEETS_USER_TBLDIR, table_file)
+
 def _setTableFilepath(request, file_name, verify=True):
   """
   Sets the file path in the session key
   Input: request - request for the session
          file_name - name of file without extension
   """
-  table_file = "%s.pcl" % file_name
-  table_file_path = os.path.join(st.SCISHEETS_USER_TBLDIR, table_file)
+  table_file_path = _createTableFilepath(file_name)
   if verify:
     if not os.path.isfile(table_file_path):
       raise InternalError("Could not find Table file %s"
@@ -127,6 +133,12 @@ def unPickleTable(request):
     return None
   else:
     return _getTable(table_file_path)
+
+def _createRandomFileName():
+  handle = tempfile.NamedTemporaryFile()
+  file_name = os.path.split(handle.name)[1]
+  handle.close()
+  return file_name
 
 def pickleTable(request, table):
   """
@@ -157,6 +169,7 @@ def scisheets(request, ncol, nrow):
   ncolstr = int(ncol/2)
   table = DTTable.createRandomTable("Demo", nrow, ncol,
       ncolstr=ncolstr)
+  _setTableFilepath(request, LOCAL_FILE, verify=False)
   table_file = _getFileNameWithoutExtension(_getTableFilepath(request))
   html = table.render(table_file=table_file)
   pickleTable(request, table)
@@ -190,12 +203,22 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
   command_result = None
   target = cmd_dict["target"]
   if target == 'Table':
-    if cmd_dict['command'] == "ListTableFiles":
+    if cmd_dict['command'] == "Delete":
+      # Delete the current file
+      current_file_path = _getTableFilepath(request)
+      os.remove(current_file_path)
+      # Use a default file and save the empty table in it
+      _setTableFilepath(request, LOCAL_FILE, verify=False)
+      empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
+      table = _getTable(empty_table_file)
+      pickleTable(request, table)  # Save table in the new path
+      command_result = {'data': "OK", 'success': True}
+    elif cmd_dict['command'] == "ListTableFiles":
       command_result = _listTableFiles()
-    if cmd_dict['command'] == "OpenTableFile":
+    elif cmd_dict['command'] == "OpenTableFile":
       _setTableFilepath(request, cmd_dict['args'][0])
       command_result = {'data': "OK", 'success': True}
-    if cmd_dict['command'] == "Save":
+    elif cmd_dict['command'] == "Save":
       table = unPickleTable(request)
       _setTableFilepath(request, cmd_dict['args'][0], verify=False)
       pickleTable(request, table)  # Save table in the new path
@@ -209,7 +232,7 @@ def _listTableFiles():
   """
   lensfx = len(".pcl")
   file_list = [ff[:-lensfx] for ff in os.listdir(st.SCISHEETS_USER_TBLDIR)
-               if ff[-lensfx:] == '.pcl']
+               if ff[-lensfx:] == '.pcl' and ff[0] != "_"]
   return {'data': file_list, 'success': True}
 
 def scisheets_reload(request):

@@ -44,8 +44,17 @@ SciSheetsTable.prototype.utilSelectFile = function (fileNames) {
     ele = "#" + fileNames[n];
     $(ele).click(selFunction);
   }
-  $(selMenu).css("display", "block");
-  $(selMenu).find('select').selectmenu('refresh');
+  //$(selMenu).css("display", "block");
+  //$(selMenu).find('select').selectmenu('refresh');
+  $(selMenu).dialog({
+    autoOpen: true,
+    modal: true,
+    closeOnEscape: true,
+    dialogClass: "dlg-no-close",
+  });
+  $(selMenu).dialog("option", "width", 50);
+  $(selMenu).dialog("option", "height", 80);
+  $(selMenu).parent().find(".ui-dialog-titlebar").hide();
 };
 
 SciSheetsTable.prototype.utilExportDialog = function (cmd) {
@@ -88,6 +97,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
     cmd = scisheet.createServerCommand();
     cmd.command = eleId;
     cmd.target = "Table";
+    if (cmd.command === 'Delete') {
+      scisheet.utilSendAndReload(cmd);
+    }
     if (cmd.command === 'Export') {
       scisheetTable.utilExportDialog(cmd);
     }

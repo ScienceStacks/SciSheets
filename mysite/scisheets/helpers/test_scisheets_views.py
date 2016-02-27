@@ -652,6 +652,44 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content["success"])
     test_file.destroy()
 
+  # Saves a table to file
+  def _tableSave(self, file_name):
+    # Input: file_name - *.pcl file
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Table'
+    ajax_cmd['command'] = 'Save'
+    ajax_cmd['args[]'] = file_name
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue("success" in content)
+    self.assertTrue(content["success"])
+
+  def testTableSave(self):
+    _ = self._createBaseTable()
+    test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
+    test_file.create()
+    file_name = test_file.nameWithoutExtension()
+    self._tableSave(file_name)
+    test_file.destroy()
+
+  def testTableDelete(self):
+    _ = self._createBaseTable()
+    test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
+    test_file.create()
+    file_name = test_file.nameWithoutExtension()
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Table'
+    ajax_cmd['command'] = 'Delete'
+    ajax_cmd['args[]'] = file_name
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue("success" in content)
+    self.assertTrue(content["success"])
+
 
 if __name__ == '__main__':
     unittest.main()
