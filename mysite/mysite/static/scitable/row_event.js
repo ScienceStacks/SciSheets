@@ -48,7 +48,10 @@ SciSheetsRow.prototype.click = function (oArgs) {
       $("#moverow-dialog").dialog({
         autoOpen: true,
         modal: true,
-        closeOnEscape: false,
+        closeOnEscape: true,
+        close: function (event, ui) {
+          scisheet.utilReload()
+        },
         dialogClass: "dlg-no-close",
         buttons: {
           "Submit": function () {

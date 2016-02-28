@@ -46,7 +46,7 @@ def createCommandDict(request):
     Table   OpenTableFile Change the current Table file to
                      what is specified in the args list
     Table   Rename   Change the table name. Must be a valid python name
-    Table   Save     Save the table to the specified table file
+    Table   SaveAs   Save the table to the specified table file
     Table   Trim     Remove None rows from the end of the table
     Cell    Update   Update the specified cell
     Column  Append   Add a new column to the right of the current
@@ -77,6 +77,9 @@ def createCommandDict(request):
   if cmd_dict['row_index'] == -1:
     raise InternalError("Invalid row_index: %d" % cmd_dict['row_index'])
   return cmd_dict
+
+def _makeAjaxResponse(data, success):
+  return {'data': data, 'success': success}
 
 def _getTable(table_file):
   """
@@ -212,17 +215,17 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
       empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
       table = _getTable(empty_table_file)
       pickleTable(request, table)  # Save table in the new path
-      command_result = {'data': "OK", 'success': True}
+      command_result = _makeAjaxResponse("OK", True)
     elif cmd_dict['command'] == "ListTableFiles":
       command_result = _listTableFiles()
     elif cmd_dict['command'] == "OpenTableFile":
       _setTableFilepath(request, cmd_dict['args'][0])
-      command_result = {'data': "OK", 'success': True}
-    elif cmd_dict['command'] == "Save":
+      command_result = _makeAjaxResponse("OK", True)
+    elif cmd_dict['command'] == "SaveAs":
       table = unPickleTable(request)
       _setTableFilepath(request, cmd_dict['args'][0], verify=False)
       pickleTable(request, table)  # Save table in the new path
-      command_result = {'data': "OK", 'success': True}
+      command_result = _makeAjaxResponse("OK", True)
   return command_result
 
 # TODO: Tests
@@ -233,7 +236,8 @@ def _listTableFiles():
   lensfx = len(".pcl")
   file_list = [ff[:-lensfx] for ff in os.listdir(st.SCISHEETS_USER_TBLDIR)
                if ff[-lensfx:] == '.pcl' and ff[0] != "_"]
-  return {'data': file_list, 'success': True}
+  file_list.sort()
+  return _makeAjaxResponse(file_list, True)
 
 def scisheets_reload(request):
   """

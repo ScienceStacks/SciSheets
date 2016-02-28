@@ -32,7 +32,10 @@ SciSheetsColumn.prototype.formula = function (cmd, formula) {
   $("#formula-dialog").dialog({
     autoOpen: true,
     modal: true,
-    closeOnEscape: false,
+    closeOnEscape: true,
+    close: function (event, ui) {
+      scisheet.utilReload()
+    },
     dialogClass: "dlg-no-close",
     buttons: {
       "Submit": function () {

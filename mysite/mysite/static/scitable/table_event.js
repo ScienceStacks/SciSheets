@@ -39,7 +39,7 @@ SciSheetsTable.prototype.utilSelectFile = function (fileNames) {
     options = options + "<option id='" + name + "'>"
               + name + "</option>";
   }
-  $('select').append(options);
+  $(selMenu).append(options);
   for (n = 0; n < fileNames.length; n++) {
     ele = "#" + fileNames[n];
     $(ele).click(selFunction);
@@ -51,6 +51,9 @@ SciSheetsTable.prototype.utilSelectFile = function (fileNames) {
     modal: true,
     closeOnEscape: true,
     dialogClass: "dlg-no-close",
+    close: function (event, ui) {
+      scisheet.utilReload()
+    }
   });
   $(selMenu).dialog("option", "width", 50);
   $(selMenu).dialog("option", "height", 80);
@@ -67,7 +70,10 @@ SciSheetsTable.prototype.utilExportDialog = function (cmd) {
   $("#export-dialog").dialog({
     autoOpen: true,
     modal: true,
-    closeOnEscape: false,
+    closeOnEscape: true,
+    close: function (event, ui) {
+      scisheet.utilReload()
+    },
     dialogClass: "dlg-no-close",
     buttons: {
       "Submit": function () {
@@ -113,7 +119,7 @@ SciSheetsTable.prototype.click = function (oArgs) {
     if (cmd.command === 'Rename') {
       scisheet.utilRename(cmd, "New table name", "");
     }
-    if (cmd.command === 'Save') {
+    if (cmd.command === 'SaveAs') {
       scisheet.utilRename(cmd, "Table file name", scisheet.tableFile);
     }
     if (cmd.command === 'Trim') {

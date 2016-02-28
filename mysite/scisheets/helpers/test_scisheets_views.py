@@ -659,7 +659,7 @@ class TestScisheetsViews(TestCase):
     table = self._getTableFromResponse(base_response)
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
-    ajax_cmd['command'] = 'Save'
+    ajax_cmd['command'] = 'SaveAs'
     ajax_cmd['args[]'] = file_name
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
