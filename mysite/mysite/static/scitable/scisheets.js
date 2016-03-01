@@ -206,17 +206,14 @@ SciSheets.prototype.utilRename = function (cmd, newPrompt, defaultValue) {
     closeOnEscape: true,
     dialogClass: "dlg-no-close",
     close: function (event, ui) {
-      scisheet.utilReload()
+      scisheet.utilReload();
     },
     buttons: {
       "Submit": function () {
         cmd.args = [$("#rename-dialog-name").val()];
-        $(this).dialog("close");
         scisheet.utilSendAndReload(cmd);
-        alert("Pressed Submit");
       },
       "Cancel": function () {
-        $(this).dialog("close");
         scisheet.utilReload();
       }
     }

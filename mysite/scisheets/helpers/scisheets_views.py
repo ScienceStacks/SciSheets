@@ -43,6 +43,7 @@ def createCommandDict(request):
                      using a random file
     Table   Export   Export the table into python
     Table   ListTableFiles Returns a list of the table files
+    Table   New      Opens a new blank table
     Table   OpenTableFile Change the current Table file to
                      what is specified in the args list
     Table   Rename   Change the table name. Must be a valid python name
@@ -194,30 +195,37 @@ def scisheets_command0(request):
   json_str = json.dumps(command_result)
   return HttpResponse(json_str, content_type="application/json")
 
+def _makeNewTable(request):
+  """
+  Creates a new table
+  :param request: includes command structure in the GET
+  :return: ajax response
+  """
+  _setTableFilepath(request, LOCAL_FILE, verify=False)
+  empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
+  table = _getTable(empty_table_file)
+  pickleTable(request, table)  # Save table in the new path
+  return _makeAjaxResponse("OK", True)
+
 def _processUserEnvrionmentCommand(request, cmd_dict):
   """
   Processes commands that relate to the environment in which
   the user is executing.
-  Input: request - includes command structure in the GET
-         cmd_dict - command informat extracted from the request
-  Outputs: command_result - JSON structure returned to the user
-                      None if the command is not a user environment command
+  :param request: includes command structure in the GET
+  :param cmd_dict: command informat extracted from the request
+  :return: JSON structure or None if not a user environment command
   """
   command_result = None
   target = cmd_dict["target"]
   if target == 'Table':
     if cmd_dict['command'] == "Delete":
-      # Delete the current file
       current_file_path = _getTableFilepath(request)
       os.remove(current_file_path)
-      # Use a default file and save the empty table in it
-      _setTableFilepath(request, LOCAL_FILE, verify=False)
-      empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
-      table = _getTable(empty_table_file)
-      pickleTable(request, table)  # Save table in the new path
-      command_result = _makeAjaxResponse("OK", True)
+      command_result = _makeNewTable(request)
     elif cmd_dict['command'] == "ListTableFiles":
       command_result = _listTableFiles()
+    elif cmd_dict['command'] == "New":
+      command_result = _makeNewTable(request)
     elif cmd_dict['command'] == "OpenTableFile":
       _setTableFilepath(request, cmd_dict['args'][0])
       command_result = _makeAjaxResponse("OK", True)

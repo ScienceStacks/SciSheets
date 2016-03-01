@@ -50,7 +50,7 @@ SciSheetsRow.prototype.click = function (oArgs) {
         modal: true,
         closeOnEscape: true,
         close: function (event, ui) {
-          scisheet.utilReload()
+          scisheet.utilReload();
         },
         dialogClass: "dlg-no-close",
         buttons: {

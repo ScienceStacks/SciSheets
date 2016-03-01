@@ -38,15 +38,15 @@ class ColumnContainer(object):
 
   def columnFromIndex(self, index):
     """
-    Returns the column object at the index
+    :return: column object at the index
     """
     return self._columns[index]
 
   def columnFromName(self, name):
     """
     Finds a column with the specified name or None
-    Inputs: name - name of the column
-    Outputs: column - column object
+    :param name: name of the column
+    :return: column - column object
     """
     for  column in self._columns:
       if  column.getName() == name:
@@ -55,33 +55,34 @@ class ColumnContainer(object):
 
   def getCell(self, row_index, column_index):
     """
-    Returns the numpy array of the cells in the column
+    :return: the numpy array of the cells in the column
     """
     return self._columns[column_index].getCells()[row_index]
 
   def getColumns(self):
     """
-    Returns a list with the column objects in sequence
+    :return: list with the column objects in sequence
     """
     return self._columns
 
   def getName(self):
     """
-    Returns the table name
+    :return: the table name
     """
     return self._name
 
   def indexFromColumn(self, column):
     """
     Finds the index of the specified column
+    :param column: column object
     """
     return self._columns.index(column)
 
   def insertColumn(self, column, index=None):
     """
     Inserts the column after the specified column index
-    Inputs: column object
-            index - column index
+    :param column: object
+    :param index: column index
     """
     idx = index
     if idx is None:
@@ -91,8 +92,8 @@ class ColumnContainer(object):
   def moveColumn(self, column, new_idx):
     """
     Moves the column to the specified index
-    Input: column - column to move
-           new_idx - new index for column
+    :param column: column to move
+    :param new_idx: new index for column
     """
     cur_idx = self.indexFromColumn(column)
     ins_idx = new_idx + 1
@@ -116,9 +117,8 @@ class ColumnContainer(object):
 
   def setName(self, name):
     """
-    Inputs: name - new table name
-    Outputs: error - error string if invalid name
-                     else None
+    :param name: new table name
+    :return: error string if invalid name, else None
     """
     try:
       _ = compile(name, "string", "eval")
@@ -183,8 +183,8 @@ class Table(ColumnContainer):
   @staticmethod
   def _rowNamesFromSize(size):
     """
-    Inputs: size - number of rows
-    Outputs: result - array of names
+    :param size: number of rows
+    :return: array of names
     """
     return (np.array(range(size)) + 1).astype(str)
 
@@ -199,7 +199,7 @@ class Table(ColumnContainer):
     """
     Inserts values of None so that column
         has the same length as the table
-    Input: columns - either a single column or a list
+    :param columns: either a single column or a list
     """
     if isinstance(columns, cl.Column):
       columns = [columns]
@@ -247,8 +247,8 @@ class Table(ColumnContainer):
     """
     Adds a column to the table.
     Adjusts the Column length to that of the table
-    Input: column - column object
-    Output: error - text if there is a problem with the column
+    :param column: column object
+    :return: error text if there is a problem with the column
                     None if no problem
     Notes: (1) A new column may have either no cells
                or the same number as the existing table
@@ -290,8 +290,8 @@ class Table(ColumnContainer):
 
   def addRow(self, row, ext_index=None):
     """
-    Input: row - Row to add
-           ext_index - index where Row is added, may be a float
+    :param row: Row to add
+    :param ext_index: index where Row is added, may be a float
                        if None, then appended
     """
     proposed_index = self.numRows()  # Index of new row
@@ -322,7 +322,7 @@ class Table(ColumnContainer):
   def deleteColumn(self, column):
     """
     Deletes a column from the table.
-    Input: column - column obj to delete
+    :param column: column obj to delete
     """
     column.setTable(None)
     self.removeColumn(column)
@@ -330,9 +330,8 @@ class Table(ColumnContainer):
   def deleteRows(self, indicies):
     """
     Deletes rows
-    Inputs: indicies - index of rows to delete
+    :param indicies: index of rows to delete
     """
-    # Input: indicies - list of rows to delete
     indicies.sort()
     indicies.reverse()
     for column in self._columns:
@@ -350,16 +349,16 @@ class Table(ColumnContainer):
   def evaluate(self, user_directory=None):
     """
     Evaluates formulas in the table
-    Input: user_directory - full directory path where user modules
+    :param user_directory: full directory path where user modules
                             are placed
-    Output: Error from table evaluation or None
+    :return: error from table evaluation or None
     """
     table_evaluator = TableEvaluator(self)
     return table_evaluator.evaluate(user_directory=user_directory)
 
   def getRow(self, index=None):
     """
-    input: index - row desired
+    :param index: row desired
            if None, then a row of None is returned
     """
     row = Row()
@@ -372,10 +371,10 @@ class Table(ColumnContainer):
 
   def insertRow(self, row, index=None):
     """
-    Inserts the row in the desired index in the table
-    Input: row - a Row
-           index - index in the table where the row is inserted
-    Assigns the value of the NAME_COLUMN
+    Inserts the row in the desired index in the table and
+    assigns the value of the NAME_COLUMN
+    :param row: a Row
+    :param index: index in the table where the row is inserted
     """
     idx = index
     if idx is None:
@@ -414,9 +413,9 @@ class Table(ColumnContainer):
   def renameColumn(self, column, proposed_name):
     """
     Renames the column, checking for a duplicate
-    Inputs: column - column object
-            proposed_name - string for name
-    Outputs: Boolean indicating success or failure
+    :param column: column object
+    :param proposed_name: str, proposed name
+    :return: Boolean indicating success or failure
     """
     names = [c.getName() for c in self.getColumns()]
     bool_test = all([name != proposed_name for name in names])
@@ -428,8 +427,8 @@ class Table(ColumnContainer):
     """
     Renames the row so that it is an integer value
     that creates the row ordering desired.
-    Inputs: row_index - index of the row to change
-            proposed_name - string of a number
+    :param row_index: index of the row to change
+    :param proposed_name: string of a number
     """
     name_column = self.getColumns()[NAME_COLUMN_IDX]
     names = name_column.getCells()
@@ -464,9 +463,9 @@ class Table(ColumnContainer):
   def updateCell(self, value, row_index, column_index):
     """
     Changes the value of the identified cell
-    Inputs: value - new value for the cell
-            row_index - 0-based index of the row
-            column_index - 0-based index of the column
+    :param value: new value for the cell
+    :param row_index: 0-based index of the row
+    :param column_index: 0-based index of the column
     """
     column = self.columnFromIndex(column_index)
     column.updateCell(value, row_index)
@@ -474,8 +473,8 @@ class Table(ColumnContainer):
   def updateColumn(self, column, cells):
     """
     Replaces the cells in the column with those provided
-    Input: column - column to update
-           cells - cells to change
+    :param column: column to update
+    :param cells: cells to change
     """
     column.addCells(cells, replace=True)
     self._adjustColumnLength(self._columns)
@@ -484,10 +483,10 @@ class Table(ColumnContainer):
   def updateRow(self, row, index):
     """
     Updates the row in place. Only changes values
-    that are specified in row.
-    Input: row - Row
-           index - index of row to change
     Assigns the value of the NAME_COLUMN
+    that are specified in row.
+    :param row: Row
+    :param index: index of row to change
     """
     row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
     for ncol in range(self.numColumns()):

@@ -34,13 +34,12 @@ SciSheetsColumn.prototype.formula = function (cmd, formula) {
     modal: true,
     closeOnEscape: true,
     close: function (event, ui) {
-      scisheet.utilReload()
+      scisheet.utilReload();
     },
     dialogClass: "dlg-no-close",
     buttons: {
       "Submit": function () {
         cmd.args = [eleTextarea.value];
-        $(this).dialog("close");
         scisheet.utilSendAndReload(cmd);
       },
       "Cancel": function () {

@@ -1,6 +1,6 @@
 '''Tests for scisheets_views'''
 
-from mysite import settings
+from mysite import settings as st
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
@@ -23,36 +23,40 @@ BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
 
 
-class DummyFile(object):
+class TableFileHelper(object):
   """
-  Creation and removal of a dummy file
+  Creates and removes a dummy Table File
   """
-  
-  def __init__(self, path, name):
+
+  @classmethod
+
+  def doesTableFileExist(cls, table_filename):
     """
-    Inputs: path - path where file should be created
-            name - name of the file
+    Checks if the table file exists
+    :param table_filename: table file name without extension
+    :return: boolean
     """
-    self._path = path
-    self._name = name
-    self._full_path = os.path.join(self._path, self._name)
-    self._exists = False
+    full_path = os.path.join(st.SCISHEETS_USER_TBLDIR, 
+         "%s.pcl" % table_filename)
+    return os.path.exists(full_path)
+
+  def __init__(self, table_filename):
+    """
+    :param table_filename: name of the dummy table file
+    """
+    self._table_filename = table_filename
+    self._full_path = os.path.join(st.SCISHEETS_USER_TBLDIR,
+        "%s.pcl" % self._table_filename)
     
   def create(self):
-    if not self._exists:
-      table = DTTable(self._name)
+    if not TableFileHelper.doesTableFileExist(self._table_filename):
+      table = DTTable(self._table_filename)
       pickle.dump(table, open(self._full_path, "wb"))
-      self._exists = True
 
   def destroy(self):
-    if self._exists:
+    if TableFileHelper.doesTableFileExist(self._table_filename):
       os.remove(self._full_path)
       self._exists = False
-
-  def nameWithoutExtension(self):
-    pos = self._name.index(".")
-    return self._name[:pos]
-  
 
 
 class TestScisheetsViews(TestCase):
@@ -621,8 +625,9 @@ class TestScisheetsViews(TestCase):
     self._tableRename("invalid_name!", False)
 
   def testTableListTableFiles(self):
-    test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
-    test_file.create()
+    filename = "dummy"
+    helper = TableFileHelper(filename)
+    helper.create()
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     ajax_cmd = self._ajaxCommandFactory()
@@ -634,33 +639,35 @@ class TestScisheetsViews(TestCase):
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
     self.assertTrue("data" in content)
-    self.assertTrue(test_file.nameWithoutExtension() in content["data"])
-    test_file.destroy()
+    self.assertTrue(filename in content["data"])
+    helper.destroy()
 
-  # TODO: Need a real table pickle file, not just a dummy
   def testTableOpenTableFiles(self):
-    test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
-    test_file.create()
+    filename = "dummy"
+    helper = TableFileHelper(filename)
+    helper.create()
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
     ajax_cmd['command'] = 'OpenTableFile'
-    ajax_cmd['args[]'] = test_file.nameWithoutExtension()
+    ajax_cmd['args[]'] = filename
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
-    test_file.destroy()
+    helper.destroy()
 
-  # Saves a table to file
-  def _tableSave(self, file_name):
-    # Input: file_name - *.pcl file
+  def _tableSave(self, filename):
+    """
+    Saves a table to file
+    :param filename: - file name to save to
+    """
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
     ajax_cmd['command'] = 'SaveAs'
-    ajax_cmd['args[]'] = file_name
+    ajax_cmd['args[]'] = filename
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
@@ -668,27 +675,42 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content["success"])
 
   def testTableSave(self):
+    filename = "dummy"
     _ = self._createBaseTable()
-    test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
-    test_file.create()
-    file_name = test_file.nameWithoutExtension()
-    self._tableSave(file_name)
-    test_file.destroy()
+    helper = TableFileHelper(filename)
+    helper.create()
+    self._tableSave(filename)
+    helper.destroy()
 
   def testTableDelete(self):
+    filename = "dummy"
+    helper = TableFileHelper(filename)
     _ = self._createBaseTable()
-    test_file = DummyFile(settings.SCISHEETS_USER_TBLDIR, "dummy.pcl")
-    test_file.create()
-    file_name = test_file.nameWithoutExtension()
+    helper.create()
+    self._tableSave(filename)
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
     ajax_cmd['command'] = 'Delete'
-    ajax_cmd['args[]'] = file_name
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
+    self.assertFalse(TableFileHelper.doesTableFileExist(filename))
+    #helper.destroy()
+
+  def testTableNew(self):
+    filename = sv.LOCAL_FILE
+    _ = self._createBaseTable()
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = 'Table'
+    ajax_cmd['command'] = 'New'
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue("success" in content)
+    self.assertTrue(content["success"])
+    self.assertTrue(TableFileHelper.doesTableFileExist(filename))
 
 
 if __name__ == '__main__':
