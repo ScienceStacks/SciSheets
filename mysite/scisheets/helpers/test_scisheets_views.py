@@ -614,6 +614,8 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content.has_key("success"))
     if is_valid_name:
       content = json.loads(response.content)
+      if not content["success"]:
+        import pdb; pdb.set_trace()
       self.assertTrue(content["success"])
       self.assertEqual(new_table.getName(), new_name)
     else:
