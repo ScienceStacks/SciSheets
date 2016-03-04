@@ -8,7 +8,7 @@ import numpy as np
 from os.path import join, dirname
 import shutil
 from table_evaluator import TableEvaluator
-from util_test import createColumn, createTable, stdoutIO
+from util_test import createColumn, createTable, stdoutIO, TableFileHelper
 import unittest
 
 
@@ -105,9 +105,12 @@ class TestTableEvaluator(unittest.TestCase):
     self.assertIsNone(error)
 
   def testFindPythonFiles(self):
-    test_file = "dummy.py"
-    python_files = TableEvaluator._findPythonFiles(TEST_DIR)
-    self.assertTrue(python_files.index(test_file) > -1)
+    filename = "dummy"
+    helper = TableFileHelper(filename, TEST_DIR)
+    helper.create()
+    python_files = TableEvaluator._findFilenames(TEST_DIR)
+    self.assertTrue(python_files.index(filename) > -1)
+    helper.destroy()
 
   def testEvaluateWithUserFunction(self):
     self.column_valid_formula.setFormula(VALID_FORMULA_WITH_USER_FUNCTION)

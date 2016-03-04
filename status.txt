@@ -1,10 +1,12 @@
 Serve page from Django
 
-0. Table/Open: 
-    Fail on OpenTableFile
- 
+0.1 Make evaluate() more reliable
+- Only import files with names that appear in the formula
+  (further tests)
+- Export functions as their function name
 
 1. Export
+   Merge evaluate() and export() codes by doing an export string
    Server side
       -Better tests. Cleanup
 

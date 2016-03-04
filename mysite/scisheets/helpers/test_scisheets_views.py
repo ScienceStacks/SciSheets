@@ -4,6 +4,7 @@ from mysite import settings as st
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
+from ..core.util_test import TableFileHelper
 from ..ui.dt_table import DTTable
 import json
 import mysite.helpers.util as ut
@@ -23,40 +24,6 @@ BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
 
 
-class TableFileHelper(object):
-  """
-  Creates and removes a dummy Table File
-  """
-
-  @classmethod
-
-  def doesTableFileExist(cls, table_filename):
-    """
-    Checks if the table file exists
-    :param table_filename: table file name without extension
-    :return: boolean
-    """
-    full_path = os.path.join(st.SCISHEETS_USER_TBLDIR, 
-         "%s.pcl" % table_filename)
-    return os.path.exists(full_path)
-
-  def __init__(self, table_filename):
-    """
-    :param table_filename: name of the dummy table file
-    """
-    self._table_filename = table_filename
-    self._full_path = os.path.join(st.SCISHEETS_USER_TBLDIR,
-        "%s.pcl" % self._table_filename)
-    
-  def create(self):
-    if not TableFileHelper.doesTableFileExist(self._table_filename):
-      table = DTTable(self._table_filename)
-      pickle.dump(table, open(self._full_path, "wb"))
-
-  def destroy(self):
-    if TableFileHelper.doesTableFileExist(self._table_filename):
-      os.remove(self._full_path)
-      self._exists = False
 
 
 class TestScisheetsViews(TestCase):
@@ -628,7 +595,7 @@ class TestScisheetsViews(TestCase):
 
   def testTableListTableFiles(self):
     filename = "dummy"
-    helper = TableFileHelper(filename)
+    helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     helper.create()
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
@@ -646,7 +613,7 @@ class TestScisheetsViews(TestCase):
 
   def testTableOpenTableFiles(self):
     filename = "dummy"
-    helper = TableFileHelper(filename)
+    helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     helper.create()
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
@@ -679,14 +646,14 @@ class TestScisheetsViews(TestCase):
   def testTableSave(self):
     filename = "dummy"
     _ = self._createBaseTable()
-    helper = TableFileHelper(filename)
+    helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     helper.create()
     self._tableSave(filename)
     helper.destroy()
 
   def testTableDelete(self):
     filename = "dummy"
-    helper = TableFileHelper(filename)
+    helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     _ = self._createBaseTable()
     helper.create()
     self._tableSave(filename)
@@ -698,7 +665,8 @@ class TestScisheetsViews(TestCase):
     content = json.loads(response.content)
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
-    self.assertFalse(TableFileHelper.doesTableFileExist(filename))
+    self.assertFalse(TableFileHelper.doesTableFileExist(filename,
+        st.SCISHEETS_USER_TBLDIR))
     #helper.destroy()
 
   def testTableNew(self):
@@ -712,7 +680,8 @@ class TestScisheetsViews(TestCase):
     content = json.loads(response.content)
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
-    self.assertTrue(TableFileHelper.doesTableFileExist(filename))
+    self.assertTrue(TableFileHelper.doesTableFileExist(filename,
+        st.SCISHEETS_USER_TBLDIR))
 
 
 if __name__ == '__main__':

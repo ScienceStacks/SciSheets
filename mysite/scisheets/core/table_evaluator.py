@@ -29,33 +29,46 @@ class TableEvaluator(object):
     self._table = table
 
   @staticmethod
-  def _findPythonFiles(dir_path):
+  def _findFilenames(dir_path, suffix=PY_SUFFIX):
     """
-    Inputs: dir_path - directory path to search
-    Output: list of python files that are valid
-            user functions for scisheets
+    :param dir_path: directory path to search
+    :param suffix: suffix to select
+    :return: list of names of file names that have suffix (w/o suffix)
     """
-    python_files = []
-    files = [f for f in listdir(dir_path) if isfile(join(dir_path, f))]
+    selected_filenames = []
+    files = [f for f in listdir(dir_path) 
+        if isfile(join(dir_path, f)) and f[-len(suffix):] == suffix]
     for name in files:
       is_valid_file = np.array([name.find(p, 0, len(p)) == -1
                     for p in IGNORE_PREFIX]).all()
-      if is_valid_file and name[- len(PY_SUFFIX):] == PY_SUFFIX:
-        python_files.append(name)
-    return python_files
+      if is_valid_file:
+        new_name = name[:len(name)-len(suffix)]
+        selected_filenames.append(new_name)
+    return selected_filenames
 
   @staticmethod
-  def _importStatements(user_directory, exclude_list):
+  def _importStatements(user_directory, formula_columns):
     """
-    Inputs: user_directory - directory to search for user python files
-            exclude_list - files to exclude
-    Returns a list of import statements for files in the user directory
+    :param user_directory: directory to search for user python files
+    :param formula_columns: list of columns that have a formula
+    :return: list of import statements for files in the user directory
     """
-    files = TableEvaluator._findPythonFiles(user_directory)
-    python_files = [ff for ff in files if ff not in exclude_list]
+    formulas = [fc.getFormula() for fc in formula_columns]
+    python_filenames = TableEvaluator._findFilenames(user_directory)
+    # Determine which files are referenced in a formula
+    referenced_filenames = []
+    for name in python_filenames:
+      for formula in formulas:
+        try:
+          formula.index(name)
+          referenced_filenames.append(name)
+          break
+        except:
+          pass
+    # Construct the import statements
     statements = []
-    for name in python_files:
-      statement = "from %s import *" % name[:-3]
+    for name in referenced_filenames:
+      statement = "from %s import *" % name
       statements.append(statement)
     # Update the python path to find the imports
     sys.path.append(user_directory)
@@ -63,16 +76,10 @@ class TableEvaluator(object):
 
   def _formulaColumns(self):
     """
-    Returns: formula_columns, non_formula_columns
+    :return: list of columns that have a formula
     """
-    formula_columns = []
-    non_formula_columns = []
-    for column in self._table.getColumns():
-      if column.getFormula() is None:
-        non_formula_columns.append(column)
-      else:
-        formula_columns.append(column)
-    return formula_columns, non_formula_columns
+    return [fc for fc in self._table.getColumns()
+            if fc.getFormula() is not None]
 
   def evaluate(self, user_directory=None):
     """
@@ -87,11 +94,12 @@ class TableEvaluator(object):
     Find the formula columns
     """
     error = None
-    formula_columns, _ = self._formulaColumns()
+    formula_columns = self._formulaColumns()
     num_formulas = len(formula_columns)
     # Do the imports
     if user_directory is not None:
-      statements = TableEvaluator._importStatements(user_directory, [])
+      statements = TableEvaluator._importStatements(user_directory, 
+                                                    formula_columns)
       for statement in statements:
         # pylint: disable=W0122
         try:
@@ -215,7 +223,7 @@ class TableEvaluator(object):
     if function_name is None:
       function_name = DEFAULT_FUNCTION_NAME
     statements = []  # List of statements in the file
-    formula_columns, _ = self._formulaColumns()
+    formula_columns = self._formulaColumns()
     num_formulas = len(formula_columns)
     # File header
     header_comments = '''
@@ -236,7 +244,7 @@ import scipy as sp
     ''']
     if user_directory is not None:
       import_statements.extend(
-          TableEvaluator._importStatements(user_directory, []))
+          TableEvaluator._importStatements(user_directory, formula_columns))
     statements.extend(TableEvaluator._indent(import_statements, indent))
     # Function definition
     statement = "def %s(" % function_name

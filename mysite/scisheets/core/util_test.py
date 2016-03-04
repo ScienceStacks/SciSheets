@@ -6,6 +6,8 @@ import column as cl
 import contextlib
 import table as tb
 import numpy as np
+import os
+import pickle
 import StringIO
 import sys
 
@@ -55,3 +57,45 @@ def stdoutIO(stdout=None):
   sys.stdout = stdout
   yield stdout
   sys.stdout = old
+
+
+class TableFileHelper(object):
+  """
+  Creates and removes a dummy Table File
+  """
+
+  @classmethod
+
+  def doesTableFileExist(cls, table_filename, filedir, suffix="pcl"):
+    """
+    Checks if the table file exists
+    :param table_filename: table file name without extension
+    :param table_filedir: directory for the table file
+    :param suffix: suffix for filename
+    :return: boolean
+    """
+    full_filename = "%s.%s" % (table_filename, suffix)
+    full_path = os.path.join(filedir, full_filename)
+    return os.path.exists(full_path)
+
+  def __init__(self, table_filename, table_filedir):
+    """
+    :param table_filename: name of the dummy table file
+    :param table_filedir: directory for the table file
+    """
+    self._table_filename = table_filename
+    self._table_filedir = table_filedir
+    self._full_path = os.path.join(table_filedir,
+        "%s.pcl" % self._table_filename)
+    
+  def create(self):
+    if not TableFileHelper.doesTableFileExist(self._table_filename,
+        self._table_filedir):
+      table = tb.Table(self._table_filename)
+      pickle.dump(table, open(self._full_path, "wb"))
+
+  def destroy(self):
+    if TableFileHelper.doesTableFileExist(self._table_filename,
+        self._table_filedir):
+      os.remove(self._full_path)
+      self._exists = False
