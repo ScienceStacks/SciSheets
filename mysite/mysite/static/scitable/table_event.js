@@ -55,7 +55,7 @@ SciSheetsTable.prototype.utilSelectFile = function (fileNames) {
       scisheet.utilReload();
     }
   });
-  $(selMenu).dialog("option", "width", 50);
+  $(selMenu).dialog("option", "width", 80);
   $(selMenu).dialog("option", "height", 80);
   $(selMenu).parent().find(".ui-dialog-titlebar").hide();
 };

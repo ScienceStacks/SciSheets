@@ -6,6 +6,10 @@ def compareArrays(arr1, arr2):
   #         arr2 - array, possible with None values
   # Outputs: True if equivalent; otherwise false
   THRESHOLD = 0.01
+  if not isinstance(arr1, np.ndarray):
+    arr1 = np.array([arr1])
+  if not isinstance(arr2, np.ndarray):
+    arr2 = np.array([arr2])
   if len(arr1) != len(arr2):
     return False
   for n in range(len(arr1)):
@@ -16,6 +20,11 @@ def compareArrays(arr1, arr2):
         denom = 1.0
       else:
         denom = arr1[n]
+      for m in len(arr1):
+        if (arr1[n][m] is None) and (arr2[n][m] is not None):
+          return False
+        if (arr2[n][m] is None) and (arr2[n][m] is not None):
+          return False
       if abs( (arr1[n] - arr2[n])/denom) > THRESHOLD:
         return False
     else:

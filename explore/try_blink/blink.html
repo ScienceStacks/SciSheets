@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>SciSheets</title>
+
+<style type="text/css">
+/*margin and padding on body element
+  can introduce errors in determining
+  element position and are not recommended;
+  we turn them off as a foundation for YUI
+  CSS treatments. */
+body {
+	margin:0;
+	padding:0;
+}
+caption {
+	margin-top: 1em;
+        font-size: large;
+}
+</style>
+
+
+
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.css"/>
+
+<!--begin custom header content for this page-->
+<style type="text/css">
+/* custom styles for this example */
+.yui-skin-sam .yui-dt-col-address pre { font-family:arial;font-size:100%; } /* Use PRE in first col to preserve linebreaks*/
+</style>
+
+</head>
+
+<body>
+
+<div id="User Notifications">
+
+<button id="mybutton" onclick="clickedMe()">Click Me</button>
+<p id="notification-working" style="font-size:30px;display:none"> 
+  <font color="green">Working...</font>
+</p>
+<script src="blink.js"></script>
+
+</body>
+</html>

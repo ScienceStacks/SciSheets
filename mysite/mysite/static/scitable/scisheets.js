@@ -20,29 +20,31 @@
 
 /* --------------- Utility objects ------------------*/
 /****** Blinker *****/
-function SciSheetsBlinker(obj) {
-  // Blinks the text object obj
+function SciSheetsBlinker(ele) {
+  // Blinks the text eleect ele
   "use strict";
-  var timeout, speed;
-  timeout = 150000;
-  speed = 1000;
-  this.obj = obj;
-  $(this.obj).css("display", "none");
-  setInterval(function () {
-    $(this.obj).fadeToggle(speed);
-  }, timeout);
+  this.blink = {
+    ele: ele,
+    speed: 100
+  };
+  this.fn = null;
+  $(this.blink.ele).css("display", "none");
 }
 
 SciSheetsBlinker.prototype.start = function () {
   "use strict";
-  $(this.obj).css("display", "block");
+  $(this.blink.ele).css("display", "block");
+  this.fn = setInterval(function () {
+    this.blink.ele.fadeToggle(this.blink.speed);
+  }, this.blink.speed + 1);
 };
 
 SciSheetsBlinker.prototype.stop = function () {
   "use strict";
-  $(this.obj).css("display", "none");
+  $(this.blink.ele).css("display", "none");
+  $(this.blink.ele).fadeOut();
+  clearInterval(this.fn);
 };
-
 
 
 /* --------------- SciSheets Objects ------------------*/

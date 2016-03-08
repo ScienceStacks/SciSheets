@@ -22,15 +22,15 @@ caption {
 }
 </style>
 
- {% load static from staticfiles %}
 
-<script type="text/javascript" src='{% static "yui/yui.min.js" %}'></script>
-<script type="text/javascript" src='{% static "jquery/jquery.min.js" %}'></script>
-<script type="text/javascript" src='{% static "jquery-ui/external/jquery/jquery.js" %}'></script>
-<script type="text/javascript" src='{% static "jquery-ui/jquery-ui.js" %}'></script>
-<link rel="stylesheet" type="text/css" href='{% static "jquery-ui/jquery-ui.css" %}'/>
-<link rel="stylesheet" type="text/css" href='{% static "yui/yui.min.css" %}'/>
-<link rel="stylesheet" type="text/css" href='{% static "scitable/scisheets.css" %}'/>
+
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.css"/>
 
 <!--begin custom header content for this page-->
 <style type="text/css">
@@ -54,94 +54,7 @@ caption {
 <!-- =============================== -->
 <div id="ClickMenus">
 
-<style type="text/css">
-.dropcontainer {
-position: relative;
-font-size: 16px;
-color: #777;
-}
-
-.trigger {
-color: #777;
-padding: 10px;
-font-size: 16px;
-width: 50%;
-background: #fff url(../images/select-arrow-open.png) 98% center no-repeat;
-display: block;
-border: 1px solid #ccc;
--webkit-box-sizing: border-box;
--moz-box-sizing: border-box;
-box-sizing: border-box;
-}
-
-.trigger:hover {
-color: #777;
-background: #f5f5f5 url(../images/select-arrow-open.png) 98% center no-repeat;
-}
-
-.activetrigger {
-color: #777;
-padding: 10px;
-font-size: 16px;
-width: 50%;
-background: #f5f5f5 url(../images/select-arrow-close.png) 98% center no-repeat;
-display: block;
-border: 1px solid #ccc;
--webkit-box-sizing: border-box;
--moz-box-sizing: border-box;
-box-sizing: border-box;
-}
-
-.activetrigger:hover {
-background: #f5f5f5 url(../images/select-arrow-close.png) 98% center no-repeat;
-color: #777;
-}
-
-.activetrigger:active {
-background: #f5f5f5 url(../images/select-arrow-close.png) 98% center no-repeat;
-color: #777;
-}
-
-.dropcontainer ul {
-font-size: 16px;
-border: 1px solid #ccc;
-border-top: none;
-background: #fff;
-list-style-type: none;
-padding: 10px;
-margin: 0;
-width: 50%;
-z-index: 100;
--webkit-box-sizing: border-box;
--moz-box-sizing: border-box;
-box-sizing: border-box;
-}
-
-.dropcontainer ul li {
-padding: 5px;
-}
-
-.dropcontainer ul li:hover {
-background: #f5f5f5;
-outline: none;
-}
-
-.dropcontainer ul li:first-child {
-display: none;
-}
-
-.dropcontainer ul li:last-child {
-border-bottom: none;
-}
-
-.dropdownhidden {
-display: none;
-}
-
-.dropdownvisible {
-height: auto;
-}</style>
-<select name="select-file" id="select-file" data-native-menu="false" style="display:none;width:50px">
+<select name="select-file" id="select-file" data-native-menu="false" style="display:none;width:20px">
   <option>Select a Table file</option>	
 </select> 	
 
@@ -223,14 +136,28 @@ height: auto;
 
 <div id="TagReplacedByJS"></div>
 
-<script type="text/javascript" src='{% static "scitable/scisheets.js" %}'> </script>
-<script type="text/javascript" src='{% static "scitable/table_event.js" %}'> </script>
-<script type="text/javascript" src='{% static "scitable/column_event.js" %}'> </script>
-<script type="text/javascript" src='{% static "scitable/row_event.js" %}'> </script>
-<script type="text/javascript" src='{% static "scitable/cell_event.js" %}'> </script>
-<script type="text/javascript" src='{% static "scitable/table_setup.js" %}'> </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.js"> </script>
+// Insert before table_setup.js
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/js_test/test_data.js" type="text/javascript"></script>
+<div id="qunit">QUnit</div>
+<div id="qunit-fixture"></div>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/qunit/qunit.js"></script>
+<script src="test.js"></script>
+<script>
+  sciSheets.mockAjax = true;
+</script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/table_event.js"> </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/column_event.js"> </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/row_event.js"> </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/cell_event.js"> </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/table_setup.js"> </script>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/js_test/test_data.js" type="text/javascript"></script>
+<div id="qunit">QUnit</div>
+<div id="qunit-fixture"></div>
+<script src="/home/ubuntu/SciSheets/mysite/mysite/static/qunit/qunit.js"></script>
+<script src="test.js"></script>
 <!-- ========= Incorporate data from server ====================== -->
-{% include "scitable_data.html" %}
+
 
 </body>
 </html>
