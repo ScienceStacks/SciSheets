@@ -59,27 +59,26 @@ class TableEvaluator(object):
     referenced_filenames = []
     for name in python_filenames:
       for formula in formulas:
-        try:
-          formula.index(name)
+        if name in formula:
           referenced_filenames.append(name)
           break
-        except:
-          pass
     # Construct the import statements
     statements = []
     for name in referenced_filenames:
-      statement = "from %s import *" % name
+      statement = "from %s import %s" % (name, name)
       statements.append(statement)
     # Update the python path to find the imports
     sys.path.append(user_directory)
     return statements
 
-  def _formulaColumns(self):
+  def _formulaColumns(self, exclude="!_%$#"):
     """
+    :param exclude: string that, if present, excludes formula
     :return: list of columns that have a formula
     """
     return [fc for fc in self._table.getColumns()
-            if fc.getFormula() is not None]
+            if fc.getFormula() is not None
+              and exclude not in fc.getFormula()]
 
   def evaluate(self, user_directory=None):
     """
@@ -223,7 +222,7 @@ class TableEvaluator(object):
     if function_name is None:
       function_name = DEFAULT_FUNCTION_NAME
     statements = []  # List of statements in the file
-    formula_columns = self._formulaColumns()
+    formula_columns = self._formulaColumns(exclude=function_name)
     num_formulas = len(formula_columns)
     # File header
     header_comments = '''

@@ -18,6 +18,34 @@
      no other dependencies
 */
 
+/* --------------- Utility objects ------------------*/
+/****** Blinker *****/
+function SciSheetsBlinker(obj) {
+  // Blinks the text object obj
+  "use strict";
+  var timeout, speed;
+  timeout = 150000;
+  speed = 1000;
+  this.obj = obj;
+  $(this.obj).css("display", "none");
+  setInterval(function () {
+    $(this.obj).fadeToggle(speed);
+  }, timeout);
+}
+
+SciSheetsBlinker.prototype.start = function () {
+  "use strict";
+  $(this.obj).css("display", "block");
+};
+
+SciSheetsBlinker.prototype.stop = function () {
+  "use strict";
+  $(this.obj).css("display", "none");
+};
+
+
+
+/* --------------- SciSheets Objects ------------------*/
 
 /* Create the SciSheets namespace */
 function SciSheets() {
@@ -87,13 +115,17 @@ SciSheets.prototype.createServerCommand = function () {
 --------------------------------------------------------------- */
 SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction) {
   "use strict";
+  var blinker;
   this.ajaxCallCount += 1;
+  blinker = new SciSheetsBlinker($("#notification-working"));
   if (!this.mockAjax) {
+    blinker.start();
     $.ajax({async: true,
       url: "command",
       data: serverCommand,
       success: function (result) {
         var msg;
+        blinker.stop();
         if (!result.success) {
           msg = "Error for cmd: " + serverCommand.command;
           msg += "\n" + result.data;
@@ -102,6 +134,7 @@ SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction
         successFunction(result.data);
       },
       error: function (xhr, ajaxOptions, thrownError) {
+        blinker.stop();
         alert(xhr.status);
         alert(thrownError);
       }
