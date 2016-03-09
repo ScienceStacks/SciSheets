@@ -25,7 +25,7 @@ function SciSheetsBlinker(ele) {
   "use strict";
   this.blink = {
     ele: ele,
-    speed: 100
+    speed: 1000
   };
   this.fn = null;
   $(this.blink.ele).css("display", "none");
@@ -117,17 +117,13 @@ SciSheets.prototype.createServerCommand = function () {
 --------------------------------------------------------------- */
 SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction) {
   "use strict";
-  var blinker;
   this.ajaxCallCount += 1;
-  blinker = new SciSheetsBlinker($("#notification-working"));
   if (!this.mockAjax) {
-    blinker.start();
     $.ajax({async: true,
       url: "command",
       data: serverCommand,
       success: function (result) {
         var msg;
-        blinker.stop();
         if (!result.success) {
           msg = "Error for cmd: " + serverCommand.command;
           msg += "\n" + result.data;
@@ -136,7 +132,6 @@ SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction
         successFunction(result.data);
       },
       error: function (xhr, ajaxOptions, thrownError) {
-        blinker.stop();
         alert(xhr.status);
         alert(thrownError);
       }
@@ -215,8 +210,10 @@ SciSheets.prototype.utilReload = function () {
 
 SciSheets.prototype.utilSendAndReload = function (cmd) {
   "use strict";
-  var scisheet = this;
+  var scisheet = this, blinker;
   this.sendServerCommand(cmd, function (data) {
+    blinker = new SciSheetsBlinker($("#notification-working"));
+    blinker.start();  // Object is deleted by reload
     console.log("Server returned: " + data);
     scisheet.utilReload();
   });
