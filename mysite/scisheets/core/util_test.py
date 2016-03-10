@@ -12,27 +12,40 @@ import StringIO
 import sys
 
 
-def toList(v):
-  if isinstance(v, list):
-    data_list = v
-  elif isinstance(v, np.ndarray):
-    data_list = v.tolist()
+def toList(val):
+  """
+  Converts a value to a list.
+  :param val: value to convert
+  :return: list
+  """
+  if isinstance(val, list):
+    data_list = val
+  elif isinstance(val, np.ndarray):
+    data_list = val.tolist()
   else:
-    data_list = [v]
+    data_list = [val]
   return data_list
 
-def compareValues(v1, v2):
-  list1 = toList(v1)
-  list2 = toList(v2)
+def compareValues(val1, val2):
+  """
+  Compares two scalars or lists
+  :param val1: first value to compare
+  :param val2: secondvalue to compare
+  :return: Boolean
+  """
+  list1 = toList(val1)
+  list2 = toList(val2)
   if len(list1) != len(list2):
     return False
-  r = True
-  for n in range(len(list1)):
-    r = r and (list1[n] == list2[n])
-  return r
+  is_equal = True
+  for idx in range(len(list1)):
+    is_equal = is_equal and (list1[idx] == list2[idx])
+  return is_equal
 
 def createColumn(name, data=np.array([]), table=None, formula=None):
-  # Returns a populated column
+  """
+  Returns a populated column
+  """
   column = cl.Column(name)
   column.addCells(data)
   column.setTable(table)
@@ -53,7 +66,7 @@ def stdoutIO(stdout=None):
   # Usage: with stdoutIO() as s:
   old = sys.stdout
   if stdout is None:
-      stdout = StringIO.StringIO()
+    stdout = StringIO.StringIO()
   sys.stdout = stdout
   yield stdout
   sys.stdout = old
@@ -87,7 +100,7 @@ class TableFileHelper(object):
     self._table_filedir = table_filedir
     self._full_path = os.path.join(table_filedir,
         "%s.pcl" % self._table_filename)
-    
+
   def create(self):
     if not TableFileHelper.doesTableFileExist(self._table_filename,
         self._table_filedir):

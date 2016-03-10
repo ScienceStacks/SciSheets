@@ -1,12 +1,9 @@
 '''Tests for table'''
 
-#from django.test import TestCase 
-#mockfrom jviz.mvc_sheets import column as cl
-import table as tb 
+import table as tb
 import column as cl
 import errors as er
-import numpy as np
-from util_test import createColumn, createTable
+from util_test import createTable
 import unittest
 
 
@@ -17,6 +14,7 @@ COLUMN2 = "DUMMY2_COLUMN"
 COLUMN3 = "DUMMY3_COLUMN"
 COLUMN4 = "DUMMY4_COLUMN"
 COLUMN5 = "DUMMY5_COLUMN"
+COLUMN2_INDEX = 1
 TABLE_NAME = "DUMMY_TABLE"
 LIST = [2.0, 3.0]
 LIST2 = [3.0]
@@ -30,6 +28,7 @@ COLUMN5_CELLS = [100.0, 200.0, 300.0]
 #############################
 # Tests
 #############################
+# pylint: disable=W0212,C0111,R0904
 class TestTable(unittest.TestCase):
 
   def setUp(self):
@@ -89,15 +88,15 @@ class TestTable(unittest.TestCase):
 
   def testGetRow(self):
     row = self.table.getRow()
-    isCorrect = row.has_key(COLUMN1) and row.has_key(COLUMN2)
-    self.assertTrue(isCorrect)
-    isCorrect = row[COLUMN1] is None
-    isCorrect = isCorrect and row[COLUMN2] is None
-    IDX = 1
-    row = self.table.getRow(IDX)
-    isCorrect = row[COLUMN1] == COLUMN1_CELLS[IDX]
-    isCorrect = isCorrect and row[COLUMN2] == COLUMN2_CELLS[IDX]
-    self.assertTrue(isCorrect)
+    is_correct = row.has_key(COLUMN1) and row.has_key(COLUMN2)
+    self.assertTrue(is_correct)
+    is_correct = row[COLUMN1] is None
+    is_correct = is_correct and row[COLUMN2] is None
+    idx = 1
+    row = self.table.getRow(idx)
+    is_correct = row[COLUMN1] == COLUMN1_CELLS[idx]
+    is_correct = is_correct and row[COLUMN2] == COLUMN2_CELLS[idx]
+    self.assertTrue(is_correct)
 
   def testAddRow(self):
     row = self.table.getRow()
@@ -129,16 +128,16 @@ class TestTable(unittest.TestCase):
     self.assertEqual(num_col-1, self.table.numColumns())
 
   def testDeleteRows(self):
-    ROWS = [0, 2]
-    expected_rows = self.table.numRows() - len(ROWS)
-    self.table.deleteRows(ROWS)
+    rows = [0, 2]
+    expected_rows = self.table.numRows() - len(rows)
+    self.table.deleteRows(rows)
     self.assertEqual(self.table.numRows(), expected_rows)
 
   def testGetColumns(self):
     columns = self.table.getColumns()
     self.assertEqual(len(columns), self.table.numColumns())
-    for c in columns:
-      self.assertTrue(isinstance(c, cl.Column))
+    for column in columns:
+      self.assertTrue(isinstance(column, cl.Column))
 
   def testNumColumns(self):
     self.assertEqual(self.table.numColumns(), 4)
@@ -146,47 +145,39 @@ class TestTable(unittest.TestCase):
   def testNumRows(self):
     self.assertEqual(self.table.numRows(), len(COLUMN2_CELLS))
 
-  def testUpdateRow(self):
-    rowidx = 1
-    row = tb.Row()
-    row[COLUMN1] = '10'
-    row[COLUMN2] = 20.0
-    self.table.updateRow(row, rowidx)
-    row['row'] = tb.Table._rowNameFromIndex(rowidx)
-    self.assertEqual(row, self.table.getRow(index=rowidx))
-
   def testMoveColumn1(self):
     # Move column 2 to be after column 0
-    DEST_IDX = 0
+    dest_idx = 0
     column2 = self.table.columnFromName(COLUMN2)
-    self.table.moveColumn(column2, DEST_IDX)
-    self.assertEqual(self.table._columns[DEST_IDX+1].getName(), COLUMN2)
+    self.table.moveColumn(column2, dest_idx)
+    self.assertEqual(self.table._columns[dest_idx+1].getName(), COLUMN2)
 
   def testMoveColumn2(self):
     # Move column 1 to be after column 3
-    DEST_IDX = 3
+    dest_idx = 3
     column1 = self.table.columnFromName(COLUMN1)
-    self.table.moveColumn(column1, DEST_IDX)
-    self.assertEqual(self.table._columns[DEST_IDX].getName(), COLUMN1)
+    self.table.moveColumn(column1, dest_idx)
+    self.assertEqual(self.table._columns[dest_idx].getName(), COLUMN1)
 
   def testColumnFromIndex(self):
-    COLUMN2_INDEX = 1
-    column2 = self.table.columnFromIndex(COLUMN2_INDEX)
-    self.assertEqual(column2.getName(), COLUMN1)
+    columns = self.table.getColumns()
+    for idx in range(self.table.numColumns()):
+      column = columns[idx]
+      self.assertEqual(idx, self.table.indexFromColumn(column))
 
   def testInsertColumn(self):
-    NEW_COLUMN_NAME = "NEW_COLUMN"
+    new_column_name = "NEW_COLUMN"
     index = 1
-    new_column = cl.Column(NEW_COLUMN_NAME)
+    new_column = cl.Column(new_column_name)
     self.table.insertColumn(new_column, index)
-    self.assertEqual(self.table._columns[index].getName(), 
-        NEW_COLUMN_NAME)
-    NEWER_COLUMN_NAME = "NEWER_COLUMN"
-    newer_column = cl.Column(NEWER_COLUMN_NAME)
+    self.assertEqual(self.table._columns[index].getName(),
+        new_column_name)
+    newer_column_name = "NEWER_COLUMN"
+    newer_column = cl.Column(newer_column_name)
     index = len(self.table._columns)
     self.table.insertColumn(newer_column)
-    self.assertEqual(self.table._columns[index].getName(), 
-        NEWER_COLUMN_NAME)
+    self.assertEqual(self.table._columns[index].getName(),
+        newer_column_name)
 
   def testRemoveColumn(self):
     num_col = self.table.numColumns()
@@ -210,28 +201,37 @@ class TestTable(unittest.TestCase):
 
   def testMoveRow(self):
     cur_row = self.table.getRow(1)
-    self.table.moveRow(1,2)
+    self.table.moveRow(1, 2)
     new_row = self.table.getRow(2)
     for k in cur_row.keys():
       if k != 'row':
         self.assertEqual(cur_row[k], new_row[k])
 
   def testUpdateCell(self):
-    NEW_VALUE = "onee"
-    COLUMN_INDEX = 1
-    ROW_INDEX = 0
-    self.table.updateCell("onee", ROW_INDEX, COLUMN_INDEX)
+    new_value = "onee"
+    row_index = 0
+    self.table.updateCell("onee", row_index, COLUMN2_INDEX)
     columns = self.table.getColumns()
-    self.assertEqual(columns[COLUMN_INDEX].getCells()[ROW_INDEX],
-        NEW_VALUE)
+    self.assertEqual(columns[COLUMN2_INDEX].getCells()[row_index],
+        new_value)
 
   def testUpdateRow(self):
+    # Simple update
+    rowidx = 1
+    row = tb.Row()
+    row[COLUMN1] = '10'
+    row[COLUMN2] = 20.0
+    row[COLUMN5] = 200.0
+    self.table.updateRow(row, rowidx)
+    row['row'] = tb.Table._rowNameFromIndex(rowidx)
+    self.assertEqual(row, self.table.getRow(index=rowidx))
+    # More complex update
     row = self.table.getRow()  # Get an empty row
     row[COLUMN1] = "four"
     row[COLUMN2] = 50
-    INDEX = 0
-    self.table.updateRow(row, index=INDEX)
-    new_row = self.table.getRow(INDEX)
+    idx = 0
+    self.table.updateRow(row, index=idx)
+    new_row = self.table.getRow(idx)
     self.assertEqual(new_row[COLUMN1], row[COLUMN1])
     self.assertEqual(new_row[COLUMN2], row[COLUMN2])
 
@@ -240,43 +240,36 @@ class TestTable(unittest.TestCase):
                      COLUMN1_CELLS[0])
 
   def testRowNamesFromSize(self):
-    SIZE = 5
-    table = self.table
-    row_names = tb.Table._rowNamesFromSize(SIZE)
-    self.assertEqual(len(row_names), SIZE)
-    for n in range(SIZE):
-      self.assertEqual(row_names[n], tb.Table._rowNameFromIndex(n))
+    size = 5
+    row_names = tb.Table._rowNamesFromSize(size)
+    self.assertEqual(len(row_names), size)
+    for idx in range(size):
+      self.assertEqual(row_names[idx], tb.Table._rowNameFromIndex(idx))
 
   def testRenameRow(self):
     table = self.table
-    ROW_IDX = 0
+    row_idx = 0
     columns = table.getColumns()
     table_data = table.getData()
     # Move the first row to the end of the table
     after_last_row_name = tb.Table._rowNameFromIndex(table.numRows())
-    table.renameRow(ROW_IDX, after_last_row_name)
+    table.renameRow(row_idx, after_last_row_name)
     # Test if done correctly
-    rplIdx = range(len(COLUMN1_CELLS))
-    del rplIdx[0]
-    rplIdx.append(0)
-    for c in range(1, table.numColumns()):
-      expected_array = table_data[c][rplIdx]
-      b = (columns[c].getCells() == expected_array).all()
-      self.assertTrue(b)
-
-  def testColumnFromIndex(self):
-    columns = self.table.getColumns()
-    for n in range(self.table.numColumns()):
-      column = columns[n]
-      self.assertEqual(n , self.table.indexFromColumn(column))
+    rpl_idx = range(len(COLUMN1_CELLS))
+    del rpl_idx[0]
+    rpl_idx.append(0)
+    for idx in range(1, table.numColumns()):
+      expected_array = table_data[idx][rpl_idx]
+      is_equal = (columns[idx].getCells() == expected_array).all()
+      self.assertTrue(is_equal)
 
   def testRenameColumn(self):
     column = self.table.columnFromName(COLUMN1)
-    b = self.table.renameColumn(column, COLUMN1)
-    self.assertFalse(b)
+    is_equal = self.table.renameColumn(column, COLUMN1)
+    self.assertFalse(is_equal)
     new_name = "%s_extra" % COLUMN1
-    b = self.table.renameColumn(column, new_name)
-    self.assertTrue(b)
+    is_equal = self.table.renameColumn(column, new_name)
+    self.assertTrue(is_equal)
 
   def testTrimRows(self):
     num_rows = self.table.numRows()
@@ -292,4 +285,4 @@ class TestTable(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()
