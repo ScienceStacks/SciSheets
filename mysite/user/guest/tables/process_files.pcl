@@ -131,10 +131,10 @@ sg31
 VFiles
 p57
 sg33
-Vimport os\u000aFiles=[f for f in os.listdir('.') if f[-4:] == '.csv']\u000aFiles.sort()\u000adfs = [pd.read_csv(f) for f in Files if f is not None]\u000aMeanV1 = [df.v1.mean() for df in dfs]\u000aMeanV2 = [df.v2.mean() for df in dfs]\u000aVarV1 = [df.v1.var() for df in dfs]
+Vimport os\u000aFiles=[f for f in os.listdir('.') if f[-4:] == '.csv']\u000aFiles.sort()\u000adfs = [pd.read_csv(f) for f in Files if f is not None]\u000aMeanV1 = [df.v1.mean() for df in dfs]\u000aMeanV2 = [df.v2.mean() for df in dfs]\u000aVarV1 = [df.v1.var() for df in dfs]\u000aVarV2 = [df.v2.var() for df in dfs]
 p58
 sg34
-Vimport os\u000aFiles=[f for f in os.listdir('.') if f[-4:] == '.csv']\u000aFiles.sort()\u000adfs = [pd.read_csv(f) for f in Files if f is not None]\u000aMeanV1 = [df.v1.mean() for df in dfs]\u000aMeanV2 = [df.v2.mean() for df in dfs]\u000aVarV1 = [df.v1.var() for df in dfs]
+Vimport os\u000aFiles=[f for f in os.listdir('.') if f[-4:] == '.csv']\u000aFiles.sort()\u000adfs = [pd.read_csv(f) for f in Files if f is not None]\u000aMeanV1 = [df.v1.mean() for df in dfs]\u000aMeanV2 = [df.v2.mean() for df in dfs]\u000aVarV1 = [df.v1.var() for df in dfs]\u000aVarV2 = [df.v2.var() for df in dfs]
 p59
 sbag0
 (g8
@@ -245,12 +245,50 @@ aF250.0
 aNatp88
 bsg29
 g2
-sg33
-Nsg31
+sg31
 VVarV1
 p89
-sg34
+sg33
+Nsg34
+Nsbag0
+(g8
+g2
+Ntp90
+Rp91
+(dp92
+g12
+g4
+sg13
+g14
+(g15
+(I0
+tp93
+g17
+tp94
+Rp95
+(I1
+(I9
+tp96
+g44
+I00
+(lp97
+F10000.0
+aF9.999999999999999e-05
+aF10000.0
+aF10000.0
+aF10000.0
+aF10000.0
+aF25000.0
+aF25000.0
+aNatp98
+bsg29
+g2
+sg31
+VVarV2
+p99
+sg33
+Nsg34
 Nsbasg31
 S'Demo'
-p90
+p100
 sb.
