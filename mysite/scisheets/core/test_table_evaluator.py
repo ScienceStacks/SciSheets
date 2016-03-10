@@ -47,12 +47,13 @@ class TestTableEvaluator(unittest.TestCase):
 
   def setUp(self):
     self.table = createTable(TABLE_NAME)
-    self._addColumn(COLUMN1, cells=COLUMN1_CELLS)   
-    self.column_a = self._addColumn(COLUMN2, cells=COLUMN2_CELLS)   
-    self.column_b = self._addColumn(COLUMN5, cells=COLUMN5_CELLS)   
-    self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)   
-    self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA, formula=VALID_FORMULA)
-    self.te = TableEvaluator(self.table)
+    self._addColumn(COLUMN1, cells=COLUMN1_CELLS)
+    self.column_a = self._addColumn(COLUMN2, cells=COLUMN2_CELLS)
+    self.column_b = self._addColumn(COLUMN5, cells=COLUMN5_CELLS)
+    self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)
+    self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA,
+                                                formula=VALID_FORMULA)
+    self.evaluator = TableEvaluator(self.table)
 
   def _addColumn(self, name, cells=None, formula=None):
     column = cl.Column(name)
@@ -64,45 +65,46 @@ class TestTableEvaluator(unittest.TestCase):
     return column
 
   def testConstructor(self):
-    te = TableEvaluator(self.table)
-    self.assertEqual(te._table.getName(), TABLE_NAME)
+    evaluator = TableEvaluator(self.table)
+    self.assertEqual(evaluator._table.getName(), TABLE_NAME)
 
   def testEvaluate(self):
-    error = self.te.evaluate()
+    error = self.evaluator.evaluate()
     self.assertIsNone(error)
-    formula_result = ( 
-                       np.sin(self.column_a.getCells()) 
+    # pylint: disable=E1101
+    formula_result = (
+                       np.sin(self.column_a.getCells())
                        + self.column_b.getCells()
                      )
-    b = np.equal(formula_result, 
+    is_equal = np.equal(formula_result,
                  self.column_valid_formula.getCells()).all()
-    self.assertTrue(b)
+    self.assertTrue(is_equal)
 
   def testEvaluateError(self):
     column_invalid_formula = cl.Column(COLUMN_INVALID_FORMULA)
     column_invalid_formula.setFormula(INVALID_FORMULA)
     self.table.addColumn(column_invalid_formula)
-    te = TableEvaluator(self.table)
-    error = te.evaluate()
+    evaluator = TableEvaluator(self.table)
+    error = evaluator.evaluate()
     self.assertIsNotNone(error)
 
   def testEvaluateTwoFormulas(self):
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
-    te = TableEvaluator(self.table)
-    error = te.evaluate()
+    evaluator = TableEvaluator(self.table)
+    error = evaluator.evaluate()
     self.assertIsNone(error)
 
   def testEvaluateWithNoneValues(self):
     table = self.table
     row = table.getRow()
     table.addRow(row, 0.1)  # Add a new row after
-    error = self.te.evaluate()
+    error = self.evaluator.evaluate()
     self.assertIsNotNone(error)
     new_row = table.getRow()
     new_row['A'] = 1
     new_row['B'] = 1
     table.updateRow(new_row, 1)
-    error = self.te.evaluate()
+    error = self.evaluator.evaluate()
     self.assertIsNone(error)
 
   def testFindPythonFiles(self):
@@ -115,7 +117,7 @@ class TestTableEvaluator(unittest.TestCase):
 
   def testEvaluateWithUserFunction(self):
     self.column_valid_formula.setFormula(VALID_FORMULA_WITH_USER_FUNCTION)
-    errors = self.te.evaluate(user_directory=TEST_DIR)
+    errors = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(errors)
 
   def testEvaluateFormulaWithRowAddition(self):
@@ -128,21 +130,21 @@ class TestTableEvaluator(unittest.TestCase):
 
   def testEvaluateFormulaWithLargeRowAddition(self):
     # Tests a formula that should increase the number of rows.
-    NUM_ROWS = 1000
-    formula = "range(%d)" % NUM_ROWS
+    num_rows = 1000
+    formula = "range(%d)" % num_rows
     self.column_valid_formula.setFormula(formula)
     self.table.evaluate()
-    self.assertEqual(self.table.numRows(), NUM_ROWS)
+    self.assertEqual(self.table.numRows(), num_rows)
 
   def testEvaluateRowInsert(self):
-    ROW_INDEX = 1
+    row_index = 1
     new_row = self.table.getRow()
-    self.table.insertRow(new_row, index=ROW_INDEX)
+    self.table.insertRow(new_row, index=row_index)
     error = self.table.evaluate()
     self.assertIsNotNone(error)  # sin is not defined for None values
     new_row['A'] = 0.5
     new_row['B'] = 0.6
-    self.table.updateRow(new_row, index=ROW_INDEX)
+    self.table.updateRow(new_row, index=row_index)
     error = self.table.evaluate()
     self.assertIsNone(error)  # Formula should work
 
@@ -150,10 +152,8 @@ class TestTableEvaluator(unittest.TestCase):
     self.column_b.setFormula("range(len(A))")
     self.column_valid_formula.setFormula("np.sin(np.array(B, dtype=float)")
     self.table.evaluate()
-    for v in self.column_valid_formula.getCells():
-      if v is None:
-        import pdb; pdb.set_trace()
-      self.assertIsNotNone(v)
+    for val in self.column_valid_formula.getCells():
+      self.assertIsNotNone(val)
 
   def testExport(self):
     # Two formula columns
@@ -163,8 +163,8 @@ class TestTableEvaluator(unittest.TestCase):
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
     self.table.evaluate()
     self.table.export(function_name=function_name,
-                      file_path = file_path,
-                      user_directory = TEST_DIR,
+                      file_path=file_path,
+                      user_directory=TEST_DIR,
                       inputs=[COLUMNC, COLUMN5],
                       outputs=[COLUMN_VALID_FORMULA, COLUMN2])
     try:
@@ -180,66 +180,49 @@ class TestTableEvaluator(unittest.TestCase):
       pass
     shutil.move(file_path, "/tmp")  # Put in temp
 
-  def testMechaelisMenton(self):
-    return
-    self.table = createTable("MechaelisMenton")
-    self._addColumn("THDPA", cells=[0.01, 0.05, 0.12, 0.2, 0.5, 1.0])
-    self._addColumn("V", cells=[0.110, 0.19, 0.21, 0.22, 0.21, 0.24])
-    self._addColumn("INV_THDPA", formula = "1/THDPA")
-    self._addColumn("INV_V", formula = "1/V")
-    self._addColumn("INTERCEPT", formula = "intercept(INV_THDPA, INV_V)")
-    self._addColumn("SLOPE", formula = "slope(INV_THDPA, INV_V)")
-    self._addColumn("Vmax", formula = "1/INTERCEPT")
-    self._addColumn("KM", formula="Vmax*SLOPE")
-    self.table.export(function_name="MechaelisMenton",
-                      inputs=["THDPA", "V"],
-                      outputs=["Vmax", "KM"])
- 
-  @staticmethod 
+  @staticmethod
   def _countNonNone(array):
     return len([x for x in array if x is not None])
 
   def _testFormulaVariations(self, formula1, formula2, len1, len2):
-     # Checks compound formulas of different combinations.
-     # Input: formula1 - valid python expression
-     #        formula2 - valid python statement for column A or ""
-     #        len1 - length of the array created by formula1
-     #        len2 - length of the array created by formula2
-     if len(formula2) == 0:
-       formula = formula1
-       self.column_valid_formula.setFormula(formula)
-       self.assertIsNone(self.te.evaluate())
-       self.assertEqual(
-           TestTableEvaluator._countNonNone(self.column_valid_formula.getCells()), 
-                        len1)
-     else:
-       formula = "%s; %s" % (formula1, formula2)
-       self.column_valid_formula.setFormula(formula)
-       self.assertIsNone(self.te.evaluate())
-       self.assertEqual(
-           TestTableEvaluator._countNonNone(self.column_valid_formula.getCells()), 
-                        len1)
-       self.assertEqual(
-           TestTableEvaluator._countNonNone(self.column_a.getCells()), 
-           len2)
-    
+    # Checks compound formulas of different combinations.
+    # Input: formula1 - valid python expression
+    #        formula2 - valid python statement for column A or ""
+    #        len1 - length of the array created by formula1
+    #        len2 - length of the array created by formula2
+    if len(formula2) == 0:
+      formula = formula1
+      self.column_valid_formula.setFormula(formula)
+      self.assertIsNone(self.evaluator.evaluate())
+      self.assertEqual(
+          TestTableEvaluator._countNonNone(
+          self.column_valid_formula.getCells()), len1)
+    else:
+      formula = "%s; %s" % (formula1, formula2)
+      self.column_valid_formula.setFormula(formula)
+      self.assertIsNone(self.evaluator.evaluate())
+      self.assertEqual(
+          TestTableEvaluator._countNonNone(
+          self.column_valid_formula.getCells()), len1)
+      self.assertEqual(
+          TestTableEvaluator._countNonNone(self.column_a.getCells()),
+          len2)
+
 
   def testFormulaVariations(self):
-    # TODO: Need test that checks no changing current column if I have a statement
-    #       assigning to another column
     size = 10
     list_expr = "[n for n in range(%d)]" % size
     scalar_expr = "np.sin(3.1)"
-    LIST_STMT = "A = np.array([n for n in range(%d)])" % size
-    LIST_STMT1 = "VALID_FORMULA = np.array([n for n in range(%d)])" % size
-    SCALAR_STMT = "A = np.sin(3.1)"
-    SCALAR_STMT1 = "VALID_FORMUAL = np.sin(3.1)"
+    list_stmt = "A = np.array([n for n in range(%d)])" % size
+    list_stmt1 = "VALID_FORMULA = np.array([n for n in range(%d)])" % size
+    scalar_stmt = "A = np.sin(3.1)"
+    scalar_stmt1 = "VALID_FORMUAL = np.sin(3.1)"
     self._testFormulaVariations(list_expr, "", size, 0)
     self._testFormulaVariations(scalar_expr, "", 1, 0)
-    self._testFormulaVariations(LIST_STMT, SCALAR_STMT, 1, 1)
-    self._testFormulaVariations(SCALAR_STMT1, SCALAR_STMT, 1, 1)
-    self._testFormulaVariations(LIST_STMT1, LIST_STMT, size, size)
-    
+    self._testFormulaVariations(list_stmt, scalar_stmt, 1, 1)
+    self._testFormulaVariations(scalar_stmt1, scalar_stmt, 1, 1)
+    self._testFormulaVariations(list_stmt1, list_stmt, size, size)
+
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()
