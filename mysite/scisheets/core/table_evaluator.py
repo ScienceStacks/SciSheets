@@ -36,7 +36,7 @@ class TableEvaluator(object):
     :return: list of names of file names that have suffix (w/o suffix)
     """
     selected_filenames = []
-    files = [f for f in listdir(dir_path) 
+    files = [f for f in listdir(dir_path)
         if isfile(join(dir_path, f)) and f[-len(suffix):] == suffix]
     for name in files:
       is_valid_file = np.array([name.find(p, 0, len(p)) == -1
@@ -97,7 +97,7 @@ class TableEvaluator(object):
     num_formulas = len(formula_columns)
     # Do the imports
     if user_directory is not None:
-      statements = TableEvaluator._importStatements(user_directory, 
+      statements = TableEvaluator._importStatements(user_directory,
                                                     formula_columns)
       for statement in statements:
         # pylint: disable=W0122

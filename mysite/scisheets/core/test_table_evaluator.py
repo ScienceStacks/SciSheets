@@ -1,14 +1,12 @@
 '''Tests for table_evaluator'''
 
 import os
-import table as tb 
 import column as cl
-import errors as er
 import numpy as np
-from os.path import join, dirname
+from os.path import join
 import shutil
 from table_evaluator import TableEvaluator
-from util_test import createColumn, createTable, stdoutIO, TableFileHelper
+from util_test import createTable, stdoutIO, TableFileHelper
 import unittest
 
 
@@ -42,6 +40,9 @@ IMPORT_PATHS = ["", "scisheets.core"]
 #############################
 # Tests
 #############################
+# pylint: disable=W0212
+# pylint: disable=C0111
+# pylint: disable=R0904
 class TestTableEvaluator(unittest.TestCase):
 
   def setUp(self):
@@ -156,30 +157,28 @@ class TestTableEvaluator(unittest.TestCase):
 
   def testExport(self):
     # Two formula columns
-    FUNCTION_NAME = "my_test"
-    FILE_NAME = "%s.py" % FUNCTION_NAME
-    FILE_PATH = join(TEST_DIR, FILE_NAME)
+    function_name = "my_test"
+    file_name = "%s.py" % function_name
+    file_path = join(TEST_DIR, file_name)
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
     self.table.evaluate()
-    self.table.export(function_name=FUNCTION_NAME,
-                      file_path = FILE_PATH,
+    self.table.export(function_name=function_name,
+                      file_path = file_path,
                       user_directory = TEST_DIR,
                       inputs=[COLUMNC, COLUMN5],
                       outputs=[COLUMN_VALID_FORMULA, COLUMN2])
-    error = None
     try:
-      with stdoutIO() as s:
-        execfile(FILE_PATH)
+      with stdoutIO():
+        execfile(file_path)
       success = True
-    except Exception as e:
+    except IOError:
       success = False
-      error = str(e)
     self.assertTrue(success)
     try:
-      os.remove("/tmp/%s" % FILE_NAME)  # Delete the file created
-    except:
+      os.remove("/tmp/%s" % file_name)  # Delete the file created
+    except OSError:
       pass
-    shutil.move(FILE_PATH, "/tmp")  # Put in temp
+    shutil.move(file_path, "/tmp")  # Put in temp
 
   def testMechaelisMenton(self):
     return
@@ -228,18 +227,18 @@ class TestTableEvaluator(unittest.TestCase):
   def testFormulaVariations(self):
     # TODO: Need test that checks no changing current column if I have a statement
     #       assigning to another column
-    SIZE = 10
-    LIST_EXPR = "[n for n in range(%d)]" % SIZE
-    SCALAR_EXPR = "np.sin(3.1)"
-    LIST_STMT = "A = np.array([n for n in range(%d)])" % SIZE
-    LIST_STMT1 = "VALID_FORMULA = np.array([n for n in range(%d)])" % SIZE
+    size = 10
+    list_expr = "[n for n in range(%d)]" % size
+    scalar_expr = "np.sin(3.1)"
+    LIST_STMT = "A = np.array([n for n in range(%d)])" % size
+    LIST_STMT1 = "VALID_FORMULA = np.array([n for n in range(%d)])" % size
     SCALAR_STMT = "A = np.sin(3.1)"
     SCALAR_STMT1 = "VALID_FORMUAL = np.sin(3.1)"
-    self._testFormulaVariations(LIST_EXPR, "", SIZE, 0)
-    self._testFormulaVariations(SCALAR_EXPR, "", 1, 0)
+    self._testFormulaVariations(list_expr, "", size, 0)
+    self._testFormulaVariations(scalar_expr, "", 1, 0)
     self._testFormulaVariations(LIST_STMT, SCALAR_STMT, 1, 1)
     self._testFormulaVariations(SCALAR_STMT1, SCALAR_STMT, 1, 1)
-    self._testFormulaVariations(LIST_STMT1, LIST_STMT, SIZE, SIZE)
+    self._testFormulaVariations(LIST_STMT1, LIST_STMT, size, size)
     
 
 if __name__ == '__main__':

@@ -33,10 +33,11 @@ function SciSheetsBlinker(ele) {
 
 SciSheetsBlinker.prototype.start = function () {
   "use strict";
+  var scisheet = this;
   $(this.blink.ele).css("display", "block");
   this.fn = setInterval(function () {
-    this.blink.ele.fadeToggle(this.blink.speed);
-  }, this.blink.speed + 1);
+    scisheet.blink.ele.fadeToggle(scisheet.blink.speed);
+  }, scisheet.blink.speed + 1);
 };
 
 SciSheetsBlinker.prototype.stop = function () {
@@ -58,6 +59,7 @@ function SciSheets() {
   this.ajaxCallCount = 0;
   this.formulas = null;  // Dictionary by column name of formulas
   this.tableFile = null;  // No file specified for the table
+  this.blinker = new SciSheetsBlinker($("#notification-working"));
 }
 
 // Setup
@@ -210,10 +212,9 @@ SciSheets.prototype.utilReload = function () {
 
 SciSheets.prototype.utilSendAndReload = function (cmd) {
   "use strict";
-  var scisheet = this, blinker;
+  var scisheet = this;
   this.sendServerCommand(cmd, function (data) {
-    blinker = new SciSheetsBlinker($("#notification-working"));
-    blinker.start();  // Object is deleted by reload
+    scisheet.blinker.start();  // Object is deleted by reload
     console.log("Server returned: " + data);
     scisheet.utilReload();
   });
