@@ -185,7 +185,7 @@ import scipy as sp
     # Execute the statements
     # pylint: disable=W0122
     try:
-      exec('\n'.join(statements))  # Creates dict _results
+      exec('\n'.join(statements), globals())  # Creates dict _results
     except Exception as err:
       # Report the error without changing the table
       return str(err)

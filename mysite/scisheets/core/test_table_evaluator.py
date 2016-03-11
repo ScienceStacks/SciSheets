@@ -223,6 +223,26 @@ class TestTableEvaluator(unittest.TestCase):
     self._testFormulaVariations(scalar_stmt1, scalar_stmt, 1, 1)
     self._testFormulaVariations(list_stmt1, list_stmt, size, size)
 
+  def testDefinedFunctionInFormula(self):
+    formula = '''
+def is_prime(n):
+    limit = int(mt.sqrt(n)) + 1
+    for m in range(2, limit):
+      if n % m == 0:
+        return False
+    return True
+def find_primes(n):
+  result = []
+  for m in range(2, n):
+    if is_prime(m):
+      result.append(m)
+  return result
+DUMMY1 = find_primes(100)
+'''
+    self.column_valid_formula.setFormula(formula)
+    errors = self.evaluator.evaluate(user_directory=TEST_DIR)
+    self.assertIsNone(errors)
+
 
 if __name__ == '__main__':
   unittest.main()
