@@ -1,47 +1,58 @@
 """Does comparisons of arrays with None values."""
 import numpy as np
+import collections
+
+THRESHOLD = 0.01
 
 def compareArrays(arr1, arr2):
-  # Inputs: arr1 - array, possibly with None values
-  #         arr2 - array, possible with None values
-  # Outputs: True if equivalent; otherwise false
-  THRESHOLD = 0.01
-  if not isinstance(arr1, np.ndarray):
+  """
+  Compares two arrays.
+  :param arr1: array or list, possibly with None values
+  :param arr2: array or list, possibly with None values
+  :return: True if equivalent; otherwise false
+  """
+  is_equal = True
+  if not isinstance(arr1, collections.Iterable):
     arr1 = np.array([arr1])
-  if not isinstance(arr2, np.ndarray):
+  if not isinstance(arr2, collections.Iterable):
     arr2 = np.array([arr2])
   if len(arr1) != len(arr2):
-    return False
-  for n in range(len(arr1)):
-    if type(arr1[n]) != type(arr2[n]):
-      return False
-    if isinstance(arr1, float):
-      if abs(arr1[n]) < THRESHOLD:
-        denom = 1.0
+    is_equal = False
+  else:
+    for idx in range(len(arr1)):
+      if type(arr1[idx]) != type(arr2[idx]):
+        is_equal = False
+        break
+      elif isinstance(arr1[idx], float):
+        if abs(arr1[n]) < THRESHOLD:
+          denom = 1.0
+        else:
+          denom = arr1[n]
+        if (arr1[idx] is None) and (arr2[idx] is not None):
+          is_equal = False
+          break
+        elif (arr2[idx] is None) and (arr1[idx] is not None):
+          is_equal = False
+          break
+        elif abs((arr1[idx] - arr2[idx])/denom) > THRESHOLD:
+          is_equal = False
+          break
       else:
-        denom = arr1[n]
-      for m in len(arr1):
-        if (arr1[n][m] is None) and (arr2[n][m] is not None):
-          return False
-        if (arr2[n][m] is None) and (arr2[n][m] is not None):
-          return False
-      if abs( (arr1[n] - arr2[n])/denom) > THRESHOLD:
-        return False
-    else:
-      if arr1[n] != arr2[n]:
-        return False
-  return True
+        if arr1[idx] != arr2[idx]:
+          is_equal = False
+          break
+  return is_equal
 
 if __name__ == '__main__':
-  b = not compareArrays(np.array(range(4)),
-                   np.array(range(5)))
-  b = b and not compareArrays(np.array(range(4)),
+  IS_OK = not compareArrays(np.array(range(4)),
+                            np.array(range(5)))
+  IS_OK = IS_OK and not compareArrays(np.array(range(4)),
                              np.array([0.1*n for n in range(4)]))
-  b = b and compareArrays(np.array(range(4)), 
+  IS_OK = IS_OK and compareArrays(np.array(range(4)),
                           np.array(range(4)))
-  b = b and compareArrays(np.array([n*.01 for n in range(4)]), 
-                          np.array([n*.01 for n in range(4)])) 
-  if b:
-    print ("OK.")
+  IS_OK = IS_OK and compareArrays(np.array([n*.01 for n in range(4)]),
+                          np.array([n*.01 for n in range(4)]))
+  if IS_OK:
+    print "OK."
   else:
-    print ("Test failed.")
+    print "Test failed."

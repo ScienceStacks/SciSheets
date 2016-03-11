@@ -83,7 +83,7 @@ class TableEvaluator(object):
   # pylint: disable=R0913
   # pylint: disable=R0914
   # pylint: disable=R0915
-  def _makeTableScript(self, user_directory=None, excluded_columns=None):
+  def _makeScriptStatements(self, user_directory=None, excluded_columns=None):
     """
     Constructs a script to evaluate a table.
     :param user_directory: directory where user functions are located
@@ -103,7 +103,6 @@ class TableEvaluator(object):
     num_formulas = len(formula_columns)
     # Construct the imports
     import_statements = ['''
-from _compare_arrays import compareArrays
 import math as mt
 import numpy as np
 from os import listdir
@@ -178,21 +177,22 @@ import scipy as sp
     """
     indent = 0
     # Create the initial statements
-    statements = self._makeTableScript(**kwargs)
+    statements = self._makeScriptStatements(**kwargs)
     # Add statements to create the "_results" dict
     new_statements = self._makeUpdateDataStatements()
     statements.extend(TableEvaluator._indent(new_statements, indent))
     # Execute the statements
     # pylint: disable=W0122
     try:
-      exec('\n'.join(statements), globals())  # Creates dict _results
+      exec('\n'.join(statements), globals())  # Creates _results
+    # pylint: disable=W0703
     except Exception as err:
       # Report the error without changing the table
       return str(err)
     # Assign values to the table
-    for key in _results.keys():
+    for key in _results.keys():  # pylint: disable=E0602
       column = self._table.columnFromName(key)
-      self._table.updateColumn(column, _results[key])
+      self._table.updateColumn(column, _results[key])  # pylint: disable=E0602
     return None
 
   @staticmethod
@@ -238,10 +238,10 @@ import scipy as sp
   @staticmethod
   def _makeAssignment(column):
     """
-    Returns an assignment statement that assigns the data values
+    Creates an assignment statement that assigns the data values
     of a column to its column name.
-    Input: column - Column object
-    Output: statement - string assignment statement
+    :param column: Column object
+    :return: str statement
     """
     statement = "%s = np.array(%s, dtype=%s)" % (
         column.getName(),
@@ -260,15 +260,15 @@ import scipy as sp
              user_directory=None):
     """
     Exports the table as python code
-    Inputs: function_name - string name of the function to be created
-            inputs - list of column names that are input to the function
-            outputs - names of the columns that is output from the function
-            file_path - path to the file to be written
-            user_directory - directory where user functions are located
-    Outputs: errror - errors from the export
+    :param function_name: string name of the function to be created
+    :param inputs: list of column names that are input to the function
+    :param outputs: list of columns that are output from the function
+    :param file_path: full path to the file to be written
+    :param user_directory: directory where user functions are located
+    :return: error - string from the file export
     Notes: (1) Cannot put "exec" in another method
                since the objects created won't be accessible
-           (2) Iterate N (#formulas) times to handle dependencies
+           (2) Iterates N (#formulas) times to handle dependencies
                between formulas
     """
     # Initializations
@@ -276,85 +276,65 @@ import scipy as sp
       inputs = []
     if outputs is None:
       outputs = []
-    indent = 0
     if function_name is None:
       function_name = DEFAULT_FUNCTION_NAME
-    statements = []  # List of statements in the file
-    formula_columns = self._formulaColumns(exclude=function_name)
-    num_formulas = len(formula_columns)
+    indent = 0
     # File header
     header_comments = '''
 # File generated as a SciSheets table export
 
     '''
-    statements.extend(TableEvaluator._indent([header_comments], indent))
-    # Construct the imports
-    import_statements = ['''
-from _compare_arrays import compareArrays
-import math as mt
-import numpy as np
-from os import listdir
-from os.path import isfile, join
-import pandas as pd
-import scipy as sp
-
-    ''']
-    if user_directory is not None:
-      import_statements.extend(
-          TableEvaluator._importStatements(user_directory, formula_columns))
-    statements.extend(TableEvaluator._indent(import_statements, indent))
-    # Function definition
-    statement = "def %s(" % function_name
-    statement += ",".join(inputs)
-    statement += "):"
-    statements.extend(TableEvaluator._indent([statement], indent))
+    statements = [header_comments]
+    # Make the function definition
+    statements.extend(TableEvaluator._indent(
+        [TableEvaluator._makeFunctionStatement(function_name, inputs)],
+        indent))
     indent += 1
+    # Make the script body
+    statements.extend(TableEvaluator._indent(
+        self._makeScriptStatements(user_directory=user_directory,
+                                   excluded_columns=inputs), indent))
+    # Make the return statement
+    statements.extend(TableEvaluator._indent(
+        [TableEvaluator._makeReturnStatement(outputs)], indent))
+    # Make the test statements
+    indent -= 1
+    statements.extend(TableEvaluator._indent(
+        self._makeTestStatements(function_name, inputs, outputs), indent))
+    # Write the file
+    if file_path is None:
+      file_name = "%s.py" % function_name
+      file_path = join(user_directory, file_name)
+    try:
+      with open(file_path, "w") as file_handle:
+        file_handle.writelines(["%s\n" % s for s in statements])
+      error = None
+    except IOError as err:
+      error = str(err)
+    return error
 
-    # Do the initial variable assignments
-    assignment_statements = ["# Do initial assignments"]
-    for column in self._table.getColumns():
-      if not column.getName() in inputs:
-        statement = TableEvaluator._makeAssignment(column)
-        assignment_statements.append(statement)
-    statements.extend(TableEvaluator._indent(assignment_statements, indent))
+  @staticmethod
+  def _makeOutputStr(outputs):
+    """
+    :param outputs: list of columns that are output from the function
+    :return: statement
+    """
+    return ",".join(outputs)
 
-    # Evaluate the formulas
-    if len(formula_columns) > 0:
-      statement = "#Evaluate the formulas"
-      statements.extend(TableEvaluator._indent([statement], indent))
-      statement = "for nn in range(%d):" % num_formulas
-      statements.extend(TableEvaluator._indent([statement], indent))
-      indent += 1
-      for column in formula_columns:
-        statement = "try:"
-        statements.extend(TableEvaluator._indent([statement], indent))
-        indent += 1
-        statements.extend(TableEvaluator._indent(
-            [column.getFormulaStatement()], indent))
-        indent -= 1
-        statement = "except Exception as e:"
-        statements.extend(TableEvaluator._indent([statement], indent))
-        indent += 1
-        statement = "if nn == %d:" % (num_formulas-1)
-        statements.extend(TableEvaluator._indent([statement], indent))
-        indent += 1
-        statement = "raise Exception(e)"
-        statements.extend(TableEvaluator._indent([statement], indent))
-        statement = "break"
-        statements.extend(TableEvaluator._indent([statement], indent))
-        indent -= 2
-      indent -= 1
-
-    # Write the return statement
-    output_str = ",".join(outputs)
-    statement = "return %s" % output_str
-    statements.extend(TableEvaluator._indent([statement], indent))
-
-    # Write the test code
+  def _makeTestStatements(self, function_name, inputs, outputs):
+    """
+    Creates the tests at the end of the exported file.
+    :param function_name: string name of the function to be created
+    :param inputs: list of column names that are input to the function
+    :param outputs: list of columns that are output from the function
+    :return: statements
+    """
     indent = 0
+    output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''
+from _compare_arrays import compareArrays
 if __name__ == '__main__':'''
-    statements.extend(TableEvaluator._indent([statement], indent))
+    statements = [statement]
     indent += 1
     test_statements = []
     for column_name in inputs:
@@ -383,10 +363,24 @@ if __name__ == '__main__':'''
     statement = "print ('Test failed for %s')" % function_name
     test_statements.extend(TableEvaluator._indent([statement], 1))
     statements.extend(TableEvaluator._indent(test_statements, indent))
+    return statements
 
-    # Write the file
-    if file_path is None:
-      file_name = "%s.py" % function_name
-      file_path = join(user_directory, file_name)
-    with open(file_path, "w") as file_handle:
-      file_handle.writelines(["%s\n" % s for s in statements])
+  @staticmethod
+  def _makeReturnStatement(outputs):
+    """
+    :param outputs: list of columns that are output from the function
+    :return: statements
+    """
+    return "return %s" % TableEvaluator._makeOutputStr(outputs)
+
+  @staticmethod
+  def _makeFunctionStatement(function_name, inputs):
+    """
+    :param function_name: string name of the function to be created
+    :param inputs: list of column names that are input to the function
+    :return: statements
+    """
+    statement = "def %s(" % function_name
+    statement += ",".join(inputs)
+    statement += "):"
+    return statement
