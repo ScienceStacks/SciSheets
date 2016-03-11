@@ -44,7 +44,11 @@ def compareValues(val1, val2):
 
 def createColumn(name, data=np.array([]), table=None, formula=None):
   """
-  Returns a populated column
+  :param name: str column name
+  :param data: np.ndarray data values
+  :param table: Table that reerences the column
+  :param formula: formula in column
+  :return: column object with data populated
   """
   column = cl.Column(name)
   column.addCells(data)
@@ -53,7 +57,11 @@ def createColumn(name, data=np.array([]), table=None, formula=None):
   return column
 
 def createTable(name, column_name=None):
-  # Returns a populated column
+  """
+  :param name: str table name
+  :param column_name: name of a column to create
+  :return: Table object
+  """
   table = tb.Table(name)
   if column_name is not None:
     column = cl.Column(name)
@@ -62,6 +70,10 @@ def createTable(name, column_name=None):
 
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
+  """
+  Captures standard output when executing a python command
+  :param stdout: where standard output is directed
+  """
   # Captures standard output
   # Usage: with stdoutIO() as s:
   old = sys.stdout
@@ -78,7 +90,6 @@ class TableFileHelper(object):
   """
 
   @classmethod
-
   def doesTableFileExist(cls, table_filename, filedir, suffix="pcl"):
     """
     Checks if the table file exists
@@ -102,13 +113,18 @@ class TableFileHelper(object):
         "%s.pcl" % self._table_filename)
 
   def create(self):
+    """
+    Creates a Table file
+    """
     if not TableFileHelper.doesTableFileExist(self._table_filename,
         self._table_filedir):
       table = tb.Table(self._table_filename)
       pickle.dump(table, open(self._full_path, "wb"))
 
   def destroy(self):
+    """
+    Destroys a Table file
+    """
     if TableFileHelper.doesTableFileExist(self._table_filename,
         self._table_filedir):
       os.remove(self._full_path)
-      self._exists = False
