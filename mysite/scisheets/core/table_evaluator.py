@@ -80,6 +80,121 @@ class TableEvaluator(object):
             if fc.getFormula() is not None
               and exclude not in fc.getFormula()]
 
+  # pylint: disable=R0913
+  # pylint: disable=R0914
+  # pylint: disable=R0915
+  def _makeTableScript(self, user_directory=None, excluded_columns=None):
+    """
+    Constructs a script to evaluate a table.
+    :param user_directory: directory where user functions are located
+    :param excluded_columns: list of columns that are not initialized
+    :return: list of statements constructed
+    Notes: (1) Cannot put "exec" in another method
+               since the objects created won't be accessible
+           (2) Iterate N (#formulas) times to handle dependencies
+               between formulas
+    """
+    # Initializations
+    indent = 0
+    statements = []  # List of statements in the file
+    if excluded_columns is None:
+      excluded_columns = []
+    formula_columns = self._formulaColumns()
+    num_formulas = len(formula_columns)
+    # Construct the imports
+    import_statements = ['''
+from _compare_arrays import compareArrays
+import math as mt
+import numpy as np
+from os import listdir
+from os.path import isfile, join
+import pandas as pd
+import scipy as sp
+
+    ''']
+    if user_directory is not None:
+      import_statements.extend(
+          TableEvaluator._importStatements(user_directory, formula_columns))
+    statements.extend(TableEvaluator._indent(import_statements, indent))
+    # Do the initial variable assignments
+    assignment_statements = ["# Do initial assignments"]
+    for column in self._table.getColumns():
+      if not column.getName() in excluded_columns:
+        statement = TableEvaluator._makeAssignment(column)
+        assignment_statements.append(statement)
+    statements.extend(TableEvaluator._indent(assignment_statements, indent))
+    # Evaluate the formulas
+    if len(formula_columns) > 0:
+      statement = "#Evaluate the formulas"
+      statements.extend(TableEvaluator._indent([statement], indent))
+      statement = "for nn in range(%d):" % num_formulas
+      statements.extend(TableEvaluator._indent([statement], indent))
+      indent += 1
+      for column in formula_columns:
+        statement = "try:"
+        statements.extend(TableEvaluator._indent([statement], indent))
+        indent += 1
+        statements.extend(TableEvaluator._indent(
+            [column.getFormulaStatement()], indent))
+        indent -= 1
+        statement = "except Exception as e:"
+        statements.extend(TableEvaluator._indent([statement], indent))
+        indent += 1
+        statement = "if nn == %d:" % (num_formulas-1)
+        statements.extend(TableEvaluator._indent([statement], indent))
+        indent += 1
+        statement = "raise Exception(e)"
+        statements.extend(TableEvaluator._indent([statement], indent))
+        statement = "break"
+        statements.extend(TableEvaluator._indent([statement], indent))
+        indent -= 2
+      indent -= 1
+    return statements
+
+  def _makeUpdateDataStatements(self):
+    """
+    Write statements that update data in table columns
+    :return: list of statements that construct a dict name "results"
+             with key of column name and value the column value
+    """
+    indent = 0
+    statements = []
+    statement = "results = {}"
+    statements.extend(TableEvaluator._indent([statement], indent))
+    for column in self._table.getColumns():
+      statement = "results['%s'] = %s" % (column.getName(), column.getName())
+      statements.extend(TableEvaluator._indent([statement], indent))
+    return statements
+
+  def new_evaluate(self, **kwargs):
+    """
+    Evaluates the formulas in a Table and assigns the results
+    to the formula columns
+    :return: errors from execution or None
+    Notes: (1) Cannot put "exec" in another method
+               since the objects created won't be accessible
+           (2) Iterate N (#formulas) times to handle dependencies
+               between formulas
+    """
+    indent = 0
+    # Create the initial statements
+    statements = self._makeTableScript(**kwargs)
+    # Add statements to create the "results" dict
+    new_statements = self._makeUpdateDataStatements()
+    statements.extend(TableEvaluator._indent(new_statements, indent))
+    # Execute the statements
+    # pylint: disable=W0122
+    try:
+      exec('\n'.join(statements))  # Creates dict results
+    except SyntaxError as err:
+      # Report the error without changing the table
+      return str(err)
+    # Assign values to the table
+    for key in results.keys():
+      column = self._table.columnFromName(key)
+      self._table.updateColumn(column, results[key])
+    return None
+
   def evaluate(self, user_directory=None):
     """
     Inputs: user_directory - directory where user functions are located
@@ -140,9 +255,9 @@ class TableEvaluator(object):
   @staticmethod
   def _indent(statements, indent_level):
     """
-    Inputs: statements - list of statements
-            indent_level - integer level of indentation
-    Output: List of indented statements
+    :param statements: list of statements
+    :param indent_level: integer level of indentation
+    :return: list of indented statements
     """
     indents = " " * 2*indent_level
     result = []
