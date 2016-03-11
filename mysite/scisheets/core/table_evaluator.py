@@ -154,21 +154,21 @@ import scipy as sp
   def _makeUpdateDataStatements(self):
     """
     Write statements that update data in table columns
-    :return: list of statements that construct a dict name "results"
+    :return: list of statements that construct a dict name "_results"
              with key of column name and value the column value
     """
     indent = 0
     statements = []
-    statement = "results = {}"
+    statement = "_results = {}"
     statements.extend(TableEvaluator._indent([statement], indent))
     for column in self._table.getColumns():
-      statement = "results['%s'] = %s" % (column.getName(), column.getName())
+      statement = "_results['%s'] = %s" % (column.getName(), column.getName())
       statements.extend(TableEvaluator._indent([statement], indent))
     return statements
 
-  def new_evaluate(self, **kwargs):
+  def evaluate(self, **kwargs):
     """
-    Evaluates the formulas in a Table and assigns the results
+    Evaluates the formulas in a Table and assigns the _results
     to the formula columns
     :return: errors from execution or None
     Notes: (1) Cannot put "exec" in another method
@@ -179,78 +179,21 @@ import scipy as sp
     indent = 0
     # Create the initial statements
     statements = self._makeTableScript(**kwargs)
-    # Add statements to create the "results" dict
+    # Add statements to create the "_results" dict
     new_statements = self._makeUpdateDataStatements()
     statements.extend(TableEvaluator._indent(new_statements, indent))
     # Execute the statements
     # pylint: disable=W0122
     try:
-      exec('\n'.join(statements))  # Creates dict results
-    except SyntaxError as err:
+      exec('\n'.join(statements))  # Creates dict _results
+    except Exception as err:
       # Report the error without changing the table
       return str(err)
     # Assign values to the table
-    for key in results.keys():
+    for key in _results.keys():
       column = self._table.columnFromName(key)
-      self._table.updateColumn(column, results[key])
+      self._table.updateColumn(column, _results[key])
     return None
-
-  def evaluate(self, user_directory=None):
-    """
-    Inputs: user_directory - directory where user functions are located
-    Evaluates the formulas in a Table and assigns the results
-    to the formula columns
-    Outputs: errror - errors from execution or None
-    Notes: (1) Cannot put "exec" in another method
-               since the objects created won't be accessible
-           (2) Iterate N (#formulas) times to handle dependencies
-               between formulas
-    Find the formula columns
-    """
-    error = None
-    formula_columns = self._formulaColumns()
-    num_formulas = len(formula_columns)
-    # Do the imports
-    if user_directory is not None:
-      statements = TableEvaluator._importStatements(user_directory,
-                                                    formula_columns)
-      for statement in statements:
-        # pylint: disable=W0122
-        try:
-          exec(statement)
-        except ImportError as err:
-          return str(err)
-    # Do the initial assignments
-    for column in self._table.getColumns():
-      statement = "%s = column.getCells()" % column.getName()
-      # pylint: disable=W0122
-      try:
-        exec(statement)
-      except SyntaxError as err:
-        error = str(err)
-        return error
-    # Evaluate the formulas. Handle dependencies
-    # by repeatedly evaluating the formulas
-    for idx in range(num_formulas):
-      for column in formula_columns:
-        # pylint: disable=W0122
-        try:
-          exec(column.getFormulaStatement())
-        # pylint: disable=W0703
-        except Exception as err:
-          if idx == num_formulas - 1:  # Only assign the error on the last loop
-            error = "Error in formula %s: %s" % (column.getFormula(), str(err))
-            break
-    # Update the table
-    # All columns are updated because there may be compound statements
-    # that update non-formula columns
-    for column in self._table.getColumns():
-      statement = "new_values  = %s" % column.getName()
-      # pylint: disable=W0122
-      exec(statement)
-      # pylint: disable=E0602
-      self._table.updateColumn(column, new_values)
-    return error
 
   @staticmethod
   def _indent(statements, indent_level):
