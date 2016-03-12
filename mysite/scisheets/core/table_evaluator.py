@@ -27,6 +27,8 @@ class TableEvaluator(object):
   def __init__(self, table):
     # Inputs: table - table to evaluate
     self._table = table
+    # True if have written function that converts an array
+    self._createdConvertToArray = False
 
   @staticmethod
   def _findFilenames(dir_path, suffix=PY_SUFFIX):
@@ -119,7 +121,7 @@ import scipy as sp
     assignment_statements = ["# Do initial assignments"]
     for column in self._table.getColumns():
       if not column.getName() in excluded_columns:
-        statement = TableEvaluator._makeAssignment(column)
+        statement = TableEvaluator._makeAssignmentStatement(column)
         assignment_statements.append(statement)
     statements.extend(TableEvaluator._indent(assignment_statements, indent))
     # Evaluate the formulas
@@ -236,7 +238,7 @@ import scipy as sp
     return result
 
   @staticmethod
-  def _makeAssignment(column):
+  def _makeAssignmentStatement(column):
     """
     Creates an assignment statement that assigns the data values
     of a column to its column name.
@@ -290,6 +292,10 @@ import scipy as sp
         [TableEvaluator._makeFunctionStatement(function_name, inputs)],
         indent))
     indent += 1
+    # Convert the input arguments if needed
+    for name in inputs:
+      statements.extend(TableEvaluator._indent(
+          self._makeInputConversionStatement(name), indent))
     # Make the script body
     statements.extend(TableEvaluator._indent(
         self._makeScriptStatements(user_directory=user_directory,
@@ -333,13 +339,14 @@ import scipy as sp
     output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''
 from _compare_arrays import compareArrays
+import numpy as np
 if __name__ == '__main__':'''
     statements = [statement]
     indent += 1
     test_statements = []
     for column_name in inputs:
       column = self._table.columnFromName(column_name)
-      statement = TableEvaluator._makeAssignment(column)
+      statement = TableEvaluator._makeAssignmentStatement(column)
       test_statements.append(statement)
     statement = output_str
     statement += " = %s(" % function_name
@@ -350,18 +357,17 @@ if __name__ == '__main__':'''
     test_statements.append(statement)
     for column_name in outputs:
       column = self._table.columnFromName(column_name)
-      statement = "b and compareArrays(%s, %s)" % (
+      statement = "b = b and compareArrays(%s, %s)" % (
           column_name,
           str(column.getCells().tolist()))
       test_statements.append(statement)
-    statement = "if b:"
-    test_statements.append(statement)
-    statement = "print ('OK.')"
-    test_statements.extend(TableEvaluator._indent([statement], 1))
-    statement = "else:"
-    test_statements.append(statement)
-    statement = "print ('Test failed for %s')" % function_name
-    test_statements.extend(TableEvaluator._indent([statement], 1))
+    statement = """
+if b:
+  print ('OK.')
+else:
+  print ('Test failed.')
+"""
+    test_statements.extend(TableEvaluator._indent([statement], 0))
     statements.extend(TableEvaluator._indent(test_statements, indent))
     return statements
 
@@ -384,3 +390,30 @@ if __name__ == '__main__':'''
     statement += ",".join(inputs)
     statement += "):"
     return statement
+
+  def _makeInputConversionStatement(self, arg_name):
+    """
+    Converts the input values to the exported function to numpy Arrays.
+    :param arg_name:  name of the argument
+    :return: statement that converts the argument to a numpy array
+    """
+    statements = []
+    if not self._createdConvertToArray:
+      statement = """
+def convertToArray(arg):
+  import numpy as np
+  if isinstance(arg, np.ndarray):
+    result = arg
+  elif isinstance(arg, list):
+    result = np.array(arg)
+  else:
+    result = np.array([arg])
+  return result
+"""
+      statements.append(statement)
+      self._createdConvertToArray = True
+    statement = """
+%s = convertToArray(%s)
+""" % (arg_name, arg_name)
+    statements.append(statement)
+    return statements

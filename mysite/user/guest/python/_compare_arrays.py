@@ -11,6 +11,14 @@ def compareArrays(arr1, arr2):
   :param arr2: array or list, possibly with None values
   :return: True if equivalent; otherwise false
   """
+  def sameType(val1, val2):
+    types = [int, float, str]
+    result = False
+    for typ in types:
+      if isinstance(val1, typ) and isinstance(val2, typ):
+        result = True
+    return result
+
   is_equal = True
   if not isinstance(arr1, collections.Iterable):
     arr1 = np.array([arr1])
@@ -20,14 +28,14 @@ def compareArrays(arr1, arr2):
     is_equal = False
   else:
     for idx in range(len(arr1)):
-      if type(arr1[idx]) != type(arr2[idx]):
+      if not sameType(arr1[idx], arr2[idx]):
         is_equal = False
         break
       elif isinstance(arr1[idx], float):
-        if abs(arr1[n]) < THRESHOLD:
+        if abs(arr1[idx]) < THRESHOLD:
           denom = 1.0
         else:
-          denom = arr1[n]
+          denom = arr1[idx]
         if (arr1[idx] is None) and (arr2[idx] is not None):
           is_equal = False
           break
