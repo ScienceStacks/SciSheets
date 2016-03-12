@@ -9,7 +9,9 @@ import scipy.stats as ss
 
 def intercept(xarray, yarray):
   _, intercept, _, _, _ = ss.linregress(xarray, yarray)
-  return intercept
+  result = np.array(np.repeat(np.nan, len(xarray)), dtype=np.float)
+  result[0] = intercept
+  return result
 
 # Simple test to verify the code
 if __name__ == "__main__":
@@ -20,7 +22,7 @@ if __name__ == "__main__":
   xarray = np.array(range(SIZE), dtype=float)
   yarray = INTERCEPT + SLOPE*xarray + sp.random.normal(0, SD, SIZE)
   computed_intercept = intercept(xarray, yarray)
-  if abs(computed_intercept - INTERCEPT) < 4*SD/np.sqrt(SIZE):
+  if abs(computed_intercept[0] - INTERCEPT) < 4*SD/np.sqrt(SIZE):
     print ("OK.")
   else:
     print ("Validation failed!")
