@@ -5,7 +5,7 @@
 
 import errors as er
 import numpy as np
-from util import findDatatypeForValues
+import util
 
 
 class Column(object):
@@ -117,6 +117,12 @@ class Column(object):
     self._datatypeFromValues(values=data_list)
     self._data_values = np.array(data_list, dtype=self._datatype)
 
+  def isNumbers(self):
+    """
+    :return: True if a column of numbers
+    """
+    return util.isNumber(self.getCells())
+
   def numCells(self):
     """
     Returns the number of cells in the column
@@ -147,7 +153,7 @@ class Column(object):
     """
     if values is None:
       values = self._data_values
-    self._datatype = findDatatypeForValues(values)
+    self._datatype = util.findDatatypeForValues(values)
 
   # TODO: Need tests
   # TODO: Improve the way that detect an expression vs. a statement

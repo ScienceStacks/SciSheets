@@ -17,10 +17,8 @@ def findDatatypeForValues(values):
   for val in values:
     if isinstance(val, str):
       return '|S1000'  # Maximum string length is 1000
-    if isinstance(val, float):
+    if isinstance(val, float) or isinstance(val, int):
       return np.float
-    if isinstance(val, int):
-      return np.int
   return np.object
 
 def isNumber(values):

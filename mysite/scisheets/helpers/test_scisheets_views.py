@@ -8,7 +8,7 @@ from ..core.util_test import TableFileHelper
 from ..ui.dt_table import DTTable
 import json
 import mysite.helpers.util as ut
-from scisheets.core.util import findDatatypeForValues
+import scisheets.core.util as util
 import scisheets_views as sv
 import os
 import pickle
@@ -210,7 +210,7 @@ class TestScisheetsViews(TestCase):
     # Returns the index of the column with the specified type or none
     result = None
     columns = table.getColumns()
-    numpy_type = findDatatypeForValues([val])
+    numpy_type = util.findDatatypeForValues([val])
     for index in range(1, table.numColumns()):
       col = columns[index]
       if numpy_type == col.getDataType():
@@ -361,13 +361,16 @@ class TestScisheetsViews(TestCase):
     new_table = self._getTableFromResponse(response)
     self.assertEqual(new_table.numRows(), num_rows + 1)
     self.assertEqual(new_table.numColumns(), num_columns)
-    # New row should have all none values
+    # New row should have all None values (or np.nan for numbers)
     new_row = new_table.getRow(new_idx)
-    values = []
+    b = True
     for k in new_row.keys():
       if k != 'row':
-        values.append(new_row[k])
-    b = np.equal(np.array(values), None).all()
+        column = new_table.columnFromName(k)
+        if column.isNumbers():
+          b = b and np.isnan(new_row[k])
+        else:
+          b = b and (new_row[k] is None)
     self.assertTrue(b)  # New row should be 'None'
 
   def testCommandRowInsert(self):

@@ -99,7 +99,7 @@ class TestTableEvaluator(unittest.TestCase):
     row = table.getRow()
     table.addRow(row, 0.1)  # Add a new row after
     error = self.evaluator.evaluate()
-    self.assertIsNotNone(error)
+    self.assertIsNone(error)
     new_row = table.getRow()
     new_row['A'] = 1
     new_row['B'] = 1
@@ -141,7 +141,7 @@ class TestTableEvaluator(unittest.TestCase):
     new_row = self.table.getRow()
     self.table.insertRow(new_row, index=row_index)
     error = self.table.evaluate()
-    self.assertIsNotNone(error)  # sin is not defined for None values
+    self.assertIsNone(error)
     new_row['A'] = 0.5
     new_row['B'] = 0.6
     self.table.updateRow(new_row, index=row_index)
@@ -182,7 +182,7 @@ class TestTableEvaluator(unittest.TestCase):
 
   @staticmethod
   def _countNonNone(array):
-    return len([x for x in array if x is not None])
+    return len([x for x in array if (x is not None) and (not np.isnan(x))])
 
   def _testFormulaVariations(self, formula1, formula2, len1, len2):
     # Checks compound formulas of different combinations.

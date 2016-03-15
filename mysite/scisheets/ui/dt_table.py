@@ -6,6 +6,8 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from ui_table import UITable
 from mysite import settings as st
+import scisheets.core.util as util
+import numpy as np
 
 
 def makeJSON(column_names, data):
@@ -35,10 +37,12 @@ def makeJSON(column_names, data):
           item = data[c][r]
       else:
         item = data[c]
-      if item is None:
+      value = str(item)  # Assume use item as-is
+      if (item is None):
         value = ""
-      else:
-        value = str(item)
+      elif util.isNumber(item):
+        if np.isnan(item):
+          value = ""
       result += '"' + column_names[c] + '": ' + '`' + value + '`'
       if c != number_of_columns - 1:
         result += ","

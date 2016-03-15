@@ -4,6 +4,7 @@ import table as tb
 import column as cl
 import errors as er
 from util_test import createTable
+import numpy as np
 import unittest
 
 
@@ -56,8 +57,15 @@ class TestTable(unittest.TestCase):
     column.addCells(COLUMN1_CELLS)
     table.addColumn(column)
     column = cl.Column(COLUMN1)
+    column.addCells(['aa'])
     table._adjustColumnLength(column)
     self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
+    self.assertIsNone(column.getCells()[1])
+    column = cl.Column("YetAnotherColumn")
+    column.addCells([1])
+    table._adjustColumnLength(column)
+    self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
+    self.assertTrue(np.isnan(column.getCells()[1]))
 
   def testUpdateNameColumn(self):
     self.assertEqual(self.table._columns[0].numCells(),

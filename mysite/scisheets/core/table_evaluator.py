@@ -186,10 +186,13 @@ import scipy as sp
     # Execute the statements
     # pylint: disable=W0122
     try:
-      exec('\n'.join(statements), globals())  # Creates _results
+      exec('\n'.join(statements), globals(), locals())  # Creates _results
     # pylint: disable=W0703
     except Exception as err:
       # Report the error without changing the table
+      error = str(err)
+      if "name 'nan' is not defined" in error:
+        import pdb; pdb.set_trace()
       return str(err)
     # Assign values to the table
     for key in _results.keys():  # pylint: disable=E0602
@@ -245,9 +248,13 @@ import scipy as sp
     :param column: Column object
     :return: str statement
     """
+    if column.isNumbers():
+      values = str(column.getCells().tolist()).replace('nan', 'np.nan')
+    else:
+      values = str(column.getCells().tolist())
     statement = "%s = np.array(%s, dtype=%s)" % (
         column.getName(),
-        str(column.getCells().tolist()),
+        values,
         TableEvaluator._extractDtype(column.getDataType()))
     return statement
 

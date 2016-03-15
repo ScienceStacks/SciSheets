@@ -197,7 +197,7 @@ class Table(ColumnContainer):
 
   def _adjustColumnLength(self, columns):
     """
-    Inserts values of None so that column
+    Inserts values of None or np.nan so that column
         has the same length as the table
     :param columns: either a single column or a list
     """
@@ -208,7 +208,10 @@ class Table(ColumnContainer):
     for column in columns:
       adj_rows = num_rows - column.numCells()
       if adj_rows > 0:
-        column.addCells(np.repeat(none_array, adj_rows))
+        if column.isNumbers():
+          column.addCells(np.repeat(np.nan, adj_rows))
+        else:
+          column.addCells(np.repeat(none_array, adj_rows))
 
   def _validateTable(self):
     """
@@ -360,11 +363,15 @@ class Table(ColumnContainer):
     """
     :param index: row desired
            if None, then a row of None is returned
+    :return: Row object
     """
     row = Row()
     for column in self._columns:
       if index is None:
-        row[column.getName()] = None
+        if column.isNumbers():
+          row[column.getName()] = np.nan
+        else:
+          row[column.getName()] = None
       else:
         row[column.getName()] = column.getCells()[index]
     return row
@@ -455,7 +462,16 @@ class Table(ColumnContainer):
     for index in row_indxs:
       row = self.getRow(index=index)
       del row[NAME_COLUMN_STR]
-      if all([x is None for x in row.values()]):
+      delete_row = True
+      for name in row.keys():
+        column = self.columnFromName(name)
+        if column.isNumbers():
+          if not np.isnan(row[name]):
+            delete_row = False
+        else:
+          if row[name] is not None:
+            delete_row = False
+      if delete_row:
         self.deleteRows([index])
       else:
         break
