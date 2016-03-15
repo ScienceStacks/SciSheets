@@ -7,11 +7,15 @@ from os.path import isfile, join
 # pylint: disable=W0611
 import math as mt
 import numpy as np
+import os
 import pandas as pd
 import random
 import scipy as sp
 import scipy.stats as ss
 
+DEBUG = True
+DEBUG_FILE_PATH = os.path.join(os.path.dirname(__file__), 
+                               "table_evaluator_generated.py")
 DEFAULT_FUNCTION_NAME = "MyFunction"
 # Import files to ignore with these initial strings in their names
 IGNORE_PREFIX = ['main_', 'test_', '__']
@@ -49,7 +53,7 @@ class TableEvaluator(object):
     return selected_filenames
 
   @staticmethod
-  def _importStatements(user_directory, formula_columns):
+  def _makeFormulaImportStatements(user_directory, formula_columns):
     """
     :param user_directory: directory to search for user python files
     :param formula_columns: list of columns that have a formula
@@ -82,13 +86,40 @@ class TableEvaluator(object):
             if fc.getFormula() is not None
               and exclude not in fc.getFormula()]
 
+  def _makeInitialImportStatements(self, user_directory=None):
+    """
+    Creates the imports that go at the head of the file
+    :param user_directory: directory where user functions are located
+    :return: list of statements constructed
+    """
+    # Initializations
+    indent = 0
+    statements = []  # List of statements in the file
+    formula_columns = self._formulaColumns()
+    num_formulas = len(formula_columns)
+    # Construct the imports
+    import_statements = ['''
+import math as mt
+import numpy as np
+from os import listdir
+from os.path import isfile, join
+import pandas as pd
+import scipy as sp
+from sympy import *
+
+    ''']
+    if user_directory is not None:
+      import_statements.extend(
+          TableEvaluator._makeFormulaImportStatements(user_directory, formula_columns))
+    statements.extend(TableEvaluator._indent(import_statements, indent))
+    return statements
+
   # pylint: disable=R0913
   # pylint: disable=R0914
   # pylint: disable=R0915
-  def _makeScriptStatements(self, user_directory=None, excluded_columns=None):
+  def _makeScriptStatements(self, excluded_columns=None):
     """
     Constructs a script to evaluate a table.
-    :param user_directory: directory where user functions are located
     :param excluded_columns: list of columns that are not initialized
     :return: list of statements constructed
     Notes: (1) Cannot put "exec" in another method
@@ -103,20 +134,6 @@ class TableEvaluator(object):
       excluded_columns = []
     formula_columns = self._formulaColumns()
     num_formulas = len(formula_columns)
-    # Construct the imports
-    import_statements = ['''
-import math as mt
-import numpy as np
-from os import listdir
-from os.path import isfile, join
-import pandas as pd
-import scipy as sp
-
-    ''']
-    if user_directory is not None:
-      import_statements.extend(
-          TableEvaluator._importStatements(user_directory, formula_columns))
-    statements.extend(TableEvaluator._indent(import_statements, indent))
     # Do the initial variable assignments
     assignment_statements = ["# Do initial assignments"]
     for column in self._table.getColumns():
@@ -167,10 +184,11 @@ import scipy as sp
       statements.extend(TableEvaluator._indent([statement], indent))
     return statements
 
-  def evaluate(self, **kwargs):
+  def evaluate(self, user_directory=None):
     """
     Evaluates the formulas in a Table and assigns the _results
     to the formula columns
+    :param user_directory: path to user exported codes
     :return: errors from execution or None
     Notes: (1) Cannot put "exec" in another method
                since the objects created won't be accessible
@@ -179,10 +197,15 @@ import scipy as sp
     """
     indent = 0
     # Create the initial statements
-    statements = self._makeScriptStatements(**kwargs)
+    statements = self._makeInitialImportStatements(
+        user_directory=user_directory)
+    new_statements = self._makeScriptStatements()
+    statements.extend(TableEvaluator._indent(new_statements, indent))
     # Add statements to create the "_results" dict
     new_statements = self._makeUpdateDataStatements()
     statements.extend(TableEvaluator._indent(new_statements, indent))
+    if DEBUG:
+      TableEvaluator._writeStatementsToFile(statements, DEBUG_FILE_PATH)
     # Execute the statements
     # pylint: disable=W0122
     try:
@@ -190,9 +213,6 @@ import scipy as sp
     # pylint: disable=W0703
     except Exception as err:
       # Report the error without changing the table
-      error = str(err)
-      if "name 'nan' is not defined" in error:
-        import pdb; pdb.set_trace()
       return str(err)
     # Assign values to the table
     for key in _results.keys():  # pylint: disable=E0602
@@ -294,6 +314,7 @@ import scipy as sp
 
     '''
     statements = [header_comments]
+    statements = self._makeInitialImportStatements(self, user_directory=user_directory)
     # Make the function definition
     statements.extend(TableEvaluator._indent(
         [TableEvaluator._makeFunctionStatement(function_name, inputs)],
@@ -305,8 +326,7 @@ import scipy as sp
           self._makeInputConversionStatement(name), indent))
     # Make the script body
     statements.extend(TableEvaluator._indent(
-        self._makeScriptStatements(user_directory=user_directory,
-                                   excluded_columns=inputs), indent))
+        self._makeScriptStatements(excluded_columns=inputs), indent))
     # Make the return statement
     statements.extend(TableEvaluator._indent(
         [TableEvaluator._makeReturnStatement(outputs)], indent))
@@ -318,6 +338,16 @@ import scipy as sp
     if file_path is None:
       file_name = "%s.py" % function_name
       file_path = join(user_directory, file_name)
+    return TableEvaluator_writeStatementsToFile(statements, file_path)
+
+  @staticmethod
+  def _writeStatementsToFile(statements, file_path):
+    """
+    Writes the list of statements to the file
+    :param statements: list of statements
+    :param file_path: path to file
+    :return: error from IO
+    """
     try:
       with open(file_path, "w") as file_handle:
         file_handle.writelines(["%s\n" % s for s in statements])
