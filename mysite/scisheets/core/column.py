@@ -150,10 +150,14 @@ class Column(object):
     Input: values - enumerable values
                     if None, use the columns current values
     Sets the most specific type for the column
+    All numbers are coerced to float
     """
     if values is None:
       values = self._data_values
     self._datatype = util.findDatatypeForValues(values)
+    if util.isNumber(values):
+      self._datatype = np.float
+
 
   # TODO: Need tests
   # TODO: Improve the way that detect an expression vs. a statement
