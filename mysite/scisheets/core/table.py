@@ -344,6 +344,7 @@ class Table(ColumnContainer):
   def export(self, **kwargs):
     """
     Exports the table to a python program
+    :return: error - string from the file export
     """
     table_evaluator = TableEvaluator(self)
     error = table_evaluator.export(**kwargs)

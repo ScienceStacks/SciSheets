@@ -13,9 +13,7 @@ import random
 import scipy as sp
 import scipy.stats as ss
 
-DEBUG = True
-DEBUG_FILE_PATH = os.path.join(os.path.dirname(__file__), 
-                               "table_evaluator_generated.py")
+GENERATED_FILE = "_generated.py"
 DEFAULT_FUNCTION_NAME = "MyFunction"
 # Import files to ignore with these initial strings in their names
 IGNORE_PREFIX = ['main_', 'test_', '__']
@@ -196,6 +194,8 @@ from sympy import *
                between formulas
     """
     indent = 0
+    if user_directory is None:
+      user_directory = os.path.dirname(__file__)
     # Create the initial statements
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
@@ -204,12 +204,13 @@ from sympy import *
     # Add statements to create the "_results" dict
     new_statements = self._makeUpdateDataStatements()
     statements.extend(TableEvaluator._indent(new_statements, indent))
-    if DEBUG:
-      TableEvaluator._writeStatementsToFile(statements, DEBUG_FILE_PATH)
+    file_path = os.path.join(user_directory, GENERATED_FILE)
+    TableEvaluator._writeStatementsToFile(statements, file_path)
     # Execute the statements
     # pylint: disable=W0122
     try:
-      exec('\n'.join(statements), globals(), locals())  # Creates _results
+      exec(open(file_path).read(), globals())
+      #exec('\n'.join(statements), globals(), locals())  # Creates _results
     # pylint: disable=W0703
     except Exception as err:
       # Report the error without changing the table
@@ -314,7 +315,8 @@ from sympy import *
 
     '''
     statements = [header_comments]
-    statements = self._makeInitialImportStatements(self, user_directory=user_directory)
+    statements = self._makeInitialImportStatements(
+        user_directory=user_directory)
     # Make the function definition
     statements.extend(TableEvaluator._indent(
         [TableEvaluator._makeFunctionStatement(function_name, inputs)],
@@ -338,7 +340,7 @@ from sympy import *
     if file_path is None:
       file_name = "%s.py" % function_name
       file_path = join(user_directory, file_name)
-    return TableEvaluator_writeStatementsToFile(statements, file_path)
+    return TableEvaluator._writeStatementsToFile(statements, file_path)
 
   @staticmethod
   def _writeStatementsToFile(statements, file_path):

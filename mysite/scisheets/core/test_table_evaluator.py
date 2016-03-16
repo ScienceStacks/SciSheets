@@ -69,7 +69,7 @@ class TestTableEvaluator(unittest.TestCase):
     self.assertEqual(evaluator._table.getName(), TABLE_NAME)
 
   def testEvaluate(self):
-    error = self.evaluator.evaluate()
+    error = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
     # pylint: disable=E1101
     formula_result = (
@@ -85,26 +85,26 @@ class TestTableEvaluator(unittest.TestCase):
     column_invalid_formula.setFormula(INVALID_FORMULA)
     self.table.addColumn(column_invalid_formula)
     evaluator = TableEvaluator(self.table)
-    error = evaluator.evaluate()
+    error = evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNotNone(error)
 
   def testEvaluateTwoFormulas(self):
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
     evaluator = TableEvaluator(self.table)
-    error = evaluator.evaluate()
+    error = evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
 
   def testEvaluateWithNoneValues(self):
     table = self.table
     row = table.getRow()
     table.addRow(row, 0.1)  # Add a new row after
-    error = self.evaluator.evaluate()
+    error = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
     new_row = table.getRow()
     new_row['A'] = 1
     new_row['B'] = 1
     table.updateRow(new_row, 1)
-    error = self.evaluator.evaluate()
+    error = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
 
   def testFindPythonFiles(self):
@@ -125,7 +125,7 @@ class TestTableEvaluator(unittest.TestCase):
     num_rows = self.table.numRows()
     formula = "range(%d)" % (num_rows + 1)
     self.column_valid_formula.setFormula(formula)
-    self.table.evaluate()
+    self.table.evaluate(user_directory=TEST_DIR)
     self.assertEqual(self.table.numRows(), num_rows + 1)
 
   def testEvaluateFormulaWithLargeRowAddition(self):
@@ -133,25 +133,25 @@ class TestTableEvaluator(unittest.TestCase):
     num_rows = 1000
     formula = "range(%d)" % num_rows
     self.column_valid_formula.setFormula(formula)
-    self.table.evaluate()
+    self.table.evaluate(user_directory=TEST_DIR)
     self.assertEqual(self.table.numRows(), num_rows)
 
   def testEvaluateRowInsert(self):
     row_index = 1
     new_row = self.table.getRow()
     self.table.insertRow(new_row, index=row_index)
-    error = self.table.evaluate()
+    error = self.table.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
     new_row['A'] = 0.5
     new_row['B'] = 0.6
     self.table.updateRow(new_row, index=row_index)
-    error = self.table.evaluate()
+    error = self.table.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)  # Formula should work
 
   def testEvalWithMixedTypes(self):
     self.column_b.setFormula("range(len(A))")
     self.column_valid_formula.setFormula("np.sin(np.array(B, dtype=float)")
-    self.table.evaluate()
+    self.table.evaluate(user_directory=TEST_DIR)
     for val in self.column_valid_formula.getCells():
       self.assertIsNotNone(val)
 
@@ -161,7 +161,7 @@ class TestTableEvaluator(unittest.TestCase):
     file_name = "%s.py" % function_name
     file_path = join(TEST_DIR, file_name)
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
-    self.table.evaluate()
+    self.table.evaluate(user_directory=TEST_DIR)
     self.table.export(function_name=function_name,
                       file_path=file_path,
                       user_directory=TEST_DIR,
@@ -193,14 +193,14 @@ class TestTableEvaluator(unittest.TestCase):
     if len(formula2) == 0:
       formula = formula1
       self.column_valid_formula.setFormula(formula)
-      self.assertIsNone(self.evaluator.evaluate())
+      self.assertIsNone(self.evaluator.evaluate(user_directory=TEST_DIR))
       self.assertEqual(
           TestTableEvaluator._countNonNone(
           self.column_valid_formula.getCells()), len1)
     else:
       formula = "%s; %s" % (formula1, formula2)
       self.column_valid_formula.setFormula(formula)
-      self.assertIsNone(self.evaluator.evaluate())
+      self.assertIsNone(self.evaluator.evaluate(user_directory=TEST_DIR))
       self.assertEqual(
           TestTableEvaluator._countNonNone(
           self.column_valid_formula.getCells()), len1)
