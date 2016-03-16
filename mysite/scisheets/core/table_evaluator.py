@@ -269,7 +269,7 @@ from sympy import *
     :param column: Column object
     :return: str statement
     """
-    if column.isNumbers():
+    if column.isFloats():
       values = str(column.getCells().tolist()).replace('nan', 'np.nan')
     else:
       values = str(column.getCells().tolist())

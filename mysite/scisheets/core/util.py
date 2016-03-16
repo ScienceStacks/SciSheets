@@ -7,21 +7,17 @@ import numpy as np
 # ToDo: Need tests
 def findDatatypeForValues(values):
   """
-  Determines the dominate numpy type ignoring None and NaN
+  Determines the dominate numpy type ignoring None
   :param values: an enumerable
   :return: numpy type
   """
-  for val in values:
-    if val is None:
-      return object
-  for val in values:
-    if isinstance(val, str):
-      return '|S1000'  # Maximum string length is 1000
-    if isinstance(val, float) or isinstance(val, int):
-      return np.float
-  return np.object
+  array =  np.array(values)
+  if all([isinstance(v, str) for v in array]):
+    return '|S1000'  # Maximum string length is 1000
+  else:
+    return array.dtype
 
-def isNumber(values):
+def isNumbers(values):
   """
   :param values: single or multiple values
   :return: True if number; otherwise, fasle.
@@ -39,4 +35,13 @@ def isNumber(values):
       except TypeError:
         return False
   return result 
-    
+
+def isFloats(values):
+  """
+  :param values: single or multiple values
+  :return: True if float or np.nan; otherwise, fasle.
+  """
+  if not isinstance(values, collections.Iterable):
+    values = [values]
+  dtype = np.array(values).dtype
+  return dtype == np.float64

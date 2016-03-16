@@ -40,7 +40,7 @@ def makeJSON(column_names, data):
       value = str(item)  # Assume use item as-is
       if (item is None):
         value = ""
-      elif util.isNumber(item):
+      elif util.isFloats(item):
         if np.isnan(item):
           value = ""
       result += '"' + column_names[c] + '": ' + '`' + value + '`'

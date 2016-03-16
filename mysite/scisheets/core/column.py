@@ -44,7 +44,7 @@ class Column(object):
     else:
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
-    self._datatypeFromValues(full_data_list)
+    self._datatypeFromValues(values=full_data_list)
     # Must update the array using the correct data type
     self._data_values = np.array(full_data_list, dtype=self._datatype)
 
@@ -65,7 +65,8 @@ class Column(object):
     data_list = self._data_values.tolist()
     for index in indicies:
       del data_list[index]
-    self._data_values = np.array(data_list, dtype=object)
+    self._datatypeFromValues(values=data_list)
+    self._data_values = np.array(data_list, dtype=self._datatype)
 
   def getCell(self, index):
     """
@@ -117,11 +118,11 @@ class Column(object):
     self._datatypeFromValues(values=data_list)
     self._data_values = np.array(data_list, dtype=self._datatype)
 
-  def isNumbers(self):
+  def isFloats(self):
     """
     :return: True if a column of numbers
     """
-    return util.isNumber(self.getCells())
+    return util.isFloats(self.getCells())
 
   def numCells(self):
     """
@@ -142,7 +143,8 @@ class Column(object):
     """
     if len(new_array) != len(self._data_values):
       raise er.InternalError("Inconsistent lengths")
-    self._data_values = np.array(new_array, dtype=object)
+    self._datatypeFromValues(values=new_array)
+    self._data_values = np.array(new_array, dtype=self._datatype)
 
   def _datatypeFromValues(self, values=None):
     """
@@ -155,8 +157,6 @@ class Column(object):
     if values is None:
       values = self._data_values
     self._datatype = util.findDatatypeForValues(values)
-    if util.isNumber(values):
-      self._datatype = np.float
 
 
   # TODO: Need tests

@@ -1,7 +1,8 @@
 Serve page from Django
 
 0.1 Restructuring generated code to have imports at top
--- evaluate does a file export and then uses exec(open("table_evaluator_generated.py").read(), globals())
+  Want to preserve data types. Have bug with float becoming object
+  in trimRows. Problem is adRow, most likely insertRow
 
 
 1. Export

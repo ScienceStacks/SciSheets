@@ -208,7 +208,7 @@ class Table(ColumnContainer):
     for column in columns:
       adj_rows = num_rows - column.numCells()
       if adj_rows > 0:
-        if column.isNumbers():
+        if column.isFloats():
           column.addCells(np.repeat(np.nan, adj_rows))
         else:
           column.addCells(np.repeat(none_array, adj_rows))
@@ -306,7 +306,10 @@ class Table(ColumnContainer):
       if column.getName() in row:
         column.insertCell(row[column.getName()])
       else:
-        column.insertCell(None)
+        if column.isFloats():
+          column.insertCell(np.nan)
+        else:
+          column.insertCell(None)
     last_index = self.numRows() - 1
     self.renameRow(last_index, proposed_name)  # put the row in the right place
     self._validateTable()
@@ -369,7 +372,7 @@ class Table(ColumnContainer):
     row = Row()
     for column in self._columns:
       if index is None:
-        if column.isNumbers():
+        if column.isFloats():
           row[column.getName()] = np.nan
         else:
           row[column.getName()] = None
@@ -466,7 +469,7 @@ class Table(ColumnContainer):
       delete_row = True
       for name in row.keys():
         column = self.columnFromName(name)
-        if column.isNumbers():
+        if column.isFloats():
           if not np.isnan(row[name]):
             delete_row = False
         else:

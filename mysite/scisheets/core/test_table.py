@@ -65,7 +65,10 @@ class TestTable(unittest.TestCase):
     column.addCells([1])
     table._adjustColumnLength(column)
     self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
-    self.assertTrue(np.isnan(column.getCells()[1]))
+    if column.isFloats():
+      self.assertTrue(np.isnan(column.getCells()[1]))
+    else:
+      self.assertIsNone(column.getCells()[1])
 
   def testUpdateNameColumn(self):
     self.assertEqual(self.table._columns[0].numCells(),
@@ -106,12 +109,21 @@ class TestTable(unittest.TestCase):
     is_correct = is_correct and row[COLUMN2] == COLUMN2_CELLS[idx]
     self.assertTrue(is_correct)
 
-  def testAddRow(self):
+  def testAddRow1(self):
+    column = self.table.columnFromName(COLUMN2)
+    self.assertEqual(column.getCells().dtype, np.float64)
+    row = self.table.getRow()
+    self.table.addRow(row)
+    expected_rows = len(COLUMN1_CELLS) + 1
+    self.assertEqual(self.table.numRows(), expected_rows)
+    self.assertEqual(column.getCells().dtype, np.float64)
+
+  def testAddRow2(self):
+    expected_rows = self.table.numRows() + 1
     row = self.table.getRow()
     row[COLUMN1] = "four"
     row[COLUMN2] = 40.0
     self.table.addRow(row)
-    expected_rows = len(COLUMN1_CELLS) + 1
     self.assertEqual(self.table.numRows(), expected_rows)
     column = self.columns[1]
     cells = column.getCells()

@@ -367,7 +367,7 @@ class TestScisheetsViews(TestCase):
     for k in new_row.keys():
       if k != 'row':
         column = new_table.columnFromName(k)
-        if column.isNumbers():
+        if column.isFloats():
           b = b and np.isnan(new_row[k])
         else:
           b = b and (new_row[k] is None)
@@ -407,7 +407,7 @@ class TestScisheetsViews(TestCase):
     # New column should have all None values
     new_column = new_table.getColumns()[new_idx]
     self.assertTrue(new_column.numCells(), num_rows)
-    b = np.equal(new_column.getCells(), None).all()
+    b = all([np.isnan(x) for x in new_column.getCells()])
     if not b:
       import pdb; pdb.set_trace()
     self.assertTrue(b)
