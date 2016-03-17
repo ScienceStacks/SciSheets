@@ -1,7 +1,8 @@
 '''Tests for column'''
 
 import numpy as np
-from util import isNumbers, isFloats, findDatatypeForValues
+from util import isNumbers, isFloats, findDatatypeForValues, \
+    makeArray, DTYPE_STRING
 import unittest
 
 class TestUtil(unittest.TestCase):
@@ -42,6 +43,28 @@ class TestUtil(unittest.TestCase):
     self.assertFalse(isFloats([3, 4, None, 'a']))
     self.assertFalse(isFloats([3, 4, np.nan, 'a']))
     self.assertTrue(isFloats([3, 4, np.nan, 0]))
+
+  def testMakeArray(self):
+    values = [1, 2]
+    self.assertEqual((makeArray(values)).dtype, np.int64)
+    values = [1.0, 2]
+    self.assertEqual((makeArray(values)).dtype, np.float64)
+    values = [1.0, 2, 'aa']
+    self.assertEqual((makeArray(values)).dtype, DTYPE_STRING)
+    values = [True, False]
+    self.assertEqual((makeArray(values)).dtype, np.bool)
+    values = ['True', 'False', 'False']
+    self.assertEqual((makeArray(values)).dtype, np.bool)
+    values = ['True', 'False', 'False', 13]
+    self.assertEqual((makeArray(values)).dtype, DTYPE_STRING)
+    values = ['True', 'False', 'False', '13']
+    self.assertEqual((makeArray(values)).dtype, DTYPE_STRING)
+    values = [1.0, 2, np.nan]
+    self.assertEqual((makeArray(values)).dtype, np.float64)
+    values = [1.0, 2, 'aa', None]
+    self.assertEqual((makeArray(values)).dtype, object)
+    values = [1, 2, None]
+    self.assertEqual((makeArray(values)).dtype, object)
 
 
 if __name__ == '__main__':

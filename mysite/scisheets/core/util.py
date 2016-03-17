@@ -1,8 +1,11 @@
 '''Utilities used in core scitable code.'''
 
 import collections
+import errors
 import math
 import numpy as np
+
+DTYPE_STRING = '|S1000'
 
 # ToDo: Need tests
 def findDatatypeForValues(values):
@@ -45,3 +48,23 @@ def isFloats(values):
     values = [values]
   dtype = np.array(values).dtype
   return dtype == np.float64
+
+def makeArray(values):
+   """
+   Constructs a numpy array from the values, if possible.
+   Constructs the most restrictive type (e.g., converting
+   strings to Bool,if possible).
+   :param values: singleton or iterable of values to make into an array
+   :return: a numpy array
+   """
+   if not isinstance(values, collections.Iterable):
+     values = [values]
+   array =  np.array(values)
+   # Test to see if this is a Boolean
+   new_values = [True if v=='True' else 
+                 False if v=='False' else -1 for v in array]
+   if not any([x==-1 for x in new_values]):
+     array = np.array(new_values, dtype=np.bool)
+   elif array.dtype.type is np.string_:
+     array = np.array(values, dtype=DTYPE_STRING)
+   return array

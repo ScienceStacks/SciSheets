@@ -14,14 +14,10 @@ class Column(object):
   of cells.
   """
 
-  def __init__(self, name, data_type=None):
+  def __init__(self, name):
     self._name = None
     self.setName(name)
-    self._datatype = data_type
-    if self._datatype is not None:
-      self._data_values = np.array([], dtype=data_type)
-    else:
-      self._data_values = np.array([])
+    self._data_values = np.array([])
     self._formula = None
     self._owning_table = None
     self._formula_statement = None  # Formula as a statement
@@ -44,16 +40,13 @@ class Column(object):
     else:
       full_data_list = self._data_values.tolist()
       full_data_list.extend(new_data_list)
-    self._datatypeFromValues(values=full_data_list)
-    # Must update the array using the correct data type
-    self._data_values = np.array(full_data_list, dtype=self._datatype)
+    self._setDatavalues(full_data_list)
 
   def copy(self):
     """
     Returns a copy of this object
     """
-    result = Column(self._name,
-                    data_type=self._datatype)
+    result = Column(self._name)
     result.setFormula(self._formula)
     result.addCells(self._data_values)
     return result
@@ -65,8 +58,7 @@ class Column(object):
     data_list = self._data_values.tolist()
     for index in indicies:
       del data_list[index]
-    self._datatypeFromValues(values=data_list)
-    self._data_values = np.array(data_list, dtype=self._datatype)
+    self._setDatavalues(data_list)
 
   def getCell(self, index):
     """
@@ -85,7 +77,7 @@ class Column(object):
     """
     Returns the datatype of the cell
     """
-    return self._datatype
+    return self._data_values.dtype
 
   def getFormula(self):
     """
@@ -107,16 +99,14 @@ class Column(object):
 
   def insertCell(self, val, index=None):
     """
-    Input: val - value to insert
-           index - where it is inserted
-                   appended to end if None
+    :param val: value to insert
+    :param index: where it is inserted, appended to end if None
     """
     data_list = self._data_values.tolist()
     if index is None:
       index = len(self._data_values)
     data_list.insert(index, val)
-    self._datatypeFromValues(values=data_list)
-    self._data_values = np.array(data_list, dtype=self._datatype)
+    self._setDatavalues(data_list)
 
   def isFloats(self):
     """
@@ -143,21 +133,14 @@ class Column(object):
     """
     if len(new_array) != len(self._data_values):
       raise er.InternalError("Inconsistent lengths")
-    self._datatypeFromValues(values=new_array)
-    self._data_values = np.array(new_array, dtype=self._datatype)
+    self._setDatavalues(new_array)
 
-  def _datatypeFromValues(self, values=None):
+  def _setDatavalues(self, values):
     """
-    Sets the numpy values type for the values in the array
-    Input: values - enumerable values
-                    if None, use the columns current values
-    Sets the most specific type for the column
-    All numbers are coerced to float
+    Sets the values for the cell
+    :param values: singleton or iterable
     """
-    if values is None:
-      values = self._data_values
-    self._datatype = util.findDatatypeForValues(values)
-
+    self._data_values = util.makeArray(values)
 
   # TODO: Need tests
   # TODO: Improve the way that detect an expression vs. a statement
@@ -267,5 +250,4 @@ class Column(object):
     """
     values = self._data_values.tolist()
     values[index] = val
-    self._datatypeFromValues(values=values)
-    self._data_values = np.array(values, dtype=self._datatype)
+    self._setDatavalues(values)
