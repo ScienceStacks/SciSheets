@@ -53,7 +53,8 @@ class TestColumn(unittest.TestCase):
     column = cl.Column(COLUMN_NAME)
     column.addCells(single_float)
     self.assertTrue(compareValues(column._data_values, single_float))
-    self.assertEqual(column._data_values.dtype, np.float64)
+    self.assertEqual(column._data_values.dtype,
+       np.float64)  # pylint: disable=E1101
     column = cl.Column(COLUMN_NAME)
     column.addCells(list_float)
     self.assertTrue(compareValues(column._data_values, list_float))
@@ -78,7 +79,7 @@ class TestColumn(unittest.TestCase):
   def testCopy(self):
     column_copy = self.column.copy()
     self.assertEqual(self.column._name, column_copy._name)
-    self.assertEqual(self.column._data_values.dtype, 
+    self.assertEqual(self.column._data_values.dtype,
         column_copy._data_values.dtype)
     self.assertTrue(compareValues(self.column._data_values,
         column_copy._data_values))

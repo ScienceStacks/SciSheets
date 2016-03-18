@@ -30,7 +30,7 @@ class TableEvaluator(object):
     # Inputs: table - table to evaluate
     self._table = table
     # True if have written function that converts an array
-    self._createdConvertToArray = False
+    self._created_convert_to_array = False
 
   @staticmethod
   def _findFilenames(dir_path, suffix=PY_SUFFIX):
@@ -94,7 +94,6 @@ class TableEvaluator(object):
     indent = 0
     statements = []  # List of statements in the file
     formula_columns = self._formulaColumns()
-    num_formulas = len(formula_columns)
     # Construct the imports
     import_statements = ['''
 import math as mt
@@ -108,7 +107,8 @@ from sympy import *
     ''']
     if user_directory is not None:
       import_statements.extend(
-          TableEvaluator._makeFormulaImportStatements(user_directory, formula_columns))
+          TableEvaluator._makeFormulaImportStatements(user_directory,
+                                                      formula_columns))
     statements.extend(TableEvaluator._indent(import_statements, indent))
     return statements
 
@@ -437,7 +437,7 @@ else:
     :return: statement that converts the argument to a numpy array
     """
     statements = []
-    if not self._createdConvertToArray:
+    if not self._created_convert_to_array:
       statement = """
 def convertToArray(arg):
   import numpy as np
@@ -450,7 +450,7 @@ def convertToArray(arg):
   return result
 """
       statements.append(statement)
-      self._createdConvertToArray = True
+      self._created_convert_to_array = True
     statement = """
 %s = convertToArray(%s)
 """ % (arg_name, arg_name)

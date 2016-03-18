@@ -12,6 +12,9 @@ def compareArrays(arr1, arr2):
   :return: True if equivalent; otherwise false
   """
   def sameType(val1, val2):
+    """
+    :param val1, val2: values to compare
+    """
     types = [int, float, str]
     result = False
     for typ in types:

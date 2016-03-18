@@ -209,7 +209,7 @@ class Table(ColumnContainer):
       adj_rows = num_rows - column.numCells()
       if adj_rows > 0:
         if column.isFloats():
-          column.addCells(np.repeat(np.nan, adj_rows))
+          column.addCells(np.repeat(np.nan, adj_rows))  # pylint:disable=E1101
         else:
           column.addCells(np.repeat(none_array, adj_rows))
 
@@ -307,7 +307,7 @@ class Table(ColumnContainer):
         column.insertCell(row[column.getName()])
       else:
         if column.isFloats():
-          column.insertCell(np.nan)
+          column.insertCell(np.nan)  # pylint: disable=E1101
         else:
           column.insertCell(None)
     last_index = self.numRows() - 1
@@ -373,7 +373,7 @@ class Table(ColumnContainer):
     for column in self._columns:
       if index is None:
         if column.isFloats():
-          row[column.getName()] = np.nan
+          row[column.getName()] = np.nan  # pylint: disable=E1101
         else:
           row[column.getName()] = None
       else:
@@ -470,7 +470,7 @@ class Table(ColumnContainer):
       for name in row.keys():
         column = self.columnFromName(name)
         if column.isFloats():
-          if not np.isnan(row[name]):
+          if not np.isnan(row[name]):  # pylint: disable=E1101
             delete_row = False
         else:
           if row[name] is not None:

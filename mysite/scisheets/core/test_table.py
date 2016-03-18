@@ -66,7 +66,7 @@ class TestTable(unittest.TestCase):
     table._adjustColumnLength(column)
     self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
     if column.isFloats():
-      self.assertTrue(np.isnan(column.getCells()[1]))
+      self.assertTrue(np.isnan(column.getCells()[1]))  # pylint: disable=E1101
     else:
       self.assertIsNone(column.getCells()[1])
 
@@ -111,12 +111,14 @@ class TestTable(unittest.TestCase):
 
   def testAddRow1(self):
     column = self.table.columnFromName(COLUMN2)
-    self.assertEqual(column.getCells().dtype, np.float64)
+    self.assertEqual(column.getCells().dtype,
+        np.float64)  # pylint: disable=E1101
     row = self.table.getRow()
     self.table.addRow(row)
     expected_rows = len(COLUMN1_CELLS) + 1
     self.assertEqual(self.table.numRows(), expected_rows)
-    self.assertEqual(column.getCells().dtype, np.float64)
+    self.assertEqual(column.getCells().dtype,
+        np.float64) # pylint: disable=E1101
 
   def testAddRow2(self):
     expected_rows = self.table.numRows() + 1

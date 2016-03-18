@@ -5,11 +5,14 @@ from util import isNumbers, isFloats, findDatatypeForValues, \
     makeArray, DTYPE_STRING
 import unittest
 
+
+# pylint: disable=C0111
+# pylint: disable=E1101
 class TestUtil(unittest.TestCase):
 
   def setUp(self):
     pass
-  
+
   def testfindDatatypeForValues(self):
     self.assertEqual(findDatatypeForValues(['a', 'bb']),
                     '|S1000')

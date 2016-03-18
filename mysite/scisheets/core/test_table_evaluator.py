@@ -182,7 +182,8 @@ class TestTableEvaluator(unittest.TestCase):
 
   @staticmethod
   def _countNonNone(array):
-    return len([x for x in array if (x is not None) and (not np.isnan(x))])
+    return len([x for x in array if (x is not None)
+        and (not np.isnan(x))])  # pylint: disable=E1101
 
   def _testFormulaVariations(self, formula1, formula2, len1, len2):
     # Checks compound formulas of different combinations.
