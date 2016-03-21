@@ -2,7 +2,8 @@
 
 import numpy as np
 from util import isNumbers, isFloats, findDatatypeForValues, \
-    makeArray, DTYPE_STRING
+    makeArray, DTYPE_STRING, getType
+import util
 import unittest
 
 
@@ -68,6 +69,19 @@ class TestUtil(unittest.TestCase):
     self.assertEqual((makeArray(values)).dtype, object)
     values = [1, 2, None]
     self.assertEqual((makeArray(values)).dtype, object)
+
+  def testGetType(self):
+    self.assertEqual(getType('aa'), str)
+    self.assertEqual(getType('1.0'), util.XFloat)
+    self.assertEqual(getType(1.0), util.XFloat)
+    self.assertEqual(getType('2'), util.XInt)
+    self.assertEqual(getType(2), util.XInt)
+    self.assertEqual(getType(1), util.XBool)
+    self.assertEqual(getType(None), None)
+    self.assertEqual(getType(np.nan), util.XFloat)
+    self.assertEqual(getType('True'), util.XBool)
+    self.assertEqual(getType(True), util.XBool)
+    self.assertEqual(getType((1,2)), object)
 
 
 if __name__ == '__main__':

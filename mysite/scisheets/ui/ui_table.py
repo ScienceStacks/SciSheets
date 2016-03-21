@@ -134,7 +134,7 @@ class UITable(Table):
                               outputs=outputs,
                               file_path=file_path,
                               user_directory=st.SCISHEETS_USER_PYDIR)
-          response = self._createResponse(error)
+      response = self._createResponse(error)
     elif command == "Open":
       file_name = cmd_dict['args'][0]
       file_path = os.path.join(st.BASE_DIR, "%s.pcl" % file_name)
