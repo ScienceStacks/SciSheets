@@ -2,6 +2,7 @@
 
 import column as cl
 import unittest
+import util
 import errors as er
 import numpy as np
 from util_test import createColumn, compareValues
@@ -52,15 +53,15 @@ class TestColumn(unittest.TestCase):
     test_array = np.array(list_float)
     column = cl.Column(COLUMN_NAME)
     column.addCells(single_float)
-    self.assertTrue(compareValues(column._data_values, single_float))
-    self.assertEqual(column._data_values.dtype,
+    self.assertTrue(compareValues(column._cells, single_float))
+    self.assertEqual(np.array(column._cells).dtype,
        np.float64)  # pylint: disable=E1101
     column = cl.Column(COLUMN_NAME)
     column.addCells(list_float)
-    self.assertTrue(compareValues(column._data_values, list_float))
+    self.assertTrue(compareValues(column._cells, list_float))
     column = cl.Column(COLUMN_NAME)
     column.addCells(test_array)
-    self.assertTrue(compareValues(column._data_values, test_array))
+    self.assertTrue(compareValues(column._cells, test_array))
 
   def testAddCellsStr(self):
     single_str = "cccc ccc"
@@ -68,21 +69,21 @@ class TestColumn(unittest.TestCase):
     test_array = np.array(new_list_str)
     column = cl.Column(COLUMN_NAME)
     column.addCells(single_str)
-    self.assertTrue(compareValues(column._data_values, single_str))
+    self.assertTrue(compareValues(column._cells, single_str))
     column = cl.Column(COLUMN_NAME)
     column.addCells(new_list_str)
-    self.assertTrue(compareValues(column._data_values, new_list_str))
+    self.assertTrue(compareValues(column._cells, new_list_str))
     column = cl.Column(COLUMN_NAME)
     column.addCells(test_array)
-    self.assertTrue(compareValues(column._data_values, test_array))
+    self.assertTrue(compareValues(column._cells, test_array))
 
   def testCopy(self):
     column_copy = self.column.copy()
     self.assertEqual(self.column._name, column_copy._name)
-    self.assertEqual(self.column._data_values.dtype,
-        column_copy._data_values.dtype)
-    self.assertTrue(compareValues(self.column._data_values,
-        column_copy._data_values))
+    self.assertEqual(np.array(self.column._cells).dtype,
+        np.array(column_copy._cells).dtype)
+    self.assertTrue(compareValues(self.column._cells,
+        column_copy._cells))
     self.assertEqual(self.column._formula, column_copy._formula)
     self.assertIsNone(column_copy._owning_table)
 
@@ -90,16 +91,16 @@ class TestColumn(unittest.TestCase):
     valid_index = 0
     not_an_index = 1
     self.column.deleteCells([valid_index])
-    self.assertEqual(self.column._data_values[valid_index], LIST[not_an_index])
+    self.assertEqual(self.column._cells[valid_index], LIST[not_an_index])
 
   def testDataType(self):
     self.assertEqual(self.column.getDataType(), float)
     column_type = self.column_str.getDataType()
-    self.assertTrue(checkStrColumnType(column_type))
+    self.assertTrue(str(column_type)[0:2] == '|S')
 
   def testGetCells(self):
     cells = self.column.getCells()
-    self.assertTrue(compareValues(self.column._data_values, cells))
+    self.assertTrue(compareValues(self.column._cells, cells))
 
   def testNumCells(self):
     self.assertEqual(self.column.numCells(), len(LIST))
@@ -123,7 +124,7 @@ class TestColumn(unittest.TestCase):
     valid_index = 0
     new_value = LIST[valid_index] + 10
     self.column.updateCell(new_value, valid_index)
-    self.assertEqual(self.column._data_values[valid_index], new_value)
+    self.assertEqual(self.column._cells[valid_index], new_value)
 
   def testInsertCell(self):
     new_value = 30
@@ -132,10 +133,10 @@ class TestColumn(unittest.TestCase):
     self.assertEqual(self.column.getCells()[index], new_value)
 
   def testReplaceCells(self):
-    new_array = np.array(LIST1)
-    self.column.replaceCells(new_array)
-    self.assertTrue((self.column._data_values == new_array).all())
-    short_array = np.array(range(len(new_array) - 1))
+    self.column.replaceCells(LIST1)
+    self.assertTrue(all(
+        [self.column._cells[n] == LIST1[n] for n in range(len(LIST1))]))
+    short_array = np.array(range(len(LIST1) - 1))
     with self.assertRaises(er.InternalError):
       self.column.replaceCells(short_array)
 

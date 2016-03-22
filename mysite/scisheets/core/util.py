@@ -247,6 +247,13 @@ def coerceData(data):
       return [x_type.coerce(d) for d in data]
   return list(data)
 
+def isStrArray(array):
+  """
+  :param np.array array:
+  :return bool:
+  """
+  return str(array.dtype)[0:2] == '|S'
+
 
 if __name__ == '__main__':
   result = coerceData([1.0, 1, None])

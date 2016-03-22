@@ -156,7 +156,9 @@ class Table(ColumnContainer):
     if len(self._columns) > 1:
       for row_num in range(num_cells):
         names.append(Table._rowNameFromIndex(row_num))
-      self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
+      self._columns[NAME_COLUMN_IDX].addCells(names, 
+                                              replace=True, 
+                                              asis=True)
 
   # Data columns are those that have user data. The "row" column is excluded.
   def _getDataColumns(self):
@@ -186,7 +188,7 @@ class Table(ColumnContainer):
     :param size: number of rows
     :return: array of names
     """
-    return (np.array(range(size)) + 1).astype(str)
+    return [str(n) for n in range(1, size+1)]
 
   def _createNameColumn(self):
     """
@@ -242,8 +244,9 @@ class Table(ColumnContainer):
       expected_row_name = Table._rowNameFromIndex(nrow)
       actual_row_name = self._columns[NAME_COLUMN_IDX].getCells()[nrow]
       if actual_row_name != expected_row_name:
-        msg = ("In Table %s, invalid row name at index %d: %s" %
-                self.getName(), nrow, actual_row_name)
+        import pdb; pdb.set_trace()
+        msg = "In Table %s, invalid row name at index %d: %s" % \
+                (self.getName(), nrow, actual_row_name)
         raise er.InternalError(msg)
 
   def addColumn(self, column, index=None):
@@ -297,19 +300,22 @@ class Table(ColumnContainer):
     :param ext_index: index where Row is added, may be a float
                        if None, then appended
     """
-    proposed_index = self.numRows()  # Index of new row
+    # Determine the actual desired name
     if ext_index is None:
-      proposed_name = Table._rowNameFromIndex(proposed_index)
+      proposed_name = Table._rowNameFromIndex(self.numRows())
     else:
       proposed_name = Table._rowNameFromIndex(ext_index)
+    # Assign values to the cells in the Row
     for column in self._columns:
-      if column.getName() in row:
-        column.insertCell(row[column.getName()])
+      cur_name = column.getName()
+      if cur_name == NAME_COLUMN_STR:
+        asis = True
       else:
-        if column.isFloats():
-          column.insertCell(np.nan)  # pylint: disable=E1101
-        else:
-          column.insertCell(None)
+        asis = False
+      if cur_name in row:
+        column.insertCell(row[cur_name], asis=asis)
+      else:
+        column.insertCell(None, asis=asis)
     last_index = self.numRows() - 1
     self.renameRow(last_index, proposed_name)  # put the row in the right place
     self._validateTable()
@@ -443,17 +449,23 @@ class Table(ColumnContainer):
     """
     name_column = self.getColumns()[NAME_COLUMN_IDX]
     names = name_column.getCells()
-    names[row_index] = str(proposed_name)
-    float_names = names.astype(np.float)
+    try:
+      names[row_index] = str(proposed_name)
+    except:
+      import pdb; pdb.set_trace()
+    float_names = [float(x) for x in names]
     sel_index = np.argsort(float_names)
     new_names = Table._rowNamesFromSize(len(names))
-    name_column.replaceCells(new_names)
+    name_column.replaceCells(new_names, asis=True)
     # Update the order of values in each column
-    columns = self.getColumns()
-    for column in columns:
-      if column.getName() != NAME_COLUMN_STR:
-        data = column.getCells()
-        column.replaceCells(data[sel_index])
+    for column in self._columns:
+      try:
+        if column.getName() != NAME_COLUMN_STR:
+          data = column.getCells()
+          new_data = [data[n] for n in sel_index]
+          column.replaceCells(new_data)
+      except:
+        import pdb; pdb.set_trace()
 
   def trimRows(self):
     """
@@ -513,4 +525,5 @@ class Table(ColumnContainer):
       column = self._columns[ncol]
       name = column.getName()
       if name in row.keys():
-        column.updateCell(row[name], index)
+        if name != NAME_COLUMN_STR:
+          column.updateCell(row[name], index)

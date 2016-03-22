@@ -17,15 +17,16 @@ class Column(object):
   def __init__(self, name):
     self._name = None
     self.setName(name)
-    self._data_values = np.array([])
+    self._cells = []
     self._formula = None
     self._owning_table = None
     self._formula_statement = None  # Formula as a statement
 
-  def addCells(self, value, replace=False):
+  def addCells(self, value, replace=False, asis=False):
     """
     Input: v - value(s) to add
            replace - if True, then replace existing cells
+           asis - if True, do not coerce values
     Refines the type to be more specific, if needed.
     """
     if isinstance(value, list):
@@ -38,9 +39,9 @@ class Column(object):
     if replace:
       full_data_list = new_data_list
     else:
-      full_data_list = self._data_values.tolist()
+      full_data_list = self._cells
       full_data_list.extend(new_data_list)
-    self._setDatavalues(full_data_list)
+    self._setDatavalues(full_data_list, asis=asis)
 
   def copy(self):
     """
@@ -48,14 +49,14 @@ class Column(object):
     """
     result = Column(self._name)
     result.setFormula(self._formula)
-    result.addCells(self._data_values)
+    result.addCells(self._cells)
     return result
 
   def deleteCells(self, indicies):
     """
     Input: indicies - list of indicies to delete
     """
-    data_list = self._data_values.tolist()
+    data_list = self._cells
     for index in indicies:
       del data_list[index]
     self._setDatavalues(data_list)
@@ -65,19 +66,19 @@ class Column(object):
     Returns the value of a single cell
     Input: index - index of the cell to select
     """
-    return self._data_values[index]
+    return self._cells[index]
 
   def getCells(self):
     """
     Returns the cells of the column as a numpy array
     """
-    return self._data_values
+    return self._cells
 
   def getDataType(self):
     """
     Returns the datatype of the cell
     """
-    return self._data_values.dtype
+    return np.array(self._cells).dtype
 
   def getFormula(self):
     """
@@ -97,16 +98,17 @@ class Column(object):
     """
     return self._name
 
-  def insertCell(self, val, index=None):
+  def insertCell(self, val, index=None, asis=False):
     """
     :param val: value to insert
     :param index: where it is inserted, appended to end if None
+    :param bool asis: if True, does not coerce data
     """
-    data_list = self._data_values.tolist()
+    data_list = self._cells
     if index is None:
-      index = len(self._data_values)
+      index = len(self._cells)
     data_list.insert(index, val)
-    self._setDatavalues(data_list)
+    self._setDatavalues(data_list, asis=asis)
 
   def isFloats(self):
     """
@@ -118,7 +120,7 @@ class Column(object):
     """
     Returns the number of cells in the column
     """
-    return len(self._data_values)
+    return len(self._cells)
 
   def rename(self, new_name):
     """
@@ -127,20 +129,25 @@ class Column(object):
     self.setName(new_name)
 
   # ToDo: Test
-  def replaceCells(self, new_array):
+  def replaceCells(self, new_array, asis=False):
     """
-    Input: new_array - array to replace existing array
+    :param new_array: array to replace existing array
+    :param asis bool: do not transform data values
     """
-    if len(new_array) != len(self._data_values):
+    if len(new_array) != len(self._cells):
       raise er.InternalError("Inconsistent lengths")
-    self._setDatavalues(new_array)
+    self._setDatavalues(new_array, asis=asis)
 
-  def _setDatavalues(self, values):
+  def _setDatavalues(self, values, asis=False):
     """
     Sets the values for the cell
     :param values: singleton or iterable
+    :param asis bool: do not transform data values
     """
-    self._data_values = util.makeArray(values)
+    if asis:
+      self._cells = values
+    else:
+      self._cells = util.coerceData(values)
 
   # TODO: Need tests
   # TODO: Improve the way that detect an expression vs. a statement
@@ -248,6 +255,6 @@ class Column(object):
            index - index of cell being updated
                    appended to end if None
     """
-    values = self._data_values.tolist()
+    values = self._cells
     values[index] = val
     self._setDatavalues(values)

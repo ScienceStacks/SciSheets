@@ -111,13 +111,13 @@ class TestTable(unittest.TestCase):
 
   def testAddRow1(self):
     column = self.table.columnFromName(COLUMN2)
-    self.assertEqual(column.getCells().dtype,
+    self.assertEqual(np.array(column.getCells()).dtype,
         np.float64)  # pylint: disable=E1101
     row = self.table.getRow()
     self.table.addRow(row)
     expected_rows = len(COLUMN1_CELLS) + 1
     self.assertEqual(self.table.numRows(), expected_rows)
-    self.assertEqual(column.getCells().dtype,
+    self.assertEqual(np.array(column.getCells()).dtype,
         np.float64) # pylint: disable=E1101
 
   def testAddRow2(self):
@@ -281,8 +281,10 @@ class TestTable(unittest.TestCase):
     del rpl_idx[0]
     rpl_idx.append(0)
     for idx in range(1, table.numColumns()):
-      expected_array = table_data[idx][rpl_idx]
-      is_equal = (columns[idx].getCells() == expected_array).all()
+      expected_array = [table_data[idx][n] for n in rpl_idx]
+      column_cells = columns[idx].getCells()
+      is_equal = all([column_cells[n] == expected_array[n] 
+           for n in range(len(column_cells))])
       self.assertTrue(is_equal)
 
   def testRenameColumn(self):
