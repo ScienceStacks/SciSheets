@@ -1,14 +1,13 @@
 Serve page from Django
 
-0.1 Restructuring generated code to have imports at top
-  Want to preserve data types. Have bug with float becoming object
-  in trimRows. Problem is adRow, most likely insertRow
+0.1 
+  a) Data should be stored as lists, not numpy arrays
+  b) The list should be cleaned so that a numpy array of the correct
+     type gets constructed.
+  c) Delete extraneous codes in util.py
 
+1. Create API sufficient to do TruthTable use case with trinary logic
 
-1. Export
-   Merge evaluate() and export() codes by doing an export string
-   Server side
-      -Better tests. Cleanup
 
 
 2.1 DEPENDENCIES

@@ -1,8 +1,8 @@
 '''Tests for column'''
 
 import numpy as np
-from util import isNumbers, isFloats, findDatatypeForValues, \
-    makeArray, DTYPE_STRING, getType
+from util import isFloats, \
+    makeArray, DTYPE_STRING, getType, coerceData
 import util
 import unittest
 
@@ -13,30 +13,6 @@ class TestUtil(unittest.TestCase):
 
   def setUp(self):
     pass
-
-  def testfindDatatypeForValues(self):
-    self.assertEqual(findDatatypeForValues(['a', 'bb']),
-                    '|S1000')
-    self.assertEqual(findDatatypeForValues([1.0, 2.0]),
-                    np.float64)
-    self.assertEqual(findDatatypeForValues([1.0, 2.0, np.nan]),
-                    np.float64)
-    self.assertEqual(findDatatypeForValues([1, 2]),
-                    np.int)
-    self.assertEqual(findDatatypeForValues([False, True]),
-                    np.bool)
-    self.assertEqual(findDatatypeForValues([1, 2, 'a']),
-                    '|S1000')
-    self.assertEqual(findDatatypeForValues([1, 2, None]),
-                    object)
-
-  def testIsNumbers(self):
-    self.assertTrue(isNumbers(4))
-    self.assertTrue(isNumbers(range(4)))
-    self.assertTrue(isNumbers([3, 4, None]))
-    self.assertFalse(isNumbers([3, 4, None, 'a']))
-    self.assertFalse(isNumbers([3, 4, np.nan, 'a']))
-    self.assertTrue(isNumbers([3, 4, np.nan, 0]))
 
   def testIsFloat(self):
     self.assertTrue(isFloats(4.0))
@@ -82,6 +58,30 @@ class TestUtil(unittest.TestCase):
     self.assertEqual(getType('True'), util.XBool)
     self.assertEqual(getType(True), util.XBool)
     self.assertEqual(getType((1,2)), object)
+
+  def _CoerceData(self, values, expected_type):
+    """
+    Tests combinations of values with other types
+    :param list values: what's being tested
+    :param expected_type: a type
+    """
+    array = np.array(coerceData(values))
+    self.assertEqual(array.dtype, expected_type)
+    values.append('a String')
+    array = np.array(coerceData(values))
+    self.assertTrue(str(array.dtype)[1]=='S')
+    values.append(None)
+    array = np.array(coerceData(values))
+    self.assertEqual(array.dtype, object)
+
+  def testCoerceData(self):
+    self._CoerceData([1.0, 1], np.float64)
+    self._CoerceData([1, 2], np.int64)
+    self._CoerceData([True, False], np.bool)
+    self._CoerceData([True, False, 3], np.int64)
+    array = np.array(coerceData([1.0, 1, None]))
+    self.assertEqual(array.dtype, np.float64)
+
 
 
 if __name__ == '__main__':

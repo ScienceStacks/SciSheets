@@ -7,7 +7,22 @@ import numpy as np
 DTYPE_STRING = '|S1000'
 
 ################ Internal Classes ################
-class XInt(object):
+class XType(object):
+  """
+  Code common to all extended types
+  """
+
+  @classmethod
+  def needsCoercion(cls, types):
+    """
+    Checks if the iterables must be coerced
+    :param list values: values to check
+    :return bool: Should invoke coercion if True
+    """
+    return all([cls.isCoercible(t) for t in types])
+
+
+class XInt(XType):
   """
   Extends int type by allowing strings of int.
   Note that in python 1 is equivalent to True
@@ -38,13 +53,13 @@ class XInt(object):
       return isinstance(int(val), int)
 
   @classmethod
-  def isCorecible(cls, val):
+  def isCoercible(cls, a_type):
     """
-    Checks if the value can be coerced to the base type for this class.
-    :param val: value to check
+    Checks if the type can be coerced to the base type for this class.
+    :param a_type: type considered
     :return: True if coercible; otherwise, False.
     """
-    return cls.isXType(val)
+    return a_type in [XInt, int, XBool, bool]
 
   @classmethod
   def coerce(cls, val):
@@ -59,7 +74,7 @@ class XInt(object):
       raise ValueError("%s is not a %s" % (str(val), str(cls)))
 
 
-class XFloat(object):
+class XFloat(XType):
   """
   Extends float type by allowing strings of float
   and None. None is converted to np.nan
@@ -89,13 +104,13 @@ class XFloat(object):
       return isinstance(float(val), float)
 
   @classmethod
-  def isCorecible(cls, val):
+  def isCoercible(cls, a_type):
     """
     Checks if the value can be coerced to the base type for this class.
-    :param val: value to check
+    :param a_type: determines if the type can be coerced
     :return: True if coercible; otherwise, False.
     """
-    return cls.isXType(val) or (val is None)
+    return a_type in [XFloat, float, int, XInt, None, bool, XBool]
 
   @classmethod
   def coerce(cls, val):
@@ -113,7 +128,7 @@ class XFloat(object):
       raise ValueError("%s is not a %s" % (str(val), str(cls)))
 
 
-class XBool(object):
+class XBool(XType):
   """
   Extends Boolean type by allowing the strings
   'True' and 'False'
@@ -141,13 +156,13 @@ class XBool(object):
            or val in ['True', 'False']
 
   @classmethod
-  def isCorecible(cls, val):
+  def isCoercible(cls, a_type):
     """
-    Checks if the value can be coerced
-    :param val: value to check
-    :return: boolean
+    Checks if the value can be coerced to the base type for this class.
+    :param a_type: determines if the type can be coerced
+    :return: True if coercible; otherwise, False.
     """
-    return cls.isXType(val)
+    return a_type in [bool, XBool]
 
   @classmethod
   def coerce(cls, val):
@@ -164,38 +179,6 @@ class XBool(object):
       raise ValueError("Input is not %s." % str(cls))
 
 ################ Functions ################
-# ToDo: Need tests
-def findDatatypeForValues(values):
-  """
-  Determines the dominate numpy type ignoring None
-  :param values: an enumerable
-  :return: numpy type
-  """
-  array = np.array(values)
-  if all([isinstance(v, str) for v in array]):
-    return '|S1000'  # Maximum string length is 1000
-  else:
-    return array.dtype
-
-def isNumbers(values):
-  """
-  :param values: single or multiple values
-  :return: True if number; otherwise, fasle.
-  """
-  if not isinstance(values, collections.Iterable):
-    values = [values]
-  result = False
-  for val in values:
-    if isinstance(val, float) or isinstance(val, int):
-      result = True
-    else:
-      try:
-        if result and (val is not None) and (not math.isnan(val)):
-          return False  # Mixed types
-      except TypeError:
-        return False
-  return result
-
 def isFloats(values):
   """
   :param values: single or multiple values
@@ -232,18 +215,39 @@ def getType(val):
   :param val: value to interrogate
   :return: type of int, XInt, float, XFloat, bool, XBool, str, object, None
   """
-  TT = collections.namedtuple('TypeTest', 'typ tst')
-  types = [
+  TT = collections.namedtuple('TypeTest', 'typ chk')
+  types_and_checkers = [
            TT(XBool, (lambda x: XBool.isXType(x))),
            TT(XInt, (lambda x: XInt.isXType(x))),
            TT(XFloat, (lambda x: XFloat.isXType(x))),
            TT(None, (lambda x: x is None)),
            TT(str, (lambda x: isinstance(x, str))), # last test
           ]
-  for dtype in types:
+  for t_c in types_and_checkers:
     try:
-      if dtype.tst(val):
-        return dtype.typ
+      if t_c.chk(val):
+        return t_c.typ
     except ValueError:
       pass
   return object
+
+def coerceData(data):
+  """
+  Coreces data in a list to the most restrictive type so that
+  the resulting list is treated correctly when constructing
+  a numpy array.
+  :param data: iterable
+  :return type, list: coerced data if coercion was required
+  """
+  types = [getType(d) for d in data]
+  # Check for conversion in order from the most restrictive
+  # type to the most permissive type
+  for x_type in [XBool, XInt, XFloat]: 
+    if x_type.needsCoercion(types):
+      return [x_type.coerce(d) for d in data]
+  return list(data)
+
+
+if __name__ == '__main__':
+  result = coerceData([1.0, 1, None])
+  import pdb; pdb.set_trace()

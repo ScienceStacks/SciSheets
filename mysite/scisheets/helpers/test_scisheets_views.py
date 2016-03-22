@@ -8,7 +8,6 @@ from ..core.util_test import TableFileHelper
 from ..ui.dt_table import DTTable
 import json
 import mysite.helpers.util as ut
-import scisheets.core.util as util
 import scisheets_views as sv
 import os
 import pickle
@@ -210,10 +209,12 @@ class TestScisheetsViews(TestCase):
     # Returns the index of the column with the specified type or none
     result = None
     columns = table.getColumns()
-    numpy_type = util.findDatatypeForValues([val])
+    numpy_type = np.array([val]).dtype
     for index in range(1, table.numColumns()):
       col = columns[index]
       if numpy_type == col.getDataType():
+        result = index
+      elif str(numpy_type)[0:2] == str(col.getDataType())[0:2]:
         result = index
     return result
 
