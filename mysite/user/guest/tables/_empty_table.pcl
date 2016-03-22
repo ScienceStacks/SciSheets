@@ -24,7 +24,7 @@ Rp10
 S'_owning_table'
 p12
 g4
-sS'_data_values'
+sS'_cells'
 p13
 cnumpy.core.multiarray
 _reconstruct

@@ -73,11 +73,11 @@ class TestTableEvaluator(unittest.TestCase):
     self.assertIsNone(error)
     # pylint: disable=E1101
     formula_result = (
-                       np.sin(self.column_a.getCells())
-                       + self.column_b.getCells()
+                       np.sin(np.array(self.column_a.getCells()))
+                       + np.array(self.column_b.getCells())
                      )
     is_equal = np.equal(formula_result,
-                 self.column_valid_formula.getCells()).all()
+                 np.array(self.column_valid_formula.getCells())).all()
     self.assertTrue(is_equal)
 
   def testEvaluateError(self):
@@ -181,8 +181,8 @@ class TestTableEvaluator(unittest.TestCase):
     shutil.move(file_path, "/tmp")  # Put in temp
 
   @staticmethod
-  def _countNonNone(array):
-    return len([x for x in array if (x is not None)
+  def _countNonNone(aList):
+    return len([x for x in aList if (x is not None)
         and (not np.isnan(x))])  # pylint: disable=E1101
 
   def _testFormulaVariations(self, formula1, formula2, len1, len2):

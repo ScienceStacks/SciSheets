@@ -103,6 +103,7 @@ from os.path import isfile, join
 import pandas as pd
 import scipy as sp
 from sympy import *
+from numpy import nan  # Must follow sympy import
 
     ''']
     if user_directory is not None:
@@ -269,10 +270,8 @@ from sympy import *
     :param column: Column object
     :return: str statement
     """
-    if column.isFloats():
-      values = str(column.getCells().tolist()).replace('nan', 'np.nan')
-    else:
-      values = str(column.getCells().tolist())
+    name = column.getName()
+    values = str(column.getCells())
     statement = "%s = np.array(%s, dtype=%s)" % (
         column.getName(),
         values,
@@ -378,7 +377,6 @@ from sympy import *
     output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''
 from _compare_arrays import compareArrays
-import numpy as np
 if __name__ == '__main__':'''
     statements = [statement]
     indent += 1
@@ -398,7 +396,7 @@ if __name__ == '__main__':'''
       column = self._table.columnFromName(column_name)
       statement = "b = b and compareArrays(%s, %s)" % (
           column_name,
-          str(column.getCells().tolist()))
+          str(column.getCells()))
       test_statements.append(statement)
     statement = """
 if b:
@@ -440,7 +438,6 @@ else:
     if not self._created_convert_to_array:
       statement = """
 def convertToArray(arg):
-  import numpy as np
   if isinstance(arg, np.ndarray):
     result = arg
   elif isinstance(arg, list):

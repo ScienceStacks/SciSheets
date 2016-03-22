@@ -76,7 +76,7 @@ class DTTable(UITable):
     Output: html rendering of the Table
     """
     column_names = [c.getName() for c in self._columns]
-    column_data = [c.getCells().tolist() for c in self._columns]
+    column_data = [c.getCells() for c in self._columns]
     raw_formulas = [c.getFormula() for c in self._columns]
     formulas = []
     for ff in raw_formulas:

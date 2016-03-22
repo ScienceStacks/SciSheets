@@ -311,7 +311,7 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(new_table.numColumns(), num_columns)
     new_table_data = new_table.getData()
     for c in range(1, num_columns):
-      expected_array = table_data[c][rplIdx]
+      expected_array = np.array([table_data[c][n] for n in rplIdx])
       b = (new_table_data[c] == expected_array).all()
       self.assertTrue(b)
 
@@ -337,7 +337,7 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(new_table.numColumns(), num_columns)
     new_table_data = new_table.getData()
     for c in range(1, num_columns):
-      expected_array = table_data[c][rplIdx]
+      expected_array = np.array([table_data[c][n] for n in rplIdx])
       b = (new_table_data[c] == expected_array).all()
       self.assertTrue(b)
 

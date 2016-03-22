@@ -15,11 +15,20 @@ def compareArrays(arr1, arr2):
     """
     :param val1, val2: values to compare
     """
-    types = [int, float, str]
+    types = [int, float, bool, str]
+    if (val1 is None) and (val2 is None):
+      return True
+    elif (val1 is None) or (val2 is None):
+      return False
     result = False
     for typ in types:
+      if typ == float:
+        if np.isnan(val1) or np.isnan(val2):
+          result = np.isnan(val1) == np.isnan(val2)
+          break
       if isinstance(val1, typ) and isinstance(val2, typ):
         result = True
+        break
     return result
 
   is_equal = True
@@ -39,11 +48,10 @@ def compareArrays(arr1, arr2):
           denom = 1.0
         else:
           denom = arr1[idx]
-        if (arr1[idx] is None) and (arr2[idx] is not None):
+        if np.isnan(arr1[idx]) != np.isnan(arr2[idx]):
           is_equal = False
           break
-        elif (arr2[idx] is None) and (arr1[idx] is not None):
-          is_equal = False
+        if np.isnan(arr1[idx]) and np.isnan(arr2[idx]):
           break
         elif abs((arr1[idx] - arr2[idx])/denom) > THRESHOLD:
           is_equal = False
