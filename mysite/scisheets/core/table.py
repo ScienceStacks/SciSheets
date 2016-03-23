@@ -254,6 +254,7 @@ class Table(ColumnContainer):
     Adds a column to the table.
     Adjusts the Column length to that of the table
     :param column: column object
+    :param int index: position for the new column
     :return: error text if there is a problem with the column
                     None if no problem
     Notes: (1) A new column may have either no cells

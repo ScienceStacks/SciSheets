@@ -1,12 +1,12 @@
 Serve page from Django
 
-0.1 
-  a) Data should be stored as lists, not numpy arrays
-  b) The list should be cleaned so that a numpy array of the correct
-     type gets constructed.
   c) Delete extraneous codes in util.py
 
 1. Create API sufficient to do TruthTable use case with trinary logic
+  a. Truthtabe generation
+  b. tests for API
+  c. create S. object and change column in try/except codes generated
+  d. demo example
 
 
 

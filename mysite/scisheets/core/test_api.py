@@ -1,6 +1,6 @@
 '''Tests for formulas API'''
 
-from api import ScisheetsFormulas
+from api import API, APIFormulas
 import errors as er
 import numpy as np
 import unittest
@@ -13,7 +13,7 @@ import unittest
 class TestTable(unittest.TestCase):
 
   def setUp(self):
-    self.sformulas = ScisheetsFormulas(object())
+    self.sformulas = APIFormulas(object())
 
   def testAAnd(self):
     return

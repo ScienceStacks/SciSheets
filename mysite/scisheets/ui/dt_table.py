@@ -4,9 +4,9 @@
 
 from django.shortcuts import render
 from django.template.loader import get_template
+from scisheets.core.util import isFloats
 from ui_table import UITable
 from mysite import settings as st
-import scisheets.core.util as util
 import numpy as np
 
 
@@ -40,7 +40,7 @@ def makeJSON(column_names, data):
       value = str(item)  # Assume use item as-is
       if (item is None):
         value = ""
-      elif util.isFloats(item):
+      elif isFloats(item):
         if np.isnan(item):
           value = ""
       result += '"' + column_names[c] + '": ' + '`' + value + '`'
