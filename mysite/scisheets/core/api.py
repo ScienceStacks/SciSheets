@@ -7,7 +7,7 @@ API for SciSheets. This consists of three parts:
 
 from column import Column
 from table import Table
-import util
+import util.util as util
 
 
 class API(object):

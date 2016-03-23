@@ -5,7 +5,7 @@
 
 import errors as er
 import numpy as np
-import util
+import util.util as util
 
 
 class Column(object):

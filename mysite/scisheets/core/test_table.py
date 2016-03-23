@@ -3,7 +3,7 @@
 import table as tb
 import column as cl
 import errors as er
-from util_test import createTable
+from helpers_test import createTable
 import numpy as np
 import unittest
 

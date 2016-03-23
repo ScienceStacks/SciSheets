@@ -2,10 +2,10 @@
 
 import column as cl
 import unittest
-import util
+import util.util as util
 import errors as er
 import numpy as np
-from util_test import createColumn, compareValues
+from helpers_test import createColumn, compareValues
 
 # Constants
 COLUMN_NAME = "DUMMY"
