@@ -210,8 +210,7 @@ from numpy import nan  # Must follow sympy import
     # Execute the statements
     # pylint: disable=W0122
     try:
-      exec(open(file_path).read(), globals())
-      #exec('\n'.join(statements), globals(), locals())  # Creates _results
+      exec(open(file_path).read(), globals(), locals())
     # pylint: disable=W0703
     except Exception as err:
       # Report the error without changing the table

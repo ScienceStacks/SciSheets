@@ -2,7 +2,7 @@
    Utilities used for testing MVCSheets code.
 '''
 
-import column
+import column as cl
 import contextlib
 import table as tb
 import numpy as np
@@ -50,7 +50,7 @@ def createColumn(name, data=np.array([]), table=None, formula=None):
   :param formula: formula in column
   :return: column object with data populated
   """
-  aColumn = column.Column(name)
+  aColumn = cl.Column(name)
   aColumn.addCells(data)
   aColumn.setTable(table)
   aColumn.setFormula(formula)
@@ -64,7 +64,8 @@ def createTable(name, column_name=None):
   """
   table = tb.Table(name)
   if column_name is not None:
-    column = column.Column(name)
+    column = cl.Column(column_name)
+    column.addCells(range(5))
     table.addColumn(column)
   return table
 

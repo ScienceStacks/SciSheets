@@ -3,10 +3,15 @@ Serve page from Django
   c) Delete extraneous codes in util.py
 
 1. Create API sufficient to do TruthTable use case with trinary logic
-  a. Truthtabe generation
-  b. tests for API
   c. create S. object and change column in try/except codes generated
-  d. demo example
+     import scisheets.core.api as api
+     add statement "S = api.FormulasAPI(self._table)"
+     [For this work to work standalone, have to run from mysite?]
+  d. demo example [show column creation. First comment out formulas. Then remove comments and run.]
+     S.createTruthTable(['A', 'B'])
+     Ap = S.trinary(A)
+     Bp = S.trinary(B)
+     Ap & Bp | -Bp
 
 
 

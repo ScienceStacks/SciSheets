@@ -249,6 +249,16 @@ class Table(ColumnContainer):
                 (self.getName(), nrow, actual_row_name)
         raise er.InternalError(msg)
 
+  def addCells(self, column, cells, asis=False):
+    """
+    Adds to the column
+    :param Column column:
+    :param list cells:
+    :param bool asis: If True, do not coerce data
+    """
+    column.addCells(cells, asis=asis)
+    self._adjustColumnLength(column)
+
   def addColumn(self, column, index=None):
     """
     Adds a column to the table.
@@ -270,9 +280,9 @@ class Table(ColumnContainer):
       error = cl.Column.isPermittedName(column.getName())
       if error is not None:
         return error
-    # Handle the different cases of adding a columng
     if index is None:
       index = len(self._columns)
+    # Handle the different cases of adding a column
     # Case 1: NameColumn
     if self.numColumns() == 0:
       self.insertColumn(column, index=index)

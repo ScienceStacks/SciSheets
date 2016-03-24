@@ -109,6 +109,21 @@ class TestTable(unittest.TestCase):
     is_correct = is_correct and row[COLUMN2] == COLUMN2_CELLS[idx]
     self.assertTrue(is_correct)
 
+  def testAddCells(self):
+    column = self.table.columnFromName(COLUMN2)
+    self.assertEqual(np.array(column.getCells()).dtype,
+        np.float64)  # pylint: disable=E1101
+    cells = [40.0, 50.0]
+    self.table.addCells(column, cells)
+    expected_rows = len(COLUMN1_CELLS) + len(cells)
+    self.assertEqual(self.table.numRows(), expected_rows)
+    self.assertEqual(np.array(column.getCells()).dtype,
+        np.float64) # pylint: disable=E1101
+    column_cells = column.getCells()
+    expected_cells = list(COLUMN2_CELLS)
+    expected_cells.extend(cells)
+    self.assertEqual(column_cells, expected_cells)
+
   def testAddRow1(self):
     column = self.table.columnFromName(COLUMN2)
     self.assertEqual(np.array(column.getCells()).dtype,
