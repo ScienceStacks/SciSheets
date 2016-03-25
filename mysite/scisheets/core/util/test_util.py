@@ -1,7 +1,7 @@
 '''Tests for column'''
 
 import numpy as np
-import util.util as util
+import util
 import unittest
 
 
