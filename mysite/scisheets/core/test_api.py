@@ -2,6 +2,7 @@
 
 from api import API, APIFormulas, APIAdmin
 import helpers_test as ht
+import table_evaluator as te
 import numpy as np
 from util.trinary import Trinary
 import unittest
@@ -18,7 +19,8 @@ class TestAPIFormulas(unittest.TestCase):
 
   def setUp(self):
     self.table = ht.createTable("test", column_name=COLUMN1)
-    self.api = APIFormulas(self.table)
+    self.table_evaluator = te.TableEvaluator(self.table)
+    self.api = APIFormulas(self.table_evaluator)
 
   def testGetValidatedColumn(self):
     column = self.api._getColumn(COLUMN1)

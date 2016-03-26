@@ -34,6 +34,10 @@ class APIFormulas(API):
   """
   Formulas API
   """
+  
+  def __init__(self, table_evaluator):
+    self._table_evaluator = table_evaluator
+    super(APIFormulas, self).__init__(self._table_evaluator.getTable())
 
   def _getColumn(self, column_id, validate=True):
     """

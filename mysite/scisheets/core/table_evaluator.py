@@ -50,6 +50,12 @@ class TableEvaluator(object):
         selected_filenames.append(new_name)
     return selected_filenames
 
+  def getTable(self):
+    """
+    :return: table for the TableEvaluator
+    """
+    return self._table
+
   @staticmethod
   def _makeFormulaImportStatements(user_directory, formula_columns):
     """
@@ -137,7 +143,7 @@ from numpy import nan  # Must follow sympy import
     assignment_statements = ["# Do initial assignments"]
     for column in self._table.getColumns():
       if not column.getName() in excluded_columns:
-        statement = TableEvaluator._makeAssignmentStatement(column)
+        statement = TableEvaluator.makeAssignmentStatement(column)
         assignment_statements.append(statement)
     statements.extend(TableEvaluator._indent(assignment_statements, indent))
     # Evaluate the formulas
@@ -208,18 +214,32 @@ from numpy import nan  # Must follow sympy import
     file_path = os.path.join(user_directory, GENERATED_FILE)
     TableEvaluator._writeStatementsToFile(statements, file_path)
     # Execute the statements
-    # pylint: disable=W0122
-    try:
-      exec(open(file_path).read(), globals(), locals())
-    # pylint: disable=W0703
-    except Exception as err:
-      # Report the error without changing the table
-      return str(err)
+    error = TableEvaluator.executeStatement(open(file_path).read())
+    if error is not None:
+      return error
     # Assign values to the table
     for key in _results.keys():  # pylint: disable=E0602
       column = self._table.columnFromName(key)
       self._table.updateColumn(column, _results[key])  # pylint: disable=E0602
     return None
+
+  @staticmethod
+  def executeStatement(statement):
+    """
+    Executes one or more statements contained in a string
+    :param statement: string of one or more python statements
+    :return: str error from the execution or None
+    """
+    # pylint: disable=W0122
+    try:
+      #exec(statement, globals(), locals())
+      exec(statement, globals())
+      error = None
+    # pylint: disable=W0703
+    except Exception as err:
+      # Report the error without changing the table
+      error = str(err)
+    return error
 
   @staticmethod
   def _indent(statements, indent_level):
@@ -262,7 +282,7 @@ from numpy import nan  # Must follow sympy import
     return result
 
   @staticmethod
-  def _makeAssignmentStatement(column):
+  def makeAssignmentStatement(column):
     """
     Creates an assignment statement that assigns the data values
     of a column to its column name.
@@ -382,7 +402,7 @@ if __name__ == '__main__':'''
     test_statements = []
     for column_name in inputs:
       column = self._table.columnFromName(column_name)
-      statement = TableEvaluator._makeAssignmentStatement(column)
+      statement = TableEvaluator.makeAssignmentStatement(column)
       test_statements.append(statement)
     statement = output_str
     statement += " = %s(" % function_name

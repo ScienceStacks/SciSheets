@@ -67,7 +67,7 @@ aVcos(x)*sin(x)
 p32
 aVexp(2*x)
 p33
-aVexp(x)*x
+aVexp(x)*x*x
 p34
 asg20
 c__builtin__
@@ -94,7 +94,7 @@ aS'sin(x)**2/2'
 p43
 aS'exp(2*x)/2'
 p44
-aS'(x - 1)*exp(x)'
+aS'(x**2 - 2*x + 2)*exp(x)'
 p45
 asg12
 g4
@@ -142,7 +142,7 @@ aS'-sin(x)**2 + cos(x)**2'
 p59
 aS'2*exp(2*x)'
 p60
-aS'x*exp(x) + exp(x)'
+aS'x**2*exp(x) + 2*x*exp(x)'
 p61
 asg12
 g4
