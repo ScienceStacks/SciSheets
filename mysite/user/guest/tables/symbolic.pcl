@@ -65,7 +65,7 @@ aVsin(x)
 p31
 aVcos(x)*sin(x)
 p32
-aVexp(2*x)
+aVexp(4*x)
 p33
 aVexp(x)*x*x
 p34
@@ -92,7 +92,7 @@ aS'-cos(x)'
 p42
 aS'sin(x)**2/2'
 p43
-aS'exp(2*x)/2'
+aS'exp(4*x)/4'
 p44
 aS'(x**2 - 2*x + 2)*exp(x)'
 p45
@@ -140,7 +140,7 @@ aS'cos(x)'
 p58
 aS'-sin(x)**2 + cos(x)**2'
 p59
-aS'2*exp(2*x)'
+aS'4*exp(4*x)'
 p60
 aS'x**2*exp(x) + 2*x*exp(x)'
 p61

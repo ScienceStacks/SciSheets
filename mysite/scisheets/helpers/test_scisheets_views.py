@@ -4,7 +4,7 @@ from mysite import settings as st
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
-from ..core.util_test import TableFileHelper
+from ..core.helpers_test import TableFileHelper
 from ..ui.dt_table import DTTable
 import json
 import mysite.helpers.util as ut
