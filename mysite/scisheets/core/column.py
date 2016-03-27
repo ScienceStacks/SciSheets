@@ -21,6 +21,28 @@ class Column(object):
     self._formula = None
     self._owning_table = None
     self._formula_statement = None  # Formula as a statement
+    # Informs how to setup and store data
+    self._data_class = "np.array"
+
+  @staticmethod
+  def _adjustValue(value, asis):
+    """
+    Handles the case of iterables vs. single values.
+    :param value: list or iterable
+    :param asis: if data are to be left asis
+    :return list: values as a list
+    :return asis: whether values are to be normalized further
+    """
+    if isinstance(value, list):
+      new_data_list = value
+    elif isinstance(value, np.ndarray):
+      new_data_list = value.tolist()
+    elif isinstance(value, Trinary):
+      asis = True
+      new_data_list = value.tolist()
+    else:
+      new_data_list = [value]
+    return new_data_list, asis
 
   def addCells(self, value, replace=False, asis=False):
     """
@@ -29,12 +51,7 @@ class Column(object):
            asis - if True, do not coerce values
     Refines the type to be more specific, if needed.
     """
-    if isinstance(value, list):
-      new_data_list = value
-    elif isinstance(value, np.ndarray):
-      new_data_list = value.tolist()
-    else:
-      new_data_list = [value]
+    new_data_list, asis = Column._adjustValue(value, asis) 
     # Construct the full list
     if replace:
       full_data_list = new_data_list
@@ -74,9 +91,15 @@ class Column(object):
     """
     return self._cells
 
+  def getDataClass(self):
+    """
+    Returns the class (e.g., np.array, Trinary)
+    """
+    return self._data_class
+
   def getDataType(self):
     """
-    Returns the datatype of the cell
+    Returns the datatype of the cell for the data class
     """
     return np.array(self._cells).dtype
 
@@ -129,14 +152,14 @@ class Column(object):
     self.setName(new_name)
 
   # ToDo: Test
-  def replaceCells(self, new_array, asis=False):
+  def replaceCells(self, new_data, asis=False):
     """
-    :param new_array: array to replace existing array
+    :param new_data: array to replace existing data
     :param asis bool: do not transform data values
     """
-    if len(new_array) != len(self._cells):
+    if len(new_data) != len(self._cells):
       raise er.InternalError("Inconsistent lengths")
-    self._setDatavalues(new_array, asis=asis)
+    self._setDatavalues(new_data, asis=asis)
 
   def _setDatavalues(self, values, asis=False):
     """
@@ -198,6 +221,12 @@ class Column(object):
     if exception is None:
       self._formula_statement = statement
     return exception
+
+  def setDataClass(self, data_class):
+    """
+    Sets the class (e.g., np.array, Trinary)
+    """
+    self._data_class = data_class
 
   def setFormula(self, formula):
     """

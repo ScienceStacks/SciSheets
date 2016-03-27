@@ -1,17 +1,16 @@
 Serve page from Django
 
-  c) Delete extraneous codes in util.py
-
 1. Create API sufficient to do TruthTable use case with trinary logic
   c. create S. object and change column in try/except codes generated
-     import scisheets.core.api as api
-     add statement "S = api.FormulasAPI(self._table)"
+     add: import ....core.api as api
+     add statement "S = api.FormulasAPI(file_path, table_file)"
      [For this work to work standalone, have to run from mysite?]
   d. demo example [show column creation. First comment out formulas. Then remove comments and run.]
      S.createTruthTable(['A', 'B'])
      Ap = S.trinary(A)
      Bp = S.trinary(B)
      Ap & Bp | -Bp
+  e. Update data_class when create Trinary for a Column. Can I get rid of some of the "asis" in Column?
 
 
 

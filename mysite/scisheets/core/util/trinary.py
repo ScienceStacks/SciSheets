@@ -29,7 +29,7 @@ class Trinary(object):
     :param iterable values: a Trinary or an iterable of XBool and None
     """
     if isinstance(values, Trinary):
-      self._values = values.getValues()
+      self._values = values.tolist()
     else:
       self._values = Trinary._convert(values)
 
@@ -49,7 +49,7 @@ class Trinary(object):
       import pdb; pdb.set_trace()
     return result
 
-  def getValues(self):
+  def tolist(self):
     return self._values
  
   @staticmethod
@@ -92,7 +92,7 @@ class Trinary(object):
     :param dict logic_dict: dictionary describing the truth table
     :return np.array (either object or bool):
     """
-    new_list1, new_list2 = Trinary._pad(self._values, aTrinary.getValues())
+    new_list1, new_list2 = Trinary._pad(self._values, aTrinary.tolist())
     result = []
     for idx in range(len(new_list1)):
       key = (new_list1[idx], new_list2[idx])

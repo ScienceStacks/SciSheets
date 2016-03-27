@@ -8,8 +8,10 @@ API for SciSheets. This consists of three parts:
 from column import Column
 from table import Table
 import util.util as util
+import api_util
 from util.trinary import Trinary
 from util.combinatoric_list import CombinatoricList
+import os
 
 
 class API(object):
@@ -17,9 +19,29 @@ class API(object):
   Code that is common to the formulas and plugin APIs.
   """
 
-  def __init__(self, table):
-    self._table = table
+  def __init__(self, path, table_file):
+    self._file_path = os.path.join(path, table_file)
+    self.table = None
     self._column_idx = None
+
+  def start(self):
+    """
+    Does initialization at the beginning of executing table
+    code.
+    :return error: error from executing statements
+    """
+    self.table = getTableFromFile(self._file_path)
+    statements = []
+    for column in self.table.getColumns():
+      statements.append(makeAssignmentStatement(column))
+    error = executeStatement(statements)
+
+  def stop(self):
+    """
+    Clean up after the completion of executing Table code.
+    """
+    pass
+
 
 class APIAdmin(API):
   """
@@ -34,10 +56,6 @@ class APIFormulas(API):
   """
   Formulas API
   """
-  
-  def __init__(self, table_evaluator):
-    self._table_evaluator = table_evaluator
-    super(APIFormulas, self).__init__(self._table_evaluator.getTable())
 
   def _getColumn(self, column_id, validate=True):
     """

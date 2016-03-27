@@ -1,5 +1,6 @@
 '''Evaluates formulas in a Table.'''
 
+from api_util import makeAssignmentStatement, executeStatement
 # Create name scopes for evaluation
 import sys
 from os import listdir
@@ -143,7 +144,7 @@ from numpy import nan  # Must follow sympy import
     assignment_statements = ["# Do initial assignments"]
     for column in self._table.getColumns():
       if not column.getName() in excluded_columns:
-        statement = TableEvaluator.makeAssignmentStatement(column)
+        statement = makeAssignmentStatement(column)
         assignment_statements.append(statement)
     statements.extend(TableEvaluator._indent(assignment_statements, indent))
     # Evaluate the formulas
@@ -214,7 +215,7 @@ from numpy import nan  # Must follow sympy import
     file_path = os.path.join(user_directory, GENERATED_FILE)
     TableEvaluator._writeStatementsToFile(statements, file_path)
     # Execute the statements
-    error = TableEvaluator.executeStatement(open(file_path).read())
+    error = executeStatement(open(file_path).read())
     if error is not None:
       return error
     # Assign values to the table
@@ -223,23 +224,6 @@ from numpy import nan  # Must follow sympy import
       self._table.updateColumn(column, _results[key])  # pylint: disable=E0602
     return None
 
-  @staticmethod
-  def executeStatement(statement):
-    """
-    Executes one or more statements contained in a string
-    :param statement: string of one or more python statements
-    :return: str error from the execution or None
-    """
-    # pylint: disable=W0122
-    try:
-      #exec(statement, globals(), locals())
-      exec(statement, globals())
-      error = None
-    # pylint: disable=W0703
-    except Exception as err:
-      # Report the error without changing the table
-      error = str(err)
-    return error
 
   @staticmethod
   def _indent(statements, indent_level):
@@ -280,22 +264,6 @@ from numpy import nan  # Must follow sympy import
         except ValueError:
           pass
     return result
-
-  @staticmethod
-  def makeAssignmentStatement(column):
-    """
-    Creates an assignment statement that assigns the data values
-    of a column to its column name.
-    :param column: Column object
-    :return: str statement
-    """
-    name = column.getName()
-    values = str(column.getCells())
-    statement = "%s = np.array(%s, dtype=%s)" % (
-        column.getName(),
-        values,
-        TableEvaluator._extractDtype(column.getDataType()))
-    return statement
 
   # pylint: disable=R0913
   # pylint: disable=R0914
@@ -402,7 +370,7 @@ if __name__ == '__main__':'''
     test_statements = []
     for column_name in inputs:
       column = self._table.columnFromName(column_name)
-      statement = TableEvaluator.makeAssignmentStatement(column)
+      statement = makeAssignmentStatement(column)
       test_statements.append(statement)
     statement = output_str
     statement += " = %s(" % function_name

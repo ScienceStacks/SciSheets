@@ -2,6 +2,7 @@
 
 from django.http import HttpResponse
 from ..core.errors import InternalError
+from ..core.api_util import getTableFromFile
 from ..ui.dt_table import DTTable
 import mysite.helpers.util as ut
 import mysite.settings as st
@@ -82,13 +83,6 @@ def createCommandDict(request):
 def _makeAjaxResponse(data, success):
   return {'data': data, 'success': success}
 
-def _getTable(table_file):
-  """
-  Get the table from the file
-  """
-  fh = open(table_file, "rb")
-  return pickle.load(fh)
-
 def _getFileNameWithoutExtension(file_path):
   """
   Input: file_path - full path to the file
@@ -136,7 +130,7 @@ def unPickleTable(request):
   if table_file_path is None:
     return None
   else:
-    return _getTable(table_file_path)
+    return getTableFromFile(table_file_path)
 
 def _createRandomFileName():
   handle = tempfile.NamedTemporaryFile()
@@ -203,7 +197,7 @@ def _makeNewTable(request):
   """
   _setTableFilepath(request, LOCAL_FILE, verify=False)
   empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
-  table = _getTable(empty_table_file)
+  table = getTableFromFile(empty_table_file)
   pickleTable(request, table)  # Save table in the new path
   return _makeAjaxResponse("OK", True)
 

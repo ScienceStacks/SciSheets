@@ -28,16 +28,16 @@ class TestTrinary(unittest.TestCase):
   def testAnd(self):
     aTrinary = Trinary(['True', 'True', False])
     result = self.trinary & aTrinary
-    self.assertEqual(result.getValues(), [True, False, False])
+    self.assertEqual(result.tolist(), [True, False, False])
 
   def testOr(self):
     aTrinary = Trinary([None, 'True', False])
     result = self.trinary | aTrinary
-    self.assertEqual(result.getValues(), [True, True, None])
+    self.assertEqual(result.tolist(), [True, True, None])
 
   def testNot(self):
     result = -self.trinary
-    self.assertEqual(result.getValues(), [False, True, None])
+    self.assertEqual(result.tolist(), [False, True, None])
       
 
 
