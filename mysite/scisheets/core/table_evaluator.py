@@ -1,7 +1,6 @@
 '''Evaluates formulas in a Table.'''
 
-from api_util import makeAssignmentStatement, executeStatement
-# Create name scopes for evaluation
+import api_util
 import sys
 from os import listdir
 from os.path import isfile, join
@@ -14,7 +13,7 @@ import random
 import scipy as sp
 import scipy.stats as ss
 
-GENERATED_FILE = "_generated.py"
+GENERATED_FILE = "test_generated.py"
 DEFAULT_FUNCTION_NAME = "MyFunction"
 # Import files to ignore with these initial strings in their names
 IGNORE_PREFIX = ['main_', 'test_', '__']
@@ -103,6 +102,7 @@ class TableEvaluator(object):
     formula_columns = self._formulaColumns()
     # Construct the imports
     import_statements = ['''
+import scisheets.core.api as api
 import math as mt
 import numpy as np
 from os import listdir
@@ -123,10 +123,11 @@ from numpy import nan  # Must follow sympy import
   # pylint: disable=R0913
   # pylint: disable=R0914
   # pylint: disable=R0915
-  def _makeScriptStatements(self, excluded_columns=None):
+  def _makeScriptStatements(self, api_cls, excluded=None):
     """
     Constructs a script to evaluate a table.
-    :param excluded_columns: list of columns that are not initialized
+    :param list-of-str excluded: list of column names that are not initialized
+    :param str api_cls: string to construct the API object
     :return: list of statements constructed
     Notes: (1) Cannot put "exec" in another method
                since the objects created won't be accessible
@@ -136,17 +137,18 @@ from numpy import nan  # Must follow sympy import
     # Initializations
     indent = 0
     statements = []  # List of statements in the file
-    if excluded_columns is None:
-      excluded_columns = []
+    if excluded is None:
+      excluded = []
     formula_columns = self._formulaColumns()
     num_formulas = len(formula_columns)
-    # Do the initial variable assignments
-    assignment_statements = ["# Do initial assignments"]
-    for column in self._table.getColumns():
-      if not column.getName() in excluded_columns:
-        statement = makeAssignmentStatement(column)
-        assignment_statements.append(statement)
-    statements.extend(TableEvaluator._indent(assignment_statements, indent))
+    # Create the API object
+    statement = "S = api.%s('%s')" %  (api_cls, self._table.getFilepath())
+    statements.extend(TableEvaluator._indent([statement], indent))
+    # Initializations
+    statement = "S.initialize()  # De-serialize the table"
+    statements.extend(TableEvaluator._indent([statement], indent))
+    statement = "S.assignVariablesFromColumnValues(excluded=%s)" % str(excluded)
+    statements.extend(TableEvaluator._indent([statement], indent))
     # Evaluate the formulas
     if len(formula_columns) > 0:
       statement = "#Evaluate the formulas"
@@ -175,26 +177,11 @@ from numpy import nan  # Must follow sympy import
       indent -= 1
     return statements
 
-  def _makeUpdateDataStatements(self):
-    """
-    Write statements that update data in table columns
-    :return: list of statements that construct a dict name "_results"
-             with key of column name and value the column value
-    """
-    indent = 0
-    statements = []
-    statement = "_results = {}"
-    statements.extend(TableEvaluator._indent([statement], indent))
-    for column in self._table.getColumns():
-      statement = "_results['%s'] = %s" % (column.getName(), column.getName())
-      statements.extend(TableEvaluator._indent([statement], indent))
-    return statements
-
   def evaluate(self, user_directory=None):
     """
-    Evaluates the formulas in a Table and assigns the _results
-    to the formula columns
+    Evaluates the formulas in a Table and assigns the results
     :param user_directory: path to user exported codes
+    :param table_filepath: path to table file
     :return: errors from execution or None
     Notes: (1) Cannot put "exec" in another method
                since the objects created won't be accessible
@@ -207,21 +194,18 @@ from numpy import nan  # Must follow sympy import
     # Create the initial statements
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
-    new_statements = self._makeScriptStatements()
+    new_statements = self._makeScriptStatements("APIFormulas")
     statements.extend(TableEvaluator._indent(new_statements, indent))
-    # Add statements to create the "_results" dict
-    new_statements = self._makeUpdateDataStatements()
-    statements.extend(TableEvaluator._indent(new_statements, indent))
+    # Assign values to the columns
+    statement = "S.assignColumnValuesFromVariables()"
+    statements.extend(TableEvaluator._indent([statement], indent))
+    # Write the statements to execute
     file_path = os.path.join(user_directory, GENERATED_FILE)
     TableEvaluator._writeStatementsToFile(statements, file_path)
     # Execute the statements
-    error = executeStatement(open(file_path).read())
+    error = api_util.executeStatements(open(file_path).read())
     if error is not None:
       return error
-    # Assign values to the table
-    for key in _results.keys():  # pylint: disable=E0602
-      column = self._table.columnFromName(key)
-      self._table.updateColumn(column, _results[key])  # pylint: disable=E0602
     return None
 
 
@@ -272,14 +256,15 @@ from numpy import nan  # Must follow sympy import
              function_name=None,
              inputs=None,
              outputs=None,
-             file_path=None,
+             py_file_path=None,
              user_directory=None):
     """
     Exports the table as python code
     :param function_name: string name of the function to be created
     :param inputs: list of column names that are input to the function
     :param outputs: list of columns that are output from the function
-    :param file_path: full path to the file to be written
+    :param py_file_path: full path to the python file to be written
+    :param table_filename: name of the table file
     :param user_directory: directory where user functions are located
     :return: error - string from the file export
     Notes: (1) Cannot put "exec" in another method
@@ -313,8 +298,10 @@ from numpy import nan  # Must follow sympy import
       statements.extend(TableEvaluator._indent(
           self._makeInputConversionStatement(name), indent))
     # Make the script body
+    excluded = list(inputs)
+    excluded.extend(list(outputs))
     statements.extend(TableEvaluator._indent(
-        self._makeScriptStatements(excluded_columns=inputs), indent))
+        self._makeScriptStatements("APIPlugin", excluded=excluded), indent))
     # Make the return statement
     statements.extend(TableEvaluator._indent(
         [TableEvaluator._makeReturnStatement(outputs)], indent))
@@ -323,10 +310,10 @@ from numpy import nan  # Must follow sympy import
     statements.extend(TableEvaluator._indent(
         self._makeTestStatements(function_name, inputs, outputs), indent))
     # Write the file
-    if file_path is None:
+    if py_file_path is None:
       file_name = "%s.py" % function_name
-      file_path = join(user_directory, file_name)
-    return TableEvaluator._writeStatementsToFile(statements, file_path)
+      py_file_path = join(user_directory, file_name)
+    return TableEvaluator._writeStatementsToFile(statements, py_file_path)
 
   @staticmethod
   def _writeStatementsToFile(statements, file_path):
@@ -365,34 +352,34 @@ from numpy import nan  # Must follow sympy import
     statement = '''
 from _compare_arrays import compareArrays
 if __name__ == '__main__':'''
-    statements = [statement]
+    statements = TableEvaluator._indent([statement], indent)
     indent += 1
-    test_statements = []
-    for column_name in inputs:
-      column = self._table.columnFromName(column_name)
-      statement = makeAssignmentStatement(column)
-      test_statements.append(statement)
+    # Assign values to the input variables
+    statement = "S.assignVariablesFromColumnValues(include_only=%s)" % str(inputs)
+    statements = TableEvaluator._indent([statement], indent)
+    # Construct the function call
     statement = output_str
     statement += " = %s(" % function_name
     statement += ",".join(inputs)
-    statement += ")"
-    test_statements.append(statement)
+    statement += ")\n"
+    statements = TableEvaluator._indent([statement], indent)
+    suffix = "p"
+    statement = "S.assignVariablesFromColumnValues(sufix=suffix, include_only=%s)" \
+        % str(outputs)
+    statements = TableEvaluator._indent([statement], indent)
     statement = "b = True"
-    test_statements.append(statement)
+    statements = TableEvaluator._indent([statement], indent)
     for column_name in outputs:
-      column = self._table.columnFromName(column_name)
-      statement = "b = b and compareArrays(%s, %s)" % (
-          column_name,
-          str(column.getCells()))
-      test_statements.append(statement)
+      statement = "b = b and compareArrays(%s, %s%s)" \
+          % (column_name, column_name, suffix)
+      statements = TableEvaluator._indent([statement], indent)
     statement = """
 if b:
   print ('OK.')
 else:
   print ('Test failed.')
 """
-    test_statements.extend(TableEvaluator._indent([statement], 0))
-    statements.extend(TableEvaluator._indent(test_statements, indent))
+    statements = TableEvaluator._indent([statement], indent)
     return statements
 
   @staticmethod

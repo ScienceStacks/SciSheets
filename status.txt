@@ -1,5 +1,9 @@
 Serve page from Django
 
+0.1 Refactoring to use the API and generalizing the datatype.
+ (a) write tests for api & api_util
+ (b) test table_evaluator
+
 1. Create API sufficient to do TruthTable use case with trinary logic
   c. create S. object and change column in try/except codes generated
      add: import ....core.api as api

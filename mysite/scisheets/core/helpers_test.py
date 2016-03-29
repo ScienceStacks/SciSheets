@@ -12,6 +12,11 @@ import StringIO
 import sys
 
 
+TEST_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                       'test_dir')
+TEST_TABLE = "TEST_TABLE"
+TABLE_FILEPATH = os.path.join(TEST_DIR, "%s.pcl" % TEST_TABLE)
+
 def toList(val):
   """
   Converts a value to a list.
@@ -63,6 +68,8 @@ def createTable(name, column_name=None):
   :return: Table object
   """
   table = tb.Table(name)
+  pickle.dump(table, open(TABLE_FILEPATH, "wb"))
+  table.setFilepath(TABLE_FILEPATH)
   if column_name is not None:
     column = cl.Column(column_name)
     column.addCells(range(5))
@@ -103,24 +110,32 @@ class TableFileHelper(object):
     full_path = os.path.join(filedir, full_filename)
     return os.path.exists(full_path)
 
-  def __init__(self, table_filename, table_filedir):
+  def __init__(self, table_filename, table_filedir, table_name=None):
     """
     :param table_filename: name of the dummy table file
     :param table_filedir: directory for the table file
     """
+    self.table = None
     self._table_filename = table_filename
     self._table_filedir = table_filedir
     self._full_path = os.path.join(table_filedir,
         "%s.pcl" % self._table_filename)
+    self._table_name = table_name
+    if self._table_name is None:
+      self._table_name = table_filename
 
   def create(self):
     """
-    Creates a Table file
+    Creates Table file and the table
     """
-    if not TableFileHelper.doesTableFileExist(self._table_filename,
-        self._table_filedir):
-      table = tb.Table(self._table_filename)
-      pickle.dump(table, open(self._full_path, "wb"))
+    if os.path.exists(self._full_path):
+      fh = open(self._full_path, "rb")
+      self.table = pickle.load(fh)
+      fh.close()
+    else:
+      self.table = tb.Table(self._table_name)
+      pickle.dump(self.table, open(self._full_path, "wb"))
+    self.table.setFilepath(self._full_path)
 
   def destroy(self):
     """

@@ -11,6 +11,7 @@ import util.util as util
 import api_util
 from util.trinary import Trinary
 from util.combinatoric_list import CombinatoricList
+import collections
 import os
 
 
@@ -19,22 +20,69 @@ class API(object):
   Code that is common to the formulas and plugin APIs.
   """
 
-  def __init__(self, path, table_file):
-    self._file_path = os.path.join(path, table_file)
+  def __init__(self, file_path):
+    self._file_path = file_path
     self.table = None
     self._column_idx = None
 
-  def start(self):
+  def assignColumnValuesFromVariables(self, 
+                                      prefix="", 
+                                      excluded=None, 
+                                      include_only=None):
+    """
+    :param str prefix: prefix prepended to form the name of the column variable
+    :param list-of-str excluded: list of column names not to be initialized
+    :param list-of-str include_only: list of the column names to be initialized
+    Notes: if excluded and include_only are None, then all columns
+    are initialized
+    """
+    if include_only is None:
+      columns = self.table.getColumns()
+    else:
+      columns = []
+      for name in include_only:
+        columns.append(self.table.columnFromName(name))
+    if excluded is None:
+      excluded = []
+    for column in columns:
+      if not column.getName() in excluded:
+        api_util.assignColumnValuesFromVariable(column, prefix=prefix)
+    return None
+
+  def initialize(self):
     """
     Does initialization at the beginning of executing table
     code.
-    :return error: error from executing statements
     """
-    self.table = getTableFromFile(self._file_path)
-    statements = []
-    for column in self.table.getColumns():
-      statements.append(makeAssignmentStatement(column))
-    error = executeStatement(statements)
+    self.table = api_util.getTableFromFile(self._file_path)
+
+  def assignVariablesFromColumnValues(self, 
+                                      prefix="", 
+                                      excluded=None, 
+                                      include_only=None):
+    """
+    :param str prefix: prefix prepended to form the name of the column variable
+    :param list-of-str excluded: list of column names not to be initialized
+    :param list-of-str include_only: list of the column names to be initialized
+    :return error: error from executing statements
+    Notes: if excluded and include_only are None, then all columns
+    are initialized
+    """
+    if include_only is None:
+      columns = self.table.getColumns()
+    else:
+      columns = []
+      for name in include_only:
+        columns.append(self.table.columnFromName(name))
+    if excluded is None:
+      excluded = []
+    for column in columns:
+      if not column.getName() in excluded:
+        error = api_util.assignVariableFromColumnValues(column, 
+            prefix=prefix)
+        if error is not None:
+          return error
+    return None
 
   def stop(self):
     """
@@ -90,7 +138,7 @@ class APIFormulas(API):
     """
     columns = []
     for name in column_names:
-      columns.append(self._createColumn(name))
+      columns.append(self._createColumn(name, asis=True))
     # Create the column values
     elements = [False, True]
     if not only_boolean:
@@ -101,25 +149,26 @@ class APIFormulas(API):
     # Assign the results
     for idx in range(num_lists):
       column = columns[idx]
-      self._table.addCells(column, results[idx], asis=True)
+      self._table.addCells(column, results[idx])
 
   @staticmethod 
   def createTrinary(iterable):
     return Trinary(iterable)
 
-  def _createColumn(self, column_name, index=None):
+  def _createColumn(self, column_name, index=None, asis=False):
     """
     Creates a new column, either just to the right of the
     current column (index=None) are at a specific index.
     :param str column_name: name of the column to create
     :param int index: index where the column is to be placed
+    :param bool asis: Column data should not be coerced
     :return: column object
     :raises: ValueError if invalid name for column
     """
     # First delete the column to make sure that it doesn't exist
     self.deleteColumn(column_name)
     # Now create the column
-    column = Column(column_name)
+    column = Column(column_name, asis=asis)
     error = self._table.addColumn(column, index)
     if error is not None:
       raise ValueError(error)
@@ -157,3 +206,10 @@ class APIFormulas(API):
       raise ValueError("%s column does not have %d values." 
           % (column_id, row_num))
     return values[row_num-1]
+
+
+class APIPlugin(API):
+  """
+  Formulas API
+  """
+

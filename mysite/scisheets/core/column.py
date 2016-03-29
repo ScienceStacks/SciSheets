@@ -6,59 +6,62 @@
 import errors as er
 import numpy as np
 import util.util as util
+import api_util
 
 
+########### CLASSES ##################
 class Column(object):
   """
   Representation of a column in a table. A column is a ctonainer
   of cells.
   """
 
-  def __init__(self, name):
+  def __init__(self, 
+               name, 
+               data_class=api_util.DATACLASS_ARRAY,
+               asis=False):
+    """
+    :param str name: Name of column
+    :param DataClass data_class: Class for data
+    :param bool asis: opaque data if True
+    """
     self._name = None
     self.setName(name)
+    self.setAsis(asis)
     self._cells = []
     self._formula = None
     self._owning_table = None
     self._formula_statement = None  # Formula as a statement
-    # Informs how to setup and store data
-    self._data_class = "np.array"
+    self._data_class = data_class
 
   @staticmethod
-  def _adjustValue(value, asis):
+  def _adjustValue(value):
     """
     Handles the case of iterables vs. single values.
     :param value: list or iterable
-    :param asis: if data are to be left asis
     :return list: values as a list
-    :return asis: whether values are to be normalized further
     """
     if isinstance(value, list):
       new_data_list = value
-    elif isinstance(value, np.ndarray):
-      new_data_list = value.tolist()
-    elif isinstance(value, Trinary):
-      asis = True
+    elif 'tolist' in dir(value):
       new_data_list = value.tolist()
     else:
       new_data_list = [value]
-    return new_data_list, asis
+    return new_data_list
 
-  def addCells(self, value, replace=False, asis=False):
+  def addCells(self, value, replace=False):
     """
-    Input: v - value(s) to add
-           replace - if True, then replace existing cells
-           asis - if True, do not coerce values
-    Refines the type to be more specific, if needed.
+    :param value: value(s) to add
+    :param bool replace: if True, then replace existing cells
     """
-    new_data_list, asis = Column._adjustValue(value, asis) 
+    new_data_list = Column._adjustValue(value)
     # Construct the full list
     if replace:
       full_data_list = new_data_list
     else:
       full_data_list = self._cells
       full_data_list.extend(new_data_list)
-    self._setDatavalues(full_data_list, asis=asis)
+    self._setDatavalues(full_data_list)
 
   def copy(self):
     """
@@ -77,6 +80,12 @@ class Column(object):
     for index in indicies:
       del data_list[index]
     self._setDatavalues(data_list)
+
+  def getAsis(self):
+    """
+    :return bool asis:
+    """
+    return self._asis
 
   def getCell(self, index):
     """
@@ -97,11 +106,14 @@ class Column(object):
     """
     return self._data_class
 
-  def getDataType(self):
+  def getArrayType(self):
     """
-    Returns the datatype of the cell for the data class
+    :return: np.ndarray type if array; else, None
     """
-    return np.array(self._cells).dtype
+    if self._data_class.cls == np.ndarray:
+      return np.array(self._cells).dtype
+    else:
+      return None
 
   def getFormula(self):
     """
@@ -121,17 +133,16 @@ class Column(object):
     """
     return self._name
 
-  def insertCell(self, val, index=None, asis=False):
+  def insertCell(self, val, index=None):
     """
     :param val: value to insert
     :param index: where it is inserted, appended to end if None
-    :param bool asis: if True, does not coerce data
     """
     data_list = self._cells
     if index is None:
       index = len(self._cells)
     data_list.insert(index, val)
-    self._setDatavalues(data_list, asis=asis)
+    self._setDatavalues(data_list)
 
   def isFloats(self):
     """
@@ -152,22 +163,20 @@ class Column(object):
     self.setName(new_name)
 
   # ToDo: Test
-  def replaceCells(self, new_data, asis=False):
+  def replaceCells(self, new_data):
     """
     :param new_data: array to replace existing data
-    :param asis bool: do not transform data values
     """
     if len(new_data) != len(self._cells):
       raise er.InternalError("Inconsistent lengths")
-    self._setDatavalues(new_data, asis=asis)
+    self._setDatavalues(new_data)
 
-  def _setDatavalues(self, values, asis=False):
+  def _setDatavalues(self, values):
     """
     Sets the values for the cell
     :param values: singleton or iterable
-    :param asis bool: do not transform data values
     """
-    if asis:
+    if self._asis:
       self._cells = values
     else:
       self._cells = util.coerceData(values)
@@ -221,6 +230,12 @@ class Column(object):
     if exception is None:
       self._formula_statement = statement
     return exception
+
+  def setAsis(self, asis):
+    """
+    :param bool asis:
+    """
+    self._asis = asis
 
   def setDataClass(self, data_class):
     """

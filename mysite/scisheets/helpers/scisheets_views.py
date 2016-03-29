@@ -98,18 +98,31 @@ def _createTableFilepath(file_name):
   table_file = "%s.pcl" % file_name
   return os.path.join(st.SCISHEETS_USER_TBLDIR, table_file)
 
-def _setTableFilepath(request, file_name, verify=True):
+def _setTableFilepath(request, 
+                      table, 
+                      file_name, 
+                      verify=True,
+                      fullpath=False):
   """
   Sets the file path in the session key
-  Input: request - request for the session
-         file_name - name of file without extension
+  :param request: request for the session
+  :param Table table: Table object
+  :param str file_name: name of file without extension
+  :param bool verify: check for a valid filepath
+  :param bool fullpath: name is a full path
+  :return str: Table filepath
   """
-  table_file_path = _createTableFilepath(file_name)
+  if fullpath:
+    table_filepath = file_name
+  else:
+    table_filepath = _createTableFilepath(file_name)
   if verify:
-    if not os.path.isfile(table_file_path):
+    if not os.path.isfile(table_filepath):
       raise InternalError("Could not find Table file %s"
-          % table_file_path)
-  request.session[TABLE_FILE_KEY] = table_file_path
+          % table_filepath)
+  request.session[TABLE_FILE_KEY] = table_filepath
+  table.setFilepath(table_filepath)
+  return table_filepath
 
 def _getTableFilepath(request):
   """
@@ -148,12 +161,13 @@ def pickleTable(request, table):
       have_table_file = True
   if not have_table_file:
     if USE_LOCAL_FILE:
-      _setTableFilepath(request, LOCAL_FILE)
+      _setTableFilepath(request, table, LOCAL_FILE)
     else:
       handle = tempfile.NamedTemporaryFile()
-      request.session[TABLE_FILE_KEY] = handle.name
+      table_filepath = handle.name
       handle.close()
-  pickle.dump(table, open(request.session[TABLE_FILE_KEY], "wb"))
+      _setTableFilepath(request, table, table_filepath, fullpath=True)
+  pickle.dump(table, open(table_filepath, "wb"))
 
 
 # ******************** Command Processing *****************
@@ -167,7 +181,7 @@ def scisheets(request, ncol, nrow):
   ncolstr = int(ncol/2)
   table = DTTable.createRandomTable("Demo", nrow, ncol,
       ncolstr=ncolstr)
-  _setTableFilepath(request, LOCAL_FILE, verify=False)
+  _setTableFilepath(request, table, LOCAL_FILE, verify=False)
   table_file = _getFileNameWithoutExtension(_getTableFilepath(request))
   html = table.render(table_file=table_file)
   pickleTable(request, table)
@@ -195,9 +209,9 @@ def _makeNewTable(request):
   :param request: includes command structure in the GET
   :return: ajax response
   """
-  _setTableFilepath(request, LOCAL_FILE, verify=False)
   empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
   table = getTableFromFile(empty_table_file)
+  _setTableFilepath(request, table, LOCAL_FILE, verify=False)
   pickleTable(request, table)  # Save table in the new path
   return _makeAjaxResponse("OK", True)
 
@@ -221,11 +235,12 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
     elif cmd_dict['command'] == "New":
       command_result = _makeNewTable(request)
     elif cmd_dict['command'] == "OpenTableFile":
-      _setTableFilepath(request, cmd_dict['args'][0])
+      _setTableFilepath(request, table, cmd_dict['args'][0])
       command_result = _makeAjaxResponse("OK", True)
     elif cmd_dict['command'] == "SaveAs":
       table = unPickleTable(request)
-      _setTableFilepath(request, cmd_dict['args'][0], verify=False)
+      _setTableFilepath(request, table, cmd_dict['args'][0], 
+          verify=False)
       pickleTable(request, table)  # Save table in the new path
       command_result = _makeAjaxResponse("OK", True)
   return command_result
@@ -250,6 +265,7 @@ def scisheets_reload(request):
     html = "No session found"
   else:
     table.evaluate()
-    table_file = _getFileNameWithoutExtension(_getTableFilepath(request))
+    table_filepath = _getTableFilepath(request)
+    table_file = _getFileNameWithoutExtension(table_filepath)
     html = table.render(table_file=table_file)
   return HttpResponse(html)

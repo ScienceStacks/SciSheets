@@ -6,6 +6,7 @@ import util.util as util
 import errors as er
 import numpy as np
 from helpers_test import createColumn, compareValues
+import api_util
 
 # Constants
 COLUMN_NAME = "DUMMY"
@@ -93,10 +94,17 @@ class TestColumn(unittest.TestCase):
     self.column.deleteCells([valid_index])
     self.assertEqual(self.column._cells[valid_index], LIST[not_an_index])
 
-  def testDataType(self):
-    self.assertEqual(self.column.getDataType(), float)
-    column_type = self.column_str.getDataType()
-    self.assertTrue(str(column_type)[0:2] == '|S')
+  def testGetDataClass(self):
+    data_class = self.column.getDataClass()
+    self.assertEqual(data_class.cls, np.ndarray)
+    data_class = self.column_str.getDataClass()
+    self.assertEqual(data_class.cls, np.ndarray)
+
+  def testGetArrayType(self):
+    array_type = self.column.getArrayType()
+    self.assertEqual(array_type, np.float64)
+    array_type = self.column_str.getArrayType()
+    self.assertTrue(str(array_type)[0:2] == '|S')
 
   def testGetCells(self):
     cells = self.column.getCells()

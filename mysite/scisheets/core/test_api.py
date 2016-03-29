@@ -70,6 +70,31 @@ class TestAPIFormulas(unittest.TestCase):
       new_trinary = -trinary
       self.assertTrue(isinstance(new_trinary, Trinary))
 
+
+# pylint: disable=W0212,C0111,R0904
+class TestAPIPlugin(unittest.TestCase):
+
+  def setUp(self):
+    self.table = ht.createTable("test", column_name=COLUMN1)
+    self.table_evaluator = te.TableEvaluator(self.table)
+    self.api = APIFormulas(self.table_evaluator)
+
+  def testAssignVariablesFromColumnValues(self):
+    self.api.assignVariablesFromColumnValues()
+    values = globals()[COLUMN1]
+    column = self.table.columnFromName(COLUMN1)
+    self.assertEqual(column.getCells(), values)
+    self.api.assignVariablesFromColumnValues(prefix="_")
+    name = "_%s" % column.getName()
+    self.assert(name in globals().keys())
+
+  def testAssignColumnValuesFromVariables(self):
+    values = [1, 3, 5]
+    column = self.table.columnFromName(COLUMN1)
+    globals()[column.getName()] = values
+    self.api.assignColumnValuesFromVariables()
+    self.assertEqual(column.getCells(), values)
+
     
 
 if __name__ == '__main__':

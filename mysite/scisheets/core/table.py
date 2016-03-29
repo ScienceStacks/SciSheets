@@ -115,6 +115,10 @@ class ColumnContainer(object):
     index = self._columns.index(column)
     del self._columns[index]
 
+  def setFilepath(self, filepath):
+    # Path to the backing store for the Table
+    self._filepath = filepath
+
   def setName(self, name):
     """
     :param name: new table name
@@ -146,6 +150,7 @@ class Table(ColumnContainer):
   def __init__(self, name):
     super(Table, self).__init__(name)
     self._createNameColumn()
+    self.setFilepath(None)
 
   def _updateNameColumn(self):
     """
@@ -156,9 +161,7 @@ class Table(ColumnContainer):
     if len(self._columns) > 1:
       for row_num in range(num_cells):
         names.append(Table._rowNameFromIndex(row_num))
-      self._columns[NAME_COLUMN_IDX].addCells(names, 
-                                              replace=True, 
-                                              asis=True)
+      self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
   # Data columns are those that have user data. The "row" column is excluded.
   def _getDataColumns(self):
@@ -172,6 +175,9 @@ class Table(ColumnContainer):
     Returns the data values in an array ordered by column index
     """
     return [c.getCells() for c in self._columns]
+
+  def getFilepath(self):
+    return self._filepath
 
   # TODO: Verify the index
   @staticmethod
@@ -194,10 +200,10 @@ class Table(ColumnContainer):
     """
     Creates the name column for the table
     """
-    column = Column(NAME_COLUMN_STR)
+    column = Column(NAME_COLUMN_STR, asis=True)
     self.addColumn(column)
 
-  def _adjustColumnLength(self, columns):
+  def adjustColumnLength(self, columns):
     """
     Inserts values of None or np.nan so that column
         has the same length as the table
@@ -249,15 +255,14 @@ class Table(ColumnContainer):
                 (self.getName(), nrow, actual_row_name)
         raise er.InternalError(msg)
 
-  def addCells(self, column, cells, asis=False):
+  def addCells(self, column, cells):
     """
     Adds to the column
     :param Column column:
     :param list cells:
-    :param bool asis: If True, do not coerce data
     """
-    column.addCells(cells, asis=asis)
-    self._adjustColumnLength(column)
+    column.addCells(cells)
+    self.adjustColumnLength(column)
 
   def addColumn(self, column, index=None):
     """
@@ -302,7 +307,7 @@ class Table(ColumnContainer):
       else:
         self.insertColumn(column, index=index)
         column.setTable(self)
-        self._adjustColumnLength(column)
+        self.adjustColumnLength(column)
       self._validateTable()
 
   def addRow(self, row, ext_index=None):
@@ -319,14 +324,10 @@ class Table(ColumnContainer):
     # Assign values to the cells in the Row
     for column in self._columns:
       cur_name = column.getName()
-      if cur_name == NAME_COLUMN_STR:
-        asis = True
-      else:
-        asis = False
       if cur_name in row:
-        column.insertCell(row[cur_name], asis=asis)
+        column.insertCell(row[cur_name])
       else:
-        column.insertCell(None, asis=asis)
+        column.insertCell(None)
     last_index = self.numRows() - 1
     self.renameRow(last_index, proposed_name)  # put the row in the right place
     self._validateTable()
@@ -467,7 +468,7 @@ class Table(ColumnContainer):
     float_names = [float(x) for x in names]
     sel_index = np.argsort(float_names)
     new_names = Table._rowNamesFromSize(len(names))
-    name_column.replaceCells(new_names, asis=True)
+    name_column.replaceCells(new_names)
     # Update the order of values in each column
     for column in self._columns:
       try:
@@ -520,7 +521,7 @@ class Table(ColumnContainer):
     :param cells: cells to change
     """
     column.addCells(cells, replace=True)
-    self._adjustColumnLength(self._columns)
+    self.adjustColumnLength(self._columns)
     self._updateNameColumn()
 
   def updateRow(self, row, index):

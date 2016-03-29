@@ -7,6 +7,7 @@ Trinary objects use the operators:
   - for NOT
 """
 
+import scisheets.core.api_util as api_util
 import util
 
 
@@ -17,7 +18,6 @@ OR_TRUTHTABLE = {(None, None): None, (None, False): None, (None, True): True,
                   (False, None): None, (False, False): False, (False, True): True,
                   (True, None): True, (True, False): True, (True, True): True}
 NOT_TRUTHTABLE = {None: None, False: True, True: False}
-
 
 class Trinary(object):
   """
@@ -127,3 +127,8 @@ class Trinary(object):
 
   def __str__(self):
     return str(self._values)
+
+###################### Other Constants ####################
+def makeTrinary(aList):
+  return Trinary(alist)
+DATACLASS_TRINARY = api_util.DataClass(cls=Trinary, cons=makeTrinary)

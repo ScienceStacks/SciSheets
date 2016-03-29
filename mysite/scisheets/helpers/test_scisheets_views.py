@@ -212,9 +212,9 @@ class TestScisheetsViews(TestCase):
     numpy_type = np.array([val]).dtype
     for index in range(1, table.numColumns()):
       col = columns[index]
-      if numpy_type == col.getDataType():
+      if numpy_type == col.getArrayType():
         result = index
-      elif str(numpy_type)[0:2] == str(col.getDataType())[0:2]:
+      elif str(numpy_type)[0:2] == str(col.getArrayType())[0:2]:
         result = index
     return result
 

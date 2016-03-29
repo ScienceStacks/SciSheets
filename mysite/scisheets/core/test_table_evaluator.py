@@ -6,7 +6,8 @@ import numpy as np
 from os.path import join
 import shutil
 from table_evaluator import TableEvaluator
-from helpers_test import createTable, stdoutIO, TableFileHelper
+from helpers_test import createTable, stdoutIO, TableFileHelper, \
+    TEST_DIR
 import unittest
 
 
@@ -32,8 +33,6 @@ COLUMN1_CELLS = ["one", "two", "three"]
 COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
 COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
-TEST_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                       'test_dir')
 IMPORT_PATHS = ["", "scisheets.core"]
 
 
@@ -194,7 +193,9 @@ class TestTableEvaluator(unittest.TestCase):
     if len(formula2) == 0:
       formula = formula1
       self.column_valid_formula.setFormula(formula)
-      self.assertIsNone(self.evaluator.evaluate(user_directory=TEST_DIR))
+      error = self.evaluator.evaluate(user_directory=TEST_DIR)
+      self.assertIsNone(error)
+      import pdb; pdb.set_trace()
       self.assertEqual(
           TestTableEvaluator._countNonNone(
           self.column_valid_formula.getCells()), len1)

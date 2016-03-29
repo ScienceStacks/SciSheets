@@ -58,12 +58,12 @@ class TestTable(unittest.TestCase):
     table.addColumn(column)
     column = cl.Column(COLUMN1)
     column.addCells(['aa'])
-    table._adjustColumnLength(column)
+    table.adjustColumnLength(column)
     self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
     self.assertIsNone(column.getCells()[1])
     column = cl.Column("YetAnotherColumn")
     column.addCells([1])
-    table._adjustColumnLength(column)
+    table.adjustColumnLength(column)
     self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
     if column.isFloats():
       self.assertTrue(np.isnan(column.getCells()[1]))  # pylint: disable=E1101
