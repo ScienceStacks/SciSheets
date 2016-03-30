@@ -68,12 +68,12 @@ def createTable(name, column_name=None):
   :return: Table object
   """
   table = tb.Table(name)
-  pickle.dump(table, open(TABLE_FILEPATH, "wb"))
   table.setFilepath(TABLE_FILEPATH)
   if column_name is not None:
     column = cl.Column(column_name)
-    column.addCells(range(5))
+    column.addCells(range(5), replace=True)
     table.addColumn(column)
+  pickle.dump(table, open(TABLE_FILEPATH, "wb"))
   return table
 
 @contextlib.contextmanager

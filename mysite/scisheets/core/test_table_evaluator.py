@@ -245,6 +245,22 @@ DUMMY1 = find_primes(100)
     errors = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(errors)
 
+  def testExecuteStatements(self):
+    test_file = "test_file.txt"
+    statements = """
+import os
+path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                       'test_dir/api_util.txt')
+fd = open(path, "w")
+fd.writelines("test\n")
+fd.close()
+"""
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+       'test_dir/api_util.txt')
+    TableEvaluator._executeStatements(statements)
+    self.assertTrue(os.path.exists(path))
+    os.remove(path)
+
 
 if __name__ == '__main__':
   unittest.main()

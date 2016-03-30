@@ -2,9 +2,9 @@
   Extends the Table class to display a table and respond to UI events
 '''
 
-from ..core.table import Table
-from ..core.column import Column
-from ..core.errors import NotYetImplemented, InternalError
+from scisheets.core.table import Table
+from scisheets.core.column import Column
+from scisheets.core.errors import NotYetImplemented, InternalError
 from mysite.helpers import util as ut
 from mysite import settings as st
 import collections

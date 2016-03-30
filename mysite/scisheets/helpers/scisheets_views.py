@@ -182,7 +182,7 @@ def scisheets(request, ncol, nrow):
   table = DTTable.createRandomTable("Demo", nrow, ncol,
       ncolstr=ncolstr)
   _setTableFilepath(request, table, LOCAL_FILE, verify=False)
-  table_file = _getFileNameWithoutExtension(_getTableFilepath(request))
+  table_file = table.getFilepath()
   html = table.render(table_file=table_file)
   pickleTable(request, table)
   return HttpResponse(html)
@@ -264,8 +264,8 @@ def scisheets_reload(request):
   if table is None:
     html = "No session found"
   else:
-    table.evaluate()
-    table_filepath = _getTableFilepath(request)
-    table_file = _getFileNameWithoutExtension(table_filepath)
+    table.evaluate()  # Saves the changes to the table in the Table File
+    new_table = getTableFromFile(table.getFilepath())
+    table_file = _getFileNameWithoutExtension(new_table.getFilepath())
     html = table.render(table_file=table_file)
   return HttpResponse(html)

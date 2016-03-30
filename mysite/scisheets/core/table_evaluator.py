@@ -21,6 +21,8 @@ IGNORE_PREFIX = ['main_', 'test_', '__']
 PY_SUFFIX = ".py"
 
 
+
+######################## CLASSES ####################
 class TableEvaluator(object):
   """
   Evaluates and otherwise processes formulas in a table
@@ -123,9 +125,9 @@ from numpy import nan  # Must follow sympy import
   # pylint: disable=R0913
   # pylint: disable=R0914
   # pylint: disable=R0915
-  def _makeScriptStatements(self, api_cls, excluded=None):
+  def _makeFormulaStatements(self, api_cls, excluded=None):
     """
-    Constructs a script to evaluate a table.
+    Constructs a script to evaluate table formulas.
     :param list-of-str excluded: list of column names that are not initialized
     :param str api_cls: string to construct the API object
     :return: list of statements constructed
@@ -146,8 +148,6 @@ from numpy import nan  # Must follow sympy import
     statements.extend(TableEvaluator._indent([statement], indent))
     # Initializations
     statement = "S.initialize()  # De-serialize the table"
-    statements.extend(TableEvaluator._indent([statement], indent))
-    statement = "S.assignVariablesFromColumnValues(excluded=%s)" % str(excluded)
     statements.extend(TableEvaluator._indent([statement], indent))
     # Evaluate the formulas
     if len(formula_columns) > 0:
@@ -175,6 +175,8 @@ from numpy import nan  # Must follow sympy import
         statements.extend(TableEvaluator._indent([statement], indent))
         indent -= 2
       indent -= 1
+      statement = "S.finalize()"
+      statements.extend(TableEvaluator._indent([statement], indent))
     return statements
 
   def evaluate(self, user_directory=None):
@@ -191,19 +193,27 @@ from numpy import nan  # Must follow sympy import
     indent = 0
     if user_directory is None:
       user_directory = os.path.dirname(__file__)
-    # Create the initial statements
+    # Do the imports
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
-    new_statements = self._makeScriptStatements("APIFormulas")
+    # Create the API object
+    statement = "S = api.APIFormulas('%s')" %  self._table.getFilepath()
+    statements.extend(TableEvaluator._indent([statement], indent))
+    # Initializations
+    statement = "S.initialize()  # De-serialize the table"
+    statements.extend(TableEvaluator._indent([statement], indent))
+    # Create the formula statements
+    new_statements = self._makeFormulaStatements()
     statements.extend(TableEvaluator._indent(new_statements, indent))
     # Assign values to the columns
-    statement = "S.assignColumnValuesFromVariables()"
+    statement = "S.finalize()  # Serialize the table"
     statements.extend(TableEvaluator._indent([statement], indent))
     # Write the statements to execute
     file_path = os.path.join(user_directory, GENERATED_FILE)
     TableEvaluator._writeStatementsToFile(statements, file_path)
     # Execute the statements
-    error = api_util.executeStatements(open(file_path).read())
+    statements = open(file_path).read()
+    error = TableEvaluator._executeStatements(statements)
     if error is not None:
       return error
     return None
@@ -288,23 +298,31 @@ from numpy import nan  # Must follow sympy import
     statements = [header_comments]
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
+    # Create the API object
+    statement = "S = api.APIPlugin('%s', %s, %s)"   \
+        %  (self._table.getFilepath(), str(inputs), str(outputs))
+    statements.extend(TableEvaluator._indent([statement], indent))
+    # Initializations
+    statement = "S.initialize()  # De-serialize the table"
+    statements.extend(TableEvaluator._indent([statement], indent))
     # Make the function definition
     statements.extend(TableEvaluator._indent(
         [TableEvaluator._makeFunctionStatement(function_name, inputs)],
         indent))
     indent += 1
+    # BUG: IS THIS NEEDED?
     # Convert the input arguments if needed
     for name in inputs:
       statements.extend(TableEvaluator._indent(
           self._makeInputConversionStatement(name), indent))
-    # Make the script body
-    excluded = list(inputs)
-    excluded.extend(list(outputs))
-    statements.extend(TableEvaluator._indent(
-        self._makeScriptStatements("APIPlugin", excluded=excluded), indent))
+    # Make the function body
+    statements.extend(TableEvaluator._indent(self._makeFormulaStatements()))
     # Make the return statement
-    statements.extend(TableEvaluator._indent(
-        [TableEvaluator._makeReturnStatement(outputs)], indent))
+    statement = TableEvaluator._makeReturnStatement(outputs)
+    statements.extend(TableEvaluator._indent([statement], indent))
+    # Finalization of the function created
+    statement = "S.finalize()  # Finalize the function created"
+    statements.extend(TableEvaluator._indent([statement], indent))
     # Make the test statements
     indent -= 1
     statements.extend(TableEvaluator._indent(
@@ -350,6 +368,7 @@ from numpy import nan  # Must follow sympy import
     indent = 0
     output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''
+# Tests for the function
 from _compare_arrays import compareArrays
 if __name__ == '__main__':'''
     statements = TableEvaluator._indent([statement], indent)
@@ -427,3 +446,28 @@ def convertToArray(arg):
 """ % (arg_name, arg_name)
     statements.append(statement)
     return statements
+
+  @staticmethod
+  def executeStatements(statements):
+    """
+    Executes one or more statements contained in a string
+    :param statements: string or list of str  of one or 
+                       more python statements
+    :return: str error from the execution or None
+    :raises: ValueError if invalid input
+    """
+    if isinstance(statements, list):
+      statements = '\n'.join(statements)
+    elif isinstance(statements, str):
+      statements = statements
+    else:
+      raise ValueError("Must be a str or list.")
+    # pylint: disable=W0122
+    try:
+      exec(statements, globals())
+      error = None
+    # pylint: disable=W0703
+    except Exception as err:
+      # Report the error without changing the table
+      error = str(err)
+    return error

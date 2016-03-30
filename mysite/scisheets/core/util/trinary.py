@@ -7,7 +7,7 @@ Trinary objects use the operators:
   - for NOT
 """
 
-import scisheets.core.api_util as api_util
+import api_util
 import util
 
 

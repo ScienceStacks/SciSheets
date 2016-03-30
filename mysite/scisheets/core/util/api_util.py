@@ -1,0 +1,44 @@
+'''Evaluates formulas in a Table.'''
+
+import pickle
+import numpy as np
+import collections
+import __builtin__
+
+################### Classes ############################
+# Used to define a DataClass
+# cls is the data type that can be tested in isinstance
+# cons is a function that constructs an instance of cls
+#   taking as an argument a list
+# Usage: data_class = DataClass(cls=np.ndarray, 
+#                               cons=(lambda(x: np.array(x))))
+DataClass = collections.namedtuple('DataClass', 'cls cons')
+
+########### CONSTANTS ################
+def makeArray(aList):
+  return np.array(aList)
+DATACLASS_ARRAY = DataClass(cls=np.ndarray,
+    cons=makeArray)
+
+
+################### Functions #########################
+def getTableFromFile(file_path):
+  """
+  Get the table from the file
+  :param str table_file: full path to table file
+  :raises ValueError: Checks that the file path is set
+  """
+  fh = open(file_path, "rb")
+  table = pickle.load(fh)
+  fh.close()
+  if table.getFilepath() != file_path:
+    raise ValueError("File path is not set")
+  return table
+
+def writeTableToFile(table):
+  """
+  Get the table from the file
+  :param Table table:
+  """
+  pickle.dump(table, open(table.getFilepath(), "wb"))
+
