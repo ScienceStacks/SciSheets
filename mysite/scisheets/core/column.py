@@ -6,7 +6,7 @@
 import errors as er
 import numpy as np
 import util.util as util
-import api_util
+import util.api_util as api_util
 
 
 ########### CLASSES ##################

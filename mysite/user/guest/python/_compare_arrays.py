@@ -4,9 +4,9 @@ import collections
 
 THRESHOLD = 0.01
 
-def compareArrays(arr1, arr2):
+def compareIterables(arr1, arr2):
   """
-  Compares two arrays.
+  Compares two iterables
   :param arr1: array or list, possibly with None values
   :param arr2: array or list, possibly with None values
   :return: True if equivalent; otherwise false
@@ -63,13 +63,13 @@ def compareArrays(arr1, arr2):
   return is_equal
 
 if __name__ == '__main__':
-  IS_OK = not compareArrays(np.array(range(4)),
+  IS_OK = not compareIterables(np.array(range(4)),
                             np.array(range(5)))
-  IS_OK = IS_OK and not compareArrays(np.array(range(4)),
+  IS_OK = IS_OK and not compareIterables(np.array(range(4)),
                              np.array([0.1*n for n in range(4)]))
-  IS_OK = IS_OK and compareArrays(np.array(range(4)),
+  IS_OK = IS_OK and compareIterables(np.array(range(4)),
                           np.array(range(4)))
-  IS_OK = IS_OK and compareArrays(np.array([n*.01 for n in range(4)]),
+  IS_OK = IS_OK and compareIterables(np.array([n*.01 for n in range(4)]),
                           np.array([n*.01 for n in range(4)]))
   if IS_OK:
     print "OK."

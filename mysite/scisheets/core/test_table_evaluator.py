@@ -67,6 +67,15 @@ class TestTableEvaluator(unittest.TestCase):
     evaluator = TableEvaluator(self.table)
     self.assertEqual(evaluator._table.getName(), TABLE_NAME)
 
+  def testMakeFormulaImportStatements(self):
+    statements = self.evaluator._makeFormulaImportStatements(  \
+        TEST_DIR, [self.column_valid_formula])
+    self.assertEqual(len(statements), 0)
+    self.column_valid_formula.setFormula("dummy()")
+    statements = self.evaluator._makeFormulaImportStatements(  \
+        TEST_DIR, [self.column_valid_formula])
+    self.assertEqual(len(statements), 1)
+
   def testEvaluate(self):
     error = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
@@ -106,7 +115,7 @@ class TestTableEvaluator(unittest.TestCase):
     error = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
 
-  def testFindPythonFiles(self):
+  def testFindFileNames(self):
     filename = "dummy"
     helper = TableFileHelper(filename, TEST_DIR)
     helper.create()

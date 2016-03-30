@@ -86,9 +86,6 @@ class APIFormulas(API):
     column_id - either the column name or column index
   """
 
-  def __init__(self, table_filepath):
-    super(APIFormulas, self).__init__(table_filepath)
-
   def _getColumn(self, column_id, validate=True):
     """
     :param column_id: either the name of the column or
@@ -117,9 +114,11 @@ class APIFormulas(API):
                               in the truth table
     Usage example:
       S.createTruthTable(['A', 'B'])
-      Ap = S.createTrinary(A)  # Trinary object
-      Bp = S.createTrinary(B)  # Trinary object
-      Cp = Ap & Bp | -Bp
+      A = S.getColumnValues('A')  # Trinary object
+      B = S.getColumnValues('B')  # Trinary object
+      C = A & B | -B
+      S.createColumn('C')
+      S.setColumnValues('C', C)  # Assign the column value
     """
     columns = []
     for name in column_names:
@@ -136,8 +135,7 @@ class APIFormulas(API):
       column = columns[idx]
       self._table.addCells(column, results[idx])
 
-  @staticmethod 
-  def createTrinary(iterable):
+  def createTrinary(self, iterable):
     return Trinary(iterable)
 
   def _createColumn(self, column_name, index=None, asis=False):
@@ -197,12 +195,4 @@ class APIPlugin(API):
   """
   Support for running standalone codes
   """
-
-  def __init__(self, table_filepath, inputs, outputs):
-    """
-    :param list-of-str inputs: names of input columns
-    :param list-of-str outputs: names of output columns
-    """
-    self._inputs = inputs
-    self._outputs = outputs
-    super(APIPlugin, self).__init__(table_filepath)
+  pass
