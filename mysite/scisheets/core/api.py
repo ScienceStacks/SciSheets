@@ -16,8 +16,14 @@ from util.trinary import Trinary
 from util.combinatoric_list import CombinatoricList
 import collections
 import os
+import pickle
+
+################### FUNCTIONS
+def getTableFromFile(file_path):
+  return api_util.getTableFromFile(file_path)
 
 
+################### CLASSES
 class API(object):
   """
   Code that is common to the formulas and plugin APIs.

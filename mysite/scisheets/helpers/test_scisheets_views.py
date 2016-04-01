@@ -5,12 +5,12 @@ from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
 from ..core.helpers_test import TableFileHelper
+from ..core.util.api_util import getTableFromFile, writeTableToFile
 from ..ui.dt_table import DTTable
 import json
 import mysite.helpers.util as ut
 import scisheets_views as sv
 import os
-import pickle
 import numpy as np
 
 # Keys used inside the server
@@ -161,14 +161,14 @@ class TestScisheetsViews(TestCase):
       new_values[n] = ''
       self._testCreateCommandDict(AJAX_NAMES, new_values)
   
-  def testPickle_unPickle(self):
+  def testSaveAndGetTable(self):
     request = self._URL2Request(self._createURL(count=1))  # a request
     self._addSessionToRequest(request)
-    self.assertEqual(sv.unPickleTable(request), None)
+    self.assertEqual(sv.getTable(request), None)
     table = Table("test")
-    sv.pickleTable(request, table)
+    sv.saveTable(request, table)
     self.assertTrue(request.session.has_key(sv.TABLE_FILE_KEY))
-    new_table = sv.unPickleTable(request)
+    new_table = sv.getTable(request)
     self.assertEqual(new_table.getName(), table.getName())
 
   def test(self):
@@ -225,8 +225,8 @@ class TestScisheetsViews(TestCase):
     self._testCommandCellUpdate(ROW_INDEX, "aaa bb")
 
   def _getTableFromResponse(self, response):
-    pickle_file = response.client.session[sv.TABLE_FILE_KEY]
-    return sv._getTable(pickle_file)
+    table_filepath = response.client.session[sv.TABLE_FILE_KEY]
+    return getTableFromFile(table_filepath)
 
   def _testCommandColumnDelete(self, base_url):
     # Tests for command delete with a given base_url to consider the

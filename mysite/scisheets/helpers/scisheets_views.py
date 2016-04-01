@@ -2,16 +2,15 @@
 
 from django.http import HttpResponse
 from ..core.errors import InternalError
-from ..core.util.api_util import getTableFromFile
+from ..core.util.api_util import getTableFromFile, writeTableToFile
 from ..ui.dt_table import DTTable
 import mysite.helpers.util as ut
 import mysite.settings as st
 import json
 import os
-import pickle
 import tempfile
 
-TABLE_FILE_KEY = "pickle_file"
+TABLE_FILE_KEY = "tablefile"
 USE_LOCAL_FILE = True
 LOCAL_FILE = "scisheet_table"
 EMPTY_TABLE_FILE = "_empty_table"
@@ -121,6 +120,8 @@ def _setTableFilepath(request,
       raise InternalError("Could not find Table file %s"
           % table_filepath)
   request.session[TABLE_FILE_KEY] = table_filepath
+  if table is None:
+    import pdb; pdb.set_trace()
   table.setFilepath(table_filepath)
   return table_filepath
 
@@ -135,7 +136,7 @@ def _getTableFilepath(request):
   else:
     return None
 
-def unPickleTable(request):
+def getTable(request):
   """
  Returns the table if found
   """
@@ -151,9 +152,11 @@ def _createRandomFileName():
   handle.close()
   return file_name
 
-def pickleTable(request, table):
+def saveTable(request, table):
   """
   Serialize the table into its file
+  :param request: HTTP request
+  :param Table table:
   """
   have_table_file = False
   if TABLE_FILE_KEY in request.session:
@@ -168,7 +171,7 @@ def pickleTable(request, table):
       table_filepath = handle.name
       handle.close()
     _setTableFilepath(request, table, table_filepath)
-  pickle.dump(table, open(table_filepath, "wb"))
+  writeTableToFile(table)
 
 
 # ******************** Command Processing *****************
@@ -185,7 +188,7 @@ def scisheets(request, ncol, nrow):
   _setTableFilepath(request, table, LOCAL_FILE, verify=False)
   table_file = table.getFilepath()
   html = table.render(table_file=table_file)
-  pickleTable(request, table)
+  saveTable(request, table)
   return HttpResponse(html)
 
 def scisheets_command0(request):
@@ -198,9 +201,9 @@ def scisheets_command0(request):
   command_result = _processUserEnvrionmentCommand(request, cmd_dict)
   if command_result is None:
     # Use table processing command
-    table = unPickleTable(request)
+    table = getTable(request)
     command_result = table.processCommand(cmd_dict)
-    pickleTable(request, table)  # Save table modifications
+    saveTable(request, table)  # Save table modifications
   json_str = json.dumps(command_result)
   return HttpResponse(json_str, content_type="application/json")
 
@@ -213,7 +216,7 @@ def _makeNewTable(request):
   empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
   table = getTableFromFile(empty_table_file)
   _setTableFilepath(request, table, LOCAL_FILE, verify=False)
-  pickleTable(request, table)  # Save table in the new path
+  saveTable(request, table)  # Save table in the new path
   return _makeAjaxResponse("OK", True)
 
 def _processUserEnvrionmentCommand(request, cmd_dict):
@@ -225,6 +228,7 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
   :return: JSON structure or None if not a user environment command
   """
   command_result = None
+  table = getTable(request)
   target = cmd_dict["target"]
   if target == 'Table':
     if cmd_dict['command'] == "Delete":
@@ -236,13 +240,16 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
     elif cmd_dict['command'] == "New":
       command_result = _makeNewTable(request)
     elif cmd_dict['command'] == "OpenTableFile":
+      filename = cmd_dict['args'][0]
+      table_filepath = _createTableFilepath(filename)
+      table = getTableFromFile(table_filepath, verify=False)
       _setTableFilepath(request, table, cmd_dict['args'][0])
       command_result = _makeAjaxResponse("OK", True)
     elif cmd_dict['command'] == "SaveAs":
-      table = unPickleTable(request)
+      table = getTable(request)
       _setTableFilepath(request, table, cmd_dict['args'][0], 
           verify=False)
-      pickleTable(request, table)  # Save table in the new path
+      saveTable(request, table)  # Save table in the new path
       command_result = _makeAjaxResponse("OK", True)
   return command_result
 
@@ -261,7 +268,7 @@ def scisheets_reload(request):
   """
   Invoked to reload the current page
   """
-  table = unPickleTable(request)
+  table = getTable(request)
   if table is None:
     html = "No session found"
   else:

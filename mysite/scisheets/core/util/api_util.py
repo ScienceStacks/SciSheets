@@ -21,10 +21,11 @@ DATACLASS_ARRAY = DataClass(cls=np.ndarray,
 
 
 ################### Functions #########################
-def getTableFromFile(file_path):
+def getTableFromFile(file_path, verify=True):
   """
   Get the table from the file
   :param str table_file: full path to table file
+  :param bool verify: checks the file path in the table
   :raises ValueError: Checks that the file path is set
   """
   fh = open(file_path, "rb")
@@ -33,7 +34,7 @@ def getTableFromFile(file_path):
   except Exception as e:
     import pdb; pdb.set_trace()
   fh.close()
-  if table.getFilepath() != file_path:
+  if verify and table.getFilepath() != file_path:
     raise ValueError("File path is not set")
   return table
 

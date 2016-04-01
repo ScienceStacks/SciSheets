@@ -5,23 +5,14 @@ runs those statements.
 
 import util.api_util as api_util
 import sys
-from os import listdir
-from os.path import isfile, join
-# pylint: disable=W0611
-import math as mt
-import numpy as np
 import os
-import pandas as pd
-import random
-import scipy as sp
-import scipy.stats as ss
+import numpy as np
 
 GENERATED_FILE = "test_generated.py"
 DEFAULT_FUNCTION_NAME = "MyFunction"
-# Import files to ignore with these initial strings in their names
 IGNORE_PREFIX = ['main_', 'test_', '__']
-# Identifying python files
 PY_SUFFIX = ".py"
+API_OBJECT = "s"
 
 
 
@@ -45,8 +36,9 @@ class TableEvaluator(object):
     :return: list of names of file names that have suffix (w/o suffix)
     """
     selected_filenames = []
-    files = [f for f in listdir(dir_path)
-        if isfile(join(dir_path, f)) and f[-len(suffix):] == suffix]
+    files = [f for f in os.listdir(dir_path)
+        if os.path.isfile(os.path.join(dir_path, f))   \
+           and f[-len(suffix):] == suffix]
     for name in files:
       is_valid_file = np.array([name.find(p, 0, len(p)) == -1
                     for p in IGNORE_PREFIX]).all()
@@ -116,22 +108,21 @@ class TableEvaluator(object):
 
   def _makeVariableAssignmentStatements(self, prefix="", **kwargs):
     """
-    Creates statements that assign column values to variables, such as:
-      A = S.getColumnValues('A')
+    Creates statements that assign column values to variables.
     :param str prefix: prefix to variable name
     """
     statements = []
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
-      statement = "%s%s = S.getColumnValues('%s')" % (prefix, name, name)
+      statement = "%s%s = %s.getColumnValues('%s')" %   \
+          (prefix, name, API_OBJECT, name)
       statements.append(statement)
     return statements
 
   def _makeColumnValuesAssignmentStatements(self, **kwargs):
     """
-    Creates statements that assign column values to variables, such as:
-      S.setColumnValues('A', A)
+    Creates statements that assign column values to variables.
     Note that the assumption is that the variable name is the same
     as the column name
     """
@@ -139,7 +130,7 @@ class TableEvaluator(object):
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
-      statement = "S.setColumnValues('%s', %s)" % (name, name)
+      statement = "%s.setColumnValues('%s', %s)" % (API_OBJECT, name, name)
       statements.append(statement)
     return statements
 
@@ -165,7 +156,7 @@ class TableEvaluator(object):
     formula_columns = self._formulaColumns()
     # Construct the imports
     import_statements = ['''
-import api
+import my_api as api
 import math as mt
 import numpy as np
 from os import listdir
@@ -200,10 +191,17 @@ from numpy import nan  # Must follow sympy import
     statements = []  # List of statements in the file
     formula_columns = self._formulaColumns()
     num_formulas = len(formula_columns)
+    if num_formulas == 0:
+      return statements
     # Statements that evaluate the formulas
-    if len(formula_columns) > 0:
-      statement = "#Evaluate the formulas"
-      statements.extend(TableEvaluator._indent([statement], indent))
+    statement = "#Evaluate the formulas"
+    statements.extend(TableEvaluator._indent([statement], indent))
+    # Special case for a single formula column
+    if num_formulas == 1:
+      column = formula_columns[0]
+      statements.extend(TableEvaluator._indent(
+          [column.getFormulaStatement()], indent))
+    else:
       statement = "for nn in range(%d):" % num_formulas
       statements.extend(TableEvaluator._indent([statement], indent))
       indent += 1
@@ -225,7 +223,6 @@ from numpy import nan  # Must follow sympy import
         statement = "break"
         statements.extend(TableEvaluator._indent([statement], indent))
         indent -= 2
-      indent -= 1
     return statements
 
   def evaluate(self, user_directory=None):
@@ -245,10 +242,11 @@ from numpy import nan  # Must follow sympy import
     # Do the imports
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
-    # Create the API object
+    # Write leading text to run standalone script
     statement = """
-S = api.APIFormulas(table)
-"""
+#_table = api.getTableFromFile('%s')
+%s = api.APIFormulas(_table)
+""" % (self._table.getFilepath(), API_OBJECT) 
     statements.extend(TableEvaluator._indent([statement], indent))
     # Assign the column values
     statements.extend(TableEvaluator._indent(  \
@@ -264,7 +262,7 @@ S = api.APIFormulas(table)
     TableEvaluator._writeStatementsToFile(statements, file_path)
     # Execute the statements
     statements = open(file_path).read()
-    globals()['table'] = self._table
+    globals()['_table'] = self._table
     error = TableEvaluator._executeStatements(statements)
     if error is not None:
       return error
@@ -354,9 +352,9 @@ S = api.APIFormulas(table)
     # Create the API object
     table_filepath = os.path.join(user_directory, "%s.pcl" % table_filename)
     statement = """
-S = api.APIPlugin('%s')
-S.initialize()
-""" % table_filepath
+%s = api.APIPlugin('%s')
+%s.initialize()
+""" % (API_OBJECT, table_filepath, API_OBJECT)
     statements.extend(TableEvaluator._indent([statement], indent))
     # Make the function definition
     statements.extend(TableEvaluator._indent(
@@ -381,7 +379,7 @@ S.initialize()
     # Write the file
     if py_file_path is None:
       file_name = "%s.py" % function_name
-      py_file_path = join(user_directory, file_name)
+      py_file_path = os.path.join(user_directory, file_name)
     return TableEvaluator._writeStatementsToFile(statements, py_file_path)
 
   @staticmethod
