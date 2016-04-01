@@ -2,7 +2,6 @@
 
 import column as cl
 import unittest
-import util.util as util
 import errors as er
 import numpy as np
 from helpers_test import createColumn, compareValues

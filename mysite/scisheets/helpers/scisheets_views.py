@@ -2,7 +2,7 @@
 
 from django.http import HttpResponse
 from ..core.errors import InternalError
-from ..core.api_util import getTableFromFile
+from ..core.util.api_util import getTableFromFile
 from ..ui.dt_table import DTTable
 import mysite.helpers.util as ut
 import mysite.settings as st
@@ -159,14 +159,15 @@ def pickleTable(request, table):
   if TABLE_FILE_KEY in request.session:
     if request.session[TABLE_FILE_KEY] is not None:
       have_table_file = True
+      table_filepath = request.session[TABLE_FILE_KEY]
   if not have_table_file:
     if USE_LOCAL_FILE:
-      _setTableFilepath(request, table, LOCAL_FILE)
+      table_filepath = LOCAL_FILE
     else:
       handle = tempfile.NamedTemporaryFile()
       table_filepath = handle.name
       handle.close()
-      _setTableFilepath(request, table, table_filepath, fullpath=True)
+    _setTableFilepath(request, table, table_filepath)
   pickle.dump(table, open(table_filepath, "wb"))
 
 
@@ -265,7 +266,6 @@ def scisheets_reload(request):
     html = "No session found"
   else:
     table.evaluate()  # Saves the changes to the table in the Table File
-    new_table = getTableFromFile(table.getFilepath())
-    table_file = _getFileNameWithoutExtension(new_table.getFilepath())
+    table_file = _getFileNameWithoutExtension(table.getFilepath())
     html = table.render(table_file=table_file)
   return HttpResponse(html)

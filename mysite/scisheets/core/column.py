@@ -5,7 +5,7 @@
 
 import errors as er
 import numpy as np
-import util.util as util
+import util.cell_types as cell_types
 import util.api_util as api_util
 
 
@@ -148,7 +148,7 @@ class Column(object):
     """
     :return: True if a column of numbers
     """
-    return util.isFloats(self.getCells())
+    return cell_types.isFloats(self.getCells())
 
   def numCells(self):
     """
@@ -179,7 +179,7 @@ class Column(object):
     if self._asis:
       self._cells = values
     else:
-      self._cells = util.coerceData(values)
+      self._cells = cell_types.coerceData(values)
 
   # TODO: Need tests
   # TODO: Improve the way that detect an expression vs. a statement

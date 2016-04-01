@@ -4,7 +4,6 @@ import collections
 import math
 import numpy as np
 
-DTYPE_STRING = '|S1000'
 
 ################ Internal Classes ################
 class XType(object):
@@ -233,8 +232,3 @@ def isStrArray(array):
   :return bool:
   """
   return str(array.dtype)[0:2] == '|S'
-
-
-if __name__ == '__main__':
-  result = coerceData([1.0, 1, None])
-  import pdb; pdb.set_trace()

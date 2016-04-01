@@ -3,7 +3,6 @@
 import pickle
 import numpy as np
 import collections
-import __builtin__
 
 ################### Classes ############################
 # Used to define a DataClass
@@ -29,7 +28,10 @@ def getTableFromFile(file_path):
   :raises ValueError: Checks that the file path is set
   """
   fh = open(file_path, "rb")
-  table = pickle.load(fh)
+  try:
+    table = pickle.load(fh)  # BUG - fails here
+  except Exception as e:
+    import pdb; pdb.set_trace()
   fh.close()
   if table.getFilepath() != file_path:
     raise ValueError("File path is not set")

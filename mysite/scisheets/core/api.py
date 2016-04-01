@@ -11,7 +11,6 @@ The API consists of these parts:
 
 from column import Column
 from table import Table
-import util.util as util
 import util.api_util as api_util
 from util.trinary import Trinary
 from util.combinatoric_list import CombinatoricList
@@ -23,17 +22,12 @@ class API(object):
   """
   Code that is common to the formulas and plugin APIs.
   Usage:
-     S = API(table_filepath)
-     S.initialize()
   """
 
-  def __init__(self, table_filepath):
-    """
-    :param str table_filepath: full path to the table file
-    """
-    self._table_filepath = table_filepath
+  def __init__(self):
     self._table = None
     self._column_idx = None
+    self._table_filepath = None
 
   def getColumnValues(self, column_name):
     """
@@ -49,13 +43,6 @@ class API(object):
 
   def getTable(self):
     return self._table
-
-  def initialize(self):
-    """
-    Does initialization at the beginning of executing table
-    code.
-    """
-    self._table = api_util.getTableFromFile(self._table_filepath)
 
   def setColumnValues(self, column_name, values):
     """
@@ -82,9 +69,17 @@ class APIFormulas(API):
   """
   The API extends formulas with: Trinary logic, creation of scalar 
   parameters, creation and deletion of columns.
+     S = APIFormulas(table)
   Key concepts:
     column_id - either the column name or column index
   """
+
+  def __init__(self, table):
+    """
+    :param Table table: table for which execution is done
+    """
+    super(APIFormulas, self).__init__()
+    self._table = table
 
   def _getColumn(self, column_id, validate=True):
     """
@@ -194,5 +189,20 @@ class APIFormulas(API):
 class APIPlugin(API):
   """
   Support for running standalone codes
+     S = APIPlugin(table_filepath)
+     S.initialize()
   """
-  pass
+
+  def __init__(self, table_filepath):
+    """
+    :param str table_filepath: full path to the table file
+    """
+    super(APIPlugin, self).__init__()
+    self._table_filepath = table_filepath
+
+  def initialize(self):
+    """
+    Does initialization at the beginning of executing table
+    code.
+    """
+    self._table = api_util.getTableFromFile(self._table_filepath)

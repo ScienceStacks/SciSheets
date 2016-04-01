@@ -171,7 +171,7 @@ class TestTableEvaluator(unittest.TestCase):
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
     self.table.evaluate(user_directory=TEST_DIR)
     self.table.export(function_name=function_name,
-                      file_path=file_path,
+                      py_file_path=file_path,
                       user_directory=TEST_DIR,
                       inputs=[COLUMNC, COLUMN5],
                       outputs=[COLUMN_VALID_FORMULA, COLUMN2])
@@ -204,7 +204,6 @@ class TestTableEvaluator(unittest.TestCase):
       self.column_valid_formula.setFormula(formula)
       error = self.evaluator.evaluate(user_directory=TEST_DIR)
       self.assertIsNone(error)
-      import pdb; pdb.set_trace()
       self.assertEqual(
           TestTableEvaluator._countNonNone(
           self.column_valid_formula.getCells()), len1)
@@ -261,7 +260,7 @@ import os
 path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                        'test_dir/api_util.txt')
 fd = open(path, "w")
-fd.writelines("test\n")
+fd.writelines("test")
 fd.close()
 """
     path = os.path.join(os.path.dirname(os.path.realpath(__file__)),

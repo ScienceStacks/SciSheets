@@ -1,6 +1,6 @@
 '''Tests for formulas API'''
 
-from api import API, APIFormulas
+from api import API, APIFormulas, APIPlugin
 import helpers_test as ht
 import table_evaluator as te
 import numpy as np
@@ -19,9 +19,8 @@ COLUMN1_VALUES = range(10)
 class TestAPI(unittest.TestCase):
 
   def setUp(self):
-    table = ht.createTable("test", column_name=COLUMN1)
-    self.api = API(table.getFilepath())
-    self.api.initialize()
+    self.api = API()
+    self.api._table = ht.createTable("test", column_name=COLUMN1)
     self.column1 = self.api._table.columnFromName(COLUMN1)
     self.column1.addCells(COLUMN1_VALUES, replace=True)
 
@@ -42,8 +41,7 @@ class TestAPIFormulas(unittest.TestCase):
 
   def setUp(self):
     table = ht.createTable("test", column_name=COLUMN1)
-    self.api = APIFormulas(table.getFilepath())
-    self.api.initialize()
+    self.api = APIFormulas(table)
 
   def testGetValidatedColumn(self):
     column = self.api._getColumn(COLUMN1)
@@ -96,6 +94,15 @@ class TestAPIFormulas(unittest.TestCase):
       new_trinary = -trinary
       self.assertTrue(isinstance(new_trinary, Trinary))
     
+
+# pylint: disable=W0212,C0111,R0904
+class TestAPIPlugin(unittest.TestCase):
+
+  def setUp(self):
+    table = ht.createTable("test", column_name=COLUMN1)
+    self.api = APIPlugin(table.getFilepath())
+    self.api.initialize()
+
 
 if __name__ == '__main__':
   unittest.main()

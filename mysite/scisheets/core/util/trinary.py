@@ -8,7 +8,7 @@ Trinary objects use the operators:
 """
 
 import api_util
-import util
+import cell_types
 
 
 AND_TRUTHTABLE = {(None, None): None, (None, False): False, (None, True): None,
@@ -39,7 +39,7 @@ class Trinary(object):
     Converts the _values to a standard format.
     :raises TypeError: if elements are neither XBool or None
     """
-    if not all([util.XBool.isXType(x) or (x is None) for x in values]):
+    if not all([cell_types.XBool.isXType(x) or (x is None) for x in values]):
       raise TypeError("Trinary values must be XBool or None.")
     result = [True if x in [True, 'True']  \
                    else False if x in [False, 'False'] \

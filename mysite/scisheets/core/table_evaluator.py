@@ -3,6 +3,7 @@ Compiles statements to evaluates formulas in a Table and
 runs those statements.
 """
 
+import util.api_util as api_util
 import sys
 from os import listdir
 from os.path import isfile, join
@@ -108,7 +109,7 @@ class TableEvaluator(object):
     else:
       columns = []
       for name in only_includes:
-        columns.append(self.table.columnFromName(name))
+        columns.append(self._table.columnFromName(name))
     if excludes is None:
       excludes = []
     return [c for c in columns if c.getName() not in excludes]
@@ -142,17 +143,6 @@ class TableEvaluator(object):
       statements.append(statement)
     return statements
 
-  def _makeAPIInitializationStatements(self, api_classname):
-    """
-    Creates the API initialization statements
-    :param str api_classname: e.g. APIFormulas, APIPlugin
-    :return: str statement
-    """
-    return """
-S = api.%s('%s')
-S.initialize()
-""" % (api_classname, self._table.getFilepath())
-
   def _formulaColumns(self, exclude="!_%$#"):
     """
     :param exclude: string that, if present, excludes formula
@@ -175,7 +165,7 @@ S.initialize()
     formula_columns = self._formulaColumns()
     # Construct the imports
     import_statements = ['''
-import scisheets.core.api as api
+import api
 import math as mt
 import numpy as np
 from os import listdir
@@ -236,8 +226,6 @@ from numpy import nan  # Must follow sympy import
         statements.extend(TableEvaluator._indent([statement], indent))
         indent -= 2
       indent -= 1
-      statement = "S.finalize()"
-      statements.extend(TableEvaluator._indent([statement], indent))
     return statements
 
   def evaluate(self, user_directory=None):
@@ -258,7 +246,9 @@ from numpy import nan  # Must follow sympy import
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
     # Create the API object
-    statement = self._makeAPIInitializationStatements("APIFormulas")
+    statement = """
+S = api.APIFormulas(table)
+"""
     statements.extend(TableEvaluator._indent([statement], indent))
     # Assign the column values
     statements.extend(TableEvaluator._indent(  \
@@ -269,14 +259,12 @@ from numpy import nan  # Must follow sympy import
     # Assign values to the columns
     statements.extend(TableEvaluator._indent(  \
         self._makeColumnValuesAssignmentStatements(), indent))
-    # Write the table back to its file
-    statement = "S.updateTableFile()"
-    statements.extend(TableEvaluator._indent([statement], indent))
     # Write the statements to execute
     file_path = os.path.join(user_directory, GENERATED_FILE)
     TableEvaluator._writeStatementsToFile(statements, file_path)
     # Execute the statements
     statements = open(file_path).read()
+    globals()['table'] = self._table
     error = TableEvaluator._executeStatements(statements)
     if error is not None:
       return error
@@ -331,6 +319,7 @@ from numpy import nan  # Must follow sympy import
              inputs=None,
              outputs=None,
              py_file_path=None,
+             table_filename=None,
              user_directory=None):
     """
     Exports the table as python code
@@ -363,7 +352,11 @@ from numpy import nan  # Must follow sympy import
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
     # Create the API object
-    statement = self._makeAPIInitializationStatements("APIFormulas")
+    table_filepath = os.path.join(user_directory, "%s.pcl" % table_filename)
+    statement = """
+S = api.APIPlugin('%s')
+S.initialize()
+""" % table_filepath
     statements.extend(TableEvaluator._indent([statement], indent))
     # Make the function definition
     statements.extend(TableEvaluator._indent(
@@ -376,7 +369,8 @@ from numpy import nan  # Must follow sympy import
     statements.extend(TableEvaluator._indent(  \
         self._makeVariableAssignmentStatements(excludes=excludes), indent))
     # Make the function body
-    statements.extend(TableEvaluator._indent(self._makeFormulaStatements()))
+    statements.extend(TableEvaluator._indent(self._makeFormulaStatements(), 
+        indent))
     # Make the return statement
     statement = TableEvaluator._makeReturnStatement(outputs)
     statements.extend(TableEvaluator._indent([statement], indent))
@@ -426,7 +420,7 @@ from numpy import nan  # Must follow sympy import
     output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''
 # Tests for the function
-from compare_iterables import compareIterables
+from scisheets.core.compare_iterables import compareIterables
 if __name__ == '__main__':'''
     statements = TableEvaluator._indent([statement], indent)
     indent += 1

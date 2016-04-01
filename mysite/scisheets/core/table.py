@@ -337,6 +337,7 @@ class Table(ColumnContainer):
     Returns a copy of this object
     """
     new_table = Table(self._name)
+    self.setFilepath(None)
     for column in self._getDataColumns():
       new_column = cl.Column(column.getName())
       new_column.addCells(column.getCells())

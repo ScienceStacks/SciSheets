@@ -132,7 +132,7 @@ class UITable(Table):
           error = self.export(function_name=function_name,
                               inputs=inputs,
                               outputs=outputs,
-                              file_path=file_path,
+                              py_file_path=file_path,
                               user_directory=st.SCISHEETS_USER_PYDIR)
       response = self._createResponse(error)
     elif command == "Open":
