@@ -687,6 +687,25 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(TableFileHelper.doesTableFileExist(filename,
         st.SCISHEETS_USER_TBLDIR))
 
+  def testFormulaRowAddition(self):
+    base_response = self._createBaseTable()
+    # Change the formula
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Formula"
+    ajax_cmd['column'] = 1
+    num_rows = 2*NROW
+    ajax_cmd['args[]'] = "range(%d)" % num_rows
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
+    # Check the table
+    table = self._getTableFromResponse(response)
+    error = table.evaluate()
+    self.assertTrue(content["success"])
+    self.assertEqual(table.numRows(), num_rows)
+
 
 if __name__ == '__main__':
     unittest.main()

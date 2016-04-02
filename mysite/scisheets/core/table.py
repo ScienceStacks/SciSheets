@@ -152,6 +152,9 @@ class Table(ColumnContainer):
     self._createNameColumn()
     self.setFilepath(None)
 
+  def rep(self):
+    return [(c.getName(), c.getCells()) for c in self._columns]
+
   def _updateNameColumn(self):
     """
     Changes the cells in the name column to be consecutive ints.
@@ -203,23 +206,21 @@ class Table(ColumnContainer):
     column = Column(NAME_COLUMN_STR, asis=True)
     self.addColumn(column)
 
-  def adjustColumnLength(self, columns):
+  def adjustColumnLength(self):
     """
     Inserts values of None or np.nan so that column
         has the same length as the table
-    :param columns: either a single column or a list
     """
-    if isinstance(columns, cl.Column):
-      columns = [columns]
     none_array = np.array([None])
     num_rows = self.numRows()
-    for column in columns:
+    for column in self._columns:
       adj_rows = num_rows - column.numCells()
       if adj_rows > 0:
         if column.isFloats():
           column.addCells(np.repeat(np.nan, adj_rows))  # pylint:disable=E1101
         else:
           column.addCells(np.repeat(none_array, adj_rows))
+    self._updateNameColumn()
 
   def _validateTable(self):
     """
@@ -232,8 +233,10 @@ class Table(ColumnContainer):
     num_rows = len(self.columnFromName(NAME_COLUMN_STR).getCells())
     for column in self._columns:
       if  column.numCells() != num_rows:
-        msg = "In Table %s, Column %s differs in its number of rows."
-        raise er.InternalError(msg) % (self.getName(), column.getName())
+        import pdb; pdb.set_trace()
+        msg = "In Table %s, Column %s differs in its number of rows." \
+            % (self.getName(), column.getName())
+        raise er.InternalError(msg)
     # Verify that the first Column is the Name Column
     if self._columns[0].getName() != NAME_COLUMN_STR:
       msg = "In Table %s, first column is not 'row' column" % self.getName()
@@ -255,14 +258,15 @@ class Table(ColumnContainer):
                 (self.getName(), nrow, actual_row_name)
         raise er.InternalError(msg)
 
-  def addCells(self, column, cells):
+  def addCells(self, column, cells, replace=False):
     """
     Adds to the column
     :param Column column:
     :param list cells:
     """
-    column.addCells(cells)
-    self.adjustColumnLength(column)
+    column.addCells(cells, replace=replace)
+    self.adjustColumnLength()
+    self._validateTable()
 
   def addColumn(self, column, index=None):
     """
@@ -300,14 +304,9 @@ class Table(ColumnContainer):
       self._validateTable()
     # Case 3: Subsequent columns
     else:
-      if (column.numCells() != self.numRows() and
-          column.numCells() > 0):
-        msg = "Invalid number of cells"
-        raise er.InternalError(msg)
-      else:
-        self.insertColumn(column, index=index)
-        column.setTable(self)
-        self.adjustColumnLength(column)
+      self.insertColumn(column, index=index)
+      column.setTable(self)
+      self.adjustColumnLength()
       self._validateTable()
 
   def addRow(self, row, ext_index=None):
@@ -522,8 +521,8 @@ class Table(ColumnContainer):
     :param cells: cells to change
     """
     column.addCells(cells, replace=True)
-    self.adjustColumnLength(self._columns)
-    self._updateNameColumn()
+    self.adjustColumnLength()
+    self._validateTable()
 
   def updateRow(self, row, index):
     """

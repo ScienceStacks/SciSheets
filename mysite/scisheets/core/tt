@@ -12,7 +12,6 @@ do
   echo ""
   echo "** $f **"
   dt.sh ${f}
-  popd
 done
 }
 

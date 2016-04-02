@@ -65,7 +65,7 @@ class API(object):
       list_values = values.tolist()
     else:
       list_values = list(values)
-    column.addCells(list_values, replace=True)
+    self._table.updateColumn(column, list_values)
 
   def updateTableFile(self):
     api_util.writeTableToFile(self._table.getFilepath())
@@ -134,7 +134,7 @@ class APIFormulas(API):
     # Assign the results
     for idx in range(num_lists):
       column = columns[idx]
-      self._table.addCells(column, results[idx])
+      self._table.updateColumn(column, results[idx])
 
   def createTrinary(self, iterable):
     return Trinary(iterable)

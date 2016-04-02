@@ -58,13 +58,15 @@ class TestTable(unittest.TestCase):
     table.addColumn(column)
     column = cl.Column(COLUMN1)
     column.addCells(['aa'])
-    table.adjustColumnLength(column)
-    self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
+    table.addColumn(column)
+    table.adjustColumnLength()
+    self.assertEqual(column.numCells(), table.numRows())
     self.assertIsNone(column.getCells()[1])
     column = cl.Column("YetAnotherColumn")
     column.addCells([1])
-    table.adjustColumnLength(column)
-    self.assertEqual(column.numCells(), len(COLUMN1_CELLS))
+    table.addColumn(column)
+    table.adjustColumnLength()
+    self.assertEqual(column.numCells(), table.numRows())
     if column.isFloats():
       self.assertTrue(np.isnan(column.getCells()[1]))  # pylint: disable=E1101
     else:
@@ -90,12 +92,6 @@ class TestTable(unittest.TestCase):
     column.addCells(LIST)
     table.addColumn(column)
     self.assertEqual(column.numCells(), table.numRows())
-    # Add a column that has more rows than the table
-    column = cl.Column(COLUMN4)
-    column.addCells(LIST)
-    column.addCells(LIST)
-    with self.assertRaises(er.InternalError):
-      table.addColumn(column)
 
   def testGetRow(self):
     row = self.table.getRow()
@@ -108,21 +104,6 @@ class TestTable(unittest.TestCase):
     is_correct = row[COLUMN1] == COLUMN1_CELLS[idx]
     is_correct = is_correct and row[COLUMN2] == COLUMN2_CELLS[idx]
     self.assertTrue(is_correct)
-
-  def testAddCells(self):
-    column = self.table.columnFromName(COLUMN2)
-    self.assertEqual(np.array(column.getCells()).dtype,
-        np.float64)  # pylint: disable=E1101
-    cells = [40.0, 50.0]
-    self.table.addCells(column, cells)
-    expected_rows = len(COLUMN1_CELLS) + len(cells)
-    self.assertEqual(self.table.numRows(), expected_rows)
-    self.assertEqual(np.array(column.getCells()).dtype,
-        np.float64) # pylint: disable=E1101
-    column_cells = column.getCells()
-    expected_cells = list(COLUMN2_CELLS)
-    expected_cells.extend(cells)
-    self.assertEqual(column_cells, expected_cells)
 
   def testAddRow1(self):
     column = self.table.columnFromName(COLUMN2)
