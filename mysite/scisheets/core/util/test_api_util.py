@@ -6,7 +6,7 @@ files in core.
 import api_util
 import os
 import unittest
-import helpers_test as ht
+from ...core import helpers_test as ht
 
 
 #############################
