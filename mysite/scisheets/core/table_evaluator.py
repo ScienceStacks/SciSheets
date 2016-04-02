@@ -111,7 +111,7 @@ class TableEvaluator(object):
     Creates statements that assign column values to variables.
     :param str prefix: prefix to variable name
     """
-    statements = []
+    statements = ["", "# Assign column values to global variables"]
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
@@ -126,7 +126,7 @@ class TableEvaluator(object):
     Note that the assumption is that the variable name is the same
     as the column name
     """
-    statements = []
+    statements = ["", "# Assign global variables to columns"]
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
@@ -156,7 +156,6 @@ class TableEvaluator(object):
     formula_columns = self._formulaColumns()
     # Construct the imports
     import_statements = ['''
-import my_api as api
 import math as mt
 import numpy as np
 from os import listdir
@@ -165,7 +164,6 @@ import pandas as pd
 import scipy as sp
 from sympy import *
 from numpy import nan  # Must follow sympy import
-
     ''']
     if user_directory is not None:
       import_statements.extend(
@@ -195,7 +193,7 @@ from numpy import nan  # Must follow sympy import
       return statements
     # Statements that evaluate the formulas
     statement = "#Evaluate the formulas"
-    statements.extend(TableEvaluator._indent([statement], indent))
+    statements.extend(TableEvaluator._indent(["", "", statement], indent))
     # Special case for a single formula column
     if num_formulas == 1:
       column = formula_columns[0]
@@ -244,8 +242,10 @@ from numpy import nan  # Must follow sympy import
         user_directory=user_directory)
     # Write leading text to run standalone script
     statement = """
+# Uncomment the following to execute standalone
+#import my_api as api
 #_table = api.getTableFromFile('%s')
-%s = api.APIFormulas(_table)
+#%s = api.APIFormulas(_table)
 """ % (self._table.getFilepath(), API_OBJECT) 
     statements.extend(TableEvaluator._indent([statement], indent))
     # Assign the column values
@@ -260,9 +260,17 @@ from numpy import nan  # Must follow sympy import
     # Write the statements to execute
     file_path = os.path.join(user_directory, GENERATED_FILE)
     TableEvaluator._writeStatementsToFile(statements, file_path)
+    # Set up environment to execute the statements
+    globals()['_table'] = self._table
+    statement = """
+import api
+s = api.APIFormulas(_table)
+"""
+    error = TableEvaluator._executeStatements(statement)
+    if error is not None:
+      return error
     # Execute the statements
     statements = open(file_path).read()
-    globals()['_table'] = self._table
     error = TableEvaluator._executeStatements(statements)
     if error is not None:
       return error
