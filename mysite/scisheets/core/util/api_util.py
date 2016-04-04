@@ -4,6 +4,8 @@ import pickle
 import numpy as np
 import collections
 
+THRESHOLD = 0.01  # Threshold for value comparisons
+
 ################### Classes ############################
 # Used to define a DataClass
 # cls is the data type that can be tested in isinstance
@@ -45,3 +47,60 @@ def writeTableToFile(table):
   """
   pickle.dump(table, open(table.getFilepath(), "wb"))
 
+def compareIterables(iter1, iter2):
+  """
+  Compares two iterables
+  :param Iterable iter1: iterable possibly with None values
+  :param Iterable iter2: iterable possibly with None values
+  :return: True if equivalent; otherwise false
+  """
+  def sameType(val1, val2):
+    """
+    :param val1, val2: values to compare
+    """
+    types = [int, float, bool, str]
+    if (val1 is None) and (val2 is None):
+      return True
+    elif (val1 is None) or (val2 is None):
+      return False
+    result = False
+    for typ in types:
+      if typ == float:
+        if np.isnan(val1) or np.isnan(val2):
+          result = np.isnan(val1) == np.isnan(val2)
+          break
+      if isinstance(val1, typ) and isinstance(val2, typ):
+        result = True
+        break
+    return result
+
+  is_equal = True
+  if not isinstance(iter1, collections.Iterable):
+    iter1 = np.array([iter1])
+  if not isinstance(iter2, collections.Iterable):
+    iter2 = np.array([iter2])
+  if len(iter1) != len(iter2):
+    is_equal = False
+  else:
+    for idx in range(len(iter1)):
+      if not sameType(iter1[idx], iter2[idx]):
+        is_equal = False
+        break
+      elif isinstance(iter1[idx], float):
+        if abs(iter1[idx]) < THRESHOLD:
+          denom = 1.0
+        else:
+          denom = iter1[idx]
+        if np.isnan(iter1[idx]) != np.isnan(iter2[idx]):
+          is_equal = False
+          break
+        if np.isnan(iter1[idx]) and np.isnan(iter2[idx]):
+          break
+        elif abs((iter1[idx] - iter2[idx])/denom) > THRESHOLD:
+          is_equal = False
+          break
+      else:
+        if iter1[idx] != iter2[idx]:
+          is_equal = False
+          break
+  return is_equal

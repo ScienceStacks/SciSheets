@@ -165,7 +165,6 @@ class TestTableEvaluator(unittest.TestCase):
       self.assertIsNotNone(val)
 
   def testExport(self):
-    return
     # Two formula columns
     function_name = "my_test"
     file_name = "%s.py" % function_name

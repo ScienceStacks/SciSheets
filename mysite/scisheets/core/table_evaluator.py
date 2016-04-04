@@ -358,8 +358,10 @@ s = api.APIFormulas(_table)
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
     # Create the API object
-    table_filepath = os.path.join(user_directory, "%s.pcl" % table_filename)
+    table_filepath = self._table.getFilepath()
+    api_util.writeTableToFile(self._table)  # Update the table
     statement = """
+import my_api as api
 %s = api.APIPlugin('%s')
 %s.initialize()
 """ % (API_OBJECT, table_filepath, API_OBJECT)
@@ -381,7 +383,7 @@ s = api.APIFormulas(_table)
     statement = TableEvaluator._makeReturnStatement(outputs)
     statements.extend(TableEvaluator._indent([statement], indent))
     # Make the test statements
-    indent -= 1
+    indent = 0
     statements.extend(TableEvaluator._indent(
         self._makeTestStatements(function_name, inputs, outputs), indent))
     # Write the file
@@ -426,7 +428,6 @@ s = api.APIFormulas(_table)
     output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''
 # Tests for the function
-from scisheets.core.compare_iterables import compareIterables
 if __name__ == '__main__':'''
     statements = TableEvaluator._indent([statement], indent)
     indent += 1
@@ -438,26 +439,21 @@ if __name__ == '__main__':'''
     statement += " = %s(" % function_name
     statement += ",".join(inputs)
     statement += ")\n"
-    statements = TableEvaluator._indent([statement], indent)
-    # Get the expected outputs
-    prefix = "_"
-    statements.extend(TableEvaluator._indent(  \
-        self._makeVariableAssignmentStatements(prefix=prefix,  \
-        only_includes=outputs), indent))
+    statements.extend(TableEvaluator._indent([statement], indent))
     # Construct the comparison tests
     statement = "b = True"
-    statements = TableEvaluator._indent([statement], indent)
+    statements.extend(TableEvaluator._indent([statement], indent))
     for column_name in outputs:
-      statement = "b = b and compareIterables(%s, %s%s)" \
-          % (column_name, prefix, column_name)
-      statements = TableEvaluator._indent([statement], indent)
+      statement = "b = b and %s.compareToColumnValues('%s', %s)" \
+          % (API_OBJECT, column_name, column_name)
+      statements.extend(TableEvaluator._indent([statement], indent))
     statement = """
 if b:
   print ('OK.')
 else:
   print ('Test failed.')
 """
-    statements = TableEvaluator._indent([statement], indent)
+    statements.extend(TableEvaluator._indent([statement], indent))
     return statements
 
   @staticmethod

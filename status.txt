@@ -1,7 +1,6 @@
 Serve page from Django
 
 0.1 Refactoring to use the API and generalizing the datatype.
- (a) tests for evaluate fail because not executing code using django
  (b) revise export
  (c) redo .pcl files
  (d) change to executing django tests to run codes standalone

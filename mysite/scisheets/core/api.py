@@ -212,3 +212,13 @@ class APIPlugin(API):
     code.
     """
     self._table = api_util.getTableFromFile(self._table_filepath)
+
+  def compareToColumnValues(self, column_name, values):
+    """
+    Compares the values to those in the column.
+    :param str column_name:
+    :param object values:
+    :return bool: True if successful comparison
+    """
+    column = self._table.columnFromName(column_name)
+    return api_util.compareIterables(column.getCells(), values)
