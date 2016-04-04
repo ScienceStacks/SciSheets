@@ -33,6 +33,33 @@ def checkStrColumnType(column_type):
 # pylint: disable=C0111
 # pylint: disable=R0904
 class TestColumn(unittest.TestCase):
+  
+  def setUp(self):
+    self.column = createColumn(COLUMN_NAME, data=LIST)
+    self.fs = cl.FormulaStatement(VALID_FORMULA, column)
+    self.invalid_fs = cl.FormulaStatement(INVALID_FORMULA, column)
+
+  def testDo(self):
+    error = self.fs.do()
+    self.assertIsNone(error)
+    error = self.invalid_fs.do()
+    self.assertIsNotNone(error)
+
+  def testGetStatement(self):
+    self.fs.do()
+    statement = self.fs.getStatement()
+    expected_statement = "%s = %s" % (COLUMN_NAME, VALID_FORMULA)
+    self.assertEqual(statement, expected_statement)
+
+  def testGetFormula(self):
+    self.assertEqual(VALID_FORMULA, self.fs.getFormula)
+
+
+
+# pylint: disable=W0212
+# pylint: disable=C0111
+# pylint: disable=R0904
+class TestColumn(unittest.TestCase):
 
   def setUp(self):
     self.column = createColumn(COLUMN_NAME, data=LIST, table=None,
@@ -44,7 +71,7 @@ class TestColumn(unittest.TestCase):
     column = cl.Column(COLUMN_NAME)
     self.assertEqual(column._name, COLUMN_NAME)
     self.assertIsNone(column._owning_table)
-    self.assertIsNone(column._formula)
+    self.assertIsNone(column._formula_statement.getFormula())
 
   def testAddCellsFloat(self):
     single_float = 1.0
@@ -83,7 +110,8 @@ class TestColumn(unittest.TestCase):
         np.array(column_copy._cells).dtype)
     self.assertTrue(compareValues(self.column._cells,
         column_copy._cells))
-    self.assertEqual(self.column._formula, column_copy._formula)
+    self.assertEqual(self.column._formula_statement.getFormula(), 
+        column_copy._formula_statement.getFormula())
     self.assertIsNone(column_copy._owning_table)
 
   def testDeleteCells(self):
@@ -117,10 +145,13 @@ class TestColumn(unittest.TestCase):
   def testSetFormula(self):
     error = self.column.setFormula(VALID_FORMULA)
     self.assertIsNone(error)
-    self.assertEqual(self.column._formula, VALID_FORMULA)
+    self.assertEqual(self.column._formula_statement.getFormula(), 
+        VALID_FORMULA)
     error = self.column.setFormula(INVALID_FORMULA)
     self.assertIsNotNone(error)
-    self.assertEqual(self.column._formula, VALID_FORMULA)
+    # Should not change the formula if there's an error
+    self.assertEqual(self.column._formula_statement.getFormula(), 
+        VALID_FORMULA)
 
   def testSetTable(self):
     self.column.setTable(TABLE)
@@ -145,17 +176,6 @@ class TestColumn(unittest.TestCase):
     short_array = np.array(range(len(LIST1) - 1))
     with self.assertRaises(er.InternalError):
       self.column.replaceCells(short_array)
-
-  def testMakeStatementFromFormula(self):
-    expr = "np.sin(3)"
-    variable = "A"
-    expected_stmt = "%s = %s" % (variable, expr)
-    self.column._makeStatementFromFormula(expr, variable)
-    self.assertEqual(self.column.getFormulaStatement(),
-                     expected_stmt)
-    self.column._makeStatementFromFormula(expected_stmt, variable)
-    self.assertEqual(self.column.getFormulaStatement(),
-                     expected_stmt)
 
 
 if __name__ == '__main__':

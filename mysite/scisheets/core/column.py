@@ -10,6 +10,78 @@ import util.api_util as api_util
 
 
 ########### CLASSES ##################
+class FormulaStatement(object):
+  """
+  Creates a python statement from the formula
+  Usage:
+    fs = FormulaStatement(formula)
+    error = fs.do()  # Constructs the statement
+    statement = fs.getStatement()
+  """
+
+  def __init__(self, formula, column):
+    """
+    :param str formula:
+    """
+    self._formula = formula
+    self._column = column
+    self._statement = None
+    self._isExpression = False
+    self._isStatement = False
+
+  def do(self):
+    """
+    Construct the statement
+    :return str: error or None
+    """
+    try:
+      # See if this is an expression
+      exception_stmt = None
+      _ = compile(self._formula, "string", "eval")
+      statement = "%s = %s" % (self._column.getName(), 
+          self._formula)
+      self._isExpression = True
+    except SyntaxError as err:
+      exception_stmt = err
+    if exception_stmt is not None:
+      try:
+        exception_expr = None
+        # See if this is a statement
+        statement = self._formula
+        _ = compile(statement, "string", "exec")
+      except SyntaxError as err:
+        exception_expr = err
+    if (exception_stmt is not None) and (exception_expr is not None):
+      # Guess whether is is intended to be a statement or an expression
+      # so that the correct error message can be delivered.
+      try:
+        _ = self._formula.index("=")  # See if there's an assignment
+        is_stmt = True
+      except ValueError:
+        is_stmt = False
+      if is_stmt:
+        exception = exception_stmt
+      else:
+        exception = exception_expr
+      if isinstance(exception, tuple) and (len(exception) == 3):
+        error = "%s: %s" % (exception[0], exception[1][3])
+      else:
+        error = str(exception)
+    else:
+      error = None
+      self._statement = statement
+    return error
+
+  def isExpression(self):
+    return self._isExpression
+
+  def getFormula(self):
+    return self._formula
+
+  def getStatement(self):
+    return self._statement
+
+
 class Column(object):
   """
   Representation of a column in a table. A column is a ctonainer
@@ -25,13 +97,11 @@ class Column(object):
     :param DataClass data_class: Class for data
     :param bool asis: opaque data if True
     """
-    self._name = None
     self.setName(name)
     self.setAsis(asis)
     self._cells = []
-    self._formula = None
+    self._formula_statement = FormulaStatement(None, self)
     self._owning_table = None
-    self._formula_statement = None  # Formula as a statement
     self._data_class = data_class
 
   @staticmethod
@@ -68,7 +138,7 @@ class Column(object):
     Returns a copy of this object
     """
     result = Column(self._name)
-    result.setFormula(self._formula)
+    result.setFormula(self._formula_statement.getFormula())
     result.addCells(self._cells)
     return result
 
@@ -119,13 +189,14 @@ class Column(object):
     """
     Returns formula for the column
     """
-    return self._formula
+    return self._formula_statement.getFormula()
 
   def getFormulaStatement(self):
     """
     Returns the formula as a python statement
     """
-    return self._formula_statement
+    self._formula_statement.do()
+    return self._formula_statement.getStatement()
 
   def getName(self):
     """
@@ -181,56 +252,6 @@ class Column(object):
     else:
       self._cells = cell_types.coerceData(values)
 
-  # TODO: Need tests
-  # TODO: Improve the way that detect an expression vs. a statement
-  #       so that the correct exception is returned
-  def _makeStatementFromFormula(self, formula, assigned_variable):
-    """
-    Makes the formula into a statement.
-    A formula may be an expression, one or more statements,
-    an expression followed by one or more statements.
-    Assigns the value the _formula_statement
-    Input: formula - formula as specified
-           assigned_variable - variable to assign if
-                               the formula leads with an expression
-    Output: exception - exception from formula evaluation or None
-    Notes: (a) _formula_statement is changed only if formula
-               is valid
-    """
-    if formula is None:
-      self._formula_statement = None
-      return None
-    try:
-      exception_stmt = None
-      _ = compile(formula, "string", "eval")
-      statement = "%s = %s" % (assigned_variable, formula)
-    except SyntaxError as err:
-      exception_stmt = err
-    if exception_stmt is not None:
-      try:
-        exception_expr = None
-        statement = formula
-        _ = compile(statement, "string", "exec")
-      except SyntaxError as err:
-        exception_expr = err
-    if (exception_stmt is not None) and (exception_expr is not None):
-      # Guess whether is is intended to be a statement or an expression
-      # so that the correct error message can be delivered.
-      try:
-        _ = formula.index("=")  # See if there's an assignment
-        is_stmt = True
-      except ValueError:
-        is_stmt = False
-      if is_stmt:
-        exception = exception_stmt
-      else:
-        exception = exception_expr
-    else:
-      exception = None
-    if exception is None:
-      self._formula_statement = statement
-    return exception
-
   def setAsis(self, asis):
     """
     :param bool asis:
@@ -245,21 +266,14 @@ class Column(object):
 
   def setFormula(self, formula):
     """
-    A formula is a valid python expression of a mix of numpy.array
-    scalars, and functions in math for columns that preceed
-    this column in the table.
+    A formula is a valid python expression for the execution context.
     Inputs: formula - valid python expression
     Outputs: error - string giving error encountered
     """
-    error = None
-    exception = self._makeStatementFromFormula(formula, self.getName())
-    if exception is None:
-      self._formula = formula
-    else:
-      if isinstance(exception, tuple) and (len(exception) == 3):
-        error = "%s: %s" % (exception[0], exception[1][3])
-      else:
-        error = str(exception)
+    formula_statement = FormulaStatement(formula, self)
+    error = formula_statement.do()
+    if error is None:
+      self._formula_statement = formula_statement
     return error
 
   def setName(self, name):

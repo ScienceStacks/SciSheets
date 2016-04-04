@@ -2,9 +2,7 @@
 # Runs one or more tests for files
 # Argument is a specific test file (w/o extension) or none.
 
-TEST_LIST="test_api test_table_evaluator test_column test_table"
-TEST_LIST="${TEST_LIST} util.test_combinatoric_lists util.test_trinary"
-TEST_LIST="${TEST_LIST} util.test_util"
+cd $HOME/SciSheets/mysite/scisheets/core
 
 function runTests {
 for f in $@
@@ -17,11 +15,11 @@ done
 
 
 # Main code
-
-FILE_PATH="scisheets.core."
-
 if [ $# -eq 0 ]; then
-  runTests ${TEST_LIST}
+  file_list=`ls test_*.py | grep -v generated`
+  runTests $file_list
+  cd util
+  runTests `ls test_*.py `
 else
   runTests $1
 fi
