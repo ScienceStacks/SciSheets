@@ -8,7 +8,7 @@ import sys
 import os
 import numpy as np
 
-GENERATED_FILE = "test_generated.py"
+GENERATED_FILE = "_generated.py"
 DEFAULT_FUNCTION_NAME = "MyFunction"
 IGNORE_PREFIX = ['main_', 'test_', '__']
 PY_SUFFIX = ".py"

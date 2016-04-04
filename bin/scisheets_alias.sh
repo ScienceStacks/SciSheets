@@ -1,3 +1,4 @@
+alias dt="dt.sh"
 alias h=". $HOME/SciSheets/bin/scisheets_cd.sh ."
 alias m=". $HOME/SciSheets/bin/scisheets_cd.sh mysite/mysite"
 alias rs=". $HOME/SciSheets/bin/rs.sh"
