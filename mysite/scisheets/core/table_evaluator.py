@@ -109,14 +109,15 @@ class TableEvaluator(object):
   def _makeVariableAssignmentStatements(self, prefix="", **kwargs):
     """
     Creates statements that assign column values to variables.
-    :param str prefix: prefix to variable name
+    :param str prefix: prefix to construct full API object
     """
-    statements = ["", "# Assign column values to global variables"]
+    statements = ["", "# Assign column values"]
+    full_object = "%s%s" % (prefix, API_OBJECT)
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
-      statement = "%s%s = %s.getColumnValues('%s')" %   \
-          (prefix, name, API_OBJECT, name)
+      statement = "%s = %s.getColumnValues('%s')" %   \
+          (name, full_object, name)
       statements.append(statement)
     return statements
 
@@ -126,7 +127,7 @@ class TableEvaluator(object):
     Note that the assumption is that the variable name is the same
     as the column name
     """
-    statements = ["", "# Assign global variables to columns"]
+    statements = ["", "# Assign variables to columns"]
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
@@ -156,6 +157,7 @@ class TableEvaluator(object):
     formula_columns = self._formulaColumns()
     # Construct the imports
     import_statements = ['''
+import my_api as api
 import math as mt
 import numpy as np
 from os import listdir
@@ -243,7 +245,6 @@ from numpy import nan  # Must follow sympy import
     # Write leading text to run standalone script
     statement = """
 # Uncomment the following to execute standalone
-#import my_api as api
 #_table = api.getTableFromFile('%s')
 #%s = api.APIFormulas(_table)
 """ % (self._table.getFilepath(), API_OBJECT) 
@@ -317,6 +318,19 @@ s = api.APIFormulas(_table)
           pass
     return result
 
+  def _makeAPIPluginInitializationStatements(self, function_name, prefix=""):
+    """
+    :param function_name: string name of the function to be created
+    :param str prefix: prefix for API Object
+    """
+    full_object = "%s%s" % (prefix, API_OBJECT)
+    table_filepath = self._table.getFilepath()
+    statement = """
+%s = api.APIPlugin('%s')
+%s.initialize()
+""" % (full_object, table_filepath, full_object)
+    return statement
+
   # pylint: disable=R0913
   # pylint: disable=R0914
   # pylint: disable=R0915
@@ -348,6 +362,7 @@ s = api.APIFormulas(_table)
       outputs = []
     if function_name is None:
       function_name = DEFAULT_FUNCTION_NAME
+    file_name = "%s.py" % function_name
     indent = 0
     # File header
     header_comments = '''
@@ -358,13 +373,8 @@ s = api.APIFormulas(_table)
     statements = self._makeInitialImportStatements(
         user_directory=user_directory)
     # Create the API object
-    table_filepath = self._table.getFilepath()
     api_util.writeTableToFile(self._table)  # Update the table
-    statement = """
-import my_api as api
-%s = api.APIPlugin('%s')
-%s.initialize()
-""" % (API_OBJECT, table_filepath, API_OBJECT)
+    statement = self._makeAPIPluginInitializationStatements(function_name)
     statements.extend(TableEvaluator._indent([statement], indent))
     # Make the function definition
     statements.extend(TableEvaluator._indent(
@@ -382,15 +392,21 @@ import my_api as api
     # Make the return statement
     statement = TableEvaluator._makeReturnStatement(outputs)
     statements.extend(TableEvaluator._indent([statement], indent))
-    # Make the test statements
-    indent = 0
-    statements.extend(TableEvaluator._indent(
-        self._makeTestStatements(function_name, inputs, outputs), indent))
-    # Write the file
+    # Write the main file
     if py_file_path is None:
-      file_name = "%s.py" % function_name
       py_file_path = os.path.join(user_directory, file_name)
-    return TableEvaluator._writeStatementsToFile(statements, py_file_path)
+    error = TableEvaluator._writeStatementsToFile(statements, py_file_path)
+    
+    if error is not None:
+      return "Error constructing %s: %s" % (py_file_path, error)
+    # Make the test statements
+    test_statements = self._makeTestStatements(function_name, inputs, outputs)
+    test_file_name = "test_%s" % file_name
+    test_file_path = os.path.join(user_directory, test_file_name)
+    error = TableEvaluator._writeStatementsToFile(test_statements, test_file_path)
+    if error is not None:
+      return "Error constructing %s: %s" % (test_file_path, error)
+    return None
 
   @staticmethod
   def _writeStatementsToFile(statements, file_path):
@@ -418,42 +434,61 @@ import my_api as api
 
   def _makeTestStatements(self, function_name, inputs, outputs):
     """
-    Creates the tests at the end of the exported file.
+    Creates contents of a separate test file
     :param function_name: string name of the function to be created
     :param inputs: list of column names that are input to the function
     :param outputs: list of columns that are output from the function
     :return: statements
     """
     indent = 0
+    prefix = "self."
     output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''
-# Tests for the function
-if __name__ == '__main__':'''
-    statements = TableEvaluator._indent([statement], indent)
+"""
+Tests for %s
+"""
+
+import my_api as api
+from %s import %s
+import unittest
+
+
+#############################
+# Tests
+#############################
+# pylint: disable=W0212,C0111,R0904
+class Test%s(unittest.TestCase):
+
+''' % (function_name, function_name, function_name, function_name)
+    statements = [statement]
+    # Construct setup method
     indent += 1
-    # Assign the input values
+    statement = "def setUp(self):"
+    statements.extend(TableEvaluator._indent([statement], indent))
+    indent += 1
+    statement = self._makeAPIPluginInitializationStatements(function_name, 
+        prefix=prefix)
+    statements.extend(TableEvaluator._indent([statement, ""], indent))
+    indent -= 1
+    # Construct the test function header
+    statement = "def testBasics(self):"
+    statements.extend(TableEvaluator._indent([statement], indent))
+    indent += 1
+    # Assign values to the columns
     statements.extend(TableEvaluator._indent(  \
-        self._makeVariableAssignmentStatements(only_includes=inputs), indent))
-    # Construct the function call
-    statement = output_str
+        self._makeVariableAssignmentStatements( \
+        prefix=prefix, only_includes=inputs), indent))
+    # Construct the call to the function being tested
+    statement =  TableEvaluator._makeOutputStr(outputs)
     statement += " = %s(" % function_name
     statement += ",".join(inputs)
-    statement += ")\n"
-    statements.extend(TableEvaluator._indent([statement], indent))
-    # Construct the comparison tests
-    statement = "b = True"
-    statements.extend(TableEvaluator._indent([statement], indent))
+    statement += ")"
+    statements.extend(TableEvaluator._indent([statement, ""], indent))
+    # Construct the tests
     for column_name in outputs:
-      statement = "b = b and %s.compareToColumnValues('%s', %s)" \
+      statement = "self.assertTrue(self.%s.compareToColumnValues('%s', %s))"  \
           % (API_OBJECT, column_name, column_name)
       statements.extend(TableEvaluator._indent([statement], indent))
-    statement = """
-if b:
-  print ('OK.')
-else:
-  print ('Test failed.')
-"""
-    statements.extend(TableEvaluator._indent([statement], indent))
     return statements
 
   @staticmethod
