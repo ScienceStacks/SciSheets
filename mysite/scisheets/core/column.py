@@ -276,12 +276,22 @@ class Column(object):
       self._formula_statement = formula_statement
     return error
 
+  @staticmethod
+  def cleanName(name):
+    """
+    Removes blanks and other junk.
+    :param str name:
+    :return str:
+    """
+    return name.replace(" ", "")
+
   def setName(self, name):
     """
     Sets the column name
     """
-    if Column.isPermittedName(name) is None:
-      self._name = name
+    stripped_name = Column.cleanName(name)
+    if Column.isPermittedName(stripped_name) is None:
+      self._name = stripped_name
     else:
       raise er.InternalError("%s is an invalid name" % name)
 
@@ -304,6 +314,7 @@ class Column(object):
       _ = compile(statement, "string", "exec")
       error = None
     except SyntaxError as err:
+      import pdb; pdb.set_trace()
       error = "%s produced the error: %s" % (name, str(err))
     return error
 

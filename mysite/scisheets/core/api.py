@@ -16,6 +16,8 @@ from util.trinary import Trinary
 from util.combinatoric_list import CombinatoricList
 import collections
 import os
+import numpy as np
+import pandas as pd
 import pickle
 
 ################### FUNCTIONS
@@ -56,6 +58,8 @@ class API(object):
     :param iterable-of-object values:
     :raises: ValueError
     """
+    if not self._table.isColumnPresent(column_name):
+      return
     column = self._table.columnFromName(column_name)
     if column is None:
       raise ValueError("Column name not found: %s" % column_name)
@@ -102,7 +106,6 @@ class APIFormulas(API):
     else:
       column = None
     if column is None and validate:
-      import pdb; pdb.set_trace()
       raise ValueError("%s column does not exist." % str(column_id))
     return column
 
@@ -149,9 +152,9 @@ class APIFormulas(API):
     :return: column object
     :raises: ValueError if invalid name for column
     """
-    # First delete the column to make sure that it doesn't exist
-    self.deleteColumn(column_name)
-    # Now create the column
+    if self._table.isColumnPresent(column_name):
+      return self._table.columnFromName(column_name)
+    # Create the column
     column = Column(column_name, asis=asis)
     error = self._table.addColumn(column, index)
     if error is not None:
@@ -164,8 +167,9 @@ class APIFormulas(API):
     current column (index=None) are at a specific index.
     :param str column_name: name of the column to create
     :param int index: index where the column is to be placed
+    :return: column object
     """
-    self._createColumn(column_name, index)
+    return self._createColumn(column_name, index)
 
   def deleteColumn(self, column_id):
     """
@@ -176,6 +180,39 @@ class APIFormulas(API):
     column = self._getColumn(column_id, validate=False)
     if column is not None:
       _  = self._table.deleteColumn(column)
+
+  def importCSV(self, filepath, column_names=None):
+    """
+    Imports the specified columns from the csv file.
+    Columns that don't exist in the current table are created.
+    :param str filepath: full path to file
+    :column_names list-of-str: names of a subset of columns in the file
+    :return list-of-str: column names imported
+    :raises IOError, ValueError:
+    """
+    df = pd.read_csv(filepath)  # May raise IOError
+    df.columns = [Column.cleanName(n) for n in df.columns]
+    if column_names is None:
+      column_names = df.columns
+    error = ""
+    imported_names = []
+    for name in column_names:
+      if not name in df.columns:
+        error += "%s is missing column %s\n" % (filepath, name)
+        raise ValueError(error)
+      else:
+        column = self.createColumn(name)
+        if column is None:
+          import pdb; pdb.set_trace()
+        self._table.addCells(column, 
+                             np.array(df[name]), 
+                             replace=True)
+        imported_names.append(column.getName())
+    if len(error) > 0:
+      raise ValueError(error)
+    api_util.writeTableToFile(self._table)
+    return imported_names
+   
 
   def param(self, column_id, row_num=1):
     """
@@ -192,7 +229,7 @@ class APIFormulas(API):
     return values[row_num-1]
 
 
-class APIPlugin(API):
+class APIPlugin(APIFormulas):
   """
   Support for running standalone codes
      S = APIPlugin(table_filepath)
@@ -203,7 +240,7 @@ class APIPlugin(API):
     """
     :param str table_filepath: full path to the table file
     """
-    super(APIPlugin, self).__init__()
+    super(APIPlugin, self).__init__(None)
     self._table_filepath = table_filepath
 
   def initialize(self):

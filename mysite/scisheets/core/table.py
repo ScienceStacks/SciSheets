@@ -398,6 +398,16 @@ class Table(ColumnContainer):
         row[column.getName()] = column.getCells()[index]
     return row
 
+  def isColumnPresent(self, column_name):
+    """
+    :param str column_name:
+    :return bool: True if column is present
+    """
+    for column in self._columns:
+      if column.getName() == column_name:
+        return True
+    return False
+
   def insertRow(self, row, index=None):
     """
     Inserts the row in the desired index in the table and
