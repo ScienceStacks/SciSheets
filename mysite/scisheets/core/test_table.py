@@ -22,7 +22,7 @@ LIST2 = [3.0]
 TABLE = 'DUMMY'
 FORMULA = "A+B"
 COLUMN1_CELLS = ["one", "two", "three"]
-COLUMN2_CELLS = [10.0, 20.0, 30.0]
+COLUMN2_CELLS = [10.1, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
 
 

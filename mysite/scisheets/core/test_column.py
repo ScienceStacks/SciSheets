@@ -9,7 +9,7 @@ from helpers_test import createColumn, compareValues
 # Constants
 COLUMN_NAME = "DUMMY"
 COLUMN_STR_NAME = "DUMMY_STR"
-LIST = [2.0, 3.0]
+LIST = [2.1, 3.0]
 LIST1 = [20.0, 30.0]
 LIST_STR = ["aa bb", "cc"]
 TABLE = 'DUMMY'
@@ -74,7 +74,7 @@ class TestColumn(unittest.TestCase):
     self.assertIsNone(column._formula_statement.getFormula())
 
   def testAddCellsFloat(self):
-    single_float = 1.0
+    single_float = 1.1
     list_float = [2.0, 3.0]
     test_array = np.array(list_float)
     column = cl.Column(COLUMN_NAME)

@@ -75,6 +75,13 @@ class API(object):
       raise ValueError("%s column does not exist." % str(column_id))
     return column
 
+  def getColumnNames(self):
+    """
+    :return list-of-str:
+    """
+    return [c.getName() for c in self._table.getColumns()]
+
+
   def getColumnValues(self, column_name):
     """
     :param str column_name: name of the column

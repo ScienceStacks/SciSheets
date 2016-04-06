@@ -25,7 +25,7 @@ class TestUtil(unittest.TestCase):
   def testGetType(self):
     self.assertEqual(cell_types.getType('aa'), str)
     self.assertEqual(cell_types.getType('1.0'), cell_types.XFloat)
-    self.assertEqual(cell_types.getType(1.0), cell_types.XFloat)
+    self.assertEqual(cell_types.getType(1.0), cell_types.XInt)
     self.assertEqual(cell_types.getType('2'), cell_types.XInt)
     self.assertEqual(cell_types.getType(2), cell_types.XInt)
     self.assertEqual(cell_types.getType(1), cell_types.XBool)
@@ -51,12 +51,17 @@ class TestUtil(unittest.TestCase):
     self.assertEqual(array.dtype, object)
 
   def testCoerceData(self):
-    self._CoerceData([1.0, 1], np.float64)
+    self._CoerceData([1.0, 1], np.int64)
     self._CoerceData([1, 2], np.int64)
     self._CoerceData([True, False], np.bool)
     self._CoerceData([True, False, 3], np.int64)
     array = np.array(cell_types.coerceData([1.0, 1, None]))
     self.assertEqual(array.dtype, np.float64)
+
+  def testCoerceString(self):
+    values = ['aString']
+    array = np.array(cell_types.coerceData(values))
+    self.assertTrue(str(array.dtype)[1]=='S')
 
 
 

@@ -1,6 +1,7 @@
 """
-Compiles statements to evaluates formulas in a Table and
-runs those statements.
+Compiles Python statements to evaluates formulas in a Table.
+Sets up the runtime environment.
+Runs the compiled statements.
 """
 
 import util.api_util as api_util
@@ -19,7 +20,34 @@ API_OBJECT = "s"
 ######################## CLASSES ####################
 class TableEvaluator(object):
   """
-  Evaluates and otherwise processes formulas in a table
+  Evaluates and otherwise processes formulas in a table.
+  Two kinds of files are generated:
+    a) Formula execution files. For table evaluation,
+       this is a script. For table export, this is a function.
+    b) Unittest file for table export.
+  Formula execution files are structured into sections. For
+  table evaluation this consists of:
+    1. Prolog statements: executed first and only once.
+       Note that the APIFormulas object is created by the
+       script runner.
+    2. Variable assignment statements that assign column values
+       to variables used in the script.
+    3. Formula evaluation blocks, one for each formula.
+    4. Column value assignment statements that assign script
+       variables to their associated column values.
+  Exported functions have the following structure:
+    1. Prolog statements. This includes the creation of the
+       Plugin API object.
+    2. Function header (def statement)
+    3. Variable assignment statements (but not for the 
+       function inputs).
+    4. Return statement
+  In addition a test file is created that calls the exported function
+  and verifies that the function produces the output columns in
+  the table when it is called with the input columns.
+  Code generated for these blocks often makes use of the
+  api object. For table evaluation, this has the class APIFormulas.
+  For exported functions, this has the class APIPlugin.
   """
 
   def __init__(self, table):
@@ -111,7 +139,7 @@ class TableEvaluator(object):
     Creates statements that assign column values to variables.
     :param str prefix: prefix to construct full API object
     """
-    statements = ["", "# Assign column values"]
+    statements = ["# Assign column values to program variables."]
     full_object = "%s%s" % (prefix, API_OBJECT)
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
@@ -127,7 +155,7 @@ class TableEvaluator(object):
     Note that the assumption is that the variable name is the same
     as the column name
     """
-    statements = ["", "# Assign variables to columns"]
+    statements = ["", "# Assign program variables to columns values."]
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
@@ -145,7 +173,7 @@ class TableEvaluator(object):
             if fc.getFormula() is not None
               and exclude not in fc.getFormula()]
 
-  def _makeInitialImportStatements(self, user_directory=None):
+  def _makePrologStatements(self, user_directory=None):
     """
     Creates the imports that go at the head of the file
     :param user_directory: directory where user functions are located
@@ -156,8 +184,7 @@ class TableEvaluator(object):
     statements = []  # List of statements in the file
     formula_columns = self._formulaColumns()
     # Construct the imports
-    import_statements = ['''
-import my_api as api
+    import_statements = ['''import my_api as api
 import math as mt
 import numpy as np
 from os import listdir
@@ -165,8 +192,7 @@ from os.path import isfile, join
 import pandas as pd
 import scipy as sp
 from sympy import *
-from numpy import nan  # Must follow sympy import
-    ''']
+from numpy import nan  # Must follow sympy import ''']
     if user_directory is not None:
       import_statements.extend(
           TableEvaluator._makeFormulaImportStatements(user_directory,
@@ -194,8 +220,8 @@ from numpy import nan  # Must follow sympy import
     if num_formulas == 0:
       return statements
     # Statements that evaluate the formulas
-    statement = "#Evaluate the formulas"
-    statements.extend(TableEvaluator._indent(["", "", statement], indent))
+    statement = "# Evaluate the formulas."
+    statements.extend(TableEvaluator._indent(["", statement], indent))
     # Special case for a single formula column
     if num_formulas == 1:
       column = formula_columns[0]
@@ -215,7 +241,7 @@ from numpy import nan  # Must follow sympy import
         if column.isExpression():
           statement = "%s = %s.coerceValues('%s', %s)"  \
               % (name, API_OBJECT, name, name)
-        statements.extend(TableEvaluator._indent([statement], indent))
+          statements.extend(TableEvaluator._indent([statement], indent))
         indent -= 1
         statement = "except Exception as e:"
         statements.extend(TableEvaluator._indent([statement], indent))
@@ -244,29 +270,33 @@ from numpy import nan  # Must follow sympy import
     indent = 0
     if user_directory is None:
       user_directory = os.path.dirname(__file__)
-    # Do the imports
-    statements = self._makeInitialImportStatements(
-        user_directory=user_directory)
-    # Write leading text to run standalone script
+    # File Prolog
+    header_comments = '''# Evaluation of the table %s.
+
+    ''' % self._table.getName()
+    statements = [header_comments]
+    statements.extend(TableEvaluator._indent(
+        self._makePrologStatements(user_directory=user_directory),
+        indent))
     statement = """
 # Uncomment the following to execute standalone
 #_table = api.getTableFromFile('%s')
-#%s = api.APIFormulas(_table)
+#%s = api.APIFormulas(_table) 
 """ % (self._table.getFilepath(), API_OBJECT) 
     statements.extend(TableEvaluator._indent([statement], indent))
-    # Assign the column values
+    # Assign the column values to script variables
     statements.extend(TableEvaluator._indent(  \
         self._makeVariableAssignmentStatements(), indent))
-    # Create the formula statements
+    # Create the formula evaluation blocks
     statements.extend(TableEvaluator._indent(  \
         self._makeFormulaStatements(), indent))
-    # Assign values to the columns
+    # Assign script variable to the column values
     statements.extend(TableEvaluator._indent(  \
         self._makeColumnValuesAssignmentStatements(), indent))
     # Write the statements to execute
     file_path = os.path.join(user_directory, GENERATED_FILE)
     TableEvaluator._writeStatementsToFile(statements, file_path)
-    # Set up environment to execute the statements
+    # Create the execution environment for the compiled statements
     globals()['_table'] = self._table
     statement = """
 import api
@@ -275,7 +305,7 @@ s = api.APIFormulas(_table)
     error = TableEvaluator._executeStatements(statement)
     if error is not None:
       return error
-    # Execute the statements
+    # Execute the compiled statements
     statements = open(file_path).read()
     error = TableEvaluator._executeStatements(statements)
     if error is not None:
@@ -295,32 +325,6 @@ s = api.APIFormulas(_table)
     for statement in statements:
       new_statement = statement.replace("\n", "\n" + indents)
       result.append("%s%s" % (indents, new_statement))
-    return result
-
-  @staticmethod
-  def _extractDtype(dtype):
-    """
-    Extracts the datatype to use in the column np.array
-    Input: dtype - python data type
-    Output: result - array data type
-    """
-    dtype_str = str(dtype)
-    result = "object"
-    try:
-      ck_type = "float"
-      dtype_str.index(ck_type)
-      result = ck_type
-    except ValueError:
-      try:
-        ck_type = "int"
-        dtype_str.index(ck_type)
-        result = ck_type
-      except ValueError:
-        try:
-          dtype_str.index('|S')
-          result = "'%s'" % dtype
-        except ValueError:
-          pass
     return result
 
   def _makeAPIPluginInitializationStatements(self, function_name, prefix=""):
@@ -369,14 +373,14 @@ s = api.APIFormulas(_table)
       function_name = DEFAULT_FUNCTION_NAME
     file_name = "%s.py" % function_name
     indent = 0
-    # File header
-    header_comments = '''
-# File generated as a SciSheets table export
+    # File Prolog
+    header_comments = '''# Export of the table %s
 
-    '''
+    ''' % self._table.getName()
     statements = [header_comments]
-    statements = self._makeInitialImportStatements(
-        user_directory=user_directory)
+    statements.extend(TableEvaluator._indent(
+        self._makePrologStatements(user_directory=user_directory),
+        indent))
     # Create the API object
     api_util.writeTableToFile(self._table)  # Update the table
     statement = self._makeAPIPluginInitializationStatements(function_name)
@@ -386,12 +390,13 @@ s = api.APIFormulas(_table)
         [TableEvaluator._makeFunctionStatement(function_name, inputs)],
         indent))
     indent += 1
-    # Assign the column values
+    # Assign the column values to function variables.
+    # Note that inputs and outputs are not assigned.
     excludes = list(inputs)
     excludes.extend(outputs)
     statements.extend(TableEvaluator._indent(  \
         self._makeVariableAssignmentStatements(excludes=excludes), indent))
-    # Make the function body
+    # Create the formula execution blocks
     statements.extend(TableEvaluator._indent(self._makeFormulaStatements(), 
         indent))
     # Make the return statement
@@ -401,10 +406,9 @@ s = api.APIFormulas(_table)
     if py_file_path is None:
       py_file_path = os.path.join(user_directory, file_name)
     error = TableEvaluator._writeStatementsToFile(statements, py_file_path)
-    
     if error is not None:
       return "Error constructing %s: %s" % (py_file_path, error)
-    # Make the test statements
+    # Create the test file
     test_statements = self._makeTestStatements(function_name, inputs, outputs)
     test_file_name = "test_%s" % file_name
     test_file_path = os.path.join(user_directory, test_file_name)
@@ -448,8 +452,7 @@ s = api.APIFormulas(_table)
     indent = 0
     prefix = "self."
     output_str = TableEvaluator._makeOutputStr(outputs)
-    statement = '''
-"""
+    statement = '''"""
 Tests for %s
 """
 
@@ -502,7 +505,7 @@ class Test%s(unittest.TestCase):
     :param outputs: list of columns that are output from the function
     :return: statements
     """
-    return "return %s" % TableEvaluator._makeOutputStr(outputs)
+    return "\nreturn %s" % TableEvaluator._makeOutputStr(outputs)
 
   @staticmethod
   def _makeFunctionStatement(function_name, inputs):

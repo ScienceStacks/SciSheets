@@ -41,7 +41,10 @@ def makeJSON(column_names, data):
       if (item is None):
         value = ""
       elif isFloats(item):
-        if np.isnan(item):
+        if np.isnan(float(item)):
+          value = ""
+      elif isinstance(item, str):
+        if item == 'nan':
           value = ""
       result += '"' + column_names[c] + '": ' + '`' + value + '`'
       if c != number_of_columns - 1:

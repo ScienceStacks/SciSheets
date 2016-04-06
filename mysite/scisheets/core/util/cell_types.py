@@ -44,12 +44,15 @@ class XInt(XType):
     Checks if the value is an instance of the extended type
     defined by this class.
     :param val: value to check if it's an extended type
-    :return: True if extended type; otherwise False.
+    :return bool: True if extended type; otherwise False.
     """
-    if cls.isBaseType (val):
+    if cls.isBaseType(val):
       return True
     if isinstance(val, str):
       return isinstance(int(val), int)
+    if isinstance(val, float):
+      return int(val) == val
+    return False
 
   @classmethod
   def isCoercible(cls, a_type):
