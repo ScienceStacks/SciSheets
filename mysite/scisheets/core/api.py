@@ -37,17 +37,52 @@ class API(object):
     self._column_idx = None
     self._table_filepath = None
 
+  def _coerceValues(self, column, values):
+    """
+    Coerces the values to the type appropriate for the column
+    :param Column column:
+    :return: type appropriate for column
+    :raises: ValueError
+    """
+    data_class = column.getDataClass()
+    return data_class.cons(values)
+
+  def coerceValues(self, column_name, values):
+    """
+    Coerces the values to the type appropriate for the column
+    :param str column_name: name of the column
+    :return: type appropriate for column
+    :raises: ValueError
+    """
+    column = self._getColumn(column_name)
+    return self._coerceValues(column, values)
+
+  def _getColumn(self, column_id, validate=True):
+    """
+    :param column_id: either the name of the column or
+                      its 1-based index after the name ('row') column
+    :param bool validate: Validates the columns present if True
+    :return: column object
+    :raises: ValueError if column_name doesn't exist
+    """
+    if isinstance(column_id, int):
+      column = self._table.columnFromIndex(column_id)
+    elif isinstance(column_id, str):
+      column = self._table.columnFromName(column_id)
+    else:
+      column = None
+    if column is None and validate:
+      raise ValueError("%s column does not exist." % str(column_id))
+    return column
+
   def getColumnValues(self, column_name):
     """
     :param str column_name: name of the column
     :return: iterable of object
     :raises: ValueError
     """
-    column = self._table.columnFromName(column_name)
-    if column is None:
-      raise ValueError("Column name not found: %s" % column_name)
-    data_class = column.getDataClass()
-    return data_class.cons(column.getCells())
+    column = self._getColumn(column_name)
+    return self._coerceValues(column, column.getCells())
 
   def getTable(self):
     return self._table
@@ -90,24 +125,6 @@ class APIFormulas(API):
     """
     super(APIFormulas, self).__init__()
     self._table = table
-
-  def _getColumn(self, column_id, validate=True):
-    """
-    :param column_id: either the name of the column or
-                      its 1-based index after the name ('row') column
-    :param bool validate: Validates the columns present if True
-    :return: column object
-    :raises: ValueError if column_name doesn't exist
-    """
-    if isinstance(column_id, int):
-      column = self._table.columnFromIndex(column_id)
-    elif isinstance(column_id, str):
-      column = self._table.columnFromName(column_id)
-    else:
-      column = None
-    if column is None and validate:
-      raise ValueError("%s column does not exist." % str(column_id))
-    return column
 
   def createTruthTable(self, column_names, only_boolean=False):
     """

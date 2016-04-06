@@ -211,6 +211,11 @@ from numpy import nan  # Must follow sympy import
         indent += 1
         statements.extend(TableEvaluator._indent(
             [column.getFormulaStatement()], indent))
+        name = column.getName()
+        if column.isExpression():
+          statement = "%s = %s.coerceValues('%s', %s)"  \
+              % (name, API_OBJECT, name, name)
+        statements.extend(TableEvaluator._indent([statement], indent))
         indent -= 1
         statement = "except Exception as e:"
         statements.extend(TableEvaluator._indent([statement], indent))

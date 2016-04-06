@@ -73,12 +73,14 @@ class FormulaStatement(object):
     return error
 
   def isExpression(self):
+    self.do()
     return self._isExpression
 
   def getFormula(self):
     return self._formula
 
   def getStatement(self):
+    self.do()
     return self._statement
 
 
@@ -195,7 +197,6 @@ class Column(object):
     """
     Returns the formula as a python statement
     """
-    self._formula_statement.do()
     return self._formula_statement.getStatement()
 
   def getName(self):
@@ -214,6 +215,9 @@ class Column(object):
       index = len(self._cells)
     data_list.insert(index, val)
     self._setDatavalues(data_list)
+
+  def isExpression(self):
+    return self._formula_statement.isExpression()
 
   def isFloats(self):
     """
