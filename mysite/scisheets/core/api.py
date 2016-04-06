@@ -36,6 +36,9 @@ class API(object):
     self._table = None
     self._column_idx = None
     self._table_filepath = None
+    # Columns excluded from update because created dynamically
+    # and so the user has responsibility for their update
+    self._exclude_column_update = []
 
   def _coerceValues(self, column, values):
     """
@@ -56,6 +59,12 @@ class API(object):
     """
     column = self._getColumn(column_name)
     return self._coerceValues(column, values)
+
+  def excludeColumnUpdate(self, list_of_names):
+    """
+    :param list-of-str list_of_names:
+    """
+    self._exclude_column_update.extend(list_of_names)
 
   def _getColumn(self, column_id, validate=True):
     """
@@ -100,6 +109,8 @@ class API(object):
     :param iterable-of-object values:
     :raises: ValueError
     """
+    if column_name in self._exclude_column_update:
+      return
     if not self._table.isColumnPresent(column_name):
       return
     column = self._table.columnFromName(column_name)

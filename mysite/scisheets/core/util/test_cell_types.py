@@ -59,8 +59,10 @@ class TestUtil(unittest.TestCase):
     self.assertEqual(array.dtype, np.float64)
 
   def testCoerceString(self):
-    values = ['aString']
-    array = np.array(cell_types.coerceData(values))
+    values = ['..', None, None]
+    coerced_values = cell_types.coerceData(values)
+    array = np.array(coerced_values)
+    import pdb; pdb.set_trace()
     self.assertTrue(str(array.dtype)[1]=='S')
 
 

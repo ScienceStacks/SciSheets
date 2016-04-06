@@ -94,7 +94,10 @@ def _getFileNameWithoutExtension(file_path):
   return full_file_name[:pos]
 
 def _createTableFilepath(file_name):
-  table_file = "%s.pcl" % file_name
+  suffix = ""
+  if not file_name[-3:] != ".pcl":
+    suffix = ".pcl"
+  table_file = "%s%s" % (file_name, suffix)
   return os.path.join(st.SCISHEETS_USER_TBLDIR, table_file)
 
 def _setTableFilepath(request, 
@@ -159,6 +162,7 @@ def saveTable(request, table):
   :param Table table:
   """
   have_table_file = False
+  table_filepath = None
   if TABLE_FILE_KEY in request.session:
     if request.session[TABLE_FILE_KEY] is not None:
       have_table_file = True
@@ -170,7 +174,7 @@ def saveTable(request, table):
       handle = tempfile.NamedTemporaryFile()
       table_filepath = handle.name
       handle.close()
-    _setTableFilepath(request, table, table_filepath)
+  _setTableFilepath(request, table, table_filepath)
   writeTableToFile(table)
 
 
