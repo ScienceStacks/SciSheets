@@ -62,7 +62,6 @@ class TestUtil(unittest.TestCase):
     values = ['..', None, None]
     coerced_values = cell_types.coerceData(values)
     array = np.array(coerced_values)
-    import pdb; pdb.set_trace()
     self.assertTrue(str(array.dtype)[1]=='S')
 
 

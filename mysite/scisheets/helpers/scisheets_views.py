@@ -94,8 +94,12 @@ def _getFileNameWithoutExtension(file_path):
   return full_file_name[:pos]
 
 def _createTableFilepath(file_name):
+  """
+  Input: file_name - name of file without extension
+  Output: file_path - full path for file
+  """
   suffix = ""
-  if not file_name[-3:] != ".pcl":
+  if file_name[-4:] != ".pcl":
     suffix = ".pcl"
   table_file = "%s%s" % (file_name, suffix)
   return os.path.join(st.SCISHEETS_USER_TBLDIR, table_file)
@@ -124,6 +128,8 @@ def _setTableFilepath(request,
           % table_filepath)
   request.session[TABLE_FILE_KEY] = table_filepath
   if table is None:
+    import pdb; pdb.set_trace()
+  if table_filepath[-4:] != ".pcl":
     import pdb; pdb.set_trace()
   table.setFilepath(table_filepath)
   return table_filepath

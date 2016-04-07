@@ -490,7 +490,7 @@ Ntp143
 Rp144
 (dp145
 g27
-Vnames = s.getColumnNames()\u000anew_names = ["pV_Max", "pK_M"]\u000a#for name in new_names:\u000a#  if not name in names:\u000a#    s.createColumn(name)\u000a#pV_Max, pK_M = ??(S,V)
+Vif false:\u000a  names = s.getColumnNames()\u000a  new_names = ["pV_Max", "pK_M"]\u000a  for name in new_names:\u000a    if not name in names:\u000a      s.createColumn(name)\u000a# pV_Max, pK_M = ??(S,V)
 p146
 sg28
 g140
@@ -499,7 +499,7 @@ I00
 sg30
 I00
 sg31
-Vnames = s.getColumnNames()\u000anew_names = ["pV_Max", "pK_M"]\u000a#for name in new_names:\u000a#  if not name in names:\u000a#    s.createColumn(name)\u000a#pV_Max, pK_M = ??(S,V)
+Vif false:\u000a  names = s.getColumnNames()\u000a  new_names = ["pV_Max", "pK_M"]\u000a  for name in new_names:\u000a    if not name in names:\u000a      s.createColumn(name)\u000a# pV_Max, pK_M = ??(S,V)
 p147
 sbsg32
 g0
