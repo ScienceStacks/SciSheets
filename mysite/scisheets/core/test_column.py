@@ -152,6 +152,8 @@ class TestColumn(unittest.TestCase):
     # Should not change the formula if there's an error
     self.assertEqual(self.column._formula_statement.getFormula(), 
         VALID_FORMULA)
+    error = self.column.setFormula("a = sin(x")
+    self.assertIsNotNone(error)
 
   def testSetTable(self):
     self.column.setTable(TABLE)

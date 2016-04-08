@@ -39,39 +39,35 @@ class FormulaStatement(object):
       self._isExpression = False
       self._isStatement = False
       return
+    exception_stmt = None
+    exception_expr = None
     try:
       # See if this is an expression
-      exception_stmt = None
       _ = compile(self._formula, "string", "eval")
       statement = "%s = %s" % (self._column.getName(), 
           self._formula)
       self._isExpression = True
     except SyntaxError as err:
-      exception_stmt = err
-    if exception_stmt is not None:
+      exception_expr = err
+    if exception_expr is not None:
       try:
-        exception_expr = None
         # See if this is a statement
         statement = self._formula
         _ = compile(statement, "string", "exec")
       except SyntaxError as err:
-        exception_expr = err
+        exception_stmt = err
     if (exception_stmt is not None) and (exception_expr is not None):
       # Guess whether is is intended to be a statement or an expression
       # so that the correct error message can be delivered.
-      try:
-        _ = self._formula.index("=")  # See if there's an assignment
+      if "=" in self._formula:
         is_stmt = True
-      except ValueError:
+      else:
         is_stmt = False
       if is_stmt:
         exception = exception_stmt
       else:
         exception = exception_expr
-      if isinstance(exception, tuple) and (len(exception) == 3):
-        error = "%s: %s" % (exception[0], exception[1][3])
-      else:
-        error = str(exception)
+      error = "%s: %s" % (exception.msg, exception.text)
     else:
       error = None
       self._statement = statement
