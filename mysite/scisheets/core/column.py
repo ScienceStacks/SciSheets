@@ -34,6 +34,11 @@ class FormulaStatement(object):
     Construct the statement
     :return str: error or None
     """
+    if self._formula is None:
+      self._statement = None
+      self._isExpression = False
+      self._isStatement = False
+      return
     try:
       # See if this is an expression
       exception_stmt = None

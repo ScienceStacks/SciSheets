@@ -62,7 +62,8 @@ class TestUtil(unittest.TestCase):
     values = ['..', None, None]
     coerced_values = cell_types.coerceData(values)
     array = np.array(coerced_values)
-    self.assertTrue(str(array.dtype)[1]=='S')
+    self.assertFalse(isinstance(values, np.float64))
+    self.assertFalse(isinstance(values, np.int64))
 
 
 

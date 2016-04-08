@@ -111,7 +111,7 @@ Ntp48
 Rp49
 (dp50
 g25
-VFiles = [f for f in listdir(".") if f[-4:] == ".csv"]\u000aFiles.sort()\u000adfs = [pd.read_csv(f) for f in Files]\u000aresults = [mechaelisMenton(df['S'], df['V']) for df in dfs]
+VFiles = [f for f in listdir(".") if f[-4:] == ".csv"]\u000aFiles.sort()\u000aV_MAX = []\u000aK_M = []\u000afor f in Files:\u000a  df = pd.read_csv(f)\u000a  v_max, k_m = mechaelisMenton(df['S'], df['V'])\u000a  V_MAX.append(v_max[0])\u000a  K_M.append(k_m[0])
 p51
 sg26
 g41
@@ -120,7 +120,7 @@ I00
 sg28
 I00
 sg29
-VFiles = [f for f in listdir(".") if f[-4:] == ".csv"]\u000aFiles.sort()\u000adfs = [pd.read_csv(f) for f in Files]\u000aresults = [mechaelisMenton(df['S'], df['V']) for df in dfs]
+VFiles = [f for f in listdir(".") if f[-4:] == ".csv"]\u000aFiles.sort()\u000aV_MAX = []\u000aK_M = []\u000afor f in Files:\u000a  df = pd.read_csv(f)\u000a  v_max, k_m = mechaelisMenton(df['S'], df['V'])\u000a  V_MAX.append(v_max[0])\u000a  K_M.append(k_m[0])
 p52
 sbsg30
 g37
@@ -151,41 +151,37 @@ Ntp58
 Rp59
 (dp60
 g25
-VV_MAX = [r[0][0] for r in results]
-p61
-sg26
+Nsg26
 g55
 sg27
-I01
+I00
 sg28
 I00
 sg29
-V[r[0][0] for r in results]
-p62
-sbsg30
+Nsbsg30
 g0
 (g31
 g32
 (g33
 g34
-tp63
-tp64
-Rp65
+tp61
+tp62
+Rp63
 sg38
 S'V_MAX'
-p66
+p64
 sbag0
 (g8
 g2
-Ntp67
-Rp68
-(dp69
+Ntp65
+Rp66
+(dp67
 g12
 I00
 sg13
 g4
 sg14
-(lp70
+(lp68
 F0.010850115355686595
 aF0.010850115355686593
 aF0.010850115355686593
@@ -194,31 +190,27 @@ asg20
 g0
 (g21
 g2
-Ntp71
-Rp72
-(dp73
+Ntp69
+Rp70
+(dp71
 g25
-VK_M = [r[1][0] for r in results]
-p74
-sg26
-g68
+Nsg26
+g66
 sg27
-I01
+I00
 sg28
 I00
 sg29
-V[r[1][0] for r in results]
-p75
-sbsg30
-g65
+Nsbsg30
+g63
 sg38
 S'K_M'
-p76
+p72
 sbasS'_filepath'
-p77
+p73
 V/home/ubuntu/SciSheets/mysite/user/guest/tables/mm_csv_files.pcl
-p78
+p74
 sg38
 VMMFileProcessing
-p79
+p75
 sb.
