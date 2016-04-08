@@ -334,10 +334,8 @@ s = api.APIFormulas(_table)
     """
     full_object = "%s%s" % (prefix, API_OBJECT)
     table_filepath = self._table.getFilepath()
-    statement = """
-%s = api.APIPlugin('%s')
-%s.initialize()
-""" % (full_object, table_filepath, full_object)
+    statement = """%s = api.APIPlugin('%s')
+%s.initialize()""" % (full_object, table_filepath, full_object)
     return statement
 
   # pylint: disable=R0913
@@ -381,10 +379,11 @@ s = api.APIFormulas(_table)
     statements.extend(TableEvaluator._indent(
         self._makePrologStatements(user_directory=user_directory),
         indent))
+    statements.extend(TableEvaluator._indent([""], indent))
     # Create the API object
     api_util.writeTableToFile(self._table)  # Update the table
     statement = self._makeAPIPluginInitializationStatements(function_name)
-    statements.extend(TableEvaluator._indent([statement], indent))
+    statements.extend(TableEvaluator._indent([statement, ""], indent))
     # Make the function definition
     statements.extend(TableEvaluator._indent(
         [TableEvaluator._makeFunctionStatement(function_name, inputs)],
@@ -396,7 +395,7 @@ s = api.APIFormulas(_table)
     excludes.extend(outputs)
     statements.extend(TableEvaluator._indent(  \
         self._makeVariableAssignmentStatements(excludes=excludes), indent))
-    # Create the formula execution blocks
+    # Create the formula evaluation blocks
     statements.extend(TableEvaluator._indent(self._makeFormulaStatements(), 
         indent))
     # Make the return statement
@@ -466,7 +465,6 @@ import unittest
 #############################
 # pylint: disable=W0212,C0111,R0904
 class Test%s(unittest.TestCase):
-
 ''' % (function_name, function_name, function_name, function_name)
     statements = [statement]
     # Construct setup method
@@ -491,12 +489,19 @@ class Test%s(unittest.TestCase):
     statement += " = %s(" % function_name
     statement += ",".join(inputs)
     statement += ")"
-    statements.extend(TableEvaluator._indent([statement, ""], indent))
+    statements.extend(TableEvaluator._indent([statement], indent))
     # Construct the tests
     for column_name in outputs:
       statement = "self.assertTrue(self.%s.compareToColumnValues('%s', %s))"  \
           % (API_OBJECT, column_name, column_name)
       statements.extend(TableEvaluator._indent([statement], indent))
+    indent -= 2
+    # Write the epilogue
+    statement = """
+
+if __name__ == '__main__':
+  unittest.main()"""
+    statements.extend(TableEvaluator._indent([statement], indent))
     return statements
 
   @staticmethod

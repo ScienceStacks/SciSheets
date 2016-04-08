@@ -501,7 +501,7 @@ Ntp144
 Rp145
 (dp146
 g28
-Vnew_names = ["pV_Max", "pK_M"]\u000afor name in new_names:\u000a  s.deleteColumn(name)\u000aif false:\u000a  names = s.getColumnNames()\u000a  for name in new_names:\u000a    if not name in names:\u000a      s.createColumn(name)\u000a  pV_Max, pK_M = mechaelisMenton(S,V)
+Vnew_names = ["pV_Max", "pK_M"]\u000afor name in new_names:\u000a  s.deleteColumn(name)\u000aif false:\u000a  names = s.getColumnNames()\u000a  for name in new_names:\u000a    if not name in names:\u000a      s.createColumn(name)\u000a # pV_Max, pK_M = #(S,V)
 p147
 sg29
 g141
@@ -510,7 +510,7 @@ I00
 sg31
 I00
 sg32
-Vnew_names = ["pV_Max", "pK_M"]\u000afor name in new_names:\u000a  s.deleteColumn(name)\u000aif false:\u000a  names = s.getColumnNames()\u000a  for name in new_names:\u000a    if not name in names:\u000a      s.createColumn(name)\u000a  pV_Max, pK_M = mechaelisMenton(S,V)
+Vnew_names = ["pV_Max", "pK_M"]\u000afor name in new_names:\u000a  s.deleteColumn(name)\u000aif false:\u000a  names = s.getColumnNames()\u000a  for name in new_names:\u000a    if not name in names:\u000a      s.createColumn(name)\u000a # pV_Max, pK_M = #(S,V)
 p148
 sbsg33
 g0
