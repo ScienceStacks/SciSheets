@@ -181,7 +181,7 @@ class TableEvaluator(object):
     :return: list of statements constructed
     """
     # Initializations
-    sa = StatementAccumulator(['prolog'])
+    sa = StatementAccumulator()
     formula_columns = self._formulaColumns()
     # Construct the imports
     statement = '''import my_api as api
@@ -214,7 +214,7 @@ from numpy import nan  # Must follow sympy import '''
                between formulas
     """
     # Initializations
-    sa = StatementAccumulator(['formulas'])
+    sa = StatementAccumulator()
     formula_columns = self._formulaColumns()
     num_formulas = len(formula_columns)
     if num_formulas == 0:
@@ -257,14 +257,14 @@ from numpy import nan  # Must follow sympy import '''
            (2) Iterate N (#formulas) times to handle dependencies
                between formulas
     """
-    sa = StatementAccumulator(["generated", "script"])
+    sa = StatementAccumulator()
     if user_directory is None:
       user_directory = os.path.dirname(__file__)
     # File Prologue
     statement = '''# Evaluation of the table %s.
 
     ''' % self._table.getName()
-    sa.add([statement])
+    sa.add(statement)
     sa.add(self._makePrologueStatements(
         user_directory=user_directory))
     statement = """
@@ -290,7 +290,7 @@ s = api.APIFormulas(_table)
     if error is not None:
       return error
     # Run the statements from a file
-    sr = StatementRunner(sa.get(name="generated"))
+    sr = StatementRunner(sa.get())
     file_path = os.path.join(user_directory, GENERATED_FILE)
     sr.writeFile(file_path)
     return sr.execute()
@@ -338,7 +338,7 @@ s = api.APIFormulas(_table)
     if function_name is None:
       function_name = DEFAULT_FUNCTION_NAME
     file_name = "%s.py" % function_name
-    sa = StatementAccumulator(["export"])
+    sa = StatementAccumulator()
     # File Prologue
     statement = '''# Export of the table %s
 
@@ -397,7 +397,7 @@ s = api.APIFormulas(_table)
     :param outputs: list of columns that are output from the function
     :return str: statements for test file
     """
-    sa = StatementAccumulator(["tests"])
+    sa = StatementAccumulator()
     prefix = "self."
     output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''"""
