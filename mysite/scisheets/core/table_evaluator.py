@@ -5,6 +5,7 @@ Runs the compiled statements.
 """
 
 import util.api_util as api_util
+from util.statement_manager import StatementAccumulator
 import sys
 import os
 import numpy as np
@@ -27,7 +28,7 @@ class TableEvaluator(object):
     b) Unittest file for table export.
   Formula execution files are structured into sections. For
   table evaluation this consists of:
-    1. Prolog statements: executed first and only once.
+    1. Prologue statements: executed first and only once.
        Note that the APIFormulas object is created by the
        script runner.
     2. Variable assignment statements that assign column values
@@ -36,7 +37,7 @@ class TableEvaluator(object):
     4. Column value assignment statements that assign script
        variables to their associated column values.
   Exported functions have the following structure:
-    1. Prolog statements. This includes the creation of the
+    1. Prologue statements. This includes the creation of the
        Plugin API object.
     2. Function header (def statement)
     3. Variable assignment statements (but not for the 
@@ -173,18 +174,17 @@ class TableEvaluator(object):
             if fc.getFormula() is not None
               and exclude not in fc.getFormula()]
 
-  def _makePrologStatements(self, user_directory=None):
+  def _makePrologueStatements(self, user_directory=None):
     """
     Creates the imports that go at the head of the file
     :param user_directory: directory where user functions are located
     :return: list of statements constructed
     """
     # Initializations
-    indent = 0
-    statements = []  # List of statements in the file
+    sa = StatementAccumulator(['prolog'])
     formula_columns = self._formulaColumns()
     # Construct the imports
-    import_statements = ['''import my_api as api
+    statement = '''import my_api as api
 import math as mt
 import numpy as np
 from os import listdir
@@ -192,13 +192,14 @@ from os.path import isfile, join
 import pandas as pd
 import scipy as sp
 from sympy import *
-from numpy import nan  # Must follow sympy import ''']
+from numpy import nan  # Must follow sympy import '''
+    sa.add(statement)
     if user_directory is not None:
-      import_statements.extend(
+      statement =  \
           TableEvaluator._makeFormulaImportStatements(user_directory,
-                                                      formula_columns))
-    statements.extend(TableEvaluator._indent(import_statements, indent))
-    return statements
+                                                      formula_columns)
+    sa.add(statement)
+    return [sa.get()]
 
   # pylint: disable=R0913
   # pylint: disable=R0914
@@ -213,48 +214,37 @@ from numpy import nan  # Must follow sympy import ''']
                between formulas
     """
     # Initializations
-    indent = 0
-    statements = []  # List of statements in the file
+    sa = StatementAccumulator(['formulas'])
     formula_columns = self._formulaColumns()
     num_formulas = len(formula_columns)
     if num_formulas == 0:
-      return statements
+      return []
     # Statements that evaluate the formulas
-    statement = "# Evaluate the formulas."
-    statements.extend(TableEvaluator._indent(["", statement], indent))
+    sa.add("# Evaluate the formulas.")
     # Special case for a single formula column
     if num_formulas == 1:
       column = formula_columns[0]
-      statements.extend(TableEvaluator._indent(
-          [column.getFormulaStatement()], indent))
+      sa.add(column.getFormulaStatement())
     else:
-      statement = "for nn in range(%d):" % num_formulas
-      statements.extend(TableEvaluator._indent([statement], indent))
-      indent += 1
+      sa.add("for nn in range(%d):" % num_formulas)
+      sa.indent(1)
       for column in formula_columns:
-        statement = "try:"
-        statements.extend(TableEvaluator._indent([statement], indent))
-        indent += 1
-        statements.extend(TableEvaluator._indent(
-            [column.getFormulaStatement()], indent))
+        sa.add("try:")
+        sa.indent(1)
+        sa.add(column.getFormulaStatement())
         name = column.getName()
         if column.isExpression():
-          statement = "%s = %s.coerceValues('%s', %s)"  \
-              % (name, API_OBJECT, name, name)
-          statements.extend(TableEvaluator._indent([statement], indent))
-        indent -= 1
-        statement = "except Exception as e:"
-        statements.extend(TableEvaluator._indent([statement], indent))
-        indent += 1
-        statement = "if nn == %d:" % (num_formulas-1)
-        statements.extend(TableEvaluator._indent([statement], indent))
-        indent += 1
-        statement = "raise Exception(e)"
-        statements.extend(TableEvaluator._indent([statement], indent))
-        statement = "break"
-        statements.extend(TableEvaluator._indent([statement], indent))
-        indent -= 2
-    return statements
+          sa.add("%s = %s.coerceValues('%s', %s)"  \
+              % (name, API_OBJECT, name, name))
+        sa.indent(-1)
+        sa.add("except Exception as e:")
+        sa.indent(1)
+        sa.add("if nn == %d:" % (num_formulas-1))
+        sa.indent(1)
+        sa.add("raise Exception(e)")
+        sa.add("break")
+        sa.indent(-2)
+    return [sa.get()]
 
   def evaluate(self, user_directory=None):
     """
@@ -267,65 +257,43 @@ from numpy import nan  # Must follow sympy import ''']
            (2) Iterate N (#formulas) times to handle dependencies
                between formulas
     """
-    indent = 0
+    sa = StatementAccumulator(["generated", "script"])
     if user_directory is None:
       user_directory = os.path.dirname(__file__)
-    # File Prolog
-    header_comments = '''# Evaluation of the table %s.
+    # File Prologue
+    statement = '''# Evaluation of the table %s.
 
     ''' % self._table.getName()
-    statements = [header_comments]
-    statements.extend(TableEvaluator._indent(
-        self._makePrologStatements(user_directory=user_directory),
-        indent))
+    sa.add(statement)
+    sa.add(self._makePrologueStatements(
+        user_directory=user_directory))
     statement = """
 # Uncomment the following to execute standalone
 #_table = api.getTableFromFile('%s')
 #%s = api.APIFormulas(_table) 
 """ % (self._table.getFilepath(), API_OBJECT) 
-    statements.extend(TableEvaluator._indent([statement], indent))
+    sa.add(statement)
     # Assign the column values to script variables
-    statements.extend(TableEvaluator._indent(  \
-        self._makeVariableAssignmentStatements(), indent))
+    sa.add(self._makeVariableAssignmentStatements())
     # Create the formula evaluation blocks
-    statements.extend(TableEvaluator._indent(  \
-        self._makeFormulaStatements(), indent))
+    sa.add(self._makeFormulaStatements())
     # Assign script variable to the column values
-    statements.extend(TableEvaluator._indent(  \
-        self._makeColumnValuesAssignmentStatements(), indent))
-    # Write the statements to execute
-    file_path = os.path.join(user_directory, GENERATED_FILE)
-    TableEvaluator._writeStatementsToFile(statements, file_path)
+    sa.add(self._makeColumnValuesAssignmentStatements())
     # Create the execution environment for the compiled statements
     globals()['_table'] = self._table
     statement = """
 import api
 s = api.APIFormulas(_table)
 """
-    error = TableEvaluator._executeStatements(statement)
+    envir_sr = StatementRunner(statement)
+    error = envir_sr.execute()
     if error is not None:
       return error
-    # Execute the compiled statements
-    statements = open(file_path).read()
-    error = TableEvaluator._executeStatements(statements)
-    if error is not None:
-      return error
-    return None
-
-
-  @staticmethod
-  def _indent(statements, indent_level):
-    """
-    :param statements: list of statements
-    :param indent_level: integer level of indentation
-    :return: list of indented statements
-    """
-    indents = " " * 2*indent_level
-    result = []
-    for statement in statements:
-      new_statement = statement.replace("\n", "\n" + indents)
-      result.append("%s%s" % (indents, new_statement))
-    return result
+    # Run the statements from a file
+    sr = StatementRunner(sa.get(name="generated"))
+    file_path = os.path.join(user_directory, GENERATED_FILE)
+    sr.writeFile(file_path)
+    return sr.execute()
 
   def _makeAPIPluginInitializationStatements(self, function_name, prefix=""):
     """
@@ -370,67 +338,48 @@ s = api.APIFormulas(_table)
     if function_name is None:
       function_name = DEFAULT_FUNCTION_NAME
     file_name = "%s.py" % function_name
-    indent = 0
-    # File Prolog
-    header_comments = '''# Export of the table %s
+    sa = StatementAccumulator(["export"])
+    # File Prologue
+    statement = '''# Export of the table %s
 
     ''' % self._table.getName()
-    statements = [header_comments]
-    statements.extend(TableEvaluator._indent(
-        self._makePrologStatements(user_directory=user_directory),
-        indent))
-    statements.extend(TableEvaluator._indent([""], indent))
+    sa.add(statement)
+    sa.add(self._makePrologueStatements(
+        user_directory=user_directory))
+    sa.add("")
     # Create the API object
     api_util.writeTableToFile(self._table)  # Update the table
     statement = self._makeAPIPluginInitializationStatements(function_name)
-    statements.extend(TableEvaluator._indent([statement, ""], indent))
+    sa.add(statement)
     # Make the function definition
-    statements.extend(TableEvaluator._indent(
-        [TableEvaluator._makeFunctionStatement(function_name, inputs)],
-        indent))
-    indent += 1
+    sa.add(TableEvaluator._makeFunctionStatement(function_name, 
+        inputs))
+    sa.indent(1)
     # Assign the column values to function variables.
     # Note that inputs and outputs are not assigned.
     excludes = list(inputs)
     excludes.extend(outputs)
-    statements.extend(TableEvaluator._indent(  \
-        self._makeVariableAssignmentStatements(excludes=excludes), indent))
+    sa.add(self._makeVariableAssignmentStatements(excludes=excludes))
     # Create the formula evaluation blocks
-    statements.extend(TableEvaluator._indent(self._makeFormulaStatements(), 
-        indent))
+    sa.add(self._makeFormulaStatements())
     # Make the return statement
-    statement = TableEvaluator._makeReturnStatement(outputs)
-    statements.extend(TableEvaluator._indent([statement], indent))
+    sa.add(TableEvaluator._makeReturnStatement(outputs))
     # Write the main file
     if py_file_path is None:
       py_file_path = os.path.join(user_directory, file_name)
-    error = TableEvaluator._writeStatementsToFile(statements, py_file_path)
+    sr = StatementRunner(sa.get())
+    error = sr.writeFile(py_file_path)
     if error is not None:
       return "Error constructing %s: %s" % (py_file_path, error)
     # Create the test file
     test_statements = self._makeTestStatements(function_name, inputs, outputs)
+    test_sr = StatementRunner(test_statements)
     test_file_name = "test_%s" % file_name
     test_file_path = os.path.join(user_directory, test_file_name)
-    error = TableEvaluator._writeStatementsToFile(test_statements, test_file_path)
+    error = test_sr.writeFile(test_file_path)
     if error is not None:
       return "Error constructing %s: %s" % (test_file_path, error)
     return None
-
-  @staticmethod
-  def _writeStatementsToFile(statements, file_path):
-    """
-    Writes the list of statements to the file
-    :param statements: list of statements
-    :param file_path: path to file
-    :return: error from IO
-    """
-    try:
-      with open(file_path, "w") as file_handle:
-        file_handle.writelines(["%s\n" % s for s in statements])
-      error = None
-    except IOError as err:
-      error = str(err)
-    return error
 
   @staticmethod
   def _makeOutputStr(outputs):
@@ -446,9 +395,9 @@ s = api.APIFormulas(_table)
     :param function_name: string name of the function to be created
     :param inputs: list of column names that are input to the function
     :param outputs: list of columns that are output from the function
-    :return: statements
+    :return str: statements for test file
     """
-    indent = 0
+    sa = StatementAccumulator(["tests"])
     prefix = "self."
     output_str = TableEvaluator._makeOutputStr(outputs)
     statement = '''"""
@@ -466,43 +415,40 @@ import unittest
 # pylint: disable=W0212,C0111,R0904
 class Test%s(unittest.TestCase):
 ''' % (function_name, function_name, function_name, function_name)
-    statements = [statement]
+    sa.add(statement)
     # Construct setup method
-    indent += 1
-    statement = "def setUp(self):"
-    statements.extend(TableEvaluator._indent([statement], indent))
-    indent += 1
-    statement = self._makeAPIPluginInitializationStatements(function_name, 
-        prefix=prefix)
-    statements.extend(TableEvaluator._indent([statement, ""], indent))
-    indent -= 1
+    sa.indent(1)
+    sa.add("def setUp(self):")
+    sa.indent(1)
+    statement = self._makeAPIPluginInitializationStatements(
+        function_name, prefix=prefix)
+    sa.add(statement)
+    sa.indent(-1)
     # Construct the test function header
-    statement = "def testBasics(self):"
-    statements.extend(TableEvaluator._indent([statement], indent))
-    indent += 1
+    sa.add("def testBasics(self):")
+    sa.indent(1)
     # Assign values to the columns
-    statements.extend(TableEvaluator._indent(  \
-        self._makeVariableAssignmentStatements( \
-        prefix=prefix, only_includes=inputs), indent))
+    sa.add(self._makeVariableAssignmentStatements( \
+        prefix=prefix, only_includes=inputs))
     # Construct the call to the function being tested
     statement =  TableEvaluator._makeOutputStr(outputs)
     statement += " = %s(" % function_name
     statement += ",".join(inputs)
     statement += ")"
-    statements.extend(TableEvaluator._indent([statement], indent))
+    sa.add(statement)
     # Construct the tests
     for column_name in outputs:
       statement = "self.assertTrue(self.%s.compareToColumnValues('%s', %s))"  \
           % (API_OBJECT, column_name, column_name)
-      statements.extend(TableEvaluator._indent([statement], indent))
-    indent -= 2
+      sa.add(statement)
+    sa.indent(-2)
     # Write the epilogue
     statement = """
 
 if __name__ == '__main__':
   unittest.main()"""
-    statements.extend(TableEvaluator._indent([statement], indent))
-    return statements
+    sa.add(statement)
+    return sa.get()
 
   @staticmethod
   def _makeReturnStatement(outputs):
@@ -524,27 +470,62 @@ if __name__ == '__main__':
     statement += "):"
     return statement
 
-  @staticmethod
-  def _executeStatements(statements):
+
+class StatementRunner(object):
+  """
+  Runs one or more statements
+  This must be in the same file as the caller because of the way
+  python manages globals.
+  """
+
+  def __init__(self, statement):
     """
-    Executes one or more statements contained in a string
-    :param statements: string or list of str  of one or 
-                       more python statements
-    :return: str error from the execution or None
-    :raises: ValueError if invalid input
+    :param str statement: string of one or more python statement
     """
-    if isinstance(statements, list):
-      statements = '\n'.join(statements)
-    elif isinstance(statements, str):
-      statements = statements
-    else:
-      raise ValueError("Must be a str or list.")
-    # pylint: disable=W0122
+    self._statement = statement
+    self._filepath = None
+
+  def writeFile(self, filepath):
+    """
+    :param str filepath: where statement are written
+    :return str error: error from file I/O
+    """
+    self._filepath = filepath
+    error = None
     try:
-      exec(statements, globals())
-      error = None
-    # pylint: disable=W0703
-    except Exception as err:
-      # Report the error without changing the table
+      with open(self._filepath, "w") as file_handle:
+        file_handle.write(self._statement)
+    except IOError as err:
       error = str(err)
     return error
+
+  def execute(self):
+    """
+    :returns str: error from execution
+    Executes as a string if there is no filepath. Otherwise,
+    executes from the filepath.
+    """
+    error = None
+    if self._filepath is not None:
+      # pylint: disable=W0122
+      try:
+        execfile(self._filepath, globals())
+      # pylint: disable=W0703
+      except Exception as err:
+        # Report the error without changing the table
+        error = err
+    elif len(self._statement) > 0:
+      # pylint: disable=W0122
+      try:
+        exec(self._statement, globals())
+      # pylint: disable=W0703
+      except Exception as err:
+        # Report the error without changing the table
+        error = err
+    if error is not None:
+      # TODO: Better error message
+      #msg = "%s: %s" % (error.msg, error.text)
+      msg = str(error)
+    else:
+      msg = None
+    return msg
