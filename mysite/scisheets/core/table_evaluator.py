@@ -5,7 +5,7 @@ Runs the compiled statements.
 """
 
 import util.api_util as api_util
-from util.statement_manager import StatementAccumulator
+from util.statement_accumulator import StatementAccumulator
 import sys
 import os
 import numpy as np
@@ -264,7 +264,7 @@ from numpy import nan  # Must follow sympy import '''
     statement = '''# Evaluation of the table %s.
 
     ''' % self._table.getName()
-    sa.add(statement)
+    sa.add([statement])
     sa.add(self._makePrologueStatements(
         user_directory=user_directory))
     statement = """
