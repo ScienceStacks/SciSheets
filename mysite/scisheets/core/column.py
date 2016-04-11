@@ -5,8 +5,8 @@
 
 import errors as er
 import numpy as np
-import util.cell_types as cell_types
-import util.api_util as api_util
+import helpers.cell_types as cell_types
+import helpers.api_util as api_util
 
 
 ########### CLASSES ##################

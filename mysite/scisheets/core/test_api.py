@@ -5,7 +5,7 @@ import helpers_test as ht
 import table_evaluator as te
 import numpy as np
 import os
-from util.trinary import Trinary
+from helpers.trinary import Trinary
 import unittest
 
 COLUMN1 = "Col_1"

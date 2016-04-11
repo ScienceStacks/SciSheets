@@ -2,7 +2,7 @@
 
 from django.http import HttpResponse
 from ..core.errors import InternalError
-from ..core.util.api_util import getTableFromFile, writeTableToFile
+from ..core.helpers.api_util import getTableFromFile, writeTableToFile
 from ..ui.dt_table import DTTable
 import mysite.helpers.util as ut
 import mysite.settings as st

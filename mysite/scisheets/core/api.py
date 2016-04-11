@@ -11,9 +11,9 @@ The API consists of these parts:
 
 from column import Column
 from table import Table
-import util.api_util as api_util
-from util.trinary import Trinary
-from util.combinatoric_list import CombinatoricList
+import helpers.api_util as api_util
+from helpers.trinary import Trinary
+from helpers.combinatoric_list import CombinatoricList
 import collections
 import os
 import numpy as np

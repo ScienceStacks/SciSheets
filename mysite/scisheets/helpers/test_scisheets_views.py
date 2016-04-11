@@ -5,7 +5,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
 from ..core.helpers_test import TableFileHelper
-from ..core.util.api_util import getTableFromFile, writeTableToFile
+from ..core.helpers.api_util import getTableFromFile, writeTableToFile
 import json
 import mysite.helpers.util as ut
 import scisheets_views as sv

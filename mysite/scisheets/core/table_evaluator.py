@@ -4,8 +4,8 @@ Sets up the runtime environment.
 Runs the compiled statements.
 """
 
-import util.api_util as api_util
-from util.statement_accumulator import StatementAccumulator
+import helpers.api_util as api_util
+from helpers.statement_accumulator import StatementAccumulator
 import sys
 import os
 import numpy as np

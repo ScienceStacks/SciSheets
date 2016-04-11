@@ -6,7 +6,7 @@ import numpy as np
 from os.path import join
 import shutil
 from table_evaluator import TableEvaluator
-import util.api_util as api_util
+import helpers.api_util as api_util
 from helpers_test import createTable, stdoutIO, TableFileHelper, \
     TEST_DIR
 import unittest

@@ -1,0 +1,9 @@
+*.pyc
+*_generated.*
+test_dir
+!test_dir/my_api.py
+guest/python
+!guest/python/my_api.py
+!guest/python/__init__.pyc
+!guest/python/*intercept.py
+!guest/python/*slope.py

@@ -18,7 +18,7 @@ done
 if [ $# -eq 0 ]; then
   file_list=`ls test_*.py | grep -v generated`
   runTests $file_list
-  cd util
+  cd helpers
   runTests `ls test_*.py `
 else
   runTests $1

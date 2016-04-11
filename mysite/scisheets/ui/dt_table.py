@@ -4,7 +4,7 @@
 
 from django.shortcuts import render
 from django.template.loader import get_template
-from scisheets.core.util.cell_types import isFloats
+from scisheets.core.helpers.cell_types import isFloats
 from ui_table import UITable
 from mysite import settings as st
 import numpy as np

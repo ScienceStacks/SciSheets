@@ -60,7 +60,7 @@ p27
 NsbsS'_data_class'
 p28
 g0
-(cscisheets.core.util.api_util
+(cscisheets.core.helpers.api_util
 DataClass
 p29
 c__builtin__
@@ -69,7 +69,7 @@ p30
 (cnumpy
 ndarray
 p31
-cscisheets.core.util.api_util
+cscisheets.core.helpers.api_util
 makeArray
 p32
 tp33
