@@ -1,12 +1,8 @@
 Serve page from Django
 
-0.1 Refactoring test_evaluator to use StatementManager and
-    StatementRunner
- (a) tests for SM and SR
-
-0.2 Script files
-  Create separate script file named main_function that has the
-  table imports uncommented.
+0.1 Refactoring table_evaluator into ProgramGenerator
+  (a) Construct tests for ProgramGenerator and run
+  (b) Construct new tests for table_evaluator
 
 0.3 Complete truth tables?
 

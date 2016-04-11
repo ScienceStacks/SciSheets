@@ -1,6 +1,8 @@
 """
 Compiles Python statements to evaluates formulas in a Table.
 Sets up the runtime environment.
+  1. Write updated table to appropriate destination
+  2. Create the API object for the script
 Runs the compiled statements.
 """
 
