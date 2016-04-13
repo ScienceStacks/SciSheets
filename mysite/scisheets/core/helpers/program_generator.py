@@ -2,7 +2,7 @@
 Compiles Python statements that evaluate formulas in a Table.
 """
 
-from helpers.statement_accumulator import StatementAccumulator
+from statement_accumulator import StatementAccumulator
 import os
 import numpy as np
 
@@ -11,6 +11,33 @@ IGNORE_PREFIX = ['main_', 'test_', '__']
 PY_SUFFIX = ".py"
 API_OBJECT = "s"
 
+
+
+################## INTERNAL FUNCTIONS#################
+def _makeOutputStr(outputs):
+  """
+  :param outputs: list of columns that are output from the function
+  :return: statement
+  """
+  return ",".join(outputs)
+
+def _makeReturnStatement(outputs):
+  """
+  :param outputs: list of columns that are output from the function
+  :return: statements
+  """
+  return "\nreturn %s" % _makeOutputStr(outputs)
+
+def _makeFunctionStatement(function_name, inputs):
+  """
+  :param function_name: string name of the function to be created
+  :param inputs: list of column names that are input to the function
+  :return: statements
+  """
+  statement = "def %s(" % function_name
+  statement += ",".join(inputs)
+  statement += "):"
+  return statement
 
 
 ######################## CLASSES ####################
@@ -111,8 +138,7 @@ _table = api.getTableFromFile('%s')
     statement = self._makeAPIPluginInitializationStatements(function_name)
     sa.add(statement)
     # Make the function definition
-    sa.add(TableEvaluator._makeFunctionStatement(function_name, 
-        inputs))
+    sa.add(_makeFunctionStatement(function_name, inputs))
     sa.indent(1)
     # Assign the column values to function variables.
     # Note that inputs and outputs are not assigned.
@@ -122,7 +148,7 @@ _table = api.getTableFromFile('%s')
     # Create the formula evaluation blocks
     sa.add(self._makeFormulaStatements())
     # Make the return statement
-    sa.add(TableEvaluator._makeReturnStatement(outputs))
+    sa.add(_makeReturnStatement(outputs))
     return sa.get()
 
   def makeTestProgram(self,
@@ -138,7 +164,7 @@ _table = api.getTableFromFile('%s')
     """
     sa = StatementAccumulator()
     prefix = "self."
-    output_str = TableEvaluator._makeOutputStr(outputs)
+    output_str = _makeOutputStr(outputs)
     statement = '''"""
 Tests for %s
 """
@@ -170,7 +196,7 @@ class Test%s(unittest.TestCase):
     sa.add(self._makeVariableAssignmentStatements( \
         prefix=prefix, only_includes=inputs))
     # Construct the call to the function being tested
-    statement =  TableEvaluator._makeOutputStr(outputs)
+    statement =  _makeOutputStr(outputs)
     statement += " = %s(" % function_name
     statement += ",".join(inputs)
     statement += ")"
@@ -296,7 +322,7 @@ if __name__ == '__main__':
             if fc.getFormula() is not None
               and exclude not in fc.getFormula()]
 
-  def _makePrologueStatements(self)
+  def _makePrologueStatements(self):
     """
     Creates the imports that go at the head of the file
     :return: list of statements constructed
@@ -374,32 +400,4 @@ from numpy import nan  # Must follow sympy import '''
     table_filepath = self._table.getFilepath()
     statement = """%s = api.APIPlugin('%s')
 %s.initialize()""" % (full_object, table_filepath, full_object)
-    return statement
-
-  @staticmethod
-  def _makeOutputStr(outputs):
-    """
-    :param outputs: list of columns that are output from the function
-    :return: statement
-    """
-    return ",".join(outputs)
-
-  @staticmethod
-  def _makeReturnStatement(outputs):
-    """
-    :param outputs: list of columns that are output from the function
-    :return: statements
-    """
-    return "\nreturn %s" % TableEvaluator._makeOutputStr(outputs)
-
-  @staticmethod
-  def _makeFunctionStatement(function_name, inputs):
-    """
-    :param function_name: string name of the function to be created
-    :param inputs: list of column names that are input to the function
-    :return: statements
-    """
-    statement = "def %s(" % function_name
-    statement += ",".join(inputs)
-    statement += "):"
     return statement
