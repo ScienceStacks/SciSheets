@@ -4,6 +4,7 @@
 
 from django.shortcuts import render
 from django.template.loader import get_template
+from scisheets.core.helpers.api_util import getFileNameWithoutExtension
 from scisheets.core.helpers.cell_types import isFloats
 from ui_table import UITable
 from mysite import settings as st
@@ -44,6 +45,8 @@ def makeJSON(column_names, data):
       elif isinstance(item, float):
         if np.isnan(float(item)):
           value = ""
+        else:
+          value = str(item)
       elif item == 'nan':
         value = ""
       else:
@@ -57,7 +60,6 @@ def makeJSON(column_names, data):
       result += ","
   result += "]"
   return result
-
 
 
 class DTTable(UITable):
@@ -75,7 +77,7 @@ class DTTable(UITable):
     """
     return '`%s`' % str(in_string)
 
-  def render(self, table_id="scitable", table_file=""):
+  def render(self, table_id="scitable"):
     """
     Input: table_id - how the table is identified in the HTML
     Output: html rendering of the Table
@@ -94,6 +96,7 @@ class DTTable(UITable):
       formula_dict[column_names[nn]] = formulas[nn]
     data = makeJSON(column_names, column_data)
     indicies = range(len(column_names))
+    table_file = getFileNameWithoutExtension(self.getFilepath())
     ctx_dict = {'column_names': column_names,
                 'final_column_name': column_names[-1],
                 'table_caption': self.getName(),

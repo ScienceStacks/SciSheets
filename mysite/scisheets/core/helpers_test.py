@@ -76,6 +76,25 @@ def createTable(name, column_name=None):
   pickle.dump(table, open(TABLE_FILEPATH, "wb"))
   return table
 
+def compareTableData(table1, table2, excludes=None):
+  """
+  Compares the data in the tables.
+  :param Table table1, table2:
+  :param list-of-int excludes: column indicies excluded from the comparison
+  :return bool: True if comparison matches
+  """
+  if excludes is None:
+    excludes = []
+  if table1.numColumns() != table2.numColumns():
+    return False
+  for idx in range(table1.numColumns()):
+    if not idx in excludes:
+      data1 = table1._columns[idx].getCells()
+      data2 = table2._columns[idx].getCells()
+      if data1 != data2:
+        return False
+  return True
+
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
   """

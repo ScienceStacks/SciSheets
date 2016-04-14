@@ -1,16 +1,18 @@
 '''Tests for scisheets_views'''
 
 from mysite import settings as st
+import mysite.helpers.util as ut
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
-from ..core.helpers_test import TableFileHelper
+from ..core.helpers_test import TableFileHelper, TEST_DIR,  \
+    compareTableData
 from ..core.helpers.api_util import getTableFromFile, writeTableToFile
-import json
-import mysite.helpers.util as ut
 import scisheets_views as sv
-import os
+import json
 import numpy as np
+import os
+import shutil
 
 # Keys used inside the server
 DICT_NAMES =  ["command", "target", "table_name", "column_index", "row_index", "value"]
@@ -20,7 +22,6 @@ NCOL = 3
 NROW = 4
 BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
-
 
 
 
@@ -53,10 +54,10 @@ class TestScisheetsViews(TestCase):
     ajax_cmd['args[]'] = None
     return ajax_cmd
 
-  def _createBaseTable(self):
+  def _createBaseTable(self, params=TABLE_PARAMS):
     # Create the table
     # Output - response from command
-    create_table_url = self._createBaseURL(params=TABLE_PARAMS)
+    create_table_url = self._createBaseURL(params=params)
     return self.client.get(create_table_url)
 
   def _createBaseURL(self, params=None):
@@ -466,8 +467,10 @@ class TestScisheetsViews(TestCase):
     # Inputs: column_idx - index of column whose formula is changed
     #         formula - new formula for column
     #         isValid - is a valid formula
+    # Assumes that formula ony changes column_idx
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
+    old_table = table.copy()
     column = table.columnFromIndex(column_idx)
     old_formula = column.getFormula()
     # Reset the formula
@@ -489,6 +492,10 @@ class TestScisheetsViews(TestCase):
     else:
       self.assertFalse(content["success"])
       self.assertEqual(old_formula, new_column.getFormula())
+    # Check the columns
+    self.assertTrue(compareTableData(old_table, 
+                                     new_table, 
+                                     excludes=[column_idx]))
 
   def testCommandColumnFormula(self):
     self._formulaColumn(NCOL - 1, "np.sin(2.3)", True)  # Valid formula
@@ -704,6 +711,53 @@ class TestScisheetsViews(TestCase):
     error = table.evaluate()
     self.assertTrue(content["success"])
     self.assertEqual(table.numRows(), num_rows)
+
+  def _setFormula(self, formula, column_idx):
+    """
+    Sets the formula for the column index
+    :param str formula:
+    :param int column_idx
+    :return HTTP response:
+    """
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Formula"
+    ajax_cmd['column'] = column_idx
+    ajax_cmd['args[]'] = formula
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
+    self.assertTrue(content["success"])
+    #table = self._getTableFromResponse(response)
+    return response
+
+  def testTableWithLists(self):
+    nrow = NROW + 1
+    ncol = 4
+    formula_columns = [3, 2]
+    formula1 = '''xx = range(1,%d)
+Col_2 = []
+for x in xx:
+  Col_2.append(range(x))
+''' % nrow
+    formula2 = """Col_1 = []
+for x in Col_2:
+  Col_1.append(np.average(x))
+"""
+    base_response = self._createBaseTable(params=[NROW, ncol])
+    old_table = self._getTableFromResponse(base_response)
+    # Change the first formula
+    response = self._setFormula(formula1, formula_columns[0])
+    # Change the second formula
+    response = self._setFormula(formula2, formula_columns[1])
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    error = new_table.evaluate()
+    self.assertEqual(new_table.numColumns(), old_table.numColumns())
+    self.assertTrue(compareTableData(old_table, new_table, excludes=formula_columns))
+    val = new_table._columns[formula_columns[1]].getCells()[1]
+    self.assertEqual(val, 0.5)
 
 
 if __name__ == '__main__':
