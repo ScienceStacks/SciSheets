@@ -173,6 +173,13 @@ class Column(object):
     """
     return self._cells
 
+  def getTypeForCells(self):
+    """
+    :return cell_type.XType: type assigned to the column of cells
+    """
+    return cell_types.getIterableType(self._cells)
+ 
+
   def getDataClass(self):
     """
     Returns the class (e.g., np.array, Trinary)

@@ -188,8 +188,9 @@ def isFloats(values):
   """
   if not isinstance(values, collections.Iterable):
     values = [values]
-  dtype = np.array(values).dtype
-  return dtype == np.float64  # pylint: disable=E1101
+  computed_type = getIterableType(values)
+  expected_type = XFloat  # Must do assignment to get correct format
+  return computed_type == expected_type
 
 def getType(val):
   """
@@ -212,6 +213,20 @@ def getType(val):
     except ValueError:
       pass
   return object
+
+def getIterableType(values):
+  """
+  Finds the most restrictive type for the set of values
+  :param values: iterable
+  :return: type of int, XInt, float, XFloat, bool, XBool, str, object, None
+  """
+  types_of_values = [getType(x) for x in values]
+  selected_types = [object, unicode, str, XFloat, XInt, XBool, None]
+  for typ in selected_types:
+    this_type = typ
+    if this_type in types_of_values:
+      return typ
+  
 
 def coerceData(data):
   """

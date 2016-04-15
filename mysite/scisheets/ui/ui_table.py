@@ -5,6 +5,7 @@
 from scisheets.core.table import Table
 from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
+from scisheets.core.helpers.cell_types import getType
 from mysite.helpers import util as ut
 from mysite import settings as st
 import collections
@@ -155,12 +156,22 @@ class UITable(Table):
     # Processes a UI request for a Cell
     # Input: cmd_dict - dictionary with the keys
     # Output: response - response to user
+    types = [int, str, bool, unicode]
     error = None
     command = cmd_dict["command"]
     if command == "Update":
-      self.updateCell(cmd_dict["value"], 
-                      cmd_dict["row_index"], 
-                      cmd_dict["column_index"])
+      column = self.columnFromIndex(cmd_dict["column_index"])
+      if column.getTypeForCells() == object:
+        error = "Cannot update cells for the types in column %s"  \
+           % column.getName()
+      else:
+        value = cmd_dict["value"]
+        value_type = getType(value)
+        if value_type  == object:
+          value = str(value)
+        self.updateCell(value,
+                        cmd_dict["row_index"], 
+                        cmd_dict["column_index"])
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)

@@ -1,8 +1,9 @@
 '''Evaluates formulas in a Table.'''
 
-import pickle
-import numpy as np
 import collections
+import numpy as np
+import os
+import pickle
 
 THRESHOLD = 0.01  # Threshold for value comparisons
 
@@ -104,3 +105,14 @@ def compareIterables(iter1, iter2):
           is_equal = False
           break
   return is_equal
+
+def getFileNameWithoutExtension(file_path):
+  """
+  Input: file_path - full path to the file
+  Output: file_name - just the name, without extension
+  """
+  if file_path is None:
+    return None
+  full_file_name = os.path.split(file_path)[1]
+  pos = full_file_name.index(".")
+  return full_file_name[:pos]

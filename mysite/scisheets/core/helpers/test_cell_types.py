@@ -13,9 +13,10 @@ class TestUtil(unittest.TestCase):
     pass
 
   def testIsFloat(self):
-    self.assertTrue(cell_types.isFloats(4.0))
-    self.assertTrue(cell_types.isFloats([4.0, 3.0]))
-    self.assertTrue(cell_types.isFloats([4.0, np.nan, 3.0]))
+    self.assertTrue(cell_types.isFloats(4.1))
+    self.assertFalse(cell_types.isFloats(4.0))
+    self.assertTrue(cell_types.isFloats([4.1, 3.0]))
+    self.assertTrue(cell_types.isFloats([4.1, np.nan, 3.0]))
     self.assertFalse(cell_types.isFloats(range(4)))
     self.assertFalse(cell_types.isFloats([3, 4, None]))
     self.assertFalse(cell_types.isFloats([3, 4, None, 'a']))
@@ -49,6 +50,12 @@ class TestUtil(unittest.TestCase):
     values.append(None)
     array = np.array(cell_types.coerceData(values))
     self.assertEqual(array.dtype, object)
+    array = np.array(cell_types.coerceData([ 1, 2, '[1, 2]']))
+    self.assertTrue(str(array.dtype)[1]=='S')
+    array = np.array(cell_types.coerceData([ 'aa', 'bb', '[1, 2]']))
+    self.assertTrue(str(array.dtype)[1]=='S')
+    array = np.array(cell_types.coerceData([ 1.1, 2, '[1, 2]']))
+    self.assertTrue(str(array.dtype)[1]=='S')
 
   def testCoerceData(self):
     self._CoerceData([1.0, 1], np.int64)
@@ -64,6 +71,15 @@ class TestUtil(unittest.TestCase):
     array = np.array(coerced_values)
     self.assertFalse(isinstance(values, np.float64))
     self.assertFalse(isinstance(values, np.int64))
+
+  def testIterableType(self):
+    self.assertEqual(cell_types.getIterableType([1,2]), 
+      cell_types.XInt)
+    self.assertEqual(cell_types.getIterableType([1.1, 2]),
+      cell_types.XFloat)
+    self.assertEqual(cell_types.getIterableType([True, False]),
+      cell_types.XBool)
+    self.assertEqual(cell_types.getIterableType([[1,2], [3]]), object)
 
 
 

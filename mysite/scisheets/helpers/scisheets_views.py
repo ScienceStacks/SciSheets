@@ -2,7 +2,8 @@
 
 from django.http import HttpResponse
 from ..core.errors import InternalError
-from ..core.helpers.api_util import getTableFromFile, writeTableToFile
+from ..core.helpers.api_util import getTableFromFile, \
+    writeTableToFile, getFileNameWithoutExtension
 from ..ui.dt_table import DTTable
 import mysite.helpers.util as ut
 import mysite.settings as st
@@ -82,17 +83,6 @@ def createCommandDict(request):
 def _makeAjaxResponse(data, success):
   return {'data': data, 'success': success}
 
-def _getFileNameWithoutExtension(file_path):
-  """
-  Input: file_path - full path to the file
-  Output: file_name - just the name, without extension
-  """
-  if file_path is None:
-    return None
-  full_file_name = os.path.split(file_path)[1]
-  pos = full_file_name.index(".")
-  return full_file_name[:pos]
-
 def _createTableFilepath(file_name):
   """
   Input: file_name - name of file without extension
@@ -153,7 +143,7 @@ def getTable(request):
   if table_file_path is None:
     return None
   else:
-    return getTableFromFile(table_file_path)
+    return getTableFromFile(table_file_path, verify=False)
 
 def _createRandomFileName():
   handle = tempfile.NamedTemporaryFile()
@@ -180,7 +170,7 @@ def saveTable(request, table):
       handle = tempfile.NamedTemporaryFile()
       table_filepath = handle.name
       handle.close()
-  _setTableFilepath(request, table, table_filepath)
+  _setTableFilepath(request, table, table_filepath, verify=False)
   writeTableToFile(table)
 
 
@@ -196,8 +186,7 @@ def scisheets(request, ncol, nrow):
   table = DTTable.createRandomTable("Demo", nrow, ncol,
       ncolstr=ncolstr)
   _setTableFilepath(request, table, LOCAL_FILE, verify=False)
-  table_file = table.getFilepath()
-  html = table.render(table_file=table_file)
+  html = table.render()
   saveTable(request, table)
   return HttpResponse(html)
 
@@ -283,6 +272,5 @@ def scisheets_reload(request):
     html = "No session found"
   else:
     table.evaluate()  # Saves the changes to the table in the Table File
-    table_file = _getFileNameWithoutExtension(table.getFilepath())
-    html = table.render(table_file=table_file)
+    html = table.render()
   return HttpResponse(html)
