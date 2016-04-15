@@ -155,12 +155,18 @@ class UITable(Table):
     # Processes a UI request for a Cell
     # Input: cmd_dict - dictionary with the keys
     # Output: response - response to user
+    types = [int, str, bool, unicode]
     error = None
     command = cmd_dict["command"]
     if command == "Update":
-      self.updateCell(cmd_dict["value"], 
-                      cmd_dict["row_index"], 
-                      cmd_dict["column_index"])
+      column = self.columnFromIndex(cmd_dict["column_index"])
+      if column.getTypeForCells() == object:
+        error = "Cannot update the cell types in column %s"  \
+           % column.getName()
+      else:
+        self.updateCell(cmd_dict["value"], 
+                        cmd_dict["row_index"], 
+                        cmd_dict["column_index"])
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)

@@ -183,10 +183,13 @@ class TestScisheetsViews(TestCase):
     response = self.client.get(refresh_url)
     self._verifyResponse(response, checkSessionid=False)
 
-  def _testCommandCellUpdate(self, row_index, val):
-    response = self._createBaseTable()
-    table = self._getTableFromResponse(response)
-    column_index = self._findColumnWithType(table, val)
+  def _testCommandCellUpdate(self, row_index, val, 
+      table=None, column_index=None, valid=True):
+    if table is None:
+      response = self._createBaseTable()
+      table = self._getTableFromResponse(response)
+    if column_index is None:
+      column_index = self._findColumnWithType(table, val)
     # Do the cell update
     create_table_url = self._createBaseURL()
     ajax_cmd = self._ajaxCommandFactory()
@@ -198,10 +201,13 @@ class TestScisheetsViews(TestCase):
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=create_table_url)
     response = self.client.get(command_url)
     table = self._getTableFromResponse(response)
-    self.assertEqual(table.getCell(row_index, column_index), val)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("data"))
-    self.assertEqual(content["data"], "OK")
+    if valid:
+      self.assertEqual(content["data"], "OK")
+      self.assertEqual(table.getCell(row_index, column_index), val)
+    else:
+      self.assertNotEqual(content["data"], "OK")
 
   def _findColumnWithType(self, table, val):
     # Inputs: table - table being analyzed
@@ -219,10 +225,21 @@ class TestScisheetsViews(TestCase):
     return result
 
   def testCommandCellUpdate(self):
+    return
     ROW_INDEX = NROW - 1
     self._testCommandCellUpdate(ROW_INDEX, 9999)
     self._testCommandCellUpdate(ROW_INDEX, "aaa")
     self._testCommandCellUpdate(ROW_INDEX, "aaa bb")
+
+  def testCommandCellUpdateWithList(self):
+    ROW_INDEX = NROW - 1
+    response = self._createBaseTable()
+    table = self._getTableFromResponse(response)
+    column_index = 1
+    table.updateCell([1,2,3], ROW_INDEX, column_index)
+    writeTableToFile(table)
+    self._testCommandCellUpdate(ROW_INDEX, 2, valid=False, 
+        table=table, column_index=column_index)
 
   def _getTableFromResponse(self, response):
     table_filepath = response.client.session[sv.TABLE_FILE_KEY]
