@@ -5,6 +5,7 @@
 from scisheets.core.table import Table
 from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
+from scisheets.core.helpers.cell_types import getType
 from mysite.helpers import util as ut
 from mysite import settings as st
 import collections
@@ -161,10 +162,14 @@ class UITable(Table):
     if command == "Update":
       column = self.columnFromIndex(cmd_dict["column_index"])
       if column.getTypeForCells() == object:
-        error = "Cannot update the cell types in column %s"  \
+        error = "Cannot update cells for the types in column %s"  \
            % column.getName()
       else:
-        self.updateCell(cmd_dict["value"], 
+        value = cmd_dict["value"]
+        value_type = getType(value)
+        if value_type  == object:
+          value = str(value)
+        self.updateCell(value,
                         cmd_dict["row_index"], 
                         cmd_dict["column_index"])
     else:

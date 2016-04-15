@@ -50,6 +50,12 @@ class TestUtil(unittest.TestCase):
     values.append(None)
     array = np.array(cell_types.coerceData(values))
     self.assertEqual(array.dtype, object)
+    array = np.array(cell_types.coerceData([ 1, 2, '[1, 2]']))
+    self.assertTrue(str(array.dtype)[1]=='S')
+    array = np.array(cell_types.coerceData([ 'aa', 'bb', '[1, 2]']))
+    self.assertTrue(str(array.dtype)[1]=='S')
+    array = np.array(cell_types.coerceData([ 1.1, 2, '[1, 2]']))
+    self.assertTrue(str(array.dtype)[1]=='S')
 
   def testCoerceData(self):
     self._CoerceData([1.0, 1], np.int64)

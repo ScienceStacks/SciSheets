@@ -183,7 +183,7 @@ class TestScisheetsViews(TestCase):
     response = self.client.get(refresh_url)
     self._verifyResponse(response, checkSessionid=False)
 
-  def _testCommandCellUpdate(self, row_index, val, 
+  def _testCommandCellUpdate(self, row_index, val, check_value=True,
       table=None, column_index=None, valid=True):
     if table is None:
       response = self._createBaseTable()
@@ -195,7 +195,7 @@ class TestScisheetsViews(TestCase):
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Cell'
     ajax_cmd['command'] = 'Update'
-    ajax_cmd['row'] = table. _rowNameFromIndex(row_index)
+    ajax_cmd['row'] = table._rowNameFromIndex(row_index)
     ajax_cmd['column'] = column_index
     ajax_cmd['value'] = val
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=create_table_url)
@@ -205,9 +205,11 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content.has_key("data"))
     if valid:
       self.assertEqual(content["data"], "OK")
-      self.assertEqual(table.getCell(row_index, column_index), val)
+      if check_value:
+        self.assertEqual(table.getCell(row_index, column_index), val)
     else:
       self.assertNotEqual(content["data"], "OK")
+    return table
 
   def _findColumnWithType(self, table, val):
     # Inputs: table - table being analyzed
@@ -231,7 +233,8 @@ class TestScisheetsViews(TestCase):
     self._testCommandCellUpdate(ROW_INDEX, "aaa")
     self._testCommandCellUpdate(ROW_INDEX, "aaa bb")
 
-  def testCommandCellUpdateWithList(self):
+  def testCommandCellUpdateWithColumnListData(self):
+    return
     ROW_INDEX = NROW - 1
     response = self._createBaseTable()
     table = self._getTableFromResponse(response)
@@ -240,6 +243,15 @@ class TestScisheetsViews(TestCase):
     writeTableToFile(table)
     self._testCommandCellUpdate(ROW_INDEX, 2, valid=False, 
         table=table, column_index=column_index)
+
+  def testCommandCellUpdateWithValueAsList(self):
+    ROW_INDEX = NROW - 1
+    value = [1, 2]
+    column_index = 1
+    table = self._testCommandCellUpdate(ROW_INDEX, value, 
+        column_index=column_index, check_value=False)
+    self.assertEqual(table.getCell(ROW_INDEX, column_index),
+        str(value))
 
   def _getTableFromResponse(self, response):
     table_filepath = response.client.session[sv.TABLE_FILE_KEY]
