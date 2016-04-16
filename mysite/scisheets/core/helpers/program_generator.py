@@ -83,7 +83,7 @@ class ProgramGenerator(object):
     self._table = table
     self._user_directory = user_directory
 
-  def makeScriptProgram(self, create_API_object=False):
+  def makeEvaluationScriptProgram(self, create_API_object=False):
     """
     Creates a python script that evaluates the table formulas
     :param bool create_API_object: True means that code will be generated
@@ -115,6 +115,45 @@ _table = api.getTableFromFile('%s')
     sa.add(self._makeFormulaStatements())
     # Assign script variable to the column values
     sa.add(self._makeColumnValuesAssignmentStatements())
+    return sa.get()
+
+  def makeExportScriptProgram(self):
+    """
+    Creates an exported python script.
+    :return str program: Program as a string
+    """
+    sa = StatementAccumulator()
+    # File Prologue
+    statement = '''# Script that runs formulas in the table %s.
+
+    ''' % self._table.getName()
+    sa.add(statement)
+    sa.add(self._makePrologue())
+    statement = """
+_table = api.getTableFromFile('%s')
+%s = api.APIFormulas(_table) 
+""" % (self._table.getFilepath(), API_OBJECT) 
+    sa.add(statement)
+    # Assign the column values to script variables
+    sa.add(self._makeVariableAssignmentStatements())
+    # Create the formula evaluation blocks
+    sa.add(self._makeFormulaStatements())
+    # Print the results
+    sa.add(self._makeVariablePrintStatements())
+    return sa.get()
+
+  def _makeVariablePrintStatements(self):
+    """
+    Creates the print statements for all variables in the table.
+    For each variable A:
+      print ('A = %s' % str(A))
+    :return str statements:
+    """
+    sa = StatementAccumulator()
+    for column in self._table.getColumns():
+      statement = """print ('%%s =  %%s' %% ("%s", str(%s))) """ %  \
+          (column.getName(), column.getName())
+      sa.add(statement)
     return sa.get()
 
   def makeFunctionProgram(self, function_name, inputs, outputs):

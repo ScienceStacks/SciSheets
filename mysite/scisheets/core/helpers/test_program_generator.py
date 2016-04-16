@@ -4,6 +4,7 @@ import program_generator as pg
 from ..helpers_test import createTable,  \
     stdoutIO, TableFileHelper, TEST_DIR
 from ...core import column as cl
+from api_util import writeTableToFile
 import os
 import numpy as np
 import shutil
@@ -90,6 +91,7 @@ class TestProgramGenerator(unittest.TestCase):
     self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)
     self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA,
                                                 formula=VALID_FORMULA)
+    writeTableToFile(self.table)
     self.pgm_gen = pg.ProgramGenerator(self.table, TEST_DIR)
 
   def _addColumn(self, name, cells=None, formula=None):
@@ -147,6 +149,11 @@ class TestProgramGenerator(unittest.TestCase):
     columns = self.pgm_gen._formulaColumns()
     self.assertEqual(len(columns), 0)
 
+  def testMakeVariablePrintStatements(self):
+    statements = self.pgm_gen._makeVariablePrintStatements()
+    for column in self.table.getColumns():
+      self.assertTrue(column.getName() in statements)
+
   def testMakePrologue(self):
     statements = self.pgm_gen._makePrologue()
     self.assertTrue('import' in statements)
@@ -183,16 +190,26 @@ class TestProgramGenerator(unittest.TestCase):
         import pdb; pdb.set_trace()
       self.assertTrue(last_index < current_index)
       last_index = current_index
+    error = _compile(program)
+    if error is not None:
+      import pdb; pdb.set_trace()
     self.assertIsNone(_compile(program))
 
-  def testMakeScriptProgram(self):
+  def testMakeEvaluationScriptProgram(self):
     tags = ["import", "#_table", "getColumnValues", "np.sin", \
         "setColumnValues"]
-    program = self.pgm_gen.makeScriptProgram()
+    program = self.pgm_gen.makeEvaluationScriptProgram()
     self._checkWorkflow(program, tags)
     tags = ["import", "_table", "getColumnValues", "np.sin", \
         "setColumnValues"]
-    program = self.pgm_gen.makeScriptProgram(create_API_object=True)
+    program = self.pgm_gen.makeEvaluationScriptProgram(
+        create_API_object=True)
+    self._checkWorkflow(program, tags)
+
+  def testMakeExportScriptProgram(self):
+    tags = ["import", "_table", "getColumnValues", "np.sin", \
+        "print"]
+    program = self.pgm_gen.makeExportScriptProgram()
     self._checkWorkflow(program, tags)
 
   def testMakeFunctionProgram(self):
@@ -200,14 +217,14 @@ class TestProgramGenerator(unittest.TestCase):
     inputs = ["A", "B"]
     outputs = ["C"]
     def_stmt = "def %s(" % function_name
-    tags = ["import", "api.APIPlugin", "getColumnValues",  \
-        def_stmt, "np.sin", "return"]
+    tags = ["import", "api.APIPlugin", def_stmt,  \
+        "getColumnValues", "np.sin", "return"]
     program = self.pgm_gen.makeFunctionProgram(function_name,
                                                inputs,
                                                outputs)
     self._checkWorkflow(program, tags)
 
-  def testMakeFunctionProgram(self):
+  def testMakeTestProgram(self):
     function_name = "my_func"
     inputs = ["A", "B"]
     output = "C"
