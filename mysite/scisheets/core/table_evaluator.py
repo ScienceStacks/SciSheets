@@ -47,7 +47,7 @@ class TableEvaluator(object):
     # Run the statements from a file
     sr = ProgramRunner(program, user_directory, GENERATED_FILE)
     sr.writeFile()
-    return sr.execute(createAPIObject=True)
+    return sr.execute(create_API_object=True)
 
   def export(self,
              function_name=None,

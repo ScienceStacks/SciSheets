@@ -83,10 +83,10 @@ class ProgramGenerator(object):
     self._table = table
     self._user_directory = user_directory
 
-  def makeScriptProgram(self, createAPIObject=False):
+  def makeScriptProgram(self, create_API_object=False):
     """
     Creates a python script that evaluates the table formulas
-    :param bool createAPIObject: True means that code will be generated
+    :param bool create_API_object: True means that code will be generated
                                  that creates the API object.
     :return str program: Program as a string
     """
@@ -97,7 +97,7 @@ class ProgramGenerator(object):
     ''' % self._table.getName()
     sa.add(statement)
     sa.add(self._makePrologue())
-    if createAPIObject:
+    if create_API_object:
       statement = """
 _table = api.getTableFromFile('%s')
 %s = api.APIFormulas(_table) 

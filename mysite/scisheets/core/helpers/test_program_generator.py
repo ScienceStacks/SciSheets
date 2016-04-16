@@ -163,6 +163,61 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertTrue(self.table.getFilepath() in statements)
     self.assertTrue("initialize()" in statements)
     self.assertIsNone(_compile(statements))
+
+  def _checkWorkflow(self, program, tags):
+    """
+    Verifies that the tags occur in order in the program
+    :param str program:
+    :param list-of-str tags:
+    """
+    last_index = 0
+    error = None
+    for tag in tags:
+      try:
+        current_index = program.index(tag)
+      except ValueError as err:
+        import pdb; pdb.set_trace()
+        error = str(err)
+      self.assertIsNone(error)
+      if not(last_index < current_index):
+        import pdb; pdb.set_trace()
+      self.assertTrue(last_index < current_index)
+      last_index = current_index
+    self.assertIsNone(_compile(program))
+
+  def testMakeScriptProgram(self):
+    tags = ["import", "#_table", "getColumnValues", "np.sin", \
+        "setColumnValues"]
+    program = self.pgm_gen.makeScriptProgram()
+    self._checkWorkflow(program, tags)
+    tags = ["import", "_table", "getColumnValues", "np.sin", \
+        "setColumnValues"]
+    program = self.pgm_gen.makeScriptProgram(create_API_object=True)
+    self._checkWorkflow(program, tags)
+
+  def testMakeFunctionProgram(self):
+    function_name = "my_func"
+    inputs = ["A", "B"]
+    outputs = ["C"]
+    def_stmt = "def %s(" % function_name
+    tags = ["import", "api.APIPlugin", "getColumnValues",  \
+        def_stmt, "np.sin", "return"]
+    program = self.pgm_gen.makeFunctionProgram(function_name,
+                                               inputs,
+                                               outputs)
+    self._checkWorkflow(program, tags)
+
+  def testMakeFunctionProgram(self):
+    function_name = "my_func"
+    inputs = ["A", "B"]
+    output = "C"
+    function_call = "%s = %s(" % (output, function_name)
+    tags = ["import", "class ", "api.APIPlugin", function_call, \
+        "self.assert"]
+    program = self.pgm_gen.makeTestProgram(function_name,
+                                           inputs,
+                                           [output])
+    self._checkWorkflow(program, tags)
     
 
 if  __name__ == '__main__':
