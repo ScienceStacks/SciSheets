@@ -73,6 +73,8 @@ class TestUtil(unittest.TestCase):
     self.assertFalse(isinstance(values, np.int64))
 
   def testIterableType(self):
+    self.assertEqual(cell_types.getIterableType([u'empty cell']),
+      unicode)
     self.assertEqual(cell_types.getIterableType([1,2]), 
       cell_types.XInt)
     self.assertEqual(cell_types.getIterableType([1.1, 2]),

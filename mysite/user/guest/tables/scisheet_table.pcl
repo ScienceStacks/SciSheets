@@ -89,7 +89,7 @@ sg13
 g4
 sg14
 (lp40
-Vempty table
+Vhello there
 p41
 asg17
 g0
@@ -113,7 +113,7 @@ S'Col_0'
 p45
 sbasS'_filepath'
 p46
-S'/home/ubuntu/SciSheets/mysite/user/guest/tables/scisheet_table.pcl'
+V/home/ubuntu/SciSheets/mysite/user/guest/tables/scisheet_table.pcl
 p47
 sg35
 VEmptyTable

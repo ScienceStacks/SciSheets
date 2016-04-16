@@ -204,7 +204,8 @@ def getType(val):
            TT(XInt, (lambda x: XInt.isXType(x))),
            TT(XFloat, (lambda x: XFloat.isXType(x))),
            TT(None, (lambda x: x is None)),
-           TT(str, (lambda x: isinstance(x, str))), # last test
+           TT(str, (lambda x: isinstance(x, str))), 
+           TT(unicode, (lambda x: isinstance(x, unicode))), # last test
           ]
   for t_c in types_and_checkers:
     try:
