@@ -35,7 +35,7 @@ def _makeFunctionStatement(function_name, inputs):
   :return: statements
   """
   statement = "def %s(" % function_name
-  statement += ",".join(inputs)
+  statement += ", ".join(inputs)
   statement += "):"
   return statement
 
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     return selected_filenames
 
   #TODO: More robust approach to finding implied imports
-  def _makeFormulaImportStatements(self, formula_columns):
+  def _makeFormulaImportStatements(self):
     """
     Construct import statements for the imports implied by the
     functions used in a formula. The approach taken isn't
@@ -243,11 +243,10 @@ if __name__ == '__main__':
          function name should be the same as the file name.
       2. If a formula contains the file name (function name), then
          an import is generated.
-    :param formula_columns: list of columns that have a formula
-    :return: list of import statements for files in the user directory
-    A side effect is that the python path is changed.
+    :return str: import statements for files in the user directory
     """
-    formulas = [fc.getFormula() for fc in formula_columns]
+    formulas = [c.getFormula() for c in self._table.getColumns()
+                   if not (c.getFormula() is None)]
     python_filenames = self._findFilenames()
     # Determine which files are referenced in a formula
     referenced_filenames = []
@@ -258,11 +257,10 @@ if __name__ == '__main__':
           break
     # Construct the import statements
     statements = []
+    sa = StatementAccumulator()
     for name in referenced_filenames:
-      statement = "from %s import %s" % (name, name)
-      statements.append(statement)
-    # Update the python path to find the imports
-    return statements
+      sa.add("from %s import %s" % (name, name))
+    return sa.get()
 
   def _getSelectedColumns(self, excludes=None, only_includes=None):
     """
@@ -287,16 +285,18 @@ if __name__ == '__main__':
     """
     Creates statements that assign column values to variables.
     :param str prefix: prefix to construct full API object
+    :return str: assignment statements
     """
-    statements = ["# Assign column values to program variables."]
+    sa = StatementAccumulator()
+    sa.add("# Assign column values to program variables.")
     full_object = "%s%s" % (prefix, API_OBJECT)
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
       statement = "%s = %s.getColumnValues('%s')" %   \
           (name, full_object, name)
-      statements.append(statement)
-    return statements
+      sa.add(statement)
+    return sa.get()
 
   def _makeColumnValuesAssignmentStatements(self, **kwargs):
     """
@@ -304,23 +304,22 @@ if __name__ == '__main__':
     Note that the assumption is that the variable name is the same
     as the column name
     """
-    statements = ["", "# Assign program variables to columns values."]
+    sa = StatementAccumulator()
+    sa.add("\n")
+    sa.add("# Assign program variables to columns values.")
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
       statement = "%s.setColumnValues('%s', %s)" % (API_OBJECT, name, name)
-      statements.append(statement)
-    return statements
+      sa.add(statement)
+    return sa.get()
 
-  def _formulaColumns(self, exclude="!_%$#"):
+  def _formulaColumns(self):
     """
-    :param exclude: string that, if present, excludes formula
-                    the default value should never appear
     :return: list of columns that have a formula
     """
     return [fc for fc in self._table.getColumns()
-            if fc.getFormula() is not None
-              and exclude not in fc.getFormula()]
+            if fc.getFormula() is not None]
 
   def _makePrologueStatements(self):
     """
@@ -329,7 +328,6 @@ if __name__ == '__main__':
     """
     # Initializations
     sa = StatementAccumulator()
-    formula_columns = self._formulaColumns()
     # Construct the imports
     statement = '''import my_api as api
 import math as mt
@@ -342,7 +340,7 @@ from sympy import *
 from numpy import nan  # Must follow sympy import '''
     sa.add(statement)
     if self._user_directory is not None:
-      statement = self._makeFormulaImportStatements(formula_columns)
+      statement = self._makeFormulaImportStatements()
     sa.add(statement)
     return [sa.get()]
 

@@ -3,6 +3,7 @@
 import program_generator as pg
 from ..helpers_test import createTable,  \
     stdoutIO, TableFileHelper, TEST_DIR
+from ...core import column as cl
 import os
 import numpy as np
 import shutil
@@ -50,6 +51,17 @@ class TestFunctions(unittest.TestCase):
     result = pg._makeOutputStr([])
     self.assertEqual(result, "")
 
+  def testMakeFunctionStatement(self):
+    statement = pg._makeFunctionStatement("func", ["a", "bb"])
+    expected = "def func(a, bb):"
+    self.assertEqual(statement, expected)
+    statement = pg._makeFunctionStatement("func", [])
+    expected = "def func():"
+    self.assertEqual(statement, expected)
+    statement = pg._makeFunctionStatement("func", ["a"])
+    expected = "def func(a):"
+    self.assertEqual(statement, expected)
+
 
 class TestProgramGenerator(unittest.TestCase):
 
@@ -62,6 +74,58 @@ class TestProgramGenerator(unittest.TestCase):
     self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA,
                                                 formula=VALID_FORMULA)
     self.pgm_gen = pg.ProgramGenerator(self.table, TEST_DIR)
+
+  def _addColumn(self, name, cells=None, formula=None):
+    column = cl.Column(name)
+    if formula is not None:
+      column.setFormula(formula)
+    if cells is not None:
+      column.addCells(cells)
+    self.table.addColumn(column)
+    return column
+
+  def testFindFileNames(self):
+    filename = "dummy"
+    helper = TableFileHelper(filename, TEST_DIR)
+    helper.create()
+    python_files = self.pgm_gen._findFilenames()
+    self.assertTrue(python_files.index(filename) > -1)
+    helper.destroy()
+
+  def testMakeFormulaImportStatements(self):
+    statements = self.pgm_gen._makeFormulaImportStatements()
+    self.assertEqual(len(statements), 0)
+    self.column_valid_formula.setFormula("dummy()")
+    statement = self.pgm_gen._makeFormulaImportStatements()
+    expected = "from dummy import dummy"
+    self.assertEqual(statement, expected)
+
+  def _testAssignmentStatements(self, function):
+    """
+    Function that returns assignment statements
+    :param function function:
+    """
+    stg = "ColumnValues("
+    table = self.pgm_gen._table
+    statement = function()
+    expected = table.numColumns()
+    self.assertEqual(expected, statement.count(stg))
+    statement = function(excludes=['row'])
+    expected = table.numColumns() - 1
+    self.assertEqual(expected, statement.count(stg))
+    statement = function(only_includes=['row'])
+    self.assertEqual(1, statement.count(stg))
+    self.assertEqual(statement.count('row'), 2)
+
+  def testAssignmentStatements(self):
+    self._testAssignmentStatements(
+        self.pgm_gen._makeColumnValuesAssignmentStatements)
+    self._testAssignmentStatements(
+        self.pgm_gen. _makeVariableAssignmentStatements)
+
+  def testFormulaColumns(self):
+    import pdb; pdb.set_trace()
+    
 
 
 if __name__ == '__main__':
