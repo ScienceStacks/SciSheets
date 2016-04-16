@@ -36,6 +36,23 @@ IMPORT_PATHS = ["", "scisheets.core"]
 
 
 #############################
+# Helper Functions
+#############################
+def _compile(statements):
+  """
+  Compiles the statements
+  :param str statements:
+  :return str/None: None if no error
+  """
+  error = None
+  try:
+    compile(statements, "string", "exec")
+  except SyntaxError as err:
+    error = str(err)
+  return error
+
+
+#############################
 # Tests
 #############################
 # pylint: disable=W0212
@@ -107,15 +124,16 @@ class TestProgramGenerator(unittest.TestCase):
     """
     stg = "ColumnValues("
     table = self.pgm_gen._table
-    statement = function()
+    statements = function()
     expected = table.numColumns()
-    self.assertEqual(expected, statement.count(stg))
-    statement = function(excludes=['row'])
+    self.assertEqual(expected, statements.count(stg))
+    statements = function(excludes=['row'])
     expected = table.numColumns() - 1
-    self.assertEqual(expected, statement.count(stg))
-    statement = function(only_includes=['row'])
-    self.assertEqual(1, statement.count(stg))
-    self.assertEqual(statement.count('row'), 2)
+    self.assertEqual(expected, statements.count(stg))
+    statements = function(only_includes=['row'])
+    self.assertEqual(1, statements.count(stg))
+    self.assertEqual(statements.count('row'), 2)
+    self.assertIsNone(_compile(statements))
 
   def testAssignmentStatements(self):
     self._testAssignmentStatements(
@@ -124,9 +142,32 @@ class TestProgramGenerator(unittest.TestCase):
         self.pgm_gen. _makeVariableAssignmentStatements)
 
   def testFormulaColumns(self):
-    import pdb; pdb.set_trace()
+    table = self.pgm_gen._table
+    columns = self.pgm_gen._formulaColumns()
+    self.assertEqual(columns[0].getName(), 'VALID_FORMULA')
+    table.deleteColumn(columns[0])
+    columns = self.pgm_gen._formulaColumns()
+    self.assertEqual(len(columns), 0)
+
+  def testMakePrologue(self):
+    statements = self.pgm_gen._makePrologue()
+    self.assertTrue('import' in statements)
+    self.assertIsNone(_compile(statements))
+
+  def testMakeFormulaStatements(self):
+    table = self.pgm_gen._table
+    statements = self.pgm_gen._makeFormulaStatements()
+    formula_column = table.columnFromName('VALID_FORMULA')
+    self.assertTrue(formula_column.getFormula() in statements)
+    self.assertIsNone(_compile(statements))
+
+  def testMakeAPIPluginInitializationStatements(self):
+    table = self.pgm_gen._table
+    statements = self.pgm_gen._makeAPIPluginInitializationStatements()
+    self.assertTrue(table.getFilepath() in statements)
+    self.assertTrue("initialize()" in statements)
+    self.assertIsNone(_compile(statements))
     
 
-
-if __name__ == '__main__':
+if  __name__ == '__main__':
   unittest.main()

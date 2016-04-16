@@ -152,8 +152,11 @@ class Table(ColumnContainer):
     self._createNameColumn()
     self.setFilepath(None)
 
-  def rep(self):
+  def d(self):
     return [(c.getName(), c.getCells()) for c in self._columns]
+
+  def f(self):
+    return [(c.getName(), c.getFormula()) for c in self._columns]
 
   def _updateNameColumn(self):
     """

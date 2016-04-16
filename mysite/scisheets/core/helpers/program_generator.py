@@ -96,7 +96,7 @@ class ProgramGenerator(object):
 
     ''' % self._table.getName()
     sa.add(statement)
-    sa.add(self._makePrologueStatements())
+    sa.add(self._makePrologue())
     if createAPIObject:
       statement = """
 _table = api.getTableFromFile('%s')
@@ -132,10 +132,10 @@ _table = api.getTableFromFile('%s')
 
     ''' % self._table.getName()
     sa.add(statement)
-    sa.add(self._makePrologueStatements())
+    sa.add(self._makePrologue())
     sa.add("")
     # Generate statements to create the API object
-    statement = self._makeAPIPluginInitializationStatements(function_name)
+    statement = self._makeAPIPluginInitializationStatements()
     sa.add(statement)
     # Make the function definition
     sa.add(_makeFunctionStatement(function_name, inputs))
@@ -185,8 +185,7 @@ class Test%s(unittest.TestCase):
     sa.indent(1)
     sa.add("def setUp(self):")
     sa.indent(1)
-    statement = self._makeAPIPluginInitializationStatements(
-        function_name, prefix=prefix)
+    statement = self._makeAPIPluginInitializationStatements(prefix=prefix)
     sa.add(statement)
     sa.indent(-1)
     # Construct the test function header
@@ -321,10 +320,10 @@ if __name__ == '__main__':
     return [fc for fc in self._table.getColumns()
             if fc.getFormula() is not None]
 
-  def _makePrologueStatements(self):
+  def _makePrologue(self):
     """
     Creates the imports that go at the head of the file
-    :return: list of statements constructed
+    :return str: statements
     """
     # Initializations
     sa = StatementAccumulator()
@@ -341,8 +340,8 @@ from numpy import nan  # Must follow sympy import '''
     sa.add(statement)
     if self._user_directory is not None:
       statement = self._makeFormulaImportStatements()
-    sa.add(statement)
-    return [sa.get()]
+      sa.add(statement)
+    return sa.get()
 
   # pylint: disable=R0913
   # pylint: disable=R0914
@@ -350,10 +349,8 @@ from numpy import nan  # Must follow sympy import '''
   def _makeFormulaStatements(self):
     """
     Constructs a script to evaluate table formulas.
-    :return: list of statements constructed
-    Notes: (1) Cannot put "exec" in another method
-               since the objects created won't be accessible
-           (2) Iterate N (#formulas) times to handle dependencies
+    :return str: statements
+    Notes: (1) Iterate N (#formulas) times to handle dependencies
                between formulas
     """
     # Initializations
@@ -387,11 +384,10 @@ from numpy import nan  # Must follow sympy import '''
         sa.add("raise Exception(e)")
         sa.add("break")
         sa.indent(-2)
-    return [sa.get()]
+    return sa.get()
 
-  def _makeAPIPluginInitializationStatements(self, function_name, prefix=""):
+  def _makeAPIPluginInitializationStatements(self, prefix=""):
     """
-    :param function_name: string name of the function to be created
     :param str prefix: prefix for API Object
     """
     full_object = "%s%s" % (prefix, API_OBJECT)
