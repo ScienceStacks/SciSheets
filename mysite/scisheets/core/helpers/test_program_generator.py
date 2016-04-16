@@ -123,12 +123,11 @@ class TestProgramGenerator(unittest.TestCase):
     :param function function:
     """
     stg = "ColumnValues("
-    table = self.pgm_gen._table
     statements = function()
-    expected = table.numColumns()
+    expected = self.table.numColumns()
     self.assertEqual(expected, statements.count(stg))
     statements = function(excludes=['row'])
-    expected = table.numColumns() - 1
+    expected = self.table.numColumns() - 1
     self.assertEqual(expected, statements.count(stg))
     statements = function(only_includes=['row'])
     self.assertEqual(1, statements.count(stg))
@@ -142,10 +141,9 @@ class TestProgramGenerator(unittest.TestCase):
         self.pgm_gen. _makeVariableAssignmentStatements)
 
   def testFormulaColumns(self):
-    table = self.pgm_gen._table
     columns = self.pgm_gen._formulaColumns()
     self.assertEqual(columns[0].getName(), 'VALID_FORMULA')
-    table.deleteColumn(columns[0])
+    self.table.deleteColumn(columns[0])
     columns = self.pgm_gen._formulaColumns()
     self.assertEqual(len(columns), 0)
 
@@ -155,16 +153,14 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertIsNone(_compile(statements))
 
   def testMakeFormulaStatements(self):
-    table = self.pgm_gen._table
     statements = self.pgm_gen._makeFormulaStatements()
-    formula_column = table.columnFromName('VALID_FORMULA')
+    formula_column = self.table.columnFromName('VALID_FORMULA')
     self.assertTrue(formula_column.getFormula() in statements)
     self.assertIsNone(_compile(statements))
 
   def testMakeAPIPluginInitializationStatements(self):
-    table = self.pgm_gen._table
     statements = self.pgm_gen._makeAPIPluginInitializationStatements()
-    self.assertTrue(table.getFilepath() in statements)
+    self.assertTrue(self.table.getFilepath() in statements)
     self.assertTrue("initialize()" in statements)
     self.assertIsNone(_compile(statements))
     

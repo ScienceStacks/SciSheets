@@ -9,7 +9,7 @@ class ProgramRunner(object):
   Assumes that the user_directory has the file my_api.py.
   """
 
-  def __init__(self, program, user_directory, filename):
+  def __init__(self, program, user_directory=None, filename=None):
     """
     :param str program: string of one or more python program
     :param str user_directory: user directory where program
@@ -18,7 +18,10 @@ class ProgramRunner(object):
     """
     self._program = program
     self._user_directory = user_directory
-    self._filepath = os.path.join(self._user_directory, filename)
+    if filename is not None:
+      self._filepath = os.path.join(self._user_directory, filename)
+    else:
+      self._filepath = None
 
   def writeFile(self):
     """
@@ -90,7 +93,7 @@ s = api.APIFormulas(_table)
           # Report the error without changing the table
           error = err
       elif len(self._program) > 0:
-        error = self._eecuteProgram(self._program)
+        error = self._executeProgram(self._program)
     if error is not None:
       return str(error)
     else:
