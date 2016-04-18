@@ -47,30 +47,26 @@ class FormulaStatement(object):
       statement = "%s = %s" % (self._column.getName(), 
           self._formula)
       self._isExpression = True
+      self._statement = statement
     except SyntaxError as err:
       exception_expr = err
     if exception_expr is not None:
       try:
         # See if this is a statement
-        statement = self._formula
-        _ = compile(statement, "string", "exec")
+        _ = compile(self._formula, "string", "exec")
+        self._statement = self._formula
       except SyntaxError as err:
         exception_stmt = err
     if (exception_stmt is not None) and (exception_expr is not None):
       # Guess whether is is intended to be a statement or an expression
       # so that the correct error message can be delivered.
       if "=" in self._formula:
-        is_stmt = True
-      else:
-        is_stmt = False
-      if is_stmt:
         exception = exception_stmt
       else:
         exception = exception_expr
       error = "%s: %s" % (exception.msg, exception.text)
     else:
       error = None
-      self._statement = statement
     return error
 
   def isExpression(self):

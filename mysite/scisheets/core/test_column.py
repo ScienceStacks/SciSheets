@@ -26,9 +26,56 @@ def checkStrColumnType(column_type):
   """
   return (column_type == '|S1000') or (column_type == object)
 
+
 #############################
 # Tests
 #############################
+# pylint: disable=W0212
+# pylint: disable=C0111
+# pylint: disable=R0904
+class TestFormulaStatement(unittest.TestCase):
+  
+  def setUp(self):
+    self.column = createColumn(COLUMN_NAME, data=LIST)
+
+  def testExpression(self):
+    fs = cl.FormulaStatement(VALID_FORMULA, self.column)
+    self.assertIsNone(fs.do())
+    self.assertEqual(fs.getStatement().count("="), 1)
+    self.assertTrue(fs.isExpression())
+
+  def testStatement(self):
+    formula = "%s = %s" % (self.column.getName(), VALID_FORMULA)
+    fs = cl.FormulaStatement(formula, self.column)
+    self.assertIsNone(fs.do())
+    self.assertEqual(fs.getStatement().count("="), 1)
+    self.assertFalse(fs.isExpression())
+
+  def testAmbiguousStatement(self):
+    formula = "s.initialize()"
+    fs = cl.FormulaStatement(formula, self.column)
+    self.assertIsNone(fs.do())
+    self.assertEqual(fs.getStatement().count("="), 1)
+    self.assertTrue(fs.isExpression())
+
+  def testMultilineStatement(self):
+    formula = """
+s.initialize()
+s.go()
+"""
+    fs = cl.FormulaStatement(formula, self.column)
+    self.assertIsNone(fs.do())
+    self.assertEqual(fs.getStatement().count("="), 0)
+    self.assertFalse(fs.isExpression())
+
+  def testSemicolonStatement(self):
+    formula = "s.initialize();s.go()"
+    fs = cl.FormulaStatement(formula, self.column)
+    self.assertIsNone(fs.do())
+    self.assertEqual(fs.getStatement().count("="), 0)
+    self.assertFalse(fs.isExpression())
+
+
 # pylint: disable=W0212
 # pylint: disable=C0111
 # pylint: disable=R0904
