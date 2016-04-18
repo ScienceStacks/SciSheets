@@ -75,6 +75,13 @@ s.go()
     self.assertEqual(fs.getStatement().count("="), 0)
     self.assertFalse(fs.isExpression())
 
+  def testSemicolonOneStatement(self):
+    formula = "s.initialize();"
+    fs = cl.FormulaStatement(formula, self.column)
+    self.assertIsNone(fs.do())
+    self.assertEqual(fs.getStatement().count("="), 0)
+    self.assertFalse(fs.isExpression())
+
 
 # pylint: disable=W0212
 # pylint: disable=C0111
