@@ -2,6 +2,8 @@
 Helper for program export and evaluation.
 """
 
+import os
+
 
 class ProgramRunner(object):
   """
@@ -26,8 +28,10 @@ class ProgramRunner(object):
   def writeFile(self):
     """
     :return str error: error from file I/O
+    :raises ValueError: if no valid file path
     """
-    self._filepath = filepath
+    if self._filepath is None:
+      raise ValueError("No file path.")
     error = None
     try:
       with open(self._filepath, "w") as file_handle:

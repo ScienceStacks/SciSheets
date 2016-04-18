@@ -4,6 +4,7 @@ from ...core import column as cl
 from program_runner import ProgramRunner
 from ..helpers_test import createTable, stdoutIO, TableFileHelper, \
     TEST_DIR
+from api_util import writeTableToFile
 import numpy as np
 import os
 import shutil
@@ -76,6 +77,20 @@ fd.close()
        'test_dir/test_program_runner.txt')
     runner = ProgramRunner(statements)
     runner.execute()
+    self.assertTrue(os.path.exists(path))
+    os.remove(path)
+
+  def testWriteFile(self):
+    # BUG: USE TEST_DIR
+    directory = os.path.dirname(os.path.realpath(__file__))
+    filename = 'test_dir/test_program_runner.txt'
+    program = "a = 1"
+    runner = ProgramRunner(program, user_directory=directory,
+        filename=filename)
+    error = runner.writeFile()
+    self.assertIsNone(error)
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+       'test_dir/test_program_runner.txt')
     self.assertTrue(os.path.exists(path))
     os.remove(path)
 

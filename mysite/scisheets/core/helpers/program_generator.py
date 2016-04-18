@@ -253,7 +253,6 @@ if __name__ == '__main__':
     sa.add(statement)
     return sa.get()
 
-
   def _findFilenames(self, suffix=PY_SUFFIX):
     """
     :param suffix: suffix to select
