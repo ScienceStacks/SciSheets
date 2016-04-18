@@ -3,7 +3,7 @@
 from ...core import column as cl
 from program_runner import ProgramRunner
 from ..helpers_test import createTable, stdoutIO, TableFileHelper, \
-    TEST_DIR
+    TEST_DIR, augmentPythonPath
 from api_util import writeTableToFile
 import numpy as np
 import os
@@ -34,6 +34,20 @@ COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
 COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
 IMPORT_PATHS = ["", "scisheets.core"]
+TEST_TEXT_FILE = "test_file.txt"
+TEST_TEXT_PATH = os.path.join(TEST_DIR, TEST_TEXT_FILE)
+TEST_PROGRAM_FILE = "test_file.py"
+TEST_PROGRAM_PATH = os.path.join(TEST_DIR, TEST_PROGRAM_FILE)
+TEST_LINES = "test"
+TEST_PROGRAM = """
+fd = open('%s', "w")
+fd.writelines('%s')
+fd.close()
+""" % (TEST_TEXT_PATH, TEST_LINES)
+
+
+# Ensure that the current directory is in the path
+augmentPythonPath(__file__)
 
 
 #############################
@@ -62,37 +76,43 @@ class TestProgramRunner(unittest.TestCase):
     self.table.addColumn(column)
     return column
 
-  def testExecute(self):
-    return
-    test_file = "test_file.txt"
-    statements = """
-import os
-path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                       'test_dir/test_program_runner.txt')
-fd = open(path, "w")
-fd.writelines("test")
-fd.close()
-"""
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-       'test_dir/test_program_runner.txt')
-    runner = ProgramRunner(statements)
-    runner.execute()
-    self.assertTrue(os.path.exists(path))
-    os.remove(path)
+  def _evaluateRunnerExecution(self, 
+                               error, 
+                               expected_lines=TEST_LINES):
+    """
+    Evaluates the results of a runner execution.
+    The runner executes TEST_PROGRAM, which writes to a file.
+    :param str error: error from runner execution
+    :param str expected_lines: lines expected to be written
+    :sideeffect: removes the file created
+    """
+    self.assertIsNone(error)
+    self.assertTrue(os.path.exists(TEST_TEXT_PATH))
+    with open(TEST_TEXT_PATH, 'r') as infile:
+      self.assertEqual(infile.read(), expected_lines)
+    os.remove(TEST_TEXT_PATH)
+
+  def testSimpleExecute(self):
+    runner = ProgramRunner(TEST_PROGRAM)
+    self._evaluateRunnerExecution(runner.execute())
 
   def testWriteFile(self):
-    # BUG: USE TEST_DIR
-    directory = os.path.dirname(os.path.realpath(__file__))
-    filename = 'test_dir/test_program_runner.txt'
-    program = "a = 1"
-    runner = ProgramRunner(program, user_directory=directory,
-        filename=filename)
-    error = runner.writeFile()
-    self.assertIsNone(error)
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-       'test_dir/test_program_runner.txt')
-    self.assertTrue(os.path.exists(path))
-    os.remove(path)
+    runner = ProgramRunner(TEST_PROGRAM, 
+                           user_directory=TEST_DIR,
+                           filename=TEST_TEXT_FILE)
+    self._evaluateRunnerExecution(runner.writeFile(),
+                                  expected_lines=TEST_PROGRAM)
+
+  def testExecuteWithAPIObject(self):
+    writeTableToFile(self.table)
+    runner = ProgramRunner(TEST_PROGRAM, 
+                           table=self.table,
+                           user_directory=TEST_DIR,
+                           filename=TEST_PROGRAM_FILE)
+    column = self.table.columnFromName("VALID_FORMULA")
+    column.setFormula(TEST_PROGRAM)
+    error = runner.execute(createAPIObject=True)
+    self._evaluateRunnerExecution(error)
 
 
 if __name__ == '__main__':

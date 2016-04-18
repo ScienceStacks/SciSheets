@@ -3,6 +3,7 @@ Helper for program export and evaluation.
 """
 
 import os
+import sys
 
 
 class ProgramRunner(object):
@@ -11,14 +12,20 @@ class ProgramRunner(object):
   Assumes that the user_directory has the file my_api.py.
   """
 
-  def __init__(self, program, user_directory=None, filename=None):
+  def __init__(self, 
+               program, 
+               table=None,
+               user_directory=None, 
+               filename=None):
     """
     :param str program: string of one or more python program
+    :param Table table: table for which execution is done
     :param str user_directory: user directory where program
                                will execute. Must have file my_api.py
     :param str filename: filename including extension
     """
     self._program = program
+    self._table = table
     self._user_directory = user_directory
     if filename is not None:
       self._filepath = os.path.join(self._user_directory, filename)
@@ -47,10 +54,10 @@ class ProgramRunner(object):
     """
     globals()['_table'] = self._table
     program = """
-import myapi as api
+import my_api as api
 s = api.APIFormulas(_table)
 """
-    return self._execute(program)
+    return self._executeProgram(program)
 
   def _executeProgram(self, program):
     """
@@ -62,7 +69,7 @@ s = api.APIFormulas(_table)
     error = None
     # pylint: disable=W0122
     try:
-      exec(self._program, globals())
+      exec(program, globals())
     # pylint: disable=W0703
     except Exception as err:
       # Report the error without changing the table
@@ -77,7 +84,7 @@ s = api.APIFormulas(_table)
 
   def execute(self, createAPIObject=False):
     """
-    :param bool createAPIObject: True if the runner creates the API object
+    :param bool createAPIObject: True if the runner should create the API object
     :returns str: error from execution
     Executes as a string if there is no filepath. Otherwise,
     executes from the filepath.
@@ -87,18 +94,22 @@ s = api.APIFormulas(_table)
     error = None
     if createAPIObject:
       error = self._createAPIObject()
-    if error is None:
-      if self._filepath is not None:
-        # pylint: disable=W0122
-        try:
-          execfile(self._filepath, globals())
-        # pylint: disable=W0703
-        except Exception as err:
-          # Report the error without changing the table
-          error = err
-      elif len(self._program) > 0:
-        error = self._executeProgram(self._program)
-    if error is not None:
-      return str(error)
+      if error is not None:
+        return error
+    if self._filepath is not None:
+      self.writeFile()
+      # pylint: disable=W0122
+      try:
+        execfile(self._filepath, globals())
+      # pylint: disable=W0703
+      except Exception as err:
+        # Report the error without changing the table
+        error = err
+    elif len(self._program) > 0:
+      error = self._executeProgram(self._program)
     else:
-      return msg
+      error = "Nothing to execute!"
+    if error is not None:
+      return error
+    else:
+      return None
