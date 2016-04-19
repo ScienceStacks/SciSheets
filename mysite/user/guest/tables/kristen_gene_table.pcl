@@ -289,7 +289,7 @@ sg13
 g4
 sg14
 (lp91
-Fnan
+F20.0
 aFnan
 aFnan
 aFnan
@@ -374,7 +374,7 @@ Ntp109
 Rp110
 (dp111
 g36
-Vbatch_count = len(EffData)/batch_size\u000aGroupedData = np.array(EffData).reshape(batch_count, batch_size)
+V# Grouping groups together samples based on BatchSize\u000abatch_count = len(EffData)/batch_size\u000aGroupedData = np.array(EffData).reshape(batch_count, batch_size)
 p112
 sg37
 g101
@@ -383,7 +383,7 @@ I00
 sg39
 I00
 sg40
-Vbatch_count = len(EffData)/batch_size\u000aGroupedData = np.array(EffData).reshape(batch_count, batch_size)
+V# Grouping groups together samples based on BatchSize\u000abatch_count = len(EffData)/batch_size\u000aGroupedData = np.array(EffData).reshape(batch_count, batch_size)
 p113
 sbsg41
 g0
@@ -517,7 +517,7 @@ Ntp173
 Rp174
 (dp175
 g36
-VGroupedPrunedData = []\u000afor data in GroupedData:\u000a  new_data = []\u000a  for d in data:\u000a    if d >= min_eff:\u000a      new_data.append(d)\u000a  GroupedPrunedData.append(new_data)
+V# Pruning eliminates values less than MinEff\u000aGroupedPrunedData = []\u000afor data in GroupedData:\u000a  new_data = []\u000a  for d in data:\u000a    if d >= min_eff:\u000a      new_data.append(d)\u000a  GroupedPrunedData.append(new_data)
 p176
 sg37
 g119
@@ -526,7 +526,7 @@ I00
 sg39
 I00
 sg40
-VGroupedPrunedData = []\u000afor data in GroupedData:\u000a  new_data = []\u000a  for d in data:\u000a    if d >= min_eff:\u000a      new_data.append(d)\u000a  GroupedPrunedData.append(new_data)
+V# Pruning eliminates values less than MinEff\u000aGroupedPrunedData = []\u000afor data in GroupedData:\u000a  new_data = []\u000a  for d in data:\u000a    if d >= min_eff:\u000a      new_data.append(d)\u000a  GroupedPrunedData.append(new_data)
 p177
 sbsg41
 g0
@@ -552,22 +552,12 @@ sg13
 g4
 sg14
 (lp185
-Fnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-aFnan
-asg31
+g122
+ag136
+ag146
+ag153
+ag163
+aNaNaNaNaNaNaNaNaNaNasg31
 g0
 (g32
 g2
@@ -575,7 +565,7 @@ Ntp186
 Rp187
 (dp188
 g36
-V#Eliminate Values if exceed MaxStd\u000apass
+V#Eliminate Values if exceed MaxStd\u000aCensoredData = []\u000afor data in GroupedPrunedData:\u000a  if (len(data) < 3) or (np.std(data) <= max_std):\u000a    CensoredData.append(data)\u000a  else:\u000a    mean = np.average(data)\u000a    distances = [np.abs(x - mean) for x in data]\u000a    max_distance = np.max(distances)\u000a    new_data = [x for x in data if np.abs(x - mean) < max_distance]\u000a    CensoredData.append(new_data)\u000a    
 p189
 sg37
 g183
@@ -584,7 +574,7 @@ I00
 sg39
 I00
 sg40
-V#Eliminate Values if exceed MaxStd\u000apass
+V#Eliminate Values if exceed MaxStd\u000aCensoredData = []\u000afor data in GroupedPrunedData:\u000a  if (len(data) < 3) or (np.std(data) <= max_std):\u000a    CensoredData.append(data)\u000a  else:\u000a    mean = np.average(data)\u000a    distances = [np.abs(x - mean) for x in data]\u000a    max_distance = np.max(distances)\u000a    new_data = [x for x in data if np.abs(x - mean) < max_distance]\u000a    CensoredData.append(new_data)\u000a    
 p190
 sbsg41
 g0
@@ -633,7 +623,7 @@ Ntp199
 Rp200
 (dp201
 g36
-VMean = []\u000afor data in GroupedPrunedData:\u000a  Mean.append(np.average(data))
+VMean = []\u000afor data in CensoredData:\u000a  Mean.append(np.average(data))
 p202
 sg37
 g196
@@ -642,7 +632,7 @@ I00
 sg39
 I00
 sg40
-VMean = []\u000afor data in GroupedPrunedData:\u000a  Mean.append(np.average(data))
+VMean = []\u000afor data in CensoredData:\u000a  Mean.append(np.average(data))
 p203
 sbsg41
 g0
@@ -691,7 +681,7 @@ Ntp212
 Rp213
 (dp214
 g36
-VStd = []\u000afor data in GroupedPrunedData:\u000a  Std.append(np.std(data))
+VStd = []\u000afor data in CensoredData:\u000a  Std.append(np.std(data))
 p215
 sg37
 g209
@@ -700,7 +690,7 @@ I00
 sg39
 I00
 sg40
-VStd = []\u000afor data in GroupedPrunedData:\u000a  Std.append(np.std(data))
+VStd = []\u000afor data in CensoredData:\u000a  Std.append(np.std(data))
 p216
 sbsg41
 g0
