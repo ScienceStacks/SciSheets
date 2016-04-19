@@ -403,6 +403,8 @@ from numpy import nan  # Must follow sympy import '''
     if num_formulas == 1:
       column = formula_columns[0]
       sa.add(column.getFormulaStatement())
+      # Ensure that there is at least one executeable statement
+      sa.add("pass")  
     else:
       sa.add("for nn in range(%d):" % num_formulas)
       sa.indent(1)
@@ -414,6 +416,8 @@ from numpy import nan  # Must follow sympy import '''
         if column.isExpression():
           sa.add("%s = %s.coerceValues('%s', %s)"  \
               % (name, API_OBJECT, name, name))
+        # Ensure that there is at least one executeable statement
+        sa.add("pass")  
         sa.indent(-1)
         sa.add("except Exception as e:")
         sa.indent(1)
