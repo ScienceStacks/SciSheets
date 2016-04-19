@@ -782,7 +782,7 @@ for x in Col_2:
     response = self._setFormula(formula2, formula_columns[1])
     # Check the table
     new_table = self._getTableFromResponse(response)
-    error = new_table.evaluate()
+    error = new_table.evaluate(user_directory=TEST_DIR)
     self.assertEqual(new_table.numColumns(), old_table.numColumns())
     self.assertTrue(compareTableData(old_table, new_table, excludes=formula_columns))
     val = new_table._columns[formula_columns[1]].getCells()[1]

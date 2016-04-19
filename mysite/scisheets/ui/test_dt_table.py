@@ -3,10 +3,7 @@ Tests for YUI DataTable renderings.
 """
 
 from mysite import settings
-<<<<<<< HEAD
 from ..core.helpers.api_util import getTableFromFile
-=======
->>>>>>> feature
 from ..core.helpers_test import TEST_DIR
 import dt_table as dt
 from django.test import TestCase  # Provides mocks

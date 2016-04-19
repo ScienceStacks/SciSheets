@@ -271,6 +271,5 @@ def scisheets_reload(request):
   if table is None:
     html = "No session found"
   else:
-    table_file = _getFileNameWithoutExtension(table.getFilepath())
-    html = table.render(table_file=table_file)
+    html = table.render()
   return HttpResponse(html)
