@@ -2,7 +2,8 @@
 # Checks out the desired branch
 cd $HOME/SciSheets/mysite
 SQLFILE="db.sqlite3"
-mv $SQLFILE /tmp
+rm -f /tmp$SQLFILE
+cp $SQLFILE /tmp
 python manage.py migrate
 if [ $? -ne 0 ]
 then
