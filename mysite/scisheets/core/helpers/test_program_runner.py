@@ -111,7 +111,7 @@ class TestProgramRunner(unittest.TestCase):
                            filename=TEST_PROGRAM_FILE)
     column = self.table.columnFromName("VALID_FORMULA")
     column.setFormula(TEST_PROGRAM)
-    error = runner.execute(createAPIObject=True)
+    error = runner.execute(create_API_object=True)
     self._evaluateRunnerExecution(error)
 
 

@@ -10,6 +10,7 @@ import os
 import numpy as np
 
 DEFAULT_USER_DIRECTORY = os.path.dirname(__file__)
+GENERATED_FILE = "_GENERATED_FILE.py"
 
 
 ######################## CLASSES ####################
@@ -42,10 +43,13 @@ class TableEvaluator(object):
                between formulas
     """
     # Create the script program
-    pg = ProgramGenerator(self, user_directory)
-    program = pg.makeScriptProgram()
+    generator = ProgramGenerator(self._table, user_directory)
+    program = generator.makeEvaluationScriptProgram()
     # Run the statements from a file
-    sr = ProgramRunner(program, user_directory, GENERATED_FILE)
+    sr = ProgramRunner(program, 
+                       table=self._table,
+                       user_directory=user_directory,  
+                       filename=GENERATED_FILE)
     sr.writeFile()
     return sr.execute(create_API_object=True)
 
@@ -76,18 +80,24 @@ class TableEvaluator(object):
     if function_name is None:
       function_name = DEFAULT_FUNCTION_NAME
     # Construct the function program
-    pg = ProgramGenerator(self, user_directory)
-    function_program = pg.makeFunction(function_name, inputs, outputs)
+    generator = ProgramGenerator(self._table, user_directory)
+    function_program = generator.makeFunctionProgram(function_name, 
+                                                     inputs, 
+                                                     outputs)
     # Write the function file
     function_filename = "%s.py" % function_name
-    sr = ProgramRunner(function_program, user_directory, function_filename)
+    sr = ProgramRunner(function_program, 
+                       user_directory=user_directory, 
+                       filename=function_filename)
     error = sr.writeFile()
     if error is not None:
       return "Error constructing %s: %s" % (function_filepath, error)
     # Create the test file
-    test_program = pg.makeTestProgram(function_name, inputs, outputs)
-    test_filename = "test_%s" % filename
-    test_sr = ProgramRunner(test_program, user_directory, test_filename)
+    test_program = generator.makeTestProgram(function_name, inputs, outputs)
+    test_filename = "test_%s.py" % function_name
+    test_sr = ProgramRunner(test_program, 
+                            user_directory=user_directory, 
+                            filename=test_filename)
     error = test_sr.writeFile()
     if error is not None:
       return "Error constructing %s: %s" % (test_filepath, error)

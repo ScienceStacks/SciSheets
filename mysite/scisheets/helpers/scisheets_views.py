@@ -282,7 +282,7 @@ def scisheets_reload(request):
   if table is None:
     html = "No session found"
   else:
-    table.evaluate()  # Saves the changes to the table in the Table File
+    #table.evaluate()  # Saves the changes to the table in the Table File
     table_file = _getFileNameWithoutExtension(table.getFilepath())
     html = table.render(table_file=table_file)
   return HttpResponse(html)

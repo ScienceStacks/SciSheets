@@ -82,7 +82,7 @@ s = api.APIFormulas(_table)
       msg = None
     return msg
 
-  def execute(self, createAPIObject=False):
+  def execute(self, create_API_object=False):
     """
     :param bool createAPIObject: True if the runner should create the API object
     :returns str: error from execution
@@ -92,7 +92,7 @@ s = api.APIFormulas(_table)
     if not self._user_directory is None:
       sys.path.append(self._user_directory)
     error = None
-    if createAPIObject:
+    if create_API_object:
       error = self._createAPIObject()
       if error is not None:
         return error

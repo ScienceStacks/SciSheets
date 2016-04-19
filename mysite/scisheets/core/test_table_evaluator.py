@@ -8,7 +8,7 @@ import shutil
 from table_evaluator import TableEvaluator
 import helpers.api_util as api_util
 from helpers_test import createTable, stdoutIO, TableFileHelper, \
-    TEST_DIR
+    TEST_DIR, augmentPythonPath
 import unittest
 
 
@@ -35,6 +35,10 @@ COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
 COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
 IMPORT_PATHS = ["", "scisheets.core"]
+
+
+# Ensure current directory is in the path
+augmentPythonPath(__file__)
 
 
 #############################
@@ -67,15 +71,6 @@ class TestTableEvaluator(unittest.TestCase):
   def testConstructor(self):
     evaluator = TableEvaluator(self.table)
     self.assertEqual(evaluator._table.getName(), TABLE_NAME)
-
-  def testMakeFormulaImportStatements(self):
-    statements = self.evaluator._makeFormulaImportStatements(  \
-        TEST_DIR, [self.column_valid_formula])
-    self.assertEqual(len(statements), 0)
-    self.column_valid_formula.setFormula("dummy()")
-    statements = self.evaluator._makeFormulaImportStatements(  \
-        TEST_DIR, [self.column_valid_formula])
-    self.assertEqual(len(statements), 1)
 
   def testEvaluate(self):
     error = self.evaluator.evaluate(user_directory=TEST_DIR)
@@ -115,14 +110,6 @@ class TestTableEvaluator(unittest.TestCase):
     table.updateRow(new_row, 1)
     error = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
-
-  def testFindFileNames(self):
-    filename = "dummy"
-    helper = TableFileHelper(filename, TEST_DIR)
-    helper.create()
-    python_files = TableEvaluator._findFilenames(TEST_DIR)
-    self.assertTrue(python_files.index(filename) > -1)
-    helper.destroy()
 
   def testEvaluateWithUserFunction(self):
     self.column_valid_formula.setFormula(VALID_FORMULA_WITH_USER_FUNCTION)
@@ -172,10 +159,9 @@ class TestTableEvaluator(unittest.TestCase):
     self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
     self.table.evaluate(user_directory=TEST_DIR)
     self.table.export(function_name=function_name,
-                      py_file_path=file_path,
-                      user_directory=TEST_DIR,
                       inputs=[COLUMNC, COLUMN5],
-                      outputs=[COLUMN_VALID_FORMULA, COLUMN2])
+                      outputs=[COLUMN_VALID_FORMULA, COLUMN2],
+                      user_directory=TEST_DIR)
     try:
       with stdoutIO():
         execfile(file_path)
@@ -219,7 +205,6 @@ class TestTableEvaluator(unittest.TestCase):
           TestTableEvaluator._countNonNone(self.column_a.getCells()),
           len2)
 
-
   def testFormulaVariations(self):
     size = 10
     list_expr = "[n for n in range(%d)]" % size
@@ -254,23 +239,6 @@ DUMMY1 = find_primes(100)
     api_util.writeTableToFile(self.table)
     errors = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(errors)
-
-  def testExecuteStatements(self):
-    return
-    test_file = "test_file.txt"
-    statements = """
-import os
-path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                       'test_dir/api_util.txt')
-fd = open(path, "w")
-fd.writelines("test")
-fd.close()
-"""
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-       'test_dir/api_util.txt')
-    TableEvaluator._executeStatements(statements)
-    self.assertTrue(os.path.exists(path))
-    os.remove(path)
 
 
 if __name__ == '__main__':
