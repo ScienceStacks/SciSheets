@@ -6,7 +6,7 @@ python manage.py migrate
 if [ $? -ne 0 ]
 then
   echo "Migration failed."
-  cp /tmp/$SQLFILE .
+  #cp /tmp/$SQLFILE .
   exit -1
 fi
 git checkout $1
