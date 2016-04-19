@@ -546,7 +546,7 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content.has_key("success"))
     # Check the table
     new_table = self._getTableFromResponse(response)
-    error = new_table.evaluate()
+    error = new_table.evaluate(user_directory=TEST_DIR)
     if isValid:
       self.assertTrue(content["success"])
     else:
@@ -737,7 +737,7 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content.has_key("success"))
     # Check the table
     table = self._getTableFromResponse(response)
-    error = table.evaluate()
+    error = table.evaluate(user_directory=TEST_DIR)
     self.assertTrue(content["success"])
     self.assertEqual(table.numRows(), num_rows)
 

@@ -3,7 +3,10 @@ Tests for YUI DataTable renderings.
 """
 
 from mysite import settings
+<<<<<<< HEAD
 from ..core.helpers.api_util import getTableFromFile
+=======
+>>>>>>> feature
 from ..core.helpers_test import TEST_DIR
 import dt_table as dt
 from django.test import TestCase  # Provides mocks
@@ -80,7 +83,7 @@ class TestUITable(TestCase):
   def testRender(self):
     Col_0 = self.table.getColumns()[1]
     Col_0.setFormula("Col_1 = 'x'")
-    self.table.evaluate()
+    self.table.evaluate(user_directory=TEST_DIR)
     html = self.table.render()
     self.assertIsNotNone(html)
 

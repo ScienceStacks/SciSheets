@@ -2,7 +2,7 @@
 Compiles Python statements that evaluate formulas in a Table.
 """
 
-from helpers.statement_accumulator import StatementAccumulator
+from statement_accumulator import StatementAccumulator
 import os
 import numpy as np
 
@@ -11,6 +11,33 @@ IGNORE_PREFIX = ['main_', 'test_', '__']
 PY_SUFFIX = ".py"
 API_OBJECT = "s"
 
+
+
+################## INTERNAL FUNCTIONS#################
+def _makeOutputStr(outputs):
+  """
+  :param outputs: list of columns that are output from the function
+  :return: statement
+  """
+  return ",".join(outputs)
+
+def _makeReturnStatement(outputs):
+  """
+  :param outputs: list of columns that are output from the function
+  :return: statements
+  """
+  return "\nreturn %s" % _makeOutputStr(outputs)
+
+def _makeFunctionStatement(function_name, inputs):
+  """
+  :param function_name: string name of the function to be created
+  :param inputs: list of column names that are input to the function
+  :return: statements
+  """
+  statement = "def %s(" % function_name
+  statement += ", ".join(inputs)
+  statement += "):"
+  return statement
 
 
 ######################## CLASSES ####################
@@ -56,10 +83,10 @@ class ProgramGenerator(object):
     self._table = table
     self._user_directory = user_directory
 
-  def makeScriptProgram(self, createAPIObject=False):
+  def makeEvaluationScriptProgram(self, create_API_object=False):
     """
     Creates a python script that evaluates the table formulas
-    :param bool createAPIObject: True means that code will be generated
+    :param bool create_API_object: True means that code will be generated
                                  that creates the API object.
     :return str program: Program as a string
     """
@@ -69,8 +96,8 @@ class ProgramGenerator(object):
 
     ''' % self._table.getName()
     sa.add(statement)
-    sa.add(self._makePrologueStatements())
-    if createAPIObject:
+    sa.add(self._makePrologue())
+    if create_API_object:
       statement = """
 _table = api.getTableFromFile('%s')
 %s = api.APIFormulas(_table) 
@@ -90,6 +117,45 @@ _table = api.getTableFromFile('%s')
     sa.add(self._makeColumnValuesAssignmentStatements())
     return sa.get()
 
+  def makeExportScriptProgram(self):
+    """
+    Creates an exported python script.
+    :return str program: Program as a string
+    """
+    sa = StatementAccumulator()
+    # File Prologue
+    statement = '''# Script that runs formulas in the table %s.
+
+    ''' % self._table.getName()
+    sa.add(statement)
+    sa.add(self._makePrologue())
+    statement = """
+_table = api.getTableFromFile('%s')
+%s = api.APIFormulas(_table) 
+""" % (self._table.getFilepath(), API_OBJECT) 
+    sa.add(statement)
+    # Assign the column values to script variables
+    sa.add(self._makeVariableAssignmentStatements())
+    # Create the formula evaluation blocks
+    sa.add(self._makeFormulaStatements())
+    # Print the results
+    sa.add(self._makeVariablePrintStatements())
+    return sa.get()
+
+  def _makeVariablePrintStatements(self):
+    """
+    Creates the print statements for all variables in the table.
+    For each variable A:
+      print ('A = %s' % str(A))
+    :return str statements:
+    """
+    sa = StatementAccumulator()
+    for column in self._table.getColumns():
+      statement = """print ('%%s =  %%s' %% ("%s", str(%s))) """ %  \
+          (column.getName(), column.getName())
+      sa.add(statement)
+    return sa.get()
+
   def makeFunctionProgram(self, function_name, inputs, outputs):
     """
     Creates a function for the table
@@ -105,14 +171,13 @@ _table = api.getTableFromFile('%s')
 
     ''' % self._table.getName()
     sa.add(statement)
-    sa.add(self._makePrologueStatements())
+    sa.add(self._makePrologue())
     sa.add("")
     # Generate statements to create the API object
-    statement = self._makeAPIPluginInitializationStatements(function_name)
+    statement = self._makeAPIPluginInitializationStatements()
     sa.add(statement)
     # Make the function definition
-    sa.add(TableEvaluator._makeFunctionStatement(function_name, 
-        inputs))
+    sa.add(_makeFunctionStatement(function_name, inputs))
     sa.indent(1)
     # Assign the column values to function variables.
     # Note that inputs and outputs are not assigned.
@@ -122,7 +187,7 @@ _table = api.getTableFromFile('%s')
     # Create the formula evaluation blocks
     sa.add(self._makeFormulaStatements())
     # Make the return statement
-    sa.add(TableEvaluator._makeReturnStatement(outputs))
+    sa.add(_makeReturnStatement(outputs))
     return sa.get()
 
   def makeTestProgram(self,
@@ -138,7 +203,7 @@ _table = api.getTableFromFile('%s')
     """
     sa = StatementAccumulator()
     prefix = "self."
-    output_str = TableEvaluator._makeOutputStr(outputs)
+    output_str = _makeOutputStr(outputs)
     statement = '''"""
 Tests for %s
 """
@@ -159,8 +224,7 @@ class Test%s(unittest.TestCase):
     sa.indent(1)
     sa.add("def setUp(self):")
     sa.indent(1)
-    statement = self._makeAPIPluginInitializationStatements(
-        function_name, prefix=prefix)
+    statement = self._makeAPIPluginInitializationStatements(prefix=prefix)
     sa.add(statement)
     sa.indent(-1)
     # Construct the test function header
@@ -170,7 +234,7 @@ class Test%s(unittest.TestCase):
     sa.add(self._makeVariableAssignmentStatements( \
         prefix=prefix, only_includes=inputs))
     # Construct the call to the function being tested
-    statement =  TableEvaluator._makeOutputStr(outputs)
+    statement =  _makeOutputStr(outputs)
     statement += " = %s(" % function_name
     statement += ",".join(inputs)
     statement += ")"
@@ -188,7 +252,6 @@ if __name__ == '__main__':
   unittest.main()"""
     sa.add(statement)
     return sa.get()
-
 
   def _findFilenames(self, suffix=PY_SUFFIX):
     """
@@ -208,7 +271,7 @@ if __name__ == '__main__':
     return selected_filenames
 
   #TODO: More robust approach to finding implied imports
-  def _makeFormulaImportStatements(self, formula_columns):
+  def _makeFormulaImportStatements(self):
     """
     Construct import statements for the imports implied by the
     functions used in a formula. The approach taken isn't
@@ -217,11 +280,10 @@ if __name__ == '__main__':
          function name should be the same as the file name.
       2. If a formula contains the file name (function name), then
          an import is generated.
-    :param formula_columns: list of columns that have a formula
-    :return: list of import statements for files in the user directory
-    A side effect is that the python path is changed.
+    :return str: import statements for files in the user directory
     """
-    formulas = [fc.getFormula() for fc in formula_columns]
+    formulas = [c.getFormula() for c in self._table.getColumns()
+                   if not (c.getFormula() is None)]
     python_filenames = self._findFilenames()
     # Determine which files are referenced in a formula
     referenced_filenames = []
@@ -232,11 +294,10 @@ if __name__ == '__main__':
           break
     # Construct the import statements
     statements = []
+    sa = StatementAccumulator()
     for name in referenced_filenames:
-      statement = "from %s import %s" % (name, name)
-      statements.append(statement)
-    # Update the python path to find the imports
-    return statements
+      sa.add("from %s import %s" % (name, name))
+    return sa.get()
 
   def _getSelectedColumns(self, excludes=None, only_includes=None):
     """
@@ -261,16 +322,18 @@ if __name__ == '__main__':
     """
     Creates statements that assign column values to variables.
     :param str prefix: prefix to construct full API object
+    :return str: assignment statements
     """
-    statements = ["# Assign column values to program variables."]
+    sa = StatementAccumulator()
+    sa.add("# Assign column values to program variables.")
     full_object = "%s%s" % (prefix, API_OBJECT)
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
       statement = "%s = %s.getColumnValues('%s')" %   \
           (name, full_object, name)
-      statements.append(statement)
-    return statements
+      sa.add(statement)
+    return sa.get()
 
   def _makeColumnValuesAssignmentStatements(self, **kwargs):
     """
@@ -278,32 +341,30 @@ if __name__ == '__main__':
     Note that the assumption is that the variable name is the same
     as the column name
     """
-    statements = ["", "# Assign program variables to columns values."]
+    sa = StatementAccumulator()
+    sa.add("\n")
+    sa.add("# Assign program variables to columns values.")
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
       statement = "%s.setColumnValues('%s', %s)" % (API_OBJECT, name, name)
-      statements.append(statement)
-    return statements
+      sa.add(statement)
+    return sa.get()
 
-  def _formulaColumns(self, exclude="!_%$#"):
+  def _formulaColumns(self):
     """
-    :param exclude: string that, if present, excludes formula
-                    the default value should never appear
     :return: list of columns that have a formula
     """
     return [fc for fc in self._table.getColumns()
-            if fc.getFormula() is not None
-              and exclude not in fc.getFormula()]
+            if fc.getFormula() is not None]
 
-  def _makePrologueStatements(self)
+  def _makePrologue(self):
     """
     Creates the imports that go at the head of the file
-    :return: list of statements constructed
+    :return str: statements
     """
     # Initializations
     sa = StatementAccumulator()
-    formula_columns = self._formulaColumns()
     # Construct the imports
     statement = '''import my_api as api
 import math as mt
@@ -316,9 +377,9 @@ from sympy import *
 from numpy import nan  # Must follow sympy import '''
     sa.add(statement)
     if self._user_directory is not None:
-      statement = self._makeFormulaImportStatements(formula_columns)
-    sa.add(statement)
-    return [sa.get()]
+      statement = self._makeFormulaImportStatements()
+      sa.add(statement)
+    return sa.get()
 
   # pylint: disable=R0913
   # pylint: disable=R0914
@@ -326,10 +387,8 @@ from numpy import nan  # Must follow sympy import '''
   def _makeFormulaStatements(self):
     """
     Constructs a script to evaluate table formulas.
-    :return: list of statements constructed
-    Notes: (1) Cannot put "exec" in another method
-               since the objects created won't be accessible
-           (2) Iterate N (#formulas) times to handle dependencies
+    :return str: statements
+    Notes: (1) Iterate N (#formulas) times to handle dependencies
                between formulas
     """
     # Initializations
@@ -344,6 +403,8 @@ from numpy import nan  # Must follow sympy import '''
     if num_formulas == 1:
       column = formula_columns[0]
       sa.add(column.getFormulaStatement())
+      # Ensure that there is at least one executeable statement
+      sa.add("pass")  
     else:
       sa.add("for nn in range(%d):" % num_formulas)
       sa.indent(1)
@@ -355,6 +416,8 @@ from numpy import nan  # Must follow sympy import '''
         if column.isExpression():
           sa.add("%s = %s.coerceValues('%s', %s)"  \
               % (name, API_OBJECT, name, name))
+        # Ensure that there is at least one executeable statement
+        sa.add("pass")  
         sa.indent(-1)
         sa.add("except Exception as e:")
         sa.indent(1)
@@ -363,43 +426,14 @@ from numpy import nan  # Must follow sympy import '''
         sa.add("raise Exception(e)")
         sa.add("break")
         sa.indent(-2)
-    return [sa.get()]
+    return sa.get()
 
-  def _makeAPIPluginInitializationStatements(self, function_name, prefix=""):
+  def _makeAPIPluginInitializationStatements(self, prefix=""):
     """
-    :param function_name: string name of the function to be created
     :param str prefix: prefix for API Object
     """
     full_object = "%s%s" % (prefix, API_OBJECT)
     table_filepath = self._table.getFilepath()
     statement = """%s = api.APIPlugin('%s')
 %s.initialize()""" % (full_object, table_filepath, full_object)
-    return statement
-
-  @staticmethod
-  def _makeOutputStr(outputs):
-    """
-    :param outputs: list of columns that are output from the function
-    :return: statement
-    """
-    return ",".join(outputs)
-
-  @staticmethod
-  def _makeReturnStatement(outputs):
-    """
-    :param outputs: list of columns that are output from the function
-    :return: statements
-    """
-    return "\nreturn %s" % TableEvaluator._makeOutputStr(outputs)
-
-  @staticmethod
-  def _makeFunctionStatement(function_name, inputs):
-    """
-    :param function_name: string name of the function to be created
-    :param inputs: list of column names that are input to the function
-    :return: statements
-    """
-    statement = "def %s(" % function_name
-    statement += ",".join(inputs)
-    statement += "):"
     return statement

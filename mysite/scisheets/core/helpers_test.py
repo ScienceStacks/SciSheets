@@ -110,6 +110,14 @@ def stdoutIO(stdout=None):
   yield stdout
   sys.stdout = old
 
+def augmentPythonPath(thisFile):
+  """
+  Ensures that the python path includes the directory of the
+  test file
+  :param str thisFile: path to the file being tested.
+  """
+  sys.path.append(os.path.dirname(thisFile))
+
 
 class TableFileHelper(object):
   """
@@ -163,3 +171,5 @@ class TableFileHelper(object):
     if TableFileHelper.doesTableFileExist(self._table_filename,
         self._table_filedir):
       os.remove(self._full_path)
+
+
