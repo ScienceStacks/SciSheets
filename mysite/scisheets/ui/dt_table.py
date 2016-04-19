@@ -8,6 +8,7 @@ from scisheets.core.helpers.api_util import getFileNameWithoutExtension
 from scisheets.core.helpers.cell_types import isFloats
 from ui_table import UITable
 from mysite import settings as st
+import collections
 import numpy as np
 
 
@@ -41,7 +42,7 @@ def makeJSON(column_names, data):
       value = str(item)  # Assume use item as-is
       if (item is None):
         value = ""
-      elif isFloats(item):
+      elif isFloats(item) and not isinstance(item, collections.Iterable):
         if np.isnan(float(item)):
           value = ""
         else:
