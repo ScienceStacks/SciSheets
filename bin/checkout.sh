@@ -13,7 +13,7 @@ git checkout $1
 if [ $? -ne 0 ]
 then
   echo "Checkout failed."
-  cp /tmp/$SQLFILE .
+  #cp /tmp/$SQLFILE .
   exit -1
 fi
 echo "***Checkout successful***"
