@@ -4,7 +4,7 @@ from mysite import settings as st
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
-from ..core.helpers_test import TableFileHelper
+from ..core.helpers_test import TableFileHelper, TEST_DIR
 from ..core.helpers.api_util import getTableFromFile, writeTableToFile
 import json
 import mysite.helpers.util as ut
@@ -510,7 +510,7 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content.has_key("success"))
     # Check the table
     new_table = self._getTableFromResponse(response)
-    error = new_table.evaluate()
+    error = new_table.evaluate(user_directory=TEST_DIR)
     if isValid:
       self.assertTrue(content["success"])
     else:
@@ -701,7 +701,7 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content.has_key("success"))
     # Check the table
     table = self._getTableFromResponse(response)
-    error = table.evaluate()
+    error = table.evaluate(user_directory=TEST_DIR)
     self.assertTrue(content["success"])
     self.assertEqual(table.numRows(), num_rows)
 

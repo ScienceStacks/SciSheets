@@ -127,12 +127,9 @@ class UITable(Table):
       if error is None:
         outputs, error = self._extractListFromString(args_list[POS_OUTPUTS])
         if error is None:
-          file_name = "%s.py" % function_name
-          file_path = os.path.join(st.SCISHEETS_USER_PYDIR, file_name)
           error = self.export(function_name=function_name,
                               inputs=inputs,
                               outputs=outputs,
-                              py_file_path=file_path,
                               user_directory=st.SCISHEETS_USER_PYDIR)
       response = self._createResponse(error)
     elif command == "Open":

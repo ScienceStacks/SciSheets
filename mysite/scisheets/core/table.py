@@ -381,8 +381,8 @@ class Table(ColumnContainer):
                             are placed
     :return: error from table evaluation or None
     """
-    table_evaluator = TableEvaluator(self)
-    return table_evaluator.evaluate(user_directory=user_directory)
+    evaluator = TableEvaluator(self)
+    return evaluator.evaluate(user_directory=user_directory)
 
   def getRow(self, index=None):
     """
