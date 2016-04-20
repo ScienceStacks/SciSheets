@@ -38,7 +38,7 @@ def getTableFromFile(file_path, verify=True):
     import pdb; pdb.set_trace()
   fh.close()
   if verify and table.getFilepath() != file_path:
-    raise ValueError("File path is not set")
+    raise ValueError("File path is incorrect or missing.")
   return table
 
 def writeTableToFile(table):
@@ -47,6 +47,29 @@ def writeTableToFile(table):
   :param Table table:
   """
   pickle.dump(table, open(table.getFilepath(), "wb"))
+
+def getTableCopyFilepath(filename, directory):
+  """
+  Returns the filepath of where the table will be copied
+  :param str filename: name of the file for the table w/o extension
+  :return str filepath: path to the table file
+  """
+  full_filename = "%s.pcl" % filename
+  filepath = os.path.join(directory, full_filename)
+
+def copyTableToFile(table, filename, directory):
+  """
+  Get writes the table to the directory specified
+  :param Table table:
+  :param str filename: name of the file for the table w/o extension
+  :return str filepath: path to the table file
+  :sideeffect: Sets the table written to its new filepath
+  """
+  filepath = getTableCopyFilepath(filename, directory)
+  new_table = table.copy()
+  new_table.setFilepath(filepath)
+  pickle.dump(new_table, open(filepath, "wb"))
+  return filepath
 
 def compareIterables(iter1, iter2):
   """

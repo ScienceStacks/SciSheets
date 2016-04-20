@@ -1,8 +1,7 @@
 Serve page from Django
 
-0.1 Refactoring table_evaluator into ProgramGenerator
-  (a) Construct tests for ProgramGenerator and run
-  (b) Construct new tests for table_evaluator
+0.1 Creating a copy of the table files in python directory
+    tests are broken
 
 0.3 Complete truth tables?
 

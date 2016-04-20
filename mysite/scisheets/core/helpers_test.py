@@ -15,7 +15,8 @@ import sys
 TEST_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                        'test_dir')
 TEST_TABLE = "TEST_TABLE"
-TABLE_FILEPATH = os.path.join(TEST_DIR, "%s.pcl" % TEST_TABLE)
+TEST_FILENAME = "%s.pcl" % TEST_TABLE
+TABLE_FILEPATH = os.path.join(TEST_DIR, TEST_FILENAME)
 
 def toList(val):
   """

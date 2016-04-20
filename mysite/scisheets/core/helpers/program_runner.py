@@ -2,6 +2,7 @@
 Helper for program export and evaluation.
 """
 
+import api_util
 import os
 import sys
 
@@ -16,35 +17,47 @@ class ProgramRunner(object):
                program, 
                table=None,
                user_directory=None, 
-               filename=None):
+               pgm_filename=None):
     """
     :param str program: string of one or more python program
     :param Table table: table for which execution is done
     :param str user_directory: user directory where program
                                will execute. Must have file my_api.py
-    :param str filename: filename including extension
+    :param str pgm_filename: program filename w/o extension
+    :raises: ValueError if inconsistent inputs
     """
     self._program = program
     self._table = table
     self._user_directory = user_directory
-    if filename is not None:
-      self._filepath = os.path.join(self._user_directory, filename)
+    self._pgm_filename = pgm_filename
+    no_table = table is None
+    no_filename = pgm_filename is None
+    if (no_table and not no_filename)  \
+        or (no_filename and not no_table):
+      raise ValueError("A table must be specified if a pgm_filename is specified.")
+    if self._pgm_filename is not None:
+      self._pgm_filepath = os.path.join(self._user_directory, 
+                                        "%s.py" % pgm_filename)
     else:
-      self._filepath = None
+      self._pgm_filepath = None
 
-  def writeFile(self):
+  def writeFiles(self):
     """
+    Writes the program and table files.
     :return str error: error from file I/O
     :raises ValueError: if no valid file path
     """
-    if self._filepath is None:
+    if self._pgm_filepath is None:
       raise ValueError("No file path.")
     error = None
     try:
-      with open(self._filepath, "w") as file_handle:
+      with open(self._pgm_filepath, "w") as file_handle:
         file_handle.write(self._program)
     except IOError as err:
       error = str(err)
+    api_util.copyTableToFile(self._table, 
+                             self._pgm_filename, 
+                             self._user_directory)
     return error
 
   def _createAPIObject(self):  
@@ -96,11 +109,11 @@ s = api.APIFormulas(_table)
       error = self._createAPIObject()
       if error is not None:
         return error
-    if self._filepath is not None:
-      self.writeFile()
+    if self._pgm_filepath is not None:
+      self.writeFiles()
       # pylint: disable=W0122
       try:
-        execfile(self._filepath, globals())
+        execfile(self._pgm_filepath, globals())
       # pylint: disable=W0703
       except Exception as err:
         # Report the error without changing the table

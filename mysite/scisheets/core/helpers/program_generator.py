@@ -2,6 +2,7 @@
 Compiles Python statements that evaluate formulas in a Table.
 """
 
+import api_util
 from statement_accumulator import StatementAccumulator
 import os
 import numpy as np
@@ -97,6 +98,8 @@ class ProgramGenerator(object):
     ''' % self._table.getName()
     sa.add(statement)
     sa.add(self._makePrologue())
+    filepath = api_util.getTableCopyFilepath(self._table.getName(),
+                                             self._user_directory)
     if create_API_object:
       statement = """
 _table = api.getTableFromFile('%s')
@@ -129,10 +132,12 @@ _table = api.getTableFromFile('%s')
     ''' % self._table.getName()
     sa.add(statement)
     sa.add(self._makePrologue())
+    filepath = api_util.getTableCopyFilepath(self._table.getName(),
+                                             self._user_directory)
     statement = """
 _table = api.getTableFromFile('%s')
 %s = api.APIFormulas(_table) 
-""" % (self._table.getFilepath(), API_OBJECT) 
+""" % (filepath, API_OBJECT) 
     sa.add(statement)
     # Assign the column values to script variables
     sa.add(self._makeVariableAssignmentStatements())
@@ -433,7 +438,8 @@ from numpy import nan  # Must follow sympy import '''
     :param str prefix: prefix for API Object
     """
     full_object = "%s%s" % (prefix, API_OBJECT)
-    table_filepath = self._table.getFilepath()
+    filepath = api_util.getTableCopyFilepath(self._table.getName(),
+                                             self._user_directory)
     statement = """%s = api.APIPlugin('%s')
-%s.initialize()""" % (full_object, table_filepath, full_object)
+%s.initialize()""" % (full_object, filepath, full_object)
     return statement

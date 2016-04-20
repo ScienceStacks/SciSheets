@@ -168,6 +168,7 @@ class TestTableEvaluator(unittest.TestCase):
       success = True
     except IOError:
       success = False
+    import pdb; pdb.set_trace()
     self.assertTrue(success)
     try:
       os.remove("/tmp/%s" % file_name)  # Delete the file created

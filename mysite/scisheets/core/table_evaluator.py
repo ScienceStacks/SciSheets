@@ -10,7 +10,7 @@ import os
 import numpy as np
 
 DEFAULT_USER_DIRECTORY = os.path.dirname(__file__)
-GENERATED_FILE = "_GENERATED_FILE.py"
+GENERATED_FILE = "_GENERATED_FILE"
 
 
 ######################## CLASSES ####################
@@ -46,12 +46,12 @@ class TableEvaluator(object):
     generator = ProgramGenerator(self._table, user_directory)
     program = generator.makeEvaluationScriptProgram()
     # Run the statements from a file
-    sr = ProgramRunner(program, 
+    runner = ProgramRunner(program, 
                        table=self._table,
                        user_directory=user_directory,  
-                       filename=GENERATED_FILE)
-    sr.writeFile()
-    return sr.execute(create_API_object=True)
+                       pgm_filename=GENERATED_FILE)
+    runner.writeFiles()
+    return runner.execute(create_API_object=True)
 
   def export(self,
              function_name=None,
@@ -85,20 +85,21 @@ class TableEvaluator(object):
                                                      inputs, 
                                                      outputs)
     # Write the function file
-    function_filename = "%s.py" % function_name
-    sr = ProgramRunner(function_program, 
-                       user_directory=user_directory, 
-                       filename=function_filename)
-    error = sr.writeFile()
+    runner = ProgramRunner(function_program, 
+                           table=self._table,
+                           user_directory=user_directory, 
+                           pgm_filename=function_name)
+    error = runner.writeFiles()
     if error is not None:
       return "Error constructing %s: %s" % (function_filepath, error)
     # Create the test file
+    test_filename = "test_%s" % function_name
     test_program = generator.makeTestProgram(function_name, inputs, outputs)
-    test_filename = "test_%s.py" % function_name
-    test_sr = ProgramRunner(test_program, 
-                            user_directory=user_directory, 
-                            filename=test_filename)
-    error = test_sr.writeFile()
+    test_runner = ProgramRunner(test_program, 
+                                table=self._table,
+                                user_directory=user_directory, 
+                                pgm_filename=test_filename)
+    error = test_runner.writeFiles()
     if error is not None:
       return "Error constructing %s: %s" % (test_filepath, error)
     return None

@@ -27,6 +27,19 @@ class TestAPIUtil(unittest.TestCase):
     self.assertTrue(api_util.compareIterables(ARRAY_INT, ARRAY_INT))
     self.assertTrue(api_util.compareIterables(ARRAY_FLOAT, ARRAY_FLOAT))
 
+  def testCopyTableToFile(self):
+    filename = ht.TEST_FILENAME[:-4]  # Exclude ".pcl"
+    table = ht.createTable("test_table")
+    new_filepath = api_util.copyTableToFile(table, 
+                                            filename,
+                                            ht.TEST_DIR)   
+    path = os.path.join(ht.TEST_DIR, ht.TEST_FILENAME)
+    self.assertEqual(new_filepath, path)
+    self.assertTrue(os.path.exists(path))
+    new_table = api_util.getTableFromFile(path)
+    self.assertEqual(table.getName(), new_table.getName())
+    os.remove(path)
+
 
 if __name__ == '__main__':
   unittest.main()

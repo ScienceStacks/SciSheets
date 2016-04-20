@@ -34,10 +34,11 @@ COLUMN2_CELLS = [10.0, 20.0, 30.0]
 COLUMN5_CELLS = [100.0, 200.0, 300.0]
 COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
 IMPORT_PATHS = ["", "scisheets.core"]
-TEST_TEXT_FILE = "test_file.txt"
-TEST_TEXT_PATH = os.path.join(TEST_DIR, TEST_TEXT_FILE)
-TEST_PROGRAM_FILE = "test_file.py"
-TEST_PROGRAM_PATH = os.path.join(TEST_DIR, TEST_PROGRAM_FILE)
+TEST_TEXT_FILE = "test_file"
+TEST_TEXT_PATH = os.path.join(TEST_DIR, "%s.py" % TEST_TEXT_FILE)
+TEST_PROGRAM_FILE = "test_file"
+TEST_PROGRAM_PATH = os.path.join(TEST_DIR, 
+    "%s.py" % TEST_PROGRAM_FILE)
 TEST_LINES = "test"
 TEST_PROGRAM = """
 fd = open('%s', "w")
@@ -98,9 +99,10 @@ class TestProgramRunner(unittest.TestCase):
 
   def testWriteFile(self):
     runner = ProgramRunner(TEST_PROGRAM, 
+                           table = self.table,
                            user_directory=TEST_DIR,
-                           filename=TEST_TEXT_FILE)
-    self._evaluateRunnerExecution(runner.writeFile(),
+                           pgm_filename=TEST_TEXT_FILE)
+    self._evaluateRunnerExecution(runner.writeFiles(),
                                   expected_lines=TEST_PROGRAM)
 
   def testExecuteWithAPIObject(self):
@@ -108,7 +110,7 @@ class TestProgramRunner(unittest.TestCase):
     runner = ProgramRunner(TEST_PROGRAM, 
                            table=self.table,
                            user_directory=TEST_DIR,
-                           filename=TEST_PROGRAM_FILE)
+                           pgm_filename=TEST_PROGRAM_FILE)
     column = self.table.columnFromName("VALID_FORMULA")
     column.setFormula(TEST_PROGRAM)
     error = runner.execute(create_API_object=True)
