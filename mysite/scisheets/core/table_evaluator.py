@@ -99,7 +99,7 @@ class TableEvaluator(object):
                                 table=self._table,
                                 user_directory=user_directory, 
                                 pgm_filename=test_filename)
-    error = test_runner.writeFiles()
+    error = test_runner.writeFiles(write_table=False)
     if error is not None:
       return "Error constructing %s: %s" % (test_filepath, error)
     return None

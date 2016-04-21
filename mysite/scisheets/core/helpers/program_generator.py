@@ -87,6 +87,7 @@ class ProgramGenerator(object):
   def makeEvaluationScriptProgram(self, create_API_object=False):
     """
     Creates a python script that evaluates the table formulas
+    when there is a change to the scisheet
     :param bool create_API_object: True means that code will be generated
                                  that creates the API object.
     :return str program: Program as a string
@@ -100,17 +101,15 @@ class ProgramGenerator(object):
     sa.add(self._makePrologue())
     filepath = api_util.getTableCopyFilepath(self._table.getName(),
                                              self._user_directory)
-    if create_API_object:
-      statement = """
+    # Handle the API import
+    statement = """
 _table = api.getTableFromFile('%s')
 %s = api.APIFormulas(_table) 
 """ % (self._table.getFilepath(), API_OBJECT) 
-    else:
-      statement = """
-# Uncomment the following to execute standalone
-#_table = api.getTableFromFile('%s')
-#%s = api.APIFormulas(_table) 
-""" % (self._table.getFilepath(), API_OBJECT) 
+    if not create_API_object:
+      new_statement = statement.replace('\n', '\n#')
+      header = "# Uncomment the following to execute standalone"
+      statement = "%s\n#%s" % (header, new_statement)
     sa.add(statement)
     # Assign the column values to script variables
     sa.add(self._makeVariableAssignmentStatements())
@@ -179,7 +178,7 @@ _table = api.getTableFromFile('%s')
     sa.add(self._makePrologue())
     sa.add("")
     # Generate statements to create the API object
-    statement = self._makeAPIPluginInitializationStatements()
+    statement = self._makeAPIPluginInitializationStatements(function_name)
     sa.add(statement)
     # Make the function definition
     sa.add(_makeFunctionStatement(function_name, inputs))
@@ -229,7 +228,8 @@ class Test%s(unittest.TestCase):
     sa.indent(1)
     sa.add("def setUp(self):")
     sa.indent(1)
-    statement = self._makeAPIPluginInitializationStatements(prefix=prefix)
+    statement = self._makeAPIPluginInitializationStatements(function_name,
+                                                            prefix=prefix)
     sa.add(statement)
     sa.indent(-1)
     # Construct the test function header
@@ -433,12 +433,13 @@ from numpy import nan  # Must follow sympy import '''
         sa.indent(-2)
     return sa.get()
 
-  def _makeAPIPluginInitializationStatements(self, prefix=""):
+  def _makeAPIPluginInitializationStatements(self, function_name, prefix=""):
     """
+    :param str function_name:
     :param str prefix: prefix for API Object
     """
     full_object = "%s%s" % (prefix, API_OBJECT)
-    filepath = api_util.getTableCopyFilepath(self._table.getName(),
+    filepath = api_util.getTableCopyFilepath(function_name,
                                              self._user_directory)
     statement = """%s = api.APIPlugin('%s')
 %s.initialize()""" % (full_object, filepath, full_object)

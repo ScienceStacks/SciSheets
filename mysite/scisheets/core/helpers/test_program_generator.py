@@ -166,8 +166,10 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertIsNone(_compile(statements))
 
   def testMakeAPIPluginInitializationStatements(self):
-    statements = self.pgm_gen._makeAPIPluginInitializationStatements()
-    self.assertTrue(self.table.getFilepath() in statements)
+    function_name = "this_test"
+    statements = self.pgm_gen._makeAPIPluginInitializationStatements(
+        function_name)
+    self.assertTrue("%s.pcl" % function_name in statements)
     self.assertTrue("initialize()" in statements)
     self.assertIsNone(_compile(statements))
 

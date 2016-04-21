@@ -55,7 +55,7 @@ def getTableCopyFilepath(filename, directory):
   :return str filepath: path to the table file
   """
   full_filename = "%s.pcl" % filename
-  filepath = os.path.join(directory, full_filename)
+  return os.path.join(directory, full_filename)
 
 def copyTableToFile(table, filename, directory):
   """

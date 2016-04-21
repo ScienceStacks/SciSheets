@@ -117,7 +117,12 @@ def augmentPythonPath(thisFile):
   test file
   :param str thisFile: path to the file being tested.
   """
-  sys.path.append(os.path.dirname(thisFile))
+  if not isinstance(thisFile, list):
+    filelist = [thisFile]
+  else:
+    filelist = thisFile
+  for aFile in filelist:
+    sys.path.append(os.path.dirname(aFile))
 
 
 class TableFileHelper(object):

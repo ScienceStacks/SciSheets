@@ -41,9 +41,10 @@ class ProgramRunner(object):
     else:
       self._pgm_filepath = None
 
-  def writeFiles(self):
+  def writeFiles(self, write_table=True):
     """
     Writes the program and table files.
+    :param bool write_table: writes the table file if True
     :return str error: error from file I/O
     :raises ValueError: if no valid file path
     """
@@ -55,9 +56,10 @@ class ProgramRunner(object):
         file_handle.write(self._program)
     except IOError as err:
       error = str(err)
-    api_util.copyTableToFile(self._table, 
-                             self._pgm_filename, 
-                             self._user_directory)
+    if write_table:
+      api_util.copyTableToFile(self._table, 
+                               self._pgm_filename, 
+                               self._user_directory)
     return error
 
   def _createAPIObject(self):  

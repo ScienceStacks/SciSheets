@@ -38,7 +38,7 @@ IMPORT_PATHS = ["", "scisheets.core"]
 
 
 # Ensure current directory is in the path
-augmentPythonPath(__file__)
+augmentPythonPath([__file__, 'helpers/program_generator.py'])
 
 
 #############################
@@ -166,9 +166,9 @@ class TestTableEvaluator(unittest.TestCase):
       with stdoutIO():
         execfile(file_path)
       success = True
+    ## BUG HERE. Also writing separate .pcl for test
     except IOError:
       success = False
-    import pdb; pdb.set_trace()
     self.assertTrue(success)
     try:
       os.remove("/tmp/%s" % file_name)  # Delete the file created
