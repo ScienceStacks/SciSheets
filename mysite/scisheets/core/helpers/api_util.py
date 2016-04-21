@@ -1,5 +1,6 @@
 '''Evaluates formulas in a Table.'''
 
+import cell_types
 import collections
 import numpy as np
 import os
@@ -73,7 +74,8 @@ def copyTableToFile(table, filename, directory):
 
 def compareIterables(iter1, iter2):
   """
-  Compares two iterables
+  Compares two iterables. Considered equal if different lengths
+  but one iterable is filled with NaN or None.
   :param Iterable iter1: iterable possibly with None values
   :param Iterable iter2: iterable possibly with None values
   :return: True if equivalent; otherwise false
@@ -97,36 +99,50 @@ def compareIterables(iter1, iter2):
         result = True
         break
     return result
-
-  is_equal = True
+  # Make sure the inputs are iterables
   if not isinstance(iter1, collections.Iterable):
     iter1 = np.array([iter1])
   if not isinstance(iter2, collections.Iterable):
     iter2 = np.array([iter2])
+  # Check the lengths, ignoring NaN and None
   if len(iter1) != len(iter2):
-    is_equal = False
+    min_len = min(len(iter1), len(iter2))
+    max_len = max(len(iter1), len(iter2))
+    if len(iter1) == max_len:
+      extra_values = iter1[min_len:]
+    else:
+      extra_values = iter2[min_len:]
+    is_okay = all([(e is None) or cell_types.isNan(e) \
+        for e in extra_values])
+    if not is_okay:
+      return False
+    length = min_len
   else:
-    for idx in range(len(iter1)):
-      if not sameType(iter1[idx], iter2[idx]):
+    length = len(iter1)
+  # Compare the values for the applicable lengths
+  is_equal = True
+  for idx in range(length):
+    if not sameType(iter1[idx], iter2[idx]):
+      is_equal = False
+      break
+    # Handle approximate equality for floats
+    elif isinstance(iter1[idx], float):
+      if abs(iter1[idx]) < THRESHOLD:
+        denom = 1.0
+      else:
+        denom = iter1[idx]
+      if np.isnan(iter1[idx]) != np.isnan(iter2[idx]):
         is_equal = False
         break
-      elif isinstance(iter1[idx], float):
-        if abs(iter1[idx]) < THRESHOLD:
-          denom = 1.0
-        else:
-          denom = iter1[idx]
-        if np.isnan(iter1[idx]) != np.isnan(iter2[idx]):
-          is_equal = False
-          break
-        if np.isnan(iter1[idx]) and np.isnan(iter2[idx]):
-          break
-        elif abs((iter1[idx] - iter2[idx])/denom) > THRESHOLD:
-          is_equal = False
-          break
-      else:
-        if iter1[idx] != iter2[idx]:
-          is_equal = False
-          break
+      if np.isnan(iter1[idx]) and np.isnan(iter2[idx]):
+        break
+      elif abs((iter1[idx] - iter2[idx])/denom) > THRESHOLD:
+        is_equal = False
+        break
+    else:
+      if iter1[idx] != iter2[idx]:
+        is_equal = False
+        break
   return is_equal
 
 def getFileNameWithoutExtension(file_path):

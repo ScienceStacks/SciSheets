@@ -12,6 +12,13 @@ class TestUtil(unittest.TestCase):
   def setUp(self):
     pass
 
+  def testIsNan(self):
+    self.assertTrue(cell_types.isNan(np.nan))
+    self.assertFalse(cell_types.isNan(3.0))
+    self.assertFalse(cell_types.isNan(3))
+    self.assertFalse(cell_types.isNan("a"))
+    self.assertFalse(cell_types.isNan([np.nan]))
+
   def testIsFloat(self):
     self.assertTrue(cell_types.isFloats(4.1))
     self.assertFalse(cell_types.isFloats(4.0))

@@ -1,7 +1,6 @@
 Serve page from Django
 
-0.1 Creating a copy of the table files in python directory
-    tests are broken
+0.1 Fixing compareIterables to handle different sized arrays
 
 0.3 Complete truth tables?
 

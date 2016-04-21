@@ -11,7 +11,7 @@ import unittest
 
 ARRAY_INT = np.array(range(4))
 ARRAY_INT_LONG = np.array(range(5))
-ARRAY_FLOAT = [0.01*x for x in range(4)]
+ARRAY_FLOAT = np.array([0.01*x for x in range(4)])
 
 
 #############################
@@ -21,6 +21,10 @@ ARRAY_FLOAT = [0.01*x for x in range(4)]
 class TestAPIUtil(unittest.TestCase):
 
   def testCompareIterables(self):
+    float_list = ARRAY_FLOAT.tolist()
+    float_list.append(np.nan)
+    new_array_float = np.array(float_list)
+    self.assertTrue(api_util.compareIterables(ARRAY_FLOAT, new_array_float))
     self.assertFalse(api_util.compareIterables(ARRAY_INT, ARRAY_INT_LONG))
     self.assertFalse(api_util.compareIterables(ARRAY_INT,
         np.array([0.1*n for n in range(4)])))

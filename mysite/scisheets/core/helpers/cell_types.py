@@ -251,3 +251,17 @@ def isStrArray(array):
   :return bool:
   """
   return str(array.dtype)[0:2] == '|S'
+
+def isNan(val):
+  """
+  Checks for NaN even if not float
+  :param object val:
+  :return bool:
+  """
+  if isinstance(val, collections.Iterable):
+    return False
+  try:
+    result = np.isnan(val)
+  except:
+    result = False
+  return result
