@@ -1,4 +1,7 @@
-'''Evaluates formulas in a Table.'''
+"""
+Utilities used in the API code. In a separate file to avoid
+circular dependencies.
+"""
 
 import cell_types
 import collections
