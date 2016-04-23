@@ -30,6 +30,23 @@ class TestAPIUtilExcel(unittest.TestCase):
     self.assertIsNotNone(self.excel_w._workbook)
     self.assertEqual(self.excel_w._filemode, api_util_excel.WRITE)
 
+  def testOpenRead(self):
+    self.excel_r.openRead()
+    self.assertIsNotNone(self.excel_r._workbook)
+    self.assertEqual(self.excel_r._filemode, api_util_excel.READ)
+
+  def testSetWorksheet(self):
+    self.excel_r.openRead()
+    self.excel_r.setWorksheet('Sheet1')
+    self.assertIsNotNone(self.excel_r._worksheet)
+    with self.assertRaises(KeyError):
+      self.excel_r.setWorksheet('DummySheet')
+    self.excel_w.openWrite()
+    self.excel_w.setWorksheet('Sheet1')
+    self.assertIsNotNone(self.excel_w._worksheet)
+    self.excel_w.setWorksheet('DummySheet')
+    self.assertIsNotNone(self.excel_w._worksheet)
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -25,14 +25,14 @@ class APIUtilExcel(object):
       excel = APIUtilExcel(filepath)
       excel.openRead(<myfilepath>)
       # Set the worksheet to use
-      excel.worksheet(<workseet name>)  # Should exist
+      excel.setWorksheet(<workseet name>)  # Should exist
       array = excel.readColumn(<column identifier>)
       excel.close()
     WRITE
       excel = APIUtilExcel(filepath)
       excel.openWrite(<myfilepath>)
       # Set the worksheet to use
-      excel.worksheet(<workseet name>)  # Creates/overwrites worksheet
+      excel.setWorksheet(<workseet name>)  # Creates/overwrites worksheet
       excel.writeColumns(list-of-iterables, headers)
       excel.close()
 
@@ -94,10 +94,10 @@ class APIUtilExcel(object):
       factor = factor*NUM_LETTERS
     return index
 
-  def _setWorksheet(self, worksheet=None):
+  def setWorksheet(self, worksheet=None):
     """
     :param str worksheet: If None, the forst worksheet is used.
-    :raises: ValueError if worksheet not found
+    :raises: KeyError if worksheet not found
     """
     if self._filemode == WRITE:
       if worksheet is not None:
