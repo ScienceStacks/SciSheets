@@ -91,7 +91,7 @@ class APIUtilExcel(object):
     factor = 1
     for letter in letter_list:
       index +=  factor*(LETTERS.index(letter) + 1)
-      factor = factor*NUM_LETTERS
+      factor = factor*(NUM_LETTERS + 1)
     return index
 
   def setWorksheet(self, worksheet=None):
@@ -129,18 +129,18 @@ class APIUtilExcel(object):
           result.append(cell.value)
     return result
 
-  def readColumn(self, columnid, header=False):
+  def readColumn(self, columnid, has_header=False):
     """
     Reads the column in the specified worksheet. If no worksheet
     is specified, then the first one is read.
     :param ColumnID columnid:
-    :param bool header: True if there is a header for the column
+    :param bool has_header: True if there is a header for the column
     :return np.array, str: column_values, header_value (if True)
     :raises ValueError:
     """
     index = self._getColumnIndex(columnid)
     values = self._readColumn(index)
-    if header:
+    if has_header:
       header = values[0]
       del values[0]
     else:
