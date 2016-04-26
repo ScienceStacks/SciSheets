@@ -36,11 +36,23 @@ class ColumnContainer(object):
         return  column
     return None
 
+  def columnExists(self, name):
+    """
+    Determines if a column name exists
+    """
+    return any([name == c.getName() for c in self._columns])
+
   def getCell(self, row_index, column_index):
     """
     :return: the numpy array of the cells in the column
     """
     return self._columns[column_index].getCells()[row_index]
+
+  def getColumnNames(self):
+    """
+    :return list-of-str:
+    """
+    return [c.getName() for c in self._columns]
 
   def getColumns(self):
     """

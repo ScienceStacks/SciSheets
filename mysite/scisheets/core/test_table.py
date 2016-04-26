@@ -5,6 +5,7 @@ import column as cl
 import errors as er
 from helpers_test import createTable
 import numpy as np
+import pandas as pd
 import unittest
 
 
@@ -259,6 +260,74 @@ class TestTable(unittest.TestCase):
     self.table.trimRows()
     self.assertEqual(num_rows+1, self.table.numRows())
 
+  def _createDataframe(self, prefix="", names=None):
+    df = pd.DataFrame()
+    data = {}
+    if names is None:
+      names = ["%sDUMMY%d_COLUMN" % (prefix, n) for n in [1,2,5]]
+    if len(names) >= 3:
+      data[names[2]] = [100.0, 200.0, 300.0]
+    if len(names) >= 2:
+      data[names[1]] = [10.1, 20.0, 30.0]
+    if len(names) >= 1:
+      data[names[0]] = ["one", "two", "three"]
+    for name in names:
+      df[name] = data[name]
+    return df
+
+  def _TableEqualDataframe(self, table, dataframe, names=None):
+    if names is None:
+      names = list(set(dataframe.columns).union(  \
+           table.getColumnNames()))
+    num = len(names)
+    for name in dataframe.columns:
+      column = table.columnFromName(name)
+      b = all([dataframe[name][n] == column.getCells()[n]  \
+               for n in range(num)])
+      self.assertTrue(b)
+
+  def testCreateFromDataframe(self):
+    df = self._createDataframe()
+    table = tb.Table.createFromDataframe("NewTable", df)
+    num = len(df.columns)
+    for name in df.columns:
+      column = table.columnFromName(name)
+      b = all([df[name][n] == column.getCells()[n]  \
+               for n in range(num)])
+      self.assertTrue(b)
+
+  def _testAddFromDataframe(self, prefix="", names=None):
+    df = self._createDataframe(prefix=prefix)
+    self.table.addFromDataframe(df, names=names)
+    num = len(df.columns)
+    if names is None:
+      names = df.columns
+    self._TableEqualDataframe(self.table, df, names=names)
+
+  def testAddFromDataframe(self):
+    self._testAddFromDataframe()  # Name conflicts
+    self._testAddFromDataframe(names=['DUMMY1_COLUMN'])
+    self._testAddFromDataframe(prefix="D")  # No name conflicts
+    self._testAddFromDataframe(prefix="D", 
+        names=['DDUMMY1_COLUMN', 'DDUMMY2_COLUMN'])
+
+  def _testToDataframe(self, names=None):
+    df = self.table.toDataframe(names=names)
+    expected_df = self._createDataframe(names=names)
+    self.assertEqual(len(df.columns), len(expected_df.columns))
+    for name in df.columns:
+      self.assertTrue(list(df[name]) == list(expected_df[name]))
+
+  def testToDataframe(self):
+    self._testToDataframe()
+    self._testToDataframe(names=['DUMMY1_COLUMN'])
+    return
+    df = self.table.toDataframe()
+    expected_df = self._createDataframe()
+    self.assertEqual(len(df.columns), len(expected_df.columns))
+    for name in df.columns:
+      self.assertTrue(list(df[name]) == list(expected_df[name]))
+      
 
 if __name__ == '__main__':
   unittest.main()
