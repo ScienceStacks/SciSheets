@@ -163,46 +163,6 @@ class TestTable(unittest.TestCase):
   def testNumRows(self):
     self.assertEqual(self.table.numRows(), len(COLUMN2_CELLS))
 
-  def testMoveColumn1(self):
-    # Move column 2 to be after column 0
-    dest_idx = 0
-    column2 = self.table.columnFromName(COLUMN2)
-    self.table.moveColumn(column2, dest_idx)
-    self.assertEqual(self.table._columns[dest_idx+1].getName(), COLUMN2)
-
-  def testMoveColumn2(self):
-    # Move column 1 to be after column 3
-    dest_idx = 3
-    column1 = self.table.columnFromName(COLUMN1)
-    self.table.moveColumn(column1, dest_idx)
-    self.assertEqual(self.table._columns[dest_idx].getName(), COLUMN1)
-
-  def testColumnFromIndex(self):
-    columns = self.table.getColumns()
-    for idx in range(self.table.numColumns()):
-      column = columns[idx]
-      self.assertEqual(idx, self.table.indexFromColumn(column))
-
-  def testInsertColumn(self):
-    new_column_name = "NEW_COLUMN"
-    index = 1
-    new_column = cl.Column(new_column_name)
-    self.table.insertColumn(new_column, index)
-    self.assertEqual(self.table._columns[index].getName(),
-        new_column_name)
-    newer_column_name = "NEWER_COLUMN"
-    newer_column = cl.Column(newer_column_name)
-    index = len(self.table._columns)
-    self.table.insertColumn(newer_column)
-    self.assertEqual(self.table._columns[index].getName(),
-        newer_column_name)
-
-  def testRemoveColumn(self):
-    num_col = self.table.numColumns()
-    column = self.table.getColumns()[1]
-    self.table.removeColumn(column)
-    self.assertEqual(self.table.numColumns(), num_col - 1)
-
   def testInsertRow(self):
     row = self.table.getRow()  # Get an empty row
     row[COLUMN1] = "four"
@@ -252,10 +212,6 @@ class TestTable(unittest.TestCase):
     new_row = self.table.getRow(idx)
     self.assertEqual(new_row[COLUMN1], row[COLUMN1])
     self.assertEqual(new_row[COLUMN2], row[COLUMN2])
-
-  def testGetCell(self):
-    self.assertEqual(self.table.getCell(0, 1),
-                     COLUMN1_CELLS[0])
 
   def testRowNamesFromSize(self):
     size = 5

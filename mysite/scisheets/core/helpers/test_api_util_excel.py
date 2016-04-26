@@ -6,6 +6,7 @@ from ...core import helpers_test as ht
 import api_util_excel
 import numpy as np
 import os
+import pandas as pd
 import unittest
 
 TEST_WRITE_FILE = os.path.join(ht.TEST_DIR, "excel_write.xlsx")
@@ -71,6 +72,35 @@ class TestAPIUtilExcel(unittest.TestCase):
     self._testReadColumn('A', has_header=False)
     self._testReadColumn('A', has_header=True)
     self._testReadColumn(2, has_header=True, is_valid=False)
+
+  def testGetColumnIndex(self):
+    columnidx = self.excel_r._getColumnIndex('BB')
+    self.assertEqual(columnidx, 54)
+    columnidx = self.excel_r._getColumnIndex('AB')
+    self.assertEqual(columnidx, 28)
+    columnidx = self.excel_r._getColumnIndex('A')
+    self.assertEqual(columnidx, 1)
+    columnidx = self.excel_r._getColumnIndex('Z')
+    self.assertEqual(columnidx, 26)
+    columnidx = self.excel_r._getColumnIndex('AA')
+    self.assertEqual(columnidx, 27)
+    #columnidx = self.excel_r._getColumnIndex('AAB')
+
+  def testReadDataframe(self):
+    expected_df = pd.DataFrame()
+    expected_df['v1'] = [11, 22, 33]
+    expected_df['v2'] = [111, 222, 333]
+    self.excel_r.openRead()
+    self.excel_r.setWorksheet('Sheet1')
+    df = self.excel_r.readDataframe(has_header=True)
+    self.assertTrue(list(expected_df['v1']) == list(df['v1']))
+    self.assertTrue(list(expected_df['v2']) == list(df['v2']))
+    new_df = self.excel_r.readDataframe(has_header=False)
+    list1 = [x for x in new_df['var1'] if isinstance(x, long)]
+    list2 = [x for x in new_df['var2'] if isinstance(x, long)]
+    self.assertTrue(list1 == list(expected_df['v1']))
+    self.assertTrue(list2 == list(expected_df['v2']))
+    
     
 
 
