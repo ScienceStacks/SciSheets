@@ -4,6 +4,8 @@ Compiles Python statements that evaluate formulas in a Table.
 
 import api_util
 from statement_accumulator import StatementAccumulator
+from mysite.settings import SCISHEETS_PLUGIN_PYDIR,  \
+    SCISHEETS_PLUGIN_PYPATH
 import os
 import numpy as np
 
@@ -75,14 +77,21 @@ class ProgramGenerator(object):
   For exported functions, this has the class APIPlugin.
   """
 
-  def __init__(self, table, user_directory):
+  def __init__(self, 
+               table, 
+               user_directory, 
+               plugin_directory=SCISHEETS_PLUGIN_PYDIR,
+               plugin_path=SCISHEETS_PLUGIN_PYPATH):
     """
     Exports the table as python code
     :param Table table: table being processed
     :param str user_directory: directory where user functions are located
+    :param str plug_directory: directory of common plugins
     """
     self._table = table
     self._user_directory = user_directory
+    self._plugin_directory = plugin_directory
+    self._plugin_path = plugin_path
 
   def makeEvaluationScriptProgram(self, create_API_object=False):
     """
@@ -258,14 +267,15 @@ if __name__ == '__main__':
     sa.add(statement)
     return sa.get()
 
-  def _findFilenames(self, suffix=PY_SUFFIX):
+  def _findFilenames(self, directory, suffix=PY_SUFFIX):
     """
     :param suffix: suffix to select
+    :param str directory:
     :return: list of names of file names that have suffix (w/o suffix)
     """
     selected_filenames = []
-    files = [f for f in os.listdir(self._user_directory)
-        if os.path.isfile(os.path.join(self._user_directory, f))   \
+    files = [f for f in os.listdir(directory)
+        if os.path.isfile(os.path.join(directory, f))   \
            and f[-len(suffix):] == suffix]
     for name in files:
       is_valid_file = np.array([name.find(p, 0, len(p)) == -1
@@ -276,7 +286,7 @@ if __name__ == '__main__':
     return selected_filenames
 
   #TODO: More robust approach to finding implied imports
-  def _makeFormulaImportStatements(self):
+  def _makeFormulaImportStatements(self, directory, import_path=""):
     """
     Construct import statements for the imports implied by the
     functions used in a formula. The approach taken isn't
@@ -285,11 +295,13 @@ if __name__ == '__main__':
          function name should be the same as the file name.
       2. If a formula contains the file name (function name), then
          an import is generated.
+    :param str directory: directory to search
+    :param str import_path: path for the import
     :return str: import statements for files in the user directory
     """
     formulas = [c.getFormula() for c in self._table.getColumns()
                    if not (c.getFormula() is None)]
-    python_filenames = self._findFilenames()
+    python_filenames = self._findFilenames(directory)
     # Determine which files are referenced in a formula
     referenced_filenames = []
     for name in python_filenames:
@@ -298,10 +310,12 @@ if __name__ == '__main__':
           referenced_filenames.append(name)
           break
     # Construct the import statements
-    statements = []
     sa = StatementAccumulator()
     for name in referenced_filenames:
-      sa.add("from %s import %s" % (name, name))
+      if len(import_path) == 0:
+        sa.add("from %s import %s" % (name, name))
+      else:
+        sa.add("from %s.%s import %s" % (import_path, name, name))
     return sa.get()
 
   def _getSelectedColumns(self, excludes=None, only_includes=None):
@@ -382,8 +396,11 @@ from sympy import *
 from numpy import nan  # Must follow sympy import '''
     sa.add(statement)
     if self._user_directory is not None:
-      statement = self._makeFormulaImportStatements()
+      statement = self._makeFormulaImportStatements(self._user_directory)
       sa.add(statement)
+    statement = self._makeFormulaImportStatements(
+        self._plugin_directory, import_path=self._plugin_path)
+    sa.add(statement)
     return sa.get()
 
   # pylint: disable=R0913
