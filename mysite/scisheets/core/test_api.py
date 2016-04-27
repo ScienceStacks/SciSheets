@@ -2,10 +2,11 @@
 
 from api import API, APIFormulas, APIPlugin
 import helpers_test as ht
+from helpers.trinary import Trinary
 import table_evaluator as te
 import numpy as np
 import os
-from helpers.trinary import Trinary
+import pandas as pd
 import unittest
 
 COLUMN1 = "Col_1"
@@ -24,6 +25,7 @@ class TestAPI(unittest.TestCase):
     self.api._table = ht.createTable("test", column_name=COLUMN1)
     self.column1 = self.api._table.columnFromName(COLUMN1)
     self.column1.addCells(COLUMN1_VALUES, replace=True)
+    ht.setupTableInitialization(self)
 
   def testGetColumnValues(self):
     values = self.api.getColumnValues(COLUMN1)
@@ -43,14 +45,15 @@ class TestAPIFormulas(unittest.TestCase):
   def setUp(self):
     table = ht.createTable("test", column_name=COLUMN1)
     self.api = APIFormulas(table)
+    ht.setupTableInitialization(self)
 
   def testGetValidatedColumn(self):
-    column = self.api._getColumn(COLUMN1)
+    column = self.api.getColumn(COLUMN1)
     self.assertEqual(column.getName(), COLUMN1)
 
   def _createColumn(self):
     self.api.createColumn(COLUMN2)
-    return self.api._getColumn(COLUMN2)
+    return self.api.getColumn(COLUMN2)
 
   def testCreateColumn(self):
     column = self._createColumn()
@@ -125,6 +128,69 @@ class TestAPIFormulas(unittest.TestCase):
       values = column.getCells()[:data_len]
       expected_list = [data[n][idx] for n in range(1, len(data))]
       self.assertTrue(values == expected_list)
+
+  def _createDataframe(self, prefix="", names=None):
+    df = pd.DataFrame()
+    data = {}
+    if names is None:
+      names = ["%sDUMMY%d_COLUMN" % (prefix, n) for n in [1,2,5]]
+    if len(names) >= 3:
+      data[names[2]] = [100.0, 200.0, 300.0]
+    if len(names) >= 2:
+      data[names[1]] = [10.1, 20.0, 30.0]
+    if len(names) >= 1:
+      data[names[0]] = ["one", "two", "three"]
+    for name in names:
+      df[name] = data[name]
+    return df
+
+  def _TableEqualDataframe(self, table, dataframe, names=None):
+    if names is None:
+      names = list(set(dataframe.columns).union(  \
+           table.getColumnNames()))
+    num = len(names)
+    for name in dataframe.columns:
+      column = table.columnFromName(name)
+      b = all([dataframe[name][n] == column.getCells()[n]  \
+               for n in range(num)])
+      self.assertTrue(b)
+
+  def testCreateFromDataframe(self):
+    df = self._createDataframe()
+    table = self.api.dataframeToTable("NewTable", df)
+    num = len(df.columns)
+    for name in df.columns:
+      column = table.columnFromName(name)
+      b = all([df[name][n] == column.getCells()[n]  \
+               for n in range(num)])
+      self.assertTrue(b)
+
+  def _testAddFromDataframe(self, prefix="", names=None):
+    df = self._createDataframe(prefix=prefix)
+    self.api.addColumnsToTableFromDataframe(df, names=names)
+    num = len(df.columns)
+    if names is None:
+      names = list(df.columns)
+    self._TableEqualDataframe(self.api._table, df, names=names)
+
+  def testAddFromDataframe(self):
+    self._testAddFromDataframe()  # Name conflicts
+    self._testAddFromDataframe(names=['DUMMY1_COLUMN'])
+    self._testAddFromDataframe(prefix="D")  # No name conflicts
+    self._testAddFromDataframe(prefix="D", 
+        names=['DDUMMY1_COLUMN', 'DDUMMY2_COLUMN'])
+
+  def _testToDataframe(self, names=None):
+    df = self.api.tableToDataframe(names=names)
+    expected_df = self._createDataframe(names=names)
+    self.assertEqual(len(df.columns), len(expected_df.columns))
+    for name in df.columns:
+      self.assertTrue(list(df[name]) == list(expected_df[name]))
+
+  def testToDataframe(self):
+    self.api._table = self.table
+    self._testToDataframe()
+    self._testToDataframe(names=['DUMMY1_COLUMN'])
     
 
 # pylint: disable=W0212,C0111,R0904
@@ -134,6 +200,7 @@ class TestAPIPlugin(unittest.TestCase):
     table = ht.createTable("test", column_name=COLUMN1)
     self.api = APIPlugin(table.getFilepath())
     self.api.initialize()
+    ht.setupTableInitialization(self)
 
 
 if __name__ == '__main__':

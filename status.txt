@@ -1,12 +1,6 @@
 Serve page from Django
 
 0.1 Implement excel access
-a. Create interface to pandas dataframes
-  Table.createFromDataframe(df)
-  table.addDataframe(columns=)
-  table.toDataframe(columns=)
-b. Create plugin directory
-  put intercept and slope into the plugin directory
 c. Create plugins
   (a) write table to excel worksheet
   (b) read columns from excel worksheet

@@ -37,27 +37,6 @@ class Table(ColumnContainer):
   The primary object for referencing a row is the row index
   """
 
-  @classmethod
-  def createFromDataframe(cls, table_name, dataframe, names=None):
-    """
-    Creates a Table from the pandas dataframe.
-    :param str table_name: name of the table
-    :param pd.DataFrame dataframe:
-    :param list-of-str names: names of names in the dataframe
-                                that are names in the table.
-                                Defaull is all.
-    :return Table table:
-    """
-    if names is None:
-      names = list(dataframe.columns)
-    table = Table(table_name)
-    for name in names:
-      column = cl.Column(name)
-      column.addCells(dataframe[name], replace=True)
-      table.addColumn(column)
-    return table 
-    
-
   def __init__(self, name):
     super(Table, self).__init__(name)
     self._createNameColumn()
@@ -222,23 +201,6 @@ class Table(ColumnContainer):
       column.setTable(self)
       self.adjustColumnLength()
       self._validateTable()
-
-  def addFromDataframe(self, dataframe, names=None):
-    """
-    Adds columns from a dataframe to the table. If a column of the same
-    name exists, its data is replaced.
-    :param pandas.DataFrame dataframe:
-    :param list-of-str names: column names to include. Default is all.
-    """
-    if names is None:
-      names = list(dataframe.columns)
-    for name in names:
-      if self.columnExists(name):
-        column = self.columnFromName(name)
-      else:
-        column = cl.Column(name)
-        self.addColumn(column)
-      column.addCells(dataframe[name], replace=True)
 
   def addRow(self, row, ext_index=None):
     """
@@ -419,23 +381,6 @@ class Table(ColumnContainer):
           column.replaceCells(new_data)
       except:
         import pdb; pdb.set_trace()
-
-  def toDataframe(self, names=None):
-    """
-    Creates a dataframe from columns in the table.
-    :param list-of-str names: column names to include. Default is all.
-    :return pandas.DataFrame:
-    Does not export the "name column"
-    """
-    if names is None:
-      names = [c.getName() for c in self._columns \
-          if c.getName() != NAME_COLUMN_STR]
-    dataframe = pd.DataFrame()
-    for name in names:
-      column = self.columnFromName(name)
-      dataframe[name] = column.getCells()
-    return dataframe
-    
 
   def trimRows(self):
     """

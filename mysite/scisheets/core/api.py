@@ -10,7 +10,7 @@ The API consists of these parts:
 """
 
 from column import Column
-from table import Table
+from table import Table, NAME_COLUMN_STR
 import helpers.api_util as api_util
 from helpers.trinary import Trinary
 from helpers.combinatoric_list import CombinatoricList
@@ -40,6 +40,23 @@ class API(object):
     # and so the user has responsibility for their update
     self._exclude_column_update = []
 
+  def addColumnsToTableFromDataframe(self, dataframe, names=None):
+    """
+    Adds columns from a dataframe to the table. If a column of the same
+    name exists, its data is replaced.
+    :param pandas.DataFrame dataframe:
+    :param list-of-str names: column names to include. Default is all.
+    """
+    if names is None:
+      names = list(dataframe.columns)
+    for name in names:
+      if self._table.columnExists(name):
+        column = self._table.columnFromName(name)
+      else:
+        column = Column(name)
+        self._table.addColumn(column)
+      column.addCells(dataframe[name], replace=True)
+
   def _coerceValues(self, column, values):
     """
     Coerces the values to the type appropriate for the column
@@ -50,6 +67,25 @@ class API(object):
     data_class = column.getDataClass()
     return data_class.cons(values)
 
+  def dataframeToTable(self, table_name, dataframe, names=None):
+    """
+    Creates a Table from the pandas dataframe.
+    :param str table_name: name of the table
+    :param pd.DataFrame dataframe:
+    :param list-of-str names: names of names in the dataframe
+                                that are names in the table.
+                                Defaull is all.
+    :return Table table:
+    """
+    if names is None:
+      names = list(dataframe.columns)
+    table = Table(table_name)
+    for name in names:
+      column = Column(name)
+      column.addCells(dataframe[name], replace=True)
+      table.addColumn(column)
+    return table 
+
   def coerceValues(self, column_name, values):
     """
     Coerces the values to the type appropriate for the column
@@ -57,7 +93,7 @@ class API(object):
     :return: type appropriate for column
     :raises: ValueError
     """
-    column = self._getColumn(column_name)
+    column = self.getColumn(column_name)
     return self._coerceValues(column, values)
 
   def excludeColumnUpdate(self, list_of_names):
@@ -66,7 +102,7 @@ class API(object):
     """
     self._exclude_column_update.extend(list_of_names)
 
-  def _getColumn(self, column_id, validate=True):
+  def getColumn(self, column_id, validate=True):
     """
     :param column_id: either the name of the column or
                       its 1-based index after the name ('row') column
@@ -97,7 +133,7 @@ class API(object):
     :return: iterable of object
     :raises: ValueError
     """
-    column = self._getColumn(column_name)
+    column = self.getColumn(column_name)
     return self._coerceValues(column, column.getCells())
 
   def getTable(self):
@@ -123,6 +159,22 @@ class API(object):
     else:
       list_values = list(values)
     self._table.updateColumn(column, list_values)
+
+  def tableToDataframe(self, names=None):
+    """
+    Creates a dataframe from columns in the table.
+    :param list-of-str names: column names to include. Default is all.
+    :return pandas.DataFrame:
+    Does not export the "name column"
+    """
+    if names is None:
+      names = [c.getName() for c in self._table.getColumns() \
+          if c.getName() != NAME_COLUMN_STR]
+    dataframe = pd.DataFrame()
+    for name in names:
+      column = self._table.columnFromName(name)
+      dataframe[name] = column.getCells()
+    return dataframe
 
   def updateTableFile(self):
     api_util.writeTableToFile(self._table.getFilepath())
@@ -212,7 +264,7 @@ class APIFormulas(API):
     :param column_id: either the name of the column or 
                       the 1-based index after the 'row' column
     """
-    column = self._getColumn(column_id, validate=False)
+    column = self.getColumn(column_id, validate=False)
     if column is not None:
       _  = self._table.deleteColumn(column)
 
@@ -256,7 +308,7 @@ class APIFormulas(API):
     :return: scalar object at the indicate row for the column.
     :raises: ValueError
     """
-    column = self._getColumn(column_id)
+    column = self.getColumn(column_id)
     values = column.getCells()
     if len(values) < row_num - 1:
       raise ValueError("%s column does not have %d values." 
