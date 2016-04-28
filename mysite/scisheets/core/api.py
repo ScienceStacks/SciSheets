@@ -51,7 +51,7 @@ class API(object):
     if names is None:
       names = list(dataframe.columns)
     for name in names:
-      if self._table.columnExists(name):
+      if self._table.isColumnPresent(name):
         column = self._table.columnFromName(name)
       else:
         column = Column(name)
