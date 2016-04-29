@@ -1,0 +1,20 @@
+""" Tests for param. """
+
+from param import param
+from scisheets.core import api as api
+from scisheets.core.helpers.trinary import Trinary
+from scisheets.core import helpers_test as ht
+import unittest
+
+
+class TestParam(unittest.TestCase):
+
+  def setUp(self):
+    ht.setupTableInitialization(self)
+    self.api = api.APIFormulas(self.table)
+
+  def testParam(self):
+    p1 = param(self.api, ht.COLUMN1)
+    self.assertEqual(p1, 'one')
+    p2 = param(self.api, ht.COLUMN1, row_num=2)
+    self.assertEqual(p2, 'two')

@@ -1,6 +1,9 @@
 Serve page from Django
 
-0.1 Fixing compareIterables to handle different sized arrays
+0.1 Implement excel access
+c. Create plugins
+  (a) write table to excel worksheet
+  (b) read columns from excel worksheet
 
 0.3 Complete truth tables?
 

@@ -3,16 +3,16 @@ The API provides runtime support for user execution. There are two runtime envir
 (a) evaluation of the formulas in a Table object and (b) execution of a standalone
 python program that was exported from a Table object.
 The API consists of these parts: 
-  1. APIFormulas provides extended capabilities for executing formulas (e.g., trinary logical operations
-     and truth tables)
+  1. APIFormulas provides extended capabilities for executing formulas
   2. APIPlugin provides runtime support for standalone execution
   3. API base clase provides common code.
+The API is intended to be sparse in that it focuses on table manipulation.
+Plugins may use the API to do data manipulation and calculations.
 """
 
 from column import Column
-from table import Table
+from table import Table, NAME_COLUMN_STR
 import helpers.api_util as api_util
-from helpers.trinary import Trinary
 from helpers.combinatoric_list import CombinatoricList
 import collections
 import os
@@ -40,6 +40,25 @@ class API(object):
     # and so the user has responsibility for their update
     self._exclude_column_update = []
 
+  def addColumnsToTableFromDataframe(self, dataframe, names=None):
+    """
+    Adds columns from a dataframe to the table. If a column of the same
+    name exists, its data is replaced.
+    :param pandas.DataFrame dataframe:
+    :param list-of-str names: column names to include. Default is all.
+    :return list-of-str names: names of columns added to the table
+    """
+    if names is None:
+      names = list(dataframe.columns)
+    for name in names:
+      if self._table.isColumnPresent(name):
+        column = self._table.columnFromName(name)
+      else:
+        column = Column(name)
+        self._table.addColumn(column)
+      column.addCells(dataframe[name], replace=True)
+    return names
+
   def _coerceValues(self, column, values):
     """
     Coerces the values to the type appropriate for the column
@@ -50,6 +69,25 @@ class API(object):
     data_class = column.getDataClass()
     return data_class.cons(values)
 
+  def dataframeToTable(self, table_name, dataframe, names=None):
+    """
+    Creates a Table from the pandas dataframe.
+    :param str table_name: name of the table
+    :param pd.DataFrame dataframe:
+    :param list-of-str names: names of names in the dataframe
+                                that are names in the table.
+                                Defaull is all.
+    :return Table table:
+    """
+    if names is None:
+      names = list(dataframe.columns)
+    table = Table(table_name)
+    for name in names:
+      column = Column(name)
+      column.addCells(dataframe[name], replace=True)
+      table.addColumn(column)
+    return table 
+
   def coerceValues(self, column_name, values):
     """
     Coerces the values to the type appropriate for the column
@@ -57,7 +95,7 @@ class API(object):
     :return: type appropriate for column
     :raises: ValueError
     """
-    column = self._getColumn(column_name)
+    column = self.getColumn(column_name)
     return self._coerceValues(column, values)
 
   def excludeColumnUpdate(self, list_of_names):
@@ -66,7 +104,7 @@ class API(object):
     """
     self._exclude_column_update.extend(list_of_names)
 
-  def _getColumn(self, column_id, validate=True):
+  def getColumn(self, column_id, validate=True):
     """
     :param column_id: either the name of the column or
                       its 1-based index after the name ('row') column
@@ -97,7 +135,7 @@ class API(object):
     :return: iterable of object
     :raises: ValueError
     """
-    column = self._getColumn(column_name)
+    column = self.getColumn(column_name)
     return self._coerceValues(column, column.getCells())
 
   def getTable(self):
@@ -124,8 +162,27 @@ class API(object):
       list_values = list(values)
     self._table.updateColumn(column, list_values)
 
+  def tableToDataframe(self, columns=None):
+    """
+    Creates a dataframe from columns in the table.
+    :param list-of-str columns: column columns to include. Default is all.
+    :return pandas.DataFrame:
+    :raises ValueError: invalid column name
+    Does not export the "name column"
+    """
+    if columns is None:
+      columns = [c.getName() for c in self._table.getDataColumns()]
+    dataframe = pd.DataFrame()
+    for name in columns:
+      column = self._table.columnFromName(name)
+      if column is None:
+        raise ValueError("Column %s does not exist in table %s" %  \
+            (name, self._table.getName()))
+      dataframe[name] = column.getCells()
+    return dataframe
+
   def updateTableFile(self):
-    api_util.writeTableToFile(self._table.getFilepath())
+    api_util.writeTableToFile(self._table)
 
 
 class APIFormulas(API):
@@ -143,39 +200,6 @@ class APIFormulas(API):
     """
     super(APIFormulas, self).__init__()
     self._table = table
-
-  def createTruthTable(self, column_names, only_boolean=False):
-    """
-    Creates a truth table with all combinations of Boolean
-    values for the number of columns provided.
-    :param list-of-str column_names: names of columns to create
-    :param bool only_boolean: True if only want boolean values
-                              in the truth table
-    Usage example:
-      S.createTruthTable(['A', 'B'])
-      A = S.getColumnValues('A')  # Trinary object
-      B = S.getColumnValues('B')  # Trinary object
-      C = A & B | -B
-      S.createColumn('C')
-      S.setColumnValues('C', C)  # Assign the column value
-    """
-    columns = []
-    for name in column_names:
-      columns.append(self._createColumn(name, asis=True))
-    # Create the column values
-    elements = [False, True]
-    if not only_boolean:
-      elements.insert(0, None)
-    num_lists = len(column_names)
-    combinatorics = CombinatoricList(elements)
-    results = combinatorics.run(num_lists)
-    # Assign the results
-    for idx in range(num_lists):
-      column = columns[idx]
-      self._table.updateColumn(column, results[idx])
-
-  def createTrinary(self, iterable):
-    return Trinary(iterable)
 
   def _createColumn(self, column_name, index=None, asis=False):
     """
@@ -196,7 +220,7 @@ class APIFormulas(API):
       raise ValueError(error)
     return column
 
-  def createColumn(self, column_name, index=None):
+  def createColumn(self, column_name, index=None, asis=False):
     """
     Creates a new column, either just to the right of the
     current column (index=None) are at a specific index.
@@ -204,7 +228,9 @@ class APIFormulas(API):
     :param int index: index where the column is to be placed
     :return: column object
     """
-    return self._createColumn(column_name, index)
+    return self._createColumn(column_name, 
+                              index=index,
+                              asis=asis)
 
   def deleteColumn(self, column_id):
     """
@@ -212,57 +238,9 @@ class APIFormulas(API):
     :param column_id: either the name of the column or 
                       the 1-based index after the 'row' column
     """
-    column = self._getColumn(column_id, validate=False)
+    column = self.getColumn(column_id, validate=False)
     if column is not None:
       _  = self._table.deleteColumn(column)
-
-  def importCSV(self, filepath, column_names=None):
-    """
-    Imports the specified columns from the csv file.
-    Columns that don't exist in the current table are created.
-    :param str filepath: full path to file
-    :column_names list-of-str: names of a subset of columns in the file
-    :return list-of-str: column names imported
-    :raises IOError, ValueError:
-    """
-    df = pd.read_csv(filepath)  # May raise IOError
-    df.columns = [Column.cleanName(n) for n in df.columns]
-    if column_names is None:
-      column_names = df.columns
-    error = ""
-    imported_names = []
-    for name in column_names:
-      if not name in df.columns:
-        error += "%s is missing column %s\n" % (filepath, name)
-        raise ValueError(error)
-      else:
-        column = self.createColumn(name)
-        if column is None:
-          import pdb; pdb.set_trace()
-        self._table.addCells(column, 
-                             np.array(df[name]), 
-                             replace=True)
-        imported_names.append(column.getName())
-    if len(error) > 0:
-      raise ValueError(error)
-    api_util.writeTableToFile(self._table)
-    return imported_names
-   
-
-  def param(self, column_id, row_num=1):
-    """
-    :param str column_name: name of the column referenced
-    :param int row_num: row from which the parameter is extracted
-    :return: scalar object at the indicate row for the column.
-    :raises: ValueError
-    """
-    column = self._getColumn(column_id)
-    values = column.getCells()
-    if len(values) < row_num - 1:
-      raise ValueError("%s column does not have %d values." 
-          % (column_id, row_num))
-    return values[row_num-1]
-
 
 class APIPlugin(APIFormulas):
   """

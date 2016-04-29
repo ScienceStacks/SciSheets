@@ -18,6 +18,23 @@ TEST_TABLE = "TEST_TABLE"
 TEST_FILENAME = "%s.pcl" % TEST_TABLE
 TABLE_FILEPATH = os.path.join(TEST_DIR, TEST_FILENAME)
 
+# Constants
+COLUMN = "DUMMY_COLUMN"
+COLUMN1 = "DUMMY1_COLUMN"
+COLUMN2 = "DUMMY2_COLUMN"
+COLUMN3 = "DUMMY3_COLUMN"
+COLUMN4 = "DUMMY4_COLUMN"
+COLUMN5 = "DUMMY5_COLUMN"
+COLUMN2_INDEX = 1
+TABLE_NAME = "DUMMY_TABLE"
+LIST = [2.0, 3.0]
+LIST2 = [3.0]
+TABLE = 'DUMMY'
+FORMULA = "A+B"
+COLUMN1_CELLS = ["one", "two", "three"]
+COLUMN2_CELLS = [10.1, 20.0, 30.0]
+COLUMN5_CELLS = [100.0, 200.0, 300.0]
+
 def toList(val):
   """
   Converts a value to a list.
@@ -123,6 +140,21 @@ def augmentPythonPath(thisFile):
     filelist = thisFile
   for aFile in filelist:
     sys.path.append(os.path.dirname(aFile))
+
+def setupTableInitialization(o):
+  """
+  Adds a table to the unittest object.
+  """
+  o.table = createTable(TABLE_NAME)
+  column1 = cl.Column(COLUMN1)
+  column1.addCells(COLUMN1_CELLS)
+  o.table.addColumn(column1)
+  column2 = cl.Column(COLUMN2)
+  column2.addCells(COLUMN2_CELLS)
+  o.table.addColumn(column2)
+  column5 = cl.Column(COLUMN5)
+  column5.addCells(COLUMN5_CELLS)
+  o.table.addColumn(column5)
 
 
 class TableFileHelper(object):

@@ -92,7 +92,7 @@ class TestProgramGenerator(unittest.TestCase):
     self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA,
                                                 formula=VALID_FORMULA)
     writeTableToFile(self.table)
-    self.pgm_gen = pg.ProgramGenerator(self.table, TEST_DIR)
+    self.generator = pg.ProgramGenerator(self.table, TEST_DIR)
 
   def _addColumn(self, name, cells=None, formula=None):
     column = cl.Column(name)
@@ -107,17 +107,32 @@ class TestProgramGenerator(unittest.TestCase):
     filename = "dummy"
     helper = TableFileHelper(filename, TEST_DIR)
     helper.create()
-    python_files = self.pgm_gen._findFilenames()
+    python_files = self.generator._findFilenames(  \
+        self.generator._user_directory)
     self.assertTrue(python_files.index(filename) > -1)
     helper.destroy()
 
+  def testMakeFormulaImportStatementsForPlugin(self):
+    statements = self.generator._makeFormulaImportStatements(  \
+        self.generator._plugin_directory,
+        import_path=self.generator._plugin_path)
+    self.assertEqual(len(statements), 0)
+    self.column_valid_formula.setFormula("intercept()")
+    statements = self.generator._makeFormulaImportStatements(  \
+        self.generator._plugin_directory,
+        import_path=self.generator._plugin_path)
+    expected = "from scisheets.plugins.intercept import intercept"
+    self.assertEqual(statements, expected)
+
   def testMakeFormulaImportStatements(self):
-    statements = self.pgm_gen._makeFormulaImportStatements()
+    statements = self.generator._makeFormulaImportStatements(  \
+        self.generator._user_directory)
     self.assertEqual(len(statements), 0)
     self.column_valid_formula.setFormula("dummy()")
-    statement = self.pgm_gen._makeFormulaImportStatements()
+    statements = self.generator._makeFormulaImportStatements(  \
+        self.generator._user_directory)
     expected = "from dummy import dummy"
-    self.assertEqual(statement, expected)
+    self.assertEqual(statements, expected)
 
   def _testAssignmentStatements(self, function):
     """
@@ -138,36 +153,36 @@ class TestProgramGenerator(unittest.TestCase):
 
   def testAssignmentStatements(self):
     self._testAssignmentStatements(
-        self.pgm_gen._makeColumnValuesAssignmentStatements)
+        self.generator._makeColumnValuesAssignmentStatements)
     self._testAssignmentStatements(
-        self.pgm_gen. _makeVariableAssignmentStatements)
+        self.generator. _makeVariableAssignmentStatements)
 
   def testFormulaColumns(self):
-    columns = self.pgm_gen._formulaColumns()
+    columns = self.generator._formulaColumns()
     self.assertEqual(columns[0].getName(), 'VALID_FORMULA')
     self.table.deleteColumn(columns[0])
-    columns = self.pgm_gen._formulaColumns()
+    columns = self.generator._formulaColumns()
     self.assertEqual(len(columns), 0)
 
   def testMakeVariablePrintStatements(self):
-    statements = self.pgm_gen._makeVariablePrintStatements()
+    statements = self.generator._makeVariablePrintStatements()
     for column in self.table.getColumns():
       self.assertTrue(column.getName() in statements)
 
   def testMakePrologue(self):
-    statements = self.pgm_gen._makePrologue()
+    statements = self.generator._makePrologue()
     self.assertTrue('import' in statements)
     self.assertIsNone(_compile(statements))
 
   def testMakeFormulaStatements(self):
-    statements = self.pgm_gen._makeFormulaStatements()
+    statements = self.generator._makeFormulaStatements()
     formula_column = self.table.columnFromName('VALID_FORMULA')
     self.assertTrue(formula_column.getFormula() in statements)
     self.assertIsNone(_compile(statements))
 
   def testMakeAPIPluginInitializationStatements(self):
     function_name = "this_test"
-    statements = self.pgm_gen._makeAPIPluginInitializationStatements(
+    statements = self.generator._makeAPIPluginInitializationStatements(
         function_name)
     self.assertTrue("%s.pcl" % function_name in statements)
     self.assertTrue("initialize()" in statements)
@@ -200,18 +215,18 @@ class TestProgramGenerator(unittest.TestCase):
   def testMakeEvaluationScriptProgram(self):
     tags = ["import", "#_table", "getColumnValues", "np.sin", \
         "setColumnValues"]
-    program = self.pgm_gen.makeEvaluationScriptProgram()
+    program = self.generator.makeEvaluationScriptProgram()
     self._checkWorkflow(program, tags)
     tags = ["import", "_table", "getColumnValues", "np.sin", \
         "setColumnValues"]
-    program = self.pgm_gen.makeEvaluationScriptProgram(
+    program = self.generator.makeEvaluationScriptProgram(
         create_API_object=True)
     self._checkWorkflow(program, tags)
 
   def testMakeExportScriptProgram(self):
     tags = ["import", "_table", "getColumnValues", "np.sin", \
         "print"]
-    program = self.pgm_gen.makeExportScriptProgram()
+    program = self.generator.makeExportScriptProgram()
     self._checkWorkflow(program, tags)
 
   def testMakeFunctionProgram(self):
@@ -221,7 +236,7 @@ class TestProgramGenerator(unittest.TestCase):
     def_stmt = "def %s(" % function_name
     tags = ["import", "api.APIPlugin", def_stmt,  \
         "getColumnValues", "np.sin", "return"]
-    program = self.pgm_gen.makeFunctionProgram(function_name,
+    program = self.generator.makeFunctionProgram(function_name,
                                                inputs,
                                                outputs)
     self._checkWorkflow(program, tags)
@@ -233,7 +248,7 @@ class TestProgramGenerator(unittest.TestCase):
     function_call = "%s = %s(" % (output, function_name)
     tags = ["import", "class ", "api.APIPlugin", function_call, \
         "self.assert"]
-    program = self.pgm_gen.makeTestProgram(function_name,
+    program = self.generator.makeTestProgram(function_name,
                                            inputs,
                                            [output])
     self._checkWorkflow(program, tags)

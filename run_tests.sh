@@ -7,6 +7,7 @@ echo "*********** scisheets ***************"
 echo "**********************************"
 python manage.py test scisheets.helpers
 python manage.py test scisheets.ui
+python manage.py test scisheets.plugins
 scisheets/core/tt
 echo "**********************************"
 echo "*********** mysite ***************"

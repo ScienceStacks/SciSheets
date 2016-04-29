@@ -4,10 +4,12 @@
 
 
 from column import Column
+from column_container import ColumnContainer
+from table_evaluator import TableEvaluator
 import errors as er
 import column as cl
 import numpy as np
-from table_evaluator import TableEvaluator
+import pandas as pd
 
 NAME_COLUMN_STR = "row"
 NAME_COLUMN_IDX = 0
@@ -19,118 +21,6 @@ class Row(dict):
   """
   pass
 
-
-#####################################
-# Table objects
-#####################################
-
-
-class ColumnContainer(object):
-  '''
-  A ColumnContainer can add and delete columns.
-  It has no concept of Rows.
-  It treats columns as independent objects.
-  '''
-
-  def __init__(self, name):
-    self._name = name
-    self._columns = []  # array of column objects in table sequence
-
-  def columnFromIndex(self, index):
-    """
-    :return: column object at the index
-    """
-    return self._columns[index]
-
-  def columnFromName(self, name):
-    """
-    Finds a column with the specified name or None
-    :param name: name of the column
-    :return: column - column object
-    """
-    for  column in self._columns:
-      if  column.getName() == name:
-        return  column
-    return None
-
-  def getCell(self, row_index, column_index):
-    """
-    :return: the numpy array of the cells in the column
-    """
-    return self._columns[column_index].getCells()[row_index]
-
-  def getColumns(self):
-    """
-    :return: list with the column objects in sequence
-    """
-    return self._columns
-
-  def getName(self):
-    """
-    :return: the table name
-    """
-    return self._name
-
-  def indexFromColumn(self, column):
-    """
-    Finds the index of the specified column
-    :param column: column object
-    """
-    return self._columns.index(column)
-
-  def insertColumn(self, column, index=None):
-    """
-    Inserts the column after the specified column index
-    :param column: object
-    :param index: column index
-    """
-    idx = index
-    if idx is None:
-      idx = len(self._columns)
-    self._columns.insert(idx, column)
-
-  def moveColumn(self, column, new_idx):
-    """
-    Moves the column to the specified index
-    :param column: column to move
-    :param new_idx: new index for column
-    """
-    cur_idx = self.indexFromColumn(column)
-    ins_idx = new_idx + 1
-    if cur_idx < new_idx:
-      ins_idx -= 1
-    del self._columns[cur_idx]
-    self._columns.insert(ins_idx, column)
-
-  def numColumns(self):
-    """
-    Returns the number of columns in the table
-    """
-    return len(self._columns)
-
-  def removeColumn(self, column):
-    """
-    Removes the column object from the table
-    """
-    index = self._columns.index(column)
-    del self._columns[index]
-
-  def setFilepath(self, filepath):
-    # Path to the backing store for the Table
-    self._filepath = filepath
-
-  def setName(self, name):
-    """
-    :param name: new table name
-    :return: error string if invalid name, else None
-    """
-    try:
-      _ = compile(name, "string", "eval")
-      error = None
-      self._name = name
-    except SyntaxError as err:
-      error = str(err)
-    return error
 
 # pylint: disable=R0904
 class Table(ColumnContainer):
@@ -170,7 +60,7 @@ class Table(ColumnContainer):
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
   # Data columns are those that have user data. The "row" column is excluded.
-  def _getDataColumns(self):
+  def getDataColumns(self):
     """
     Returns the data for a column
     """
@@ -340,7 +230,7 @@ class Table(ColumnContainer):
     """
     new_table = Table(self._name)
     self.setFilepath(None)
-    for column in self._getDataColumns():
+    for column in self.getDataColumns():
       new_column = cl.Column(column.getName())
       new_column.addCells(column.getCells())
       new_table.addColumn(new_column)

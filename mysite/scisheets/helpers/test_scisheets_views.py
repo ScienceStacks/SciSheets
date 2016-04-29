@@ -788,6 +788,22 @@ for x in Col_2:
     val = new_table._columns[formula_columns[1]].getCells()[1]
     self.assertEqual(val, 0.5)
 
+  def testImportExcelToTable(self):
+    formula = "a = importExcelToTable(s, 'RawData.xlsx')"
+    base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    # Reset the formula
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Formula"
+    ajax_cmd['column'] = 1
+    ajax_cmd['args[]'] = formula
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
+    self.assertTrue(content["success"])
+
 
 if __name__ == '__main__':
     unittest.main()

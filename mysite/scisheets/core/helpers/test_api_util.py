@@ -3,8 +3,8 @@ Tests for API Utilities. These are codes shared with other
 files in core.
  '''
 
-from ...core import helpers_test as ht
-import api_util
+from scisheets.core import helpers_test as ht
+from scisheets.core.helpers import api_util as api_util
 import numpy as np
 import os
 import unittest
