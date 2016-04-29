@@ -52,11 +52,11 @@ class TestImportExcel(unittest.TestCase):
     with self.assertRaises(ValueError):
       exportTableToExcel(self.api, TEST_FILE, self.df, ['w'])
 
-  def _compareExportedDataframe(self, worksheet, names):
+  def _compareExportedDataframe(self, worksheet, columns):
     excel_df = _importExcelToDataframe(TEST_FILE, 
-                                      worksheet=worksheet) 
-    self.assertEqual(len(excel_df.columns), len(names))
-    for name in names:
+                                       worksheet=worksheet) 
+    self.assertEqual(len(excel_df.columns), len(columns))
+    for name in columns:
       b = list(excel_df[name]) ==  list(self.df[name])
       if not b:
         import pdb; pdb.set_trace()
@@ -70,23 +70,23 @@ class TestImportExcel(unittest.TestCase):
     self._testExportDataframe()
     self._testExportDataframe(worksheet='Sheet1')
 
-  def _testExportTable(self, names=None, worksheet=None):
+  def _testExportTable(self, columns=None, worksheet=None):
     exportTableToExcel(self.api, 
                        TEST_FILE, 
                        worksheet=worksheet, 
-                       names=names)
-    if names is None:
-      names = self.columns
+                       columns=columns)
+    if columns is None:
+      columns = self.columns
     if worksheet is None:
       expected_worksheet = 'Sheet1'
-    self._compareExportedDataframe(worksheet, names)
+    self._compareExportedDataframe(worksheet, columns)
 
   def testExportTable(self):
     self._testExportTable()
-    self._testExportTable(names=['DUMMY1_COLUMN'])
+    self._testExportTable(columns=['DUMMY1_COLUMN'])
     self._testExportTable(worksheet='Sheet1')
     self._testExportTable(worksheet='Sheet1', 
-        names=['DUMMY1_COLUMN', 'DUMMY2_COLUMN'])
+        columns=['DUMMY1_COLUMN', 'DUMMY2_COLUMN'])
     
 
 if __name__ == '__main__':

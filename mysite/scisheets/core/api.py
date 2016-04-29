@@ -162,18 +162,18 @@ class API(object):
       list_values = list(values)
     self._table.updateColumn(column, list_values)
 
-  def tableToDataframe(self, names=None):
+  def tableToDataframe(self, columns=None):
     """
     Creates a dataframe from columns in the table.
-    :param list-of-str names: column names to include. Default is all.
+    :param list-of-str columns: column columns to include. Default is all.
     :return pandas.DataFrame:
     :raises ValueError: invalid column name
     Does not export the "name column"
     """
-    if names is None:
-      names = [c.getName() for c in self._table.getDataColumns()]
+    if columns is None:
+      columns = [c.getName() for c in self._table.getDataColumns()]
     dataframe = pd.DataFrame()
-    for name in names:
+    for name in columns:
       column = self._table.columnFromName(name)
       if column is None:
         raise ValueError("Column %s does not exist in table %s" %  \

@@ -2,6 +2,7 @@
 Exports an Excel file 
 """
 
+import openpyxl
 import pandas as pd
 
 def _exportDataframeToExcel(df, filepath, worksheet=None):
@@ -15,19 +16,26 @@ def _exportDataframeToExcel(df, filepath, worksheet=None):
   """
   if worksheet is None:
     worksheet = 'Sheet1'
-  writer = pd.ExcelWriter(filepath, engine='xlsxwriter')
-  df.to_excel(writer, sheet_name=worksheet)
+  book = openpyxl.load_workbook(filepath)
+  # Delete the sheet to write, if it exists
+  if worksheet in book.get_sheet_names():
+    ws = book.get_sheet_by_name(worksheet)
+    book.remove_sheet(ws)
+  writer = pd.ExcelWriter(filepath, engine='openpyxl')
+  writer.book = book
+  writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+  df.to_excel(writer, worksheet, index=False)
   writer.save()
 
-def exportTableToExcel(s, filepath, worksheet=None, names=None):
+def exportTableToExcel(s, filepath, worksheet=None, columns=None):
   """
   Export the specified columns of the Table to the excel file.
   The existing worksheet is overwritten.
   :param API s:
   :param str filepath: full path to CSV file
   :param str worksheet: worksheet to import. Default is first.
-  :param list-of-str names: names of columns added
+  :param list-of-str columns: columns of columns added
   :raises ValueError:
   """
-  df = s.tableToDataframe(names=names)
+  df = s.tableToDataframe(columns=columns)
   _exportDataframeToExcel(df, filepath, worksheet=worksheet)
