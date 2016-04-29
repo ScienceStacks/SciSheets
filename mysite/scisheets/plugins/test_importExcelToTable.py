@@ -1,8 +1,9 @@
 """
-Tests importExcel
+Tests importExcelToTable
 """
 
-from importExcel import importExcel, importExcelToDataframe
+from importExcelToTable import importExcelToTable,  \
+    _importExcelToDataframe
 from scisheets.core import api as api
 from scisheets.core import helpers_test as ht
 import os
@@ -28,7 +29,7 @@ class TestImportExcel(unittest.TestCase):
     b = False
     error = None
     try:
-      importExcel(self.api, "badpath.csv")
+      importExcelToTable(self.api, "badpath.csv")
     except Exception as e:
       error = e
       b = isinstance(e, IOError) or isinstance(e, ValueError)
@@ -36,13 +37,13 @@ class TestImportExcel(unittest.TestCase):
 
   def testBadColumn(self):
     with self.assertRaises(ValueError):
-      importExcel(self.api, TEST_FILE, ['w'])
+      importExcelToTable(self.api, TEST_FILE, ['w'])
 
-  def _testImportColumns(self, names=None, worksheet=None):
-    imported_names = importExcel(self.api, 
-                                TEST_FILE, 
-                                worksheet=worksheet,
-                                names=names)
+  def _testImportTable(self, names=None, worksheet=None):
+    imported_names = importExcelToTable(self.api, 
+                                        TEST_FILE, 
+                                        worksheet=worksheet,
+                                        names=names)
     if worksheet is None:
       worksheet = 'Sheet1'
     if names is None:
@@ -55,11 +56,11 @@ class TestImportExcel(unittest.TestCase):
       expected_values = DATA[name]
       self.assertTrue(imported_values == expected_values)
 
-  def testImportColumns(self):
-    self._testImportColumns()
-    self._testImportColumns(names=['v1'])
-    self._testImportColumns(worksheet='Sheet1')
-    self._testImportColumns(worksheet='Sheet1', names=['v2'])
+  def testImportTable(self):
+    self._testImportTable()
+    self._testImportTable(names=['v1'])
+    self._testImportTable(worksheet='Sheet1')
+    self._testImportTable(worksheet='Sheet1', names=['v2'])
     
 
 if __name__ == '__main__':

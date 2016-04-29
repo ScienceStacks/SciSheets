@@ -167,14 +167,17 @@ class API(object):
     Creates a dataframe from columns in the table.
     :param list-of-str names: column names to include. Default is all.
     :return pandas.DataFrame:
+    :raises ValueError: invalid column name
     Does not export the "name column"
     """
     if names is None:
-      names = [c.getName() for c in self._table.getColumns() \
-          if c.getName() != NAME_COLUMN_STR]
+      names = [c.getName() for c in self._table.getDataColumns()]
     dataframe = pd.DataFrame()
     for name in names:
       column = self._table.columnFromName(name)
+      if column is None:
+        raise ValueError("Column %s does not exist in table %s" %  \
+            (name, self._table.getName()))
       dataframe[name] = column.getCells()
     return dataframe
 

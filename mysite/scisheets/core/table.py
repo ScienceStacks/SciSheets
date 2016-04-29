@@ -60,7 +60,7 @@ class Table(ColumnContainer):
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
   # Data columns are those that have user data. The "row" column is excluded.
-  def _getDataColumns(self):
+  def getDataColumns(self):
     """
     Returns the data for a column
     """
@@ -230,7 +230,7 @@ class Table(ColumnContainer):
     """
     new_table = Table(self._name)
     self.setFilepath(None)
-    for column in self._getDataColumns():
+    for column in self.getDataColumns():
       new_column = cl.Column(column.getName())
       new_column.addCells(column.getCells())
       new_table.addColumn(new_column)

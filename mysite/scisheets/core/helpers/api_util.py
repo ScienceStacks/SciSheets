@@ -48,6 +48,7 @@ def writeTableToFile(table):
   :param Table table:
   """
   pickle.dump(table, open(table.getFilepath(), "wb"))
+    
 
 def getTableCopyFilepath(filename, directory):
   """
