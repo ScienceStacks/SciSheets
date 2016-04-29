@@ -130,7 +130,7 @@ class TestAPIFormulas(unittest.TestCase):
         names=['DDUMMY1_COLUMN', 'DDUMMY2_COLUMN'])
 
   def _testToDataframe(self, names=None):
-    df = self.api.tableToDataframe(names=names)
+    df = self.api.tableToDataframe(columns=names)
     expected_df = self._createDataframe(names=names)
     self.assertEqual(len(df.columns), len(expected_df.columns))
     for name in df.columns:

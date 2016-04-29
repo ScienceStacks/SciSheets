@@ -3,6 +3,7 @@ Imports an Excel file and adds it to the table
 """
 
 import pandas as pd
+import openpyxl
 import unicodedata
 
 def _importExcelToDataframe(filepath, worksheet=None):
@@ -13,20 +14,31 @@ def _importExcelToDataframe(filepath, worksheet=None):
   :return pandas.DataFrame:
   :raises IOError, ValueError:
   """
-  xls_file = pd.ExcelFile(filepath)  # May raise IOError
+  wb = openpyxl.load_workbook(filename=filepath, read_only=True)
   if worksheet is None:
-    worksheet = xls_file.sheet_names[0]
-  if not worksheet in xls_file.sheet_names:
+    worksheet = wb.sheetnames[0]
+  if not worksheet in wb.sheetnames:
     raise ValueError("Worksheet %s not found in file %s"  \
         % (worksheet, filepath))
-  df = xls_file.parse(worksheet)
-  # Make sure that column names are strings
+  ws = wb[worksheet]
+  data = {}
+  rows = [ [cell.value for cell in row if cell.value is not None]  \
+           for row in ws.rows ]
   names = []
-  for col in df.columns:
-    name = unicodedata.normalize('NFC', col).encode('ascii', 'ignore')
+  for name in rows[0]:
+    if not (isinstance(name, str) or isinstance(name, unicode)):
+      raise ValueError("Invalid column header in %s" % filepath)
+    uni = unicode(name)
+    name = unicodedata.normalize('NFC', uni).encode('ascii', 'ignore')
     name = name.replace(' ', '')
     names.append(str(name))
-  df.columns = names
+    data[name] = []
+  data_rows = list(rows)
+  del data_rows[0]
+  for row in data_rows:
+    for idx in range(len(names)):
+      data[names[idx]].append(row[idx])
+  df = pd.DataFrame(data)
   return df
 
 def importExcelToTable(s, filepath, worksheet=None, names=None):
