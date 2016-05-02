@@ -18,3 +18,7 @@ class TestParam(unittest.TestCase):
     self.assertEqual(p1, 'one')
     p2 = param(self.api, ht.COLUMN1, row_num=2)
     self.assertEqual(p2, 'two')
+
+
+if __name__ == '__main__':
+  unittest.main()

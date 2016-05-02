@@ -251,7 +251,7 @@ Ntp118
 Rp119
 (dp120
 g93
-VImportedColumns = importExcelToTable(s, 'RawData.xlsx')\u000aexportTableToExcel(s, 'RawData.xlsx',      columns=['PCREfficiency', 'CtValue', 'Sum'], worksheet='Sheet2')
+VImportedColumns = importExcelToTable(s, 'RawData.xlsx')\u000a#exportTableToExcel(s, 'RawData.xlsx',      columns=['PCREfficiency', 'CtValue', 'Sum'], worksheet='Sheet2')
 p121
 sg94
 g109
@@ -260,7 +260,7 @@ I00
 sg96
 I00
 sg97
-VImportedColumns = importExcelToTable(s, 'RawData.xlsx')\u000aexportTableToExcel(s, 'RawData.xlsx',      columns=['PCREfficiency', 'CtValue', 'Sum'], worksheet='Sheet2')
+VImportedColumns = importExcelToTable(s, 'RawData.xlsx')\u000a#exportTableToExcel(s, 'RawData.xlsx',      columns=['PCREfficiency', 'CtValue', 'Sum'], worksheet='Sheet2')
 p122
 sbsg98
 g105
@@ -1004,34 +1004,30 @@ Ntp189
 Rp190
 (dp191
 g93
-VSum = CtValue + PCREfficiency
-p192
-sg94
+Nsg94
 g186
 sg95
-I01
+I00
 sg96
 I00
 sg97
-VCtValue + PCREfficiency
-p193
-sbsg98
+Nsbsg98
 g0
 (g99
 g100
 (g101
 g102
-tp194
-tp195
-Rp196
+tp192
+tp193
+Rp194
 sg106
-VSum
-p197
+VGroups
+p195
 sbasS'_filepath'
-p198
+p196
 V/home/ubuntu/SciSheets/mysite/user/guest/tables/kristen_excel_import.pcl
-p199
+p197
 sg106
 VExcelImport
-p200
+p198
 sb.
