@@ -25,7 +25,8 @@ class TestGroupBy(unittest.TestCase):
 
   def testSimple(self):
     groups, values = groupBy([self.df['aa']], self.df['cc'])
-    self.assertTrue(groups == RANGE)
+    expected_group = [str(x) for x in RANGE]
+    self.assertTrue(groups == expected_group)
     self.assertEqual(values[0], [0,0.4])
 
   def testTwoCategories(self):
