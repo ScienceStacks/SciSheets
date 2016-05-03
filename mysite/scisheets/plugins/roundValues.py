@@ -14,7 +14,7 @@ def roundValues(values, digits=1):
   result = []
   for val in values:
     if isinstance(val, collections.Iterable):
-      result.append(roundValues(val))
+      result.append(roundValues(val, digits=digits))
     elif isinstance(val, float):
       result.append(round(val, digits))
     else:
