@@ -40,6 +40,7 @@ def getTableFromFile(file_path, verify=True):
   fh.close()
   if verify and table.getFilepath() != file_path:
     raise ValueError("File path is incorrect or missing.")
+  table.migrate()  # Handle case of older objects
   return table
 
 def writeTableToFile(table):

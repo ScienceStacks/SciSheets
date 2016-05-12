@@ -37,6 +37,16 @@ class TestAPI(unittest.TestCase):
     self.api.setColumnValues(COLUMN1, new_column1_values)
     values = self.api.getColumnValues(COLUMN1)
     self.assertTrue(all(values == np.array(new_column1_values)))
+
+  def testColumnVisibility(self):
+    names = ['row']
+    column = self.api._table.columnFromName(names[0])
+    self.assertEqual(len(self.api._table._hidden_columns), 0)
+    self.api.setColumnVisibility(names, is_visible=False)
+    self.assertEqual(len(self.api._table._hidden_columns), 1)
+    self.assertTrue(column in self.api._table._hidden_columns)
+    self.api.setColumnVisibility(names, is_visible=True)
+    self.assertEqual(len(self.api._table._hidden_columns), 0)
     
 
 # pylint: disable=W0212,C0111,R0904

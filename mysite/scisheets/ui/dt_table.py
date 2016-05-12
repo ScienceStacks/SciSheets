@@ -6,10 +6,13 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from scisheets.core.helpers.api_util import getFileNameWithoutExtension
 from scisheets.core.helpers.cell_types import isFloats
+from scisheets.core.column import Column
 from ui_table import UITable
 from mysite import settings as st
+from mysite.helpers import util as ut
 import collections
 import numpy as np
+import random
 
 
 def makeJSON(column_names, data):
@@ -65,6 +68,40 @@ class DTTable(UITable):
   Does rendersing specific to YUI DataTable
   """
 
+  @classmethod
+  def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
+        low_int=0, hi_int=100):
+    """
+    Creates a table with random integers as values
+    Input: name - name of the table
+           nrow - number of rows
+           ncol - number of columns
+           ncolstr - number of columns with strings
+           low_int - smallest integer
+           hi_int - largest integer
+    """
+    ncol = int(ncol)
+    nrow = int(nrow)
+    table = cls(name)
+    ncolstr = min(ncol, ncolstr)
+    ncolint = ncol - ncolstr
+    c_list = range(ncol)
+    random.shuffle(c_list)
+    for n in range(ncol):
+      column = Column("Col_" + str(n))
+      if c_list[n] <= ncolint - 1:
+        values = np.random.randint(low_int, hi_int, nrow)
+        values_ext = values.tolist()
+      else:
+        values_ext = ut.randomWords(nrow)
+      #values_ext.append(None)
+      column.addCells(np.array(values_ext))
+      table.addColumn(column)
+    return table
+
+  def __init__(self, name):
+    super(DTTable, self).__init__(name)
+
   @staticmethod
   def _formatStringForJS(in_string):
     """
@@ -80,8 +117,10 @@ class DTTable(UITable):
     Input: table_id - how the table is identified in the HTML
     Output: html rendering of the Table
     """
-    column_names = [c.getName() for c in self._columns]
-    column_data = [c.getCells() for c in self._columns]
+    column_names = [c.getName() for c in self._columns   \
+                    if (not c in self._hidden_columns)]
+    column_data = [c.getCells() for c in self._columns  \
+                   if (not c in self._hidden_columns)]
     raw_formulas = [c.getFormula() for c in self._columns]
     formulas = []
     for ff in raw_formulas:
@@ -107,3 +146,9 @@ class DTTable(UITable):
                }
     html = get_template('scitable.html').render(ctx_dict)
     return html
+
+  def migrate(self):
+    """
+    Handles older objects that lack some properties.
+    """
+    super(DTTable, self).migrate()

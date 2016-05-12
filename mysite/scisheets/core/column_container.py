@@ -78,6 +78,12 @@ class ColumnContainer(object):
       idx = len(self._columns)
     self._columns.insert(idx, column)
 
+  def migrate(self):
+    """
+    Handles older objects that lack some properties
+    """
+    pass
+
   def moveColumn(self, column, new_idx):
     """
     Moves the column to the specified index
