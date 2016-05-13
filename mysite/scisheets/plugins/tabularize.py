@@ -18,7 +18,7 @@ CATEGORICAL as follows:
 """
 
 import collections
-import pandas as pd
+import numpy as np
 
 def _delElement(an_iterable, idx):
   """
@@ -31,6 +31,16 @@ def _delElement(an_iterable, idx):
   back_list = a_list[(idx+1):]
   new_list.extend(back_list)
   return new_list
+
+def _uniqueElements(an_iterable):
+  """
+  :param iterable an_iterable:
+  :param int idx:
+  :return list: has only one occurrence of each element
+  """
+  used = []
+  unique = [x for x in an_iterable if x not in used and (used.append(x) or True)]
+  return unique
   
 
 def tabularize(s, 
@@ -38,10 +48,11 @@ def tabularize(s,
                category_index,
                values_colnm, 
                new_category_colnm=None,
-               values_colnm_prefix="New"):
+               values_colnm_prefix="Col"):
   """
   :param APIObject s:
-  :param str category_colnm: name of the category column
+  :param str category_colnm: name of the category column with cells that
+                             have a list of category values
   :param int category_index: index of the list elements in the category column
                              to use in defining the new values columns
   :param str values_colnm: name of the column containing values
@@ -49,35 +60,41 @@ def tabularize(s,
                                   is to prepend "New" to the existing name
   :param str values_colnm_prefix: Prefix that prepends the new values column
   """
-####### FIX SO CATEGORY COLUMN ALIGNS WITH VALUES:w
-
+  # Initializations
   if new_category_colnm is None:
     new_category_colnm = "New%s" % category_colnm
-  category_elements = s.getColumnValues(category_colnm)
-  values = s.getColumnValues(values_colnm)
+  category_elements = [ele for ele in s.getColumnValues(category_colnm)  \
+                       if ele is not None]
+  values = []
+  for val in s.getColumnValues(values_colnm):
+    if isinstance(val, float):
+      if not np.isnan(val):
+        values.append(val)
+    else:
+      if not val is None:
+        values.append(val)
   if len(category_elements) != len(values):
     raise ValueError('Unequal lengths for cateogry column %s and values column %s' %  \
         (category_colnm, values_colnm))
-  new_category_elements = []
-  category_suffixes = set([ele[category_index] for ele in category_elements])
-  new_frame = {}
-  new_category = set([_delElement(ele, category_index) for ele in category_elements])
-  for cat in category_suffixes:
-    new_frame[cat] = [np.nan for n in len(values)]
-  new_frame[new_category_colnm] = []
-  for new_cat in new_category:
-    new_frame[new_category_colnm].append(new_cat)
+  size = len(values)
+  # Construct the column values
+  col_dict = {}
+  elements = [_delElement(ele, category_index) for ele in category_elements]
+  col_dict[new_category_colnm] = _uniqueElements(elements)
+  new_length = len(col_dict[new_category_colnm])
+  colnm_suffixes = set([ele[category_index] for ele in category_elements])
+  for sfx in colnm_suffixes:
+    col_dict[sfx] = [np.nan for n in range(new_length)]
   for idx in range(len(values)):
-    full_cat = category_elements[idx]
-    colnm_cat = full_cat[idx]
-    new_cat = _delElement(full_cat, category_index)
-    new_frame[cat].append(values[idx])
-  for cat in category_suffixes:
-    name = "%s%s" % (values_colnm_prefix, str(cat))
+    cur_cat = category_elements[idx]
+    sfx = cur_cat[category_index]
+    new_cat = _delElement(cur_cat, category_index)
+    row_idx = col_dict[new_category_colnm].index(new_cat)
+    col_dict[sfx][row_idx] = values[idx]
+  for sfx in colnm_suffixes:
+    name = "%s%s" % (values_colnm_prefix, str(sfx))
     s.createColumn(name)
-    s.setColumnValues(name, new_values[cat])
+    s.setColumnValues(name, col_dict[sfx])
   s.createColumn(new_category_colnm)
-  s.setColumnValues(new_category_colnm, new_elements)
-  
-
-  
+  s.setColumnValues(new_category_colnm, 
+                    col_dict[new_category_colnm])
