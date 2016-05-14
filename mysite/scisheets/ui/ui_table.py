@@ -75,6 +75,22 @@ class UITable(Table):
       if column in self._hidden_columns:
         self._hidden_columns.remove(column)
 
+  def getVisibleColumns(self):
+    """
+    :return list-of-Columns:
+    """
+    vis_columns = [c for c in self._columns  \
+                   if not c in self._hidden_columns]
+    return vis_columns
+
+  def visibleColumnFromIndex(self, index):
+    """
+    Eliminates hidden columns when computing index.
+    :param int index:
+    :return Column:
+    """
+    return self.getVisibleColumns()[index]
+
   def getHiddenColumns(self):
     self._cleanHiddenColumns()
     return self._hidden_columns
@@ -168,7 +184,7 @@ class UITable(Table):
     error = None
     command = cmd_dict["command"]
     if command == "Update":
-      column = self.columnFromIndex(cmd_dict["column_index"])
+      column = self.visibleColumnFromIndex(cmd_dict["column_index"])
       if column.getTypeForCells() == object:
         error = "Cannot update cells for the types in column %s"  \
            % column.getName()
@@ -192,7 +208,7 @@ class UITable(Table):
     # Output: response - response to user
     error = None
     command = cmd_dict["command"]
-    column = self.columnFromIndex(cmd_dict["column_index"])
+    column = self.visibleColumnFromIndex(cmd_dict["column_index"])
     if (command == "Append") or (command == "Insert"):
       name = cmd_dict["args"][0]
       error = Column.isPermittedName(name)
@@ -219,7 +235,7 @@ class UITable(Table):
         else:
           dest_column = self.columnFromName(dest_column_name)
           new_column_index = self.indexFromColumn(dest_column)
-        cur_column = self.columnFromIndex(cmd_dict["column_index"])
+        cur_column = self.visibleColumnFromIndex(cmd_dict["column_index"])
         self.moveColumn(cur_column, new_column_index)
       except Exception:
         error = "Column %s does not exist." % dest_column_name

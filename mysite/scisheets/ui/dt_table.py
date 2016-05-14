@@ -117,11 +117,9 @@ class DTTable(UITable):
     Input: table_id - how the table is identified in the HTML
     Output: html rendering of the Table
     """
-    column_names = [c.getName() for c in self._columns   \
-                    if (not c in self._hidden_columns)]
-    column_data = [c.getCells() for c in self._columns  \
-                   if (not c in self._hidden_columns)]
-    raw_formulas = [c.getFormula() for c in self._columns]
+    column_names = [c.getName() for c in self.getVisibleColumns()]
+    column_data = [c.getCells() for c in self.getVisibleColumns()]
+    raw_formulas = [c.getFormula() for c in self.getVisibleColumns()]
     formulas = []
     for ff in raw_formulas:
       if ff is None or (ff == "None"):
