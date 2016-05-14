@@ -217,7 +217,8 @@ class UITable(Table):
         increment = 0
         if command == "Append":
           increment = 1
-        new_column_index = cmd_dict["column_index"] + increment
+        column_index = self.indexFromColumn(column)
+        new_column_index = column_index + increment
         self.addColumn(new_column, new_column_index)
     elif command == "Delete":
       self.deleteColumn(column)
