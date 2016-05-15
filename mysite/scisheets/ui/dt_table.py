@@ -118,6 +118,13 @@ class DTTable(UITable):
     Output: html rendering of the Table
     """
     column_names = [c.getName() for c in self.getVisibleColumns()]
+    column_names = []
+    for column in self.getVisibleColumns():
+      if column.getFormula() is not None:
+        name = "*%s" % column.getName()
+      else:
+        name = column.getName()
+      column_names.append(name)
     column_data = [c.getCells() for c in self.getVisibleColumns()]
     raw_formulas = [c.getFormula() for c in self.getVisibleColumns()]
     formulas = []

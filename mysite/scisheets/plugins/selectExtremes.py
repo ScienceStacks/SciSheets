@@ -17,7 +17,7 @@ def selectExtremes(values, max_std, min_size=1):
   def dfm(mean, value):
     return abs(mean-value)
 
-  cur_std = np.std(values)
+  cur_std = np.std(values, ddof=1)
   length = len(values)
   initial_select = [False for n in range(length)]
   paired_list = zip(initial_select, values)
