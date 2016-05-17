@@ -341,6 +341,36 @@ class Table(ColumnContainer):
     """
     return max([c.numCells() for c in self._columns])
 
+  # TODO: Should check for exceptions and revert to a 
+  #       previous version of the table if encounter an error
+  def refactorColumn(self, cur_colnm, new_colnm):
+    """
+    Changes the column name and its occurrences in formulas in the table.
+    :param str cur_colnm: Current name of the column
+    :param str new_colnm: New name of the column
+    :returns list-of-str changed_columns:
+    :raises ValueError: column name is unknown
+    """
+    column = self.columnFromName(cur_colnm)
+    if column is None:
+      raise ValueError("Column %s does not exist." % cur_colnm)
+    column.setName(new_colnm)
+    columns = self.getColumns()
+    changed_columns = []
+    try:
+      for col in [c for c in columns if c.getFormula() is not None]:
+        formula = col.getFormula()
+        if cur_colnm in formula:
+          new_formula = formula.replace(cur_colnm, new_colnm)
+          col.setFormula(new_formula)
+          changed_columns.append(col.getName())
+    except Exception as err:
+      msg = '''Changing column name from %s to %s.
+Encountered error %s.
+Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
+    str(err), ' '.join(changed_columns))
+    return changed_columns
+
   @staticmethod
   def rowIndexFromName(name):
     """

@@ -29,7 +29,7 @@ class ColumnContainer(object):
     """
     Finds a column with the specified name or None
     :param name: name of the column
-    :return: column - column object
+    :return: column - column object or None if not found
     """
     for  column in self._columns:
       if  column.getName() == name:

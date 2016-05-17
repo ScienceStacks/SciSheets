@@ -231,6 +231,26 @@ class TestTable(unittest.TestCase):
     self.table.addRow(row, ext_index=0)
     self.table.trimRows()
     self.assertEqual(num_rows+1, self.table.numRows())
+
+  def testRefactorColumn(self):
+    table = ht.createTable("test", column_name=[ht.COLUMN1, ht.COLUMN2])
+    column1 = table.columnFromName(ht.COLUMN1)
+    formula1 = "range(5)"
+    column1.setFormula(formula1)
+    column2 = table.columnFromName(ht.COLUMN2)
+    formula2 = "[2*x for x in %s]" % ht.COLUMN1
+    column2.setFormula(formula2)
+    table.evaluate(user_directory=ht.TEST_DIR)
+    expected_values = [2*x for x in range(5)]
+    actual_values = [x for x in column2.getCells()]
+    self.assertTrue(expected_values == actual_values)
+    table.refactorColumn(ht.COLUMN1, ht.COLUMN3)
+    table.evaluate(user_directory=ht.TEST_DIR)
+    column = table.columnFromName(ht.COLUMN3)
+    self.assertIsNotNone(column)
+    expected_values = range(5)
+    actual_values = [x for x in column.getCells()]
+    self.assertTrue(expected_values == actual_values)
       
 
 if __name__ == '__main__':

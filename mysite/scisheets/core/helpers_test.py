@@ -81,14 +81,20 @@ def createColumn(name, data=np.array([]), table=None, formula=None):
 
 def createTable(name, column_name=None):
   """
-  :param name: str table name
-  :param column_name: name of a column to create
+  :param str name: str table name
+  :param str or list column_name: column(s) to create
   :return: Table object
   """
+  if column_name is None:
+    colnms = []
+  elif isinstance(column_name, list):
+    colnms = column_name
+  else:
+    colnms = [column_name]
   table = DTTable(name)
   table.setFilepath(TABLE_FILEPATH)
-  if column_name is not None:
-    column = cl.Column(column_name)
+  for colnm in colnms:
+    column = cl.Column(colnm)
     column.addCells(range(5), replace=True)
     table.addColumn(column)
   pickle.dump(table, open(TABLE_FILEPATH, "wb"))
