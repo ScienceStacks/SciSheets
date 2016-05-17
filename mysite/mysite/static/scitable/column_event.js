@@ -91,6 +91,11 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       if (cmd.command === 'Move') {
         scisheet.utilRename(cmd, "Insert after column", "");
       }
+      if (cmd.command === 'Refactor') {
+        // Change the dialog prompt
+        newPrompt = "Refactor column '" + ep.columnName + "': ";
+        scisheet.utilRename(cmd, newPrompt, "");
+      }
       if (cmd.command === 'Rename') {
         // Change the dialog prompt
         newPrompt = "Rename column '" + ep.columnName + "': ";

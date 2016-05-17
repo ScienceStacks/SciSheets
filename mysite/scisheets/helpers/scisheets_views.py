@@ -57,6 +57,8 @@ def createCommandDict(request):
     Column  Formula  Change the column's formula
     Column  Move     Move the column to another position
                        The name LAST is used for last column
+    Column  Refactor Rename the column and change formulas to use
+                     the new name
     Column  Rename   Rename the column
     Row     Append   Add a new row after the current row
     Row     Insert   Add a new row before the current row

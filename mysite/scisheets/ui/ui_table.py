@@ -240,12 +240,16 @@ class UITable(Table):
         self.moveColumn(cur_column, new_column_index)
       except Exception:
         error = "Column %s does not exist." % dest_column_name
-    elif command == "Rename":
+    elif command == "Refactor":
       proposed_name = cmd_dict["args"][0]
       try:
         self.refactorColumn(column.getName(), proposed_name)
       except Exception as err:
         error = str(err)
+    elif command == "Rename":
+      proposed_name = cmd_dict["args"][0]
+      if not self.renameColumn(column, proposed_name):
+        error = "%s is a duplicate column name." % proposed_name
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
