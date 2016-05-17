@@ -30,7 +30,7 @@ g4
 sS'_cells'
 p14
 (lp15
-VSEP1 2012 P17F4 a
+VSEP1 2012 P17F4 3a
 p16
 aVSEP1 2012 P17F4 b
 p17
@@ -60,11 +60,11 @@ aVSEP1-3 2012 P15F2 b
 p29
 aVSEP1-3 2012 P15F2 c
 p30
-aVuntreated 2012 P12F1 SEP1 1:2a
+aVuntreated 2012 P12F1 SEP3-3 1:2a
 p31
-aVuntreated 2012 P12F1 SEP1 1:2b
+aVuntreated 2012 P12F1 SEP3-3 1:2b
 p32
-aVuntreated 2012 P12F1 SEP1 1:2c
+aVuntreated 2012 P12F1 SEP3-3 1:2c
 p33
 aVSEP1 2012 P17F4 ACTa
 p34
@@ -960,7 +960,7 @@ Ntp353
 Rp354
 (dp355
 g75
-Vif run:\u000a  MeanCt = [np.mean(g) for g in StdFilteredGroupedCt]\u000a  MeanCt = roundValues(MeanCt,1)\u000a  StdCt = [np.std(g, ddof=1) for g in filtered_group]\u000a  StdCt = roundValues(StdCt,3)\u000as.setColumnVisibility(['Groups', 'GroupedEff', 'GroupedCt', 'StdFilteredGroupedCt', 'MeanCt', 'StdCt'], is_visible=show_block1)
+Vif run:\u000a  MeanCt = [np.mean(g) for g in StdFilteredGroupedCt]\u000a  MeanCt = roundValues(MeanCt,1)\u000a  StdCt = [np.std(g, ddof=1) for g in StdFilteredGroupedCt]\u000a  StdCt = roundValues(StdCt,3)\u000as.setColumnVisibility(['Groups', 'GroupedEff', 'GroupedCt', 'StdFilteredGroupedCt', 'MeanCt', 'StdCt'], is_visible=show_block1)
 p356
 sg76
 g350
@@ -969,7 +969,7 @@ I00
 sg78
 I00
 sg79
-Vif run:\u000a  MeanCt = [np.mean(g) for g in StdFilteredGroupedCt]\u000a  MeanCt = roundValues(MeanCt,1)\u000a  StdCt = [np.std(g, ddof=1) for g in filtered_group]\u000a  StdCt = roundValues(StdCt,3)\u000as.setColumnVisibility(['Groups', 'GroupedEff', 'GroupedCt', 'StdFilteredGroupedCt', 'MeanCt', 'StdCt'], is_visible=show_block1)
+Vif run:\u000a  MeanCt = [np.mean(g) for g in StdFilteredGroupedCt]\u000a  MeanCt = roundValues(MeanCt,1)\u000a  StdCt = [np.std(g, ddof=1) for g in StdFilteredGroupedCt]\u000a  StdCt = roundValues(StdCt,3)\u000as.setColumnVisibility(['Groups', 'GroupedEff', 'GroupedCt', 'StdFilteredGroupedCt', 'MeanCt', 'StdCt'], is_visible=show_block1)
 p357
 sbsg80
 g0
@@ -995,24 +995,24 @@ sg13
 g4
 sg14
 (lp365
-F0.103
-aF0.076
-aF0.159
-aF0.057
-aF0.035
-aF0.099
-aF0.075
-aF0.139
-aF0.247
-aF0.028
-aF0.23
-aF0.15
-aF0.049
-aF0.191
-aF0.113
-aF0.17
-aF0.07
-aF0.119
+F0.1
+aF0.115
+aF0.153
+aF0.265
+aF0.321
+aF0.379
+aF0.058
+aF0.153
+aF0.4
+aF0.265
+aF0.252
+aF0.173
+aF0.289
+aF0.3
+aF0.115
+aF0.2
+aF0.058
+aF0.115
 aFnan
 aFnan
 aFnan
@@ -1209,12 +1209,12 @@ sg13
 g4
 sg14
 (lp431
-F18.2
-aF22.4
-aF21.9
-aF23.4
-aF23.4
-aF18.9
+F22.9
+aF27.0
+aF26.6
+aF29.8
+aF30.1
+aF24.8
 aFnan
 aFnan
 aFnan
@@ -1474,12 +1474,12 @@ sg13
 g4
 sg14
 (lp458
-F1.07177
-aF0.17678
-aF1.0
-aF1.41421
-aF1.07177
-aF0.93303
+F0.04123
+aF0.00729
+aF0.03847
+aF0.01675
+aF0.01031
+aF0.01563
 aFnan
 aFnan
 aFnan
@@ -1571,12 +1571,12 @@ sg13
 g4
 sg14
 (lp471
-F3.03143
-aF0.70711
-aF3.24901
-aF2.14355
-aF7.46426
-aF2.82843
+F0.11663
+aF0.02916
+aF0.125
+aF0.02538
+aF0.07179
+aF0.04737
 aFnan
 aFnan
 aFnan
@@ -1668,12 +1668,12 @@ sg13
 g4
 sg14
 (lp484
-F1.802
-aF0.354
-aF1.803
-aF1.741
-aF2.828
-aF1.625
+F0.069
+aF0.015
+aF0.069
+aF0.021
+aF0.027
+aF0.027
 aFnan
 aFnan
 aFnan
@@ -1890,7 +1890,7 @@ I-1
 I0
 tp521
 bI00
-S'\xa2E\xb6\xf3\xfd\xd4\xfc?'
+S'D\x8bl\xe7\xfb\xa9\xb1?'
 p522
 tp523
 bag511
@@ -1905,7 +1905,7 @@ Rp526
 tp527
 g519
 I00
-S'\x0e-\xb2\x9d\xef\xa7\xd6?\x0c\x02+\x87\x16\xd9\xfc?B`\xe5\xd0"\xdb\xfb?'
+S'\xb8\x1e\x85\xebQ\xb8\x8e?D\x8bl\xe7\xfb\xa9\xb1?\x1b/\xdd$\x06\x81\x95?'
 p528
 tp529
 bag511
@@ -1920,7 +1920,7 @@ Rp532
 tp533
 g519
 I00
-S'9\xb4\xc8v\xbe\x9f\x06@'
+S'\xd9\xce\xf7S\xe3\xa5\x9b?'
 p534
 tp535
 bag511
@@ -1935,7 +1935,7 @@ Rp538
 tp539
 g519
 I00
-S'\x00\x00\x00\x00\x00\x00\xfa?'
+S'\xd9\xce\xf7S\xe3\xa5\x9b?'
 p540
 tp541
 baNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNasg70
@@ -2004,7 +2004,7 @@ Rp561
 tp562
 g519
 I00
-S'J\x0c\x02+\x87\x16\xc9?j\xbct\x93\x18\x04\xf0?\xb6\xf3\xfd\xd4x\xe9\xee?'
+S'-\xb2\x9d\xef\xa7\xc6\xcb?\x00\x00\x00\x00\x00\x00\xf0?\xdb\xf9~j\xbct\xd3?'
 p563
 tp564
 bag511
@@ -2019,7 +2019,7 @@ Rp567
 tp568
 g519
 I00
-S'\xb4\xc8v\xbe\x9f\x1a\xf9?'
+S'\xa0\x1a/\xdd$\x06\xd9?'
 p569
 tp570
 bag511
@@ -2034,7 +2034,7 @@ Rp573
 tp574
 g519
 I00
-S'w\xbe\x9f\x1a/\xdd\xec?'
+S'\xa0\x1a/\xdd$\x06\xd9?'
 p575
 tp576
 baNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNaNasg70
@@ -2081,9 +2081,9 @@ g4
 sg14
 (lp589
 F1.0
-aF0.721
-aF1.569
-aF0.902
+aF0.507
+aF0.391
+aF0.391
 aFnan
 aFnan
 aFnan
@@ -2178,7 +2178,7 @@ g4
 sg14
 (lp602
 Fnan
-aF0.455
+aF0.429
 aFnan
 aFnan
 aFnan
