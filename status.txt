@@ -1,9 +1,8 @@
 Serve page from Django
 
-0.1 Implement excel access
-c. Create plugins
-  (a) write table to excel worksheet
-  (b) read columns from excel worksheet
+0.1 Kristen
+  -Need to optimize table evaluations
+  -Understand SEM calculation
 
 0.3 Complete truth tables?
 

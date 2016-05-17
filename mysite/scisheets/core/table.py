@@ -320,6 +320,12 @@ class Table(ColumnContainer):
         column.insertCell(None, idx)
     self._updateNameColumn()
 
+  def migrate(self):
+    """
+    Handles older objects that lack some properties
+    """
+    super(Table, self).migrate()
+
   def moveRow(self, index1, index2):
     """
     Moves the row at index1 to index2

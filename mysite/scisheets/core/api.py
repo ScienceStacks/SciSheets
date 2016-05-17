@@ -141,6 +141,26 @@ class API(object):
   def getTable(self):
     return self._table
 
+  def setColumnVisibility(self, column_names=None, is_visible=True):
+    """
+    Sets whether the column is visible
+    :param list-of-str column_names: default is all columns
+    :param bool is_visible: set to unhidden if True; otherwise hidden
+    :raises ValueError: column name not found
+    """
+    if column_names is None:
+      column_names = [c.getName() for c in self._table.getColumns()]
+    columns = []
+    for name in column_names:
+      column = self._table.columnFromName(name)
+      if column is None:
+        raise ValueError("Column %s not found" % name)
+      columns.append(column)
+    if is_visible:
+      self._table.unhideColumns(columns)
+    else:
+      self._table.hideColumns(columns)
+
   def setColumnValues(self, column_name, values):
     """
     :param str column_name: name of the column

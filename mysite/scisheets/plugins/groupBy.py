@@ -2,32 +2,33 @@
 Get the group names and their values
 """
 
+from pruneNulls import pruneNulls
 import collections
 import pandas as pd
 
 def groupBy(category_values, grouping_values):
   """"
   Forms groups based on category values.
-  :param list-of-Iterable category_values: defines groups
+  :param Iterable-of-Iterable category_values: defines groups
   :param Iterable grouping_values: values in groups
   :return list-of-str/list-of-list-of-str, 
       list-of-list: groups formed and values in each group
   Note: Iterables must have the same length
   """
-  df_idx = 'A'
+  idx_data = 'data'
   df = pd.DataFrame()
-  df[df_idx] = grouping_values
-  df_list = list(df['A'].groupby(category_values))
-  groups = []
-  for idx in range(len(df_list)):
-    group = []
-    raw_group = df_list[idx][0]
-    if isinstance(raw_group, collections.Iterable):
-      for ele in df_list[idx][0]:
-        group.append(str(ele))
-    else:
-      group = str(raw_group)
-    groups.append(group)
-  #groups = [df_list[n][0] for n in range(len(df_list))]
-  grouped_values = [list(df_list[n][1]) for n in range(len(df_list))]
+  df[idx_data] = pruneNulls(grouping_values)
+  groupby_list = []
+  if isinstance(category_values[0], collections.Iterable):
+    for n in range(len(category_values)):
+      idx = str(n)
+      df[idx] = pruneNulls(category_values[n])
+      groupby_list.append(df[idx])
+  else:
+    idx = str('0')
+    df[idx] = pruneNulls(category_values)
+    groupby_list.append(df[idx])
+  groupby = df[idx_data].groupby(groupby_list)
+  groups = [g[0] for g in groupby]
+  grouped_values = [list(g[1]) for g in groupby]
   return groups, grouped_values

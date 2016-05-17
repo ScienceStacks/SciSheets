@@ -1,6 +1,7 @@
 '''Tests for UITable.'''
 
 from mysite import settings
+from dt_table import DTTable
 import ui_table as ui
 from django.test import TestCase  # Provides mocks
 import json
@@ -18,14 +19,14 @@ TABLE_NAME = "MY TABLE"
 class TestUITable(TestCase):
 
   def setUp(self):
-    self.table = ui.UITable.createRandomTable(TABLE_NAME,
+    self.table = DTTable.createRandomTable(TABLE_NAME,
         NROW, NCOL)
 
   def testCreateRandomTable(self):
     self.assertEqual(self.table.numRows(), NROW)
     self.assertEqual(self.table.numColumns(), NCOL+1)  # Include name col
     NCOLSTR = min(2, NCOL)
-    new_table = ui.UITable.createRandomTable(TABLE_NAME,
+    new_table = DTTable.createRandomTable(TABLE_NAME,
         NROW, NCOL, ncolstr=NCOLSTR)
     num_str_col = 0
     for n in range(1, NCOL+1):  # Added the name column
@@ -110,6 +111,19 @@ class TestUITable(TestCase):
     list_of_str = range(3)
     mod_list_of_str = ui.UITable._addEscapesToQuotes(list_of_str)
     self.assertTrue(list_of_str == mod_list_of_str)
+
+  def testHiddenColumns(self):
+    columns = self.table.getColumns()
+    for column in columns:
+      self.table.hideColumns(column)
+      self.assertTrue(column in self.table._hidden_columns)
+      self.table.hideColumns([column])
+      self.assertTrue(column in self.table._hidden_columns)
+      self.assertEqual(len(self.table._hidden_columns) , 1)
+      self.assertEqual(self.table.getHiddenColumns(), [column])
+      self.table.unhideColumns(column)
+      self.assertEqual(len(self.table._hidden_columns) , 0)
+    
 
 if __name__ == '__main__':
     unittest.man()

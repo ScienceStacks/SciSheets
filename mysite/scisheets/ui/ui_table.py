@@ -6,12 +6,10 @@ from scisheets.core.table import Table
 from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
 from scisheets.core.helpers.cell_types import getType
-from mysite.helpers import util as ut
 from mysite import settings as st
 import collections
 import numpy as np
 import os
-import random
 import re
 
 
@@ -21,36 +19,9 @@ class UITable(Table):
   a YUI DataTable.
   """
 
-  @classmethod
-  def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
-        low_int=0, hi_int=100):
-    """
-    Creates a table with random integers as values
-    Input: name - name of the table
-           nrow - number of rows
-           ncol - number of columns
-           ncolstr - number of columns with strings
-           low_int - smallest integer
-           hi_int - largest integer
-    """
-    ncol = int(ncol)
-    nrow = int(nrow)
-    table = cls(name)
-    ncolstr = min(ncol, ncolstr)
-    ncolint = ncol - ncolstr
-    c_list = range(ncol)
-    random.shuffle(c_list)
-    for n in range(ncol):
-      column = Column("Col_" + str(n))
-      if c_list[n] <= ncolint - 1:
-        values = np.random.randint(low_int, hi_int, nrow)
-        values_ext = values.tolist()
-      else:
-        values_ext = ut.randomWords(nrow)
-      #values_ext.append(None)
-      column.addCells(np.array(values_ext))
-      table.addColumn(column)
-    return table
+  def __init__(self, name):
+    self._hidden_columns = []
+    super(UITable, self).__init__(name)
 
   def _createResponse(self, error):
     # Returns a response of the desired type
@@ -66,7 +37,63 @@ class UITable(Table):
     else:
       response = {'data': str(new_error), 'success': False}
     return response
-  
+
+  def unhideAllColumns(self):
+    """
+    Unmarks columns as as hidden.
+    """
+    self._hidden_columns = []
+
+  def _cleanHiddenColumns(self):
+    """
+    Columns may be deleted at a lower level
+    """
+    self._hidden_columns = [c for c in self._hidden_columns  \
+                            if c in self._columns]
+
+  def hideColumns(self, columns):
+    """
+    Marks columns as as hidden.
+    :param list-of-Column or Column: columns
+    """
+    self._cleanHiddenColumns()
+    if isinstance(columns, Column):
+      columns = [columns]
+    for column in columns:
+      if not column in self._hidden_columns:
+        self._hidden_columns.append(column)
+
+  def unhideColumns(self, columns):
+    """
+    Unmarks columns as as hidden.
+    :param list-of-Column or Column: columns
+    """
+    self._cleanHiddenColumns()
+    if isinstance(columns, Column):
+      columns = [columns]
+    for column in columns:
+      if column in self._hidden_columns:
+        self._hidden_columns.remove(column)
+
+  def getVisibleColumns(self):
+    """
+    :return list-of-Columns:
+    """
+    vis_columns = [c for c in self._columns  \
+                   if not c in self._hidden_columns]
+    return vis_columns
+
+  def visibleColumnFromIndex(self, index):
+    """
+    Eliminates hidden columns when computing index.
+    :param int index:
+    :return Column:
+    """
+    return self.getVisibleColumns()[index]
+
+  def getHiddenColumns(self):
+    self._cleanHiddenColumns()
+    return self._hidden_columns
 
   def processCommand(self, cmd_dict):
     # Processes a UI request for the Table.
@@ -157,7 +184,7 @@ class UITable(Table):
     error = None
     command = cmd_dict["command"]
     if command == "Update":
-      column = self.columnFromIndex(cmd_dict["column_index"])
+      column = self.visibleColumnFromIndex(cmd_dict["column_index"])
       if column.getTypeForCells() == object:
         error = "Cannot update cells for the types in column %s"  \
            % column.getName()
@@ -181,7 +208,7 @@ class UITable(Table):
     # Output: response - response to user
     error = None
     command = cmd_dict["command"]
-    column = self.columnFromIndex(cmd_dict["column_index"])
+    column = self.visibleColumnFromIndex(cmd_dict["column_index"])
     if (command == "Append") or (command == "Insert"):
       name = cmd_dict["args"][0]
       error = Column.isPermittedName(name)
@@ -190,7 +217,8 @@ class UITable(Table):
         increment = 0
         if command == "Append":
           increment = 1
-        new_column_index = cmd_dict["column_index"] + increment
+        column_index = self.indexFromColumn(column)
+        new_column_index = column_index + increment
         self.addColumn(new_column, new_column_index)
     elif command == "Delete":
       self.deleteColumn(column)
@@ -208,7 +236,7 @@ class UITable(Table):
         else:
           dest_column = self.columnFromName(dest_column_name)
           new_column_index = self.indexFromColumn(dest_column)
-        cur_column = self.columnFromIndex(cmd_dict["column_index"])
+        cur_column = self.visibleColumnFromIndex(cmd_dict["column_index"])
         self.moveColumn(cur_column, new_column_index)
       except Exception:
         error = "Column %s does not exist." % dest_column_name
@@ -245,6 +273,14 @@ class UITable(Table):
       raise NotYetImplemented(msg)
     response = self._createResponse(error)
     return response
+
+  def migrate(self):
+    """
+    Handles older objects that lack some properties
+    """
+    if not '_hidden_columns' in dir(self):
+      self._hidden_columns = []
+    super(UITable, self).migrate()
 
   @staticmethod
   def _addEscapesToQuotes(iter_str):

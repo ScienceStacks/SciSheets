@@ -2,9 +2,9 @@
    Utilities used for testing MVCSheets code.
 '''
 
+from scisheets.ui.dt_table import DTTable
 import column as cl
 import contextlib
-import table as tb
 import numpy as np
 import os
 import pickle
@@ -85,7 +85,7 @@ def createTable(name, column_name=None):
   :param column_name: name of a column to create
   :return: Table object
   """
-  table = tb.Table(name)
+  table = DTTable(name)
   table.setFilepath(TABLE_FILEPATH)
   if column_name is not None:
     column = cl.Column(column_name)
@@ -198,7 +198,7 @@ class TableFileHelper(object):
       self.table = pickle.load(fh)
       fh.close()
     else:
-      self.table = tb.Table(self._table_name)
+      self.table = DTTable(self._table_name)
       pickle.dump(self.table, open(self._full_path, "wb"))
     self.table.setFilepath(self._full_path)
 
