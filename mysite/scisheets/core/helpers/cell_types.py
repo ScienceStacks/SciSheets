@@ -265,3 +265,11 @@ def isNan(val):
   except:
     result = False
   return result
+
+def isNull(val):
+  """
+  Checks if this is a null value, either None or Nan
+  """
+  is_nan = isNan(val)
+  is_none = val is None
+  return is_nan or is_none

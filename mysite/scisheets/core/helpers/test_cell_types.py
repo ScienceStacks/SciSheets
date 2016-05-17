@@ -19,6 +19,14 @@ class TestUtil(unittest.TestCase):
     self.assertFalse(cell_types.isNan("a"))
     self.assertFalse(cell_types.isNan([np.nan]))
 
+  def testIsNull(self):
+    self.assertTrue(cell_types.isNull(np.nan))
+    self.assertTrue(cell_types.isNull(None))
+    self.assertFalse(cell_types.isNull(3.0))
+    self.assertFalse(cell_types.isNull(3))
+    self.assertFalse(cell_types.isNull("a"))
+    self.assertFalse(cell_types.isNull([np.nan]))
+
   def testIsFloat(self):
     self.assertTrue(cell_types.isFloats(4.1))
     self.assertFalse(cell_types.isFloats(4.0))
