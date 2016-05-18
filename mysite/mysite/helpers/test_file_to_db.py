@@ -10,7 +10,6 @@ import unittest
 #import file_to_db as f2d
 import sqlite3
 import os
-import shutil
 
 class TestFunctions(unittest.TestCase):
   def testSQLType(self):
