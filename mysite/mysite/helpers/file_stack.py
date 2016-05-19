@@ -12,7 +12,7 @@ MAX_DEPTH = 99
 class FileStack(object):
 
   """
-  Provide push, pop operations to create/access/remove files
+  Provide push, pop, clear operations to create/access/remove files
   """
 
   def __init__(self, dirpath, filename_pfx, max_depth=5):
@@ -37,6 +37,7 @@ class FileStack(object):
     """
     Creates a filepath with the desired suffix
     :param int sfx:
+    :return str filepath:
     """
     if sfx < 10:
       str_sfx = "0%d" % sfx
@@ -46,13 +47,13 @@ class FileStack(object):
     return os.path.join(self._dirpath, filename)
 
   def _getFilepaths(self):
-     """
+    """
     Returns a list of all filepaths currently in the stack
     :return list-of-str: all filepaths used in this instance
     Notes: (1) list is ordered from top to bottom of the stack
            (2) eliminates stray history files
     """
-    sfxs = range(FIRST_IDX, self._maxdepth+1)
+    sfxs = range(FIRST_IDX, self._max_depth+1)
     possible_filepaths = [self._makeFilepath(sfx) for sfx in sfxs]
     filepaths = []
     is_end = False  # Encountered end of files used
@@ -64,7 +65,7 @@ class FileStack(object):
         else:
           filepaths.append(filepath)
       else:
-        is_end_files = True
+        is_end = True
     return filepaths
 
   def _getTop(self):
@@ -87,24 +88,22 @@ class FileStack(object):
     is_move_up = not is_move_down
     filepaths = self._getFilepaths()
     adj_filepaths = list(filepaths)
-    if is_move_down and len(filepaths) < self._max_depth:
-      new_sfx = len(filepaths) + 1
-      new_filepath = self._makeFilepath(new_sfx)
-      adj_filepaths.append(new_filepath)
+    if is_move_down:
+      if len(filepaths) < self._max_depth:
+        # Add a new filepath
+        new_sfx = len(filepaths) + 1
+        new_filepath = self._makeFilepath(new_sfx)
+        adj_filepaths.append(new_filepath)
       adj_filepaths.reverse()
-      filepath_pairs = zip(filepaths[1:], filepaths[:-1])
-    if is_move_up:
-      adj_filepaths.reverse()
-      filepath_pairs = zip(filepaths[:-1], filepaths[1:])
-    # Create from/to copy pairs
-    filepath_pairs = zip(filepaths[1:], filepaths[:-1])
+    filepath_pairs = zip(adj_filepaths[1:], adj_filepaths[:-1])
     # Do the copies
     for from_filepath, to_filepath in filepath_pairs:
-      shutils.copyfile(from_filepath, to_filepath)
+      shutil.copyfile(from_filepath, to_filepath)
     # Handle unused file in case of move up
     if is_move_up:
-      last_filepath = filepaths[-1]
-      os.remove(last_filepath)
+      if len(filepaths) > 0:
+        last_filepath = filepaths[-1]
+        os.remove(last_filepath)
 
   def clear(self):
     """
@@ -118,6 +117,10 @@ class FileStack(object):
     """
     Returns the current stack depth
     """
+    return len(self._getFilepaths())
+
+  def isEmpty(self):
+    return self.getDepth() == 0
      
   def pop(self, to_filepath):
     """
@@ -128,7 +131,7 @@ class FileStack(object):
     from_filepath = self._getTop()
     if from_filepath is None or not os.path.exists(from_filepath):
       raise ValueError("FileStack history is empty")
-    shutils.copyfile(from_filepath, to_filepath)
+    shutil.copyfile(from_filepath, to_filepath)
     self._adjustStack(is_move_down = False)
     
   def push(self, filepath):
@@ -136,6 +139,6 @@ class FileStack(object):
     Copies the file to the top of the stack
     :param str filepath:
     """
-    to_file = self._makeFilepath(FIRST_IDX)
+    to_filepath = self._makeFilepath(FIRST_IDX)
     self._adjustStack(is_move_down=True)
-    shutils.copyfile(filepath, to_filepath)
+    shutil.copyfile(filepath, to_filepath)
