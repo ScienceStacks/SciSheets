@@ -35,6 +35,8 @@ class VersionedFile(object):
     self._filepath = filepath
     self._backup_dir = backup_dir
     self._max_versions = max_versions
+    if not os.path.exists(backup_dir):
+      os.mkdir(backup_dir)
     undo_pfx = self._filenamePrefix(UNDO_PREFIX)
     self._undo_stack = FileStack(backup_dir, undo_pfx,
         self._max_versions)
