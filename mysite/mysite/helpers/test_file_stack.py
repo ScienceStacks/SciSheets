@@ -11,7 +11,21 @@ TEST_FILEPATH = "/tmp/%s.txt" % TEST_FILENAME
 FILENAME_PFX = "%s.t" % TEST_FILENAME
 MAX_DEPTH = 5
 
+############### FUNCTIONS ####################
+def writeFile(filepath, value):
+  fh = open(filepath, "w")
+  fh.write("%d" % value)
+  fh.close()
 
+def checkFilepathValue(filepath, expected_value):
+  fh = open(filepath, "r")
+  value = fh.readline()
+  if str(expected_value) != value:
+    import pdb; pdb.set_trace()
+  return str(expected_value) == value
+
+
+############### CLASSES ####################
 class TestFileStack(unittest.TestCase):
 
   def setUp(self):
@@ -23,12 +37,7 @@ class TestFileStack(unittest.TestCase):
          max_depth=MAX_DEPTH)
 
   def _writeManagedFile(self, value):
-    self._writeFile(TEST_FILEPATH, value)
-
-  def _writeFile(self, filepath, value):
-    fh = open(filepath, "w")
-    fh.write("%d" % value)
-    fh.close()
+    writeFile(TEST_FILEPATH, value)
 
   def _populateStack(self, size):
     """
@@ -38,14 +47,7 @@ class TestFileStack(unittest.TestCase):
     """
     for idx in range(1, size+1):
       filepath = self.stack._makeFilepath(idx)
-      self._writeFile(filepath, idx)
-
-  def _checkFilepathValue(self, filepath, expected_value):
-    fh = open(filepath, "r")
-    value = fh.readline()
-    if str(expected_value) != value:
-      import pdb; pdb.set_trace()
-    self.assertEqual(str(expected_value), value)
+      writeFile(filepath, idx)
 
   def testMakeFilepath(self):
     filepath = self.stack._makeFilepath(1)
@@ -96,7 +98,7 @@ class TestFileStack(unittest.TestCase):
     self.assertEqual(len(filepaths), limit)
     for idx in range(2, size+1):
       filepath = self.stack._makeFilepath(idx)
-      self._checkFilepathValue(filepath, idx-1)
+      self.assertTrue(checkFilepathValue(filepath, idx-1))
 
   def testAdjustStackDown(self):
     self._testAdjustStackDown(MAX_DEPTH-1)
@@ -113,7 +115,7 @@ class TestFileStack(unittest.TestCase):
     self.assertEqual(len(filepaths), limit)
     for idx in range(1, size-1):
       filepath = self.stack._makeFilepath(idx)
-      self._checkFilepathValue(filepath, idx+1)
+      self.assertTrue(checkFilepathValue(filepath, idx+1))
 
   def testAdjustStackUp(self):
     self._testAdjustStackUp(0)
@@ -143,13 +145,13 @@ class TestFileStack(unittest.TestCase):
     self.stack.clear()
     self._populateStack(size)
     self.stack.pop(TEST_FILEPATH)
-    self._checkFilepathValue(TEST_FILEPATH, 1)
+    self.assertTrue(checkFilepathValue(TEST_FILEPATH, 1))
     filepaths = self.stack._getFilepaths()
     limit = max(0, size-1)
     self.assertEqual(len(filepaths), limit)
     for idx in range(1, size):
       filepath = self.stack._makeFilepath(idx)
-      self._checkFilepathValue(filepath, idx+1)
+      self.assertTrue(checkFilepathValue(filepath, idx+1))
 
   def testPop(self):
     self._testPop(2)
@@ -161,13 +163,13 @@ class TestFileStack(unittest.TestCase):
     self.stack.clear()
     self._populateStack(size)
     self.stack.push(TEST_FILEPATH)
-    self._checkFilepathValue(TEST_FILEPATH, 0)
+    self.assertTrue(checkFilepathValue(TEST_FILEPATH, 0))
     filepaths = self.stack._getFilepaths()
     limit = min(MAX_DEPTH, size+1)
     self.assertEqual(len(filepaths), limit)
     for idx in range(1, size):
       filepath = self.stack._makeFilepath(idx)
-      self._checkFilepathValue(filepath, idx-1)
+      self.assertTrue(checkFilepathValue(filepath, idx-1))
 
   def testPush(self):
     self._testPush(2)

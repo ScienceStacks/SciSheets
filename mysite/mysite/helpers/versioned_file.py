@@ -1,18 +1,29 @@
 """
 Creates an abstraction that allows to undo and redo versions
-of a file.
+of a file. Core concepts:
+  managed file: the file that is being versioned
+  checkpoint: saved copy of the managed file
+  undo: operation that reinstates the last checkpoint
+  redo: operation that reinstates the last version that was
+        present when an undo operation was done
 """
 
 from file_stack import FileStack
+import os
+
+
+UNDO_PREFIX = "u"
+REDO_PREFIX = "r"
 
 class VersionedFile(object):
 
   """
   Usage example:
-    versioned_file = VersionedFile(managed_file)
-    versioned_file.update()  # Called before an update is made
+    versioned_file = VersionedFile(managed_file, backup_dir, max_versions)
+    versioned_file.checkpoint()  # Called before an update is made
     versioned_file.undo()  # Recover a previous version
-    versioned_file.redo()  # Undo the undo
+    versioned_file.checkpoint()  # Called before an update is made
+    versioned_file.redo()  # Return to the version before the undo
   """
 
   def __init__(self, filepath, backup_dir, max_versions):
@@ -24,22 +35,36 @@ class VersionedFile(object):
     self._filepath = filepath
     self._backup_dir = backup_dir
     self._max_versions = max_versions
-    undo_pfx = self._extractFilename("u")
+    undo_pfx = self._filenamePrefix(UNDO_PREFIX)
     self._undo_stack = FileStack(backup_dir, undo_pfx,
         self._max_versions)
-    redo_pfx = self._extractFilename("r")
+    redo_pfx = self._filenamePrefix(REDO_PREFIX)
     self._redo_stack = FileStack(backup_dir, redo_pfx,
         self._max_versions)
 
-  def _extractFilename(self, pfx):
+  def _filenamePrefix(self, pfx):
     """
-    :param str pfx:
+    :param str pfx: prefix in the file extension
     Returns the filename prefix
     """
-    full_file = os.path.split(filepath)[1]
-    filename, ext = os.path.splitext(full_file)
+    full_name = os.path.split(self._filepath)[1]
+    filename, ext = os.path.splitext(full_name)
     filename_pfx = "%s.%s" % (filename, pfx)
     return filename_pfx
+
+  def checkpoint(self):
+    """
+    Create a checkpoint in the undo stack for the current version
+    of the managed file.
+    """
+    self._undo_stack.push(self._filepath)
+
+  def clear(self):
+    """
+    Empty the undo and redo stacks.
+    """
+    self._undo_stack.clear()
+    self._redo_stack.clear()
 
   def get(self):
     """
@@ -64,5 +89,5 @@ class VersionedFile(object):
     """
     if self._redo_stack.isEmpty():
       raise RuntimeError("Redo stack is empty.")
-    self._undo_stack.push(self._filepath)
+    self.checkpoint()
     self._redo_stack.pop(self._filepath)
