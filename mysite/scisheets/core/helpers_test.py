@@ -2,6 +2,7 @@
    Utilities used for testing MVCSheets code.
 '''
 
+from mysite.helpers.versioned_file import VersionedFile
 from scisheets.ui.dt_table import DTTable
 import column as cl
 import contextlib
@@ -17,6 +18,7 @@ TEST_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
 TEST_TABLE = "TEST_TABLE"
 TEST_FILENAME = "%s.pcl" % TEST_TABLE
 TABLE_FILEPATH = os.path.join(TEST_DIR, TEST_FILENAME)
+MAX_VERSIONS = 3
 
 # Constants
 COLUMN = "DUMMY_COLUMN"
@@ -92,7 +94,8 @@ def createTable(name, column_name=None):
   else:
     colnms = [column_name]
   table = DTTable(name)
-  table.setFilepath(TABLE_FILEPATH)
+  versioned_file = VersionedFile(TABLE_FILEPATH, TEST_DIR, MAX_VERSIONS)
+  table.setVersionedFile(versioned_file)
   for colnm in colnms:
     column = cl.Column(colnm)
     column.addCells(range(5), replace=True)
@@ -206,7 +209,9 @@ class TableFileHelper(object):
     else:
       self.table = DTTable(self._table_name)
       pickle.dump(self.table, open(self._full_path, "wb"))
-    self.table.setFilepath(self._full_path)
+    versioned_file = VersionedFile(TABLE_FILEPATH, 
+        TEST_DIR, MAX_VERSIONS)
+    self.table.setVersionedFile(versioned_file)
 
   def destroy(self):
     """

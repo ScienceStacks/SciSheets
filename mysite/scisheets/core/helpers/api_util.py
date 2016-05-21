@@ -1,5 +1,6 @@
 '''Evaluates formulas in a Table.'''
 
+from mysite.helpers.versioned_file import VersionedFile
 import cell_types
 import collections
 import numpy as np
@@ -38,9 +39,9 @@ def getTableFromFile(file_path, verify=True):
   except Exception as e:
     import pdb; pdb.set_trace()
   fh.close()
+  table.migrate()  # Handle case of older objects
   if verify and table.getFilepath() != file_path:
     raise ValueError("File path is incorrect or missing.")
-  table.migrate()  # Handle case of older objects
   return table
 
 def writeTableToFile(table):
@@ -62,7 +63,7 @@ def getTableCopyFilepath(filename, directory):
 
 def copyTableToFile(table, filename, directory):
   """
-  Get writes the table to the directory specified
+  Writes the table to the directory specified
   :param Table table:
   :param str filename: name of the file for the table w/o extension
   :return str filepath: path to the table file
@@ -70,7 +71,14 @@ def copyTableToFile(table, filename, directory):
   """
   filepath = getTableCopyFilepath(filename, directory)
   new_table = table.copy()
-  new_table.setFilepath(filepath)
+  versioned_file = table.getVersionedFile()
+  if versioned_file is None:
+    new_table.setVersionedFile(None)
+  else:
+    max_versions = table.getVersionedFile().getMaxVersions()
+    directory = table.getVersionedFile().getDirectory()
+    new_versioned_file = VersionedFile(filepath, directory, max_versions)
+    new_table.setVersionedFile(new_versioned_file)
   pickle.dump(new_table, open(filepath, "wb"))
   return filepath
 

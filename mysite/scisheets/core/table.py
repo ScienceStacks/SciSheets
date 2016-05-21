@@ -40,7 +40,6 @@ class Table(ColumnContainer):
   def __init__(self, name):
     super(Table, self).__init__(name)
     self._createNameColumn()
-    self.setFilepath(None)
 
   def d(self):
     return [(c.getName(), c.getCells()) for c in self._columns]
@@ -71,9 +70,6 @@ class Table(ColumnContainer):
     Returns the data values in an array ordered by column index
     """
     return [c.getCells() for c in self._columns]
-
-  def getFilepath(self):
-    return self._filepath
 
   # TODO: Verify the index
   @staticmethod
@@ -229,7 +225,6 @@ class Table(ColumnContainer):
     Returns a copy of this object
     """
     new_table = Table(self._name)
-    self.setFilepath(None)
     for column in self.getDataColumns():
       new_column = cl.Column(column.getName())
       new_column.addCells(column.getCells())

@@ -1,10 +1,11 @@
 '''The file handles the logic of the views'''
 
 from django.http import HttpResponse
-from ..core.errors import InternalError
-from ..core.helpers.api_util import getTableFromFile, \
+from mysite.helpers.versioned_file import VersionedFile
+from scisheets.core.errors import InternalError
+from scisheets.core.helpers.api_util import getTableFromFile, \
     writeTableToFile, getFileNameWithoutExtension
-from ..ui.dt_table import DTTable
+from scisheets.ui.dt_table import DTTable
 import mysite.helpers.util as ut
 import mysite.settings as st
 import json
@@ -123,7 +124,10 @@ def _setTableFilepath(request,
     import pdb; pdb.set_trace()
   if table_filepath[-4:] != ".pcl":
     import pdb; pdb.set_trace()
-  table.setFilepath(table_filepath)
+  versioned_file = VersionedFile(table_filepath, 
+      st.SCISHEETS_USER_TBLDIR_BACKUP,
+      st.SCISHEETS_MAX_TABLE_VERSIONS)
+  table.setVersionedFile(versioned_file)
   return table_filepath
 
 def _getTableFilepath(request):

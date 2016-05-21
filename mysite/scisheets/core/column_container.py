@@ -2,7 +2,8 @@
   Implements the ColumnContainer.
 '''
 
-
+from mysite.helpers.versioned_file import VersionedFile
+from mysite import settings as settings
 from column import Column
 import errors as er
 import column as cl
@@ -18,6 +19,7 @@ class ColumnContainer(object):
   def __init__(self, name):
     self._name = name
     self._columns = []  # array of column objects in table sequence
+    self._versioned_file = None
 
   def columnFromIndex(self, index):
     """
@@ -54,11 +56,26 @@ class ColumnContainer(object):
     """
     return self._columns
 
+  def getFilepath(self):
+    """
+    :return str filepath: where table is stored
+    """
+    if self._versioned_file is None:
+      return None
+    else:
+      return self._versioned_file.getFilepath()
+
   def getName(self):
     """
     :return: the table name
     """
     return self._name
+
+  def getVersionedFile(self):
+    """
+    :return VersionedFile/None:
+    """
+    return self._versioned_file
 
   def indexFromColumn(self, column):
     """
@@ -82,6 +99,13 @@ class ColumnContainer(object):
     """
     Handles older objects that lack some properties
     """
+    if not '_versioned_file' in dir(self):
+      if '_filepath' in dir(self):
+        self._versioned_file = VersionedFile(self._filepath,
+            settings.SCISHEETS_USER_TBLDIR_BACKUP,
+            settings.SCISHEETS_MAX_TABLE_VERSIONS)
+      else:
+        self._versioned_file = None
     pass
 
   def moveColumn(self, column, new_idx):
@@ -110,9 +134,8 @@ class ColumnContainer(object):
     index = self._columns.index(column)
     del self._columns[index]
 
-  def setFilepath(self, filepath):
-    # Path to the backing store for the Table
-    self._filepath = filepath
+  def setVersionedFile(self, versioned_file):
+    self._versioned_file = versioned_file
 
   def setName(self, name):
     """

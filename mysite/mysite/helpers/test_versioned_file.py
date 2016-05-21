@@ -131,7 +131,7 @@ class TestVersionedFile(unittest.TestCase):
     self._checkState(MAX_DEPTH-1, [], [])
 
   def testGet(self):
-    filepath = self.versioned.get()
+    filepath = self.versioned.getFilepath()
     self.assertEqual(filepath, MANAGED_FILE)
     
 

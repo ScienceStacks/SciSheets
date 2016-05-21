@@ -68,11 +68,23 @@ class VersionedFile(object):
     self._undo_stack.clear()
     self._redo_stack.clear()
 
-  def get(self):
+  def getFilepath(self):
     """
-    :returns str filepath:
+    :returns str: filepath
     """
     return self._filepath
+
+  def getDirectory(self):
+    """
+    :returns str: directory path
+    """
+    return self._backup_dir
+
+  def getMaxVersions(self):
+    """
+    :returns int: maximum depth
+    """
+    return self._max_versions
 
   def undo(self):
     """
