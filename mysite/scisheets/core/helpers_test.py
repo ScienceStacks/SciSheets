@@ -172,6 +172,15 @@ class TableFileHelper(object):
   """
 
   @classmethod
+  def doesFilepathExist(cls, filepath):
+    """
+    Checks if the table file exists
+    :param str filepath: filepath to check
+    :return: boolean
+    """
+    return os.path.exists(filepath)
+
+  @classmethod
   def doesTableFileExist(cls, table_filename, filedir, suffix="pcl"):
     """
     Checks if the table file exists
@@ -182,7 +191,7 @@ class TableFileHelper(object):
     """
     full_filename = "%s.%s" % (table_filename, suffix)
     full_path = os.path.join(filedir, full_filename)
-    return os.path.exists(full_path)
+    return TableFileHelper.doesFilepathExist(full_path)
 
   def __init__(self, table_filename, table_filedir, table_name=None):
     """

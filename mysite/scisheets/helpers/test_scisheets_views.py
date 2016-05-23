@@ -280,18 +280,23 @@ class TestScisheetsViews(TestCase):
   def testCommandColumnDelete(self):
     self._testCommandColumnDelete(BASE_URL)
 
-  def _testCommandColumnRename(self, base_url, new_name, is_successful_outcome):
+  def _testCommandColumnRename(self, 
+    base_url, 
+    new_name, 
+    is_successful_outcome,
+    command='Rename'):
     # Tests for command column rename with a given base_url to consider the
     # two use cases of the initial table and a reload
     # Input - base_url - base URL used in the request
     #         new_name - new column name
     #         is_successful_outcome - Boolean whether rename is successful
+    #         command - command issued, either Rename or Refactor
     base_response = self._createBaseTable()
     # Do the cell update
     COLUMN_INDEX = 2
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Column'
-    ajax_cmd['command'] = 'Rename'
+    ajax_cmd['command'] = command
     ajax_cmd['column'] = COLUMN_INDEX
     ajax_cmd['args[]'] = new_name.replace(' ', '+')
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=base_url)
@@ -313,6 +318,50 @@ class TestScisheetsViews(TestCase):
     self._testCommandColumnRename(BASE_URL, new_name, False)
     NEW_NAME = "New_Column"
     self._testCommandColumnRename(BASE_URL, NEW_NAME, True)
+
+  def _refactor(self, new_formula, refactor_name, isValid):
+    """
+    Changes the name in column 1 and the formula formula in column 2
+    to test Refactor
+    :param str new_name: new name for column 1
+    :param str new_formula: new formula for column 2
+    :param bool isValid: is a valid formula
+    """
+    refactor_column = 1
+    formula_change_column = 2
+    base_response = self._createBaseTable()
+    # Change the formula
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Formula"
+    ajax_cmd['column'] =  formula_change_column
+    ajax_cmd['args[]'] = new_formula
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
+    # Refactor the name 
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Refactor"
+    ajax_cmd['column'] =  refactor_column
+    ajax_cmd['args[]'] = refactor_name
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    # Check the response
+    self.assertTrue(content["success"] == isValid)
+
+  def testCommandColumnRefactorName(self):
+    new_name = 'row'  # duplicate name
+    self._testCommandColumnRename(BASE_URL, new_name, False, command="Refactor")
+    new_name = "New_Column"
+    self._testCommandColumnRename(BASE_URL, new_name, True, command="Refactor")
+
+  def testCommandColumnRefactorFormula(self):
+    new_formula = "Col_0"
+    refactor_name = "NewColumn"
+    self._refactor(new_formula, refactor_name, True)
 
   def testCommandRowMove(self):
     # Tests row renaming by moving the first row
@@ -704,12 +753,12 @@ class TestScisheetsViews(TestCase):
     content = json.loads(response.content)
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
-    self.assertFalse(TableFileHelper.doesTableFileExist(filename,
-        st.SCISHEETS_USER_TBLDIR))
+    self.assertTrue(TableFileHelper.doesFilepathExist(
+        st.SCISHEETS_DEFAULT_TABLEFILE))
     #helper.destroy()
 
   def testTableNew(self):
-    filename = sv.LOCAL_FILE
+    filename = st.SCISHEETS_DEFAULT_TABLEFILE
     _ = self._createBaseTable()
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
@@ -719,8 +768,8 @@ class TestScisheetsViews(TestCase):
     content = json.loads(response.content)
     self.assertTrue("success" in content)
     self.assertTrue(content["success"])
-    self.assertTrue(TableFileHelper.doesTableFileExist(filename,
-        st.SCISHEETS_USER_TBLDIR))
+    self.assertTrue(TableFileHelper.doesFilepathExist(
+        st.SCISHEETS_DEFAULT_TABLEFILE))
 
   def testFormulaRowAddition(self):
     base_response = self._createBaseTable()

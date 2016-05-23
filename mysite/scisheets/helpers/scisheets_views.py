@@ -7,14 +7,13 @@ from scisheets.core.helpers.api_util import getTableFromFile, \
     writeTableToFile, getFileNameWithoutExtension
 from scisheets.ui.dt_table import DTTable
 import mysite.helpers.util as ut
-import mysite.settings as st
+import mysite.settings as settings
 import json
 import os
 import tempfile
 
 TABLE_FILE_KEY = "tablefile"
-USE_LOCAL_FILE = True
-LOCAL_FILE = "scisheet_table"
+USE_DEFAULT_FILE = True
 EMPTY_TABLE_FILE = "_empty_table"
 
 
@@ -95,7 +94,7 @@ def _createTableFilepath(file_name):
   if file_name[-4:] != ".pcl":
     suffix = ".pcl"
   table_file = "%s%s" % (file_name, suffix)
-  return os.path.join(st.SCISHEETS_USER_TBLDIR, table_file)
+  return os.path.join(settings.SCISHEETS_USER_TBLDIR, table_file)
 
 def _setTableFilepath(request, 
                       table, 
@@ -125,8 +124,8 @@ def _setTableFilepath(request,
   if table_filepath[-4:] != ".pcl":
     import pdb; pdb.set_trace()
   versioned_file = VersionedFile(table_filepath, 
-      st.SCISHEETS_USER_TBLDIR_BACKUP,
-      st.SCISHEETS_MAX_TABLE_VERSIONS)
+      settings.SCISHEETS_USER_TBLDIR_BACKUP,
+      settings.SCISHEETS_MAX_TABLE_VERSIONS)
   table.setVersionedFile(versioned_file)
   return table_filepath
 
@@ -170,8 +169,8 @@ def saveTable(request, table):
       have_table_file = True
       table_filepath = request.session[TABLE_FILE_KEY]
   if not have_table_file:
-    if USE_LOCAL_FILE:
-      table_filepath = LOCAL_FILE
+    if USE_DEFAULT_FILE:
+      table_filepath = settings.SCISHEETS_DEFAULT_TABLEFILE
     else:
       handle = tempfile.NamedTemporaryFile()
       table_filepath = handle.name
@@ -191,7 +190,9 @@ def scisheets(request, ncol, nrow):
   ncolstr = int(ncol/2)
   table = DTTable.createRandomTable("Demo", nrow, ncol,
       ncolstr=ncolstr)
-  _setTableFilepath(request, table, LOCAL_FILE, verify=False)
+  _setTableFilepath(request, table, 
+      settings.SCISHEETS_DEFAULT_TABLEFILE,
+      verify=False)
   html = table.render()
   saveTable(request, table)
   return HttpResponse(html)
@@ -220,7 +221,9 @@ def _makeNewTable(request):
   """
   empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
   table = getTableFromFile(empty_table_file)
-  _setTableFilepath(request, table, LOCAL_FILE, verify=False)
+  _setTableFilepath(request, table, 
+      settings.SCISHEETS_DEFAULT_TABLEFILE,
+      verify=False)
   saveTable(request, table)  # Save table in the new path
   return _makeAjaxResponse("OK", True)
 
@@ -264,7 +267,8 @@ def _listTableFiles():
   Output: returns response that contains the list of table files in data
   """
   lensfx = len(".pcl")
-  file_list = [ff[:-lensfx] for ff in os.listdir(st.SCISHEETS_USER_TBLDIR)
+  file_list = [ff[:-lensfx] 
+               for ff in os.listdir(settings.SCISHEETS_USER_TBLDIR)
                if ff[-lensfx:] == '.pcl' and ff[0] != "_"]
   file_list.sort()
   return _makeAjaxResponse(file_list, True)
