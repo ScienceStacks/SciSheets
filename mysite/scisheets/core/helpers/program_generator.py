@@ -431,7 +431,7 @@ from numpy import nan  # Must follow sympy import '''
       sa.add("for nn in range(%d):" % num_formulas)
       sa.indent(1)
       for column in formula_columns:
-        sa.add("try:")
+        sa.add("try:  # Column %s" % column.getName())
         sa.indent(1)
         sa.add(column.getFormulaStatement())
         name = column.getName()

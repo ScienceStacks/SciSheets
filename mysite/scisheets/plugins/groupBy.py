@@ -17,18 +17,24 @@ def groupBy(category_values, grouping_values):
   """
   idx_data = 'data'
   df = pd.DataFrame()
-  df[idx_data] = pruneNulls(grouping_values)
   groupby_list = []
-  if isinstance(category_values[0], collections.Iterable):
-    for n in range(len(category_values)):
-      idx = str(n)
-      df[idx] = pruneNulls(category_values[n])
+  try:
+    if isinstance(category_values[0], collections.Iterable):
+      for n in range(len(category_values)):
+        idx = str(n)
+        df[idx] = category_values[n]
+        groupby_list.append(df[idx])
+    else:
+      idx = str('0')
+      df[idx] = pruneNulls(category_values)
       groupby_list.append(df[idx])
-  else:
-    idx = str('0')
-    df[idx] = pruneNulls(category_values)
-    groupby_list.append(df[idx])
-  groupby = df[idx_data].groupby(groupby_list)
-  groups = [g[0] for g in groupby]
-  grouped_values = [list(g[1]) for g in groupby]
+    required_length = len(df['0'])
+    df[idx_data] = pruneNulls(grouping_values,
+        required_length=required_length)
+    groupby = df[idx_data].groupby(groupby_list)
+    groups = [g[0] for g in groupby]
+    grouped_values = [list(g[1]) for g in groupby]
+  except Exception as err:
+    import pdb; pdb.set_trace()
+    pass
   return groups, grouped_values
