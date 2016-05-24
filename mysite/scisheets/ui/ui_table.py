@@ -165,6 +165,13 @@ class UITable(Table):
       file_name = cmd_dict['args'][0]
       file_path = os.path.join(st.BASE_DIR, "%s.pcl" % file_name)
       SET_CURRENT_FILE(file_path) # This is current in the session variable.
+    elif command == "Redo":
+      try:
+        versioned.redo()
+        error = None
+      except Exception as err:
+        error = str(err)
+      response = self._createResponse(error)
     elif command == "Rename":
       versioned.checkpoint()
       proposed_name = cmd_dict['args'][0]
@@ -173,6 +180,13 @@ class UITable(Table):
     elif command == "Trim":
       versioned.checkpoint()
       self.trimRows()
+      response = self._createResponse(error)
+    elif command == "Undo":
+      try:
+        versioned.undo()
+        error = None
+      except Exception as err:
+        error = str(err)
       response = self._createResponse(error)
     else:
       msg = "Unimplemented %s command: %s." % (target, command)

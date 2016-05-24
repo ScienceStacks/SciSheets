@@ -853,6 +853,39 @@ for x in Col_2:
     self.assertTrue(content.has_key("success"))
     self.assertTrue(content["success"])
 
+  # TODO: Complete test for Undo. Verify that all changes
+  # are undone - value, column, table
+  def _undoTable(self, formula, isValid, col_idx=NCOL-1):
+    # Inputs: formula - new formula for column
+    #         isValid - is a valid formula
+    base_response = self._createBaseTable()
+    # Change the formula
+    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd['target'] = "Column"
+    ajax_cmd['command'] = "Formula"
+    ajax_cmd['column'] = col_idx
+    ajax_cmd['args[]'] = formula
+    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    response = self.client.get(command_url)
+    content = json.loads(response.content)
+    self.assertTrue(content.has_key("success"))
+    # Check the table
+    new_table = self._getTableFromResponse(response)
+    error = new_table.evaluate(user_directory=TEST_DIR)
+    if isValid:
+      self.assertTrue(content["success"])
+    else:
+      self.assertFalse(content["success"])
+
+  # TODO: Complete test for Undo. Verify that all changes
+  # are undone - value, column, table
+  def testTableUndo(self):
+    return
+    self._evaluateTable("np.sin(3.2)", True)  # Valid formula
+    formula = "Col_2 = np.sin(np.array(range(10), dtype=float));B =  Col_1**3"
+    self._evaluateTable(formula, True)  # Compound formula
+    self._evaluateTable("np.sin(x)", False)  # Invalid formula
+
 
 if __name__ == '__main__':
     unittest.main()
