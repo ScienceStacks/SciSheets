@@ -2,7 +2,7 @@
   Implements the table class for SciSheets.
 '''
 
-
+from mysite.helpers.data_capture import DataCapture
 from column import Column
 from column_container import ColumnContainer
 from table_evaluator import TableEvaluator
@@ -41,11 +41,23 @@ class Table(ColumnContainer):
     super(Table, self).__init__(name)
     self._createNameColumn()
 
+  # The following methods are used in debugging
+
   def d(self):
     return [(c.getName(), c.getCells()) for c in self._columns]
 
   def f(self):
     return [(c.getName(), c.getFormula()) for c in self._columns]
+
+  def setCapture(self, filename, data):
+    dc = DataCapture(filename)
+    dc.setData(data)
+
+  def getCapture(self, filename):
+    dc = DataCapture(filename)
+    return dc.getData()
+  
+  # Internal and other methods
 
   def _updateNameColumn(self):
     """

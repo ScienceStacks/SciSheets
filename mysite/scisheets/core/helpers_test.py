@@ -3,6 +3,7 @@
 '''
 
 from mysite.helpers.versioned_file import VersionedFile
+from mysite import settings
 from scisheets.ui.dt_table import DTTable
 import column as cl
 import contextlib
@@ -13,8 +14,7 @@ import StringIO
 import sys
 
 
-TEST_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                       'test_dir')
+TEST_DIR = settings.SCISHEETS_TEST_DIR
 TEST_TABLE = "TEST_TABLE"
 TEST_FILENAME = "%s.pcl" % TEST_TABLE
 TABLE_FILEPATH = os.path.join(TEST_DIR, TEST_FILENAME)
