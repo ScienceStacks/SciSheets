@@ -35,6 +35,7 @@ class VersionedFile(object):
     self._filepath = filepath
     self._backup_dir = backup_dir
     self._max_versions = max_versions
+    self._checkpoint_history = []
     if not os.path.exists(backup_dir):
       os.mkdir(backup_dir)
     undo_pfx = self._filenamePrefix(UNDO_PREFIX)
@@ -54,12 +55,16 @@ class VersionedFile(object):
     filename_pfx = "%s.%s" % (filename, pfx)
     return filename_pfx
 
-  def checkpoint(self):
+  def checkpoint(self, id=None):
     """
     Create a checkpoint in the undo stack for the current version
     of the managed file.
+    :param str id: record in the checkpoint
     """
     self._undo_stack.push(self._filepath)
+    if not '_checkpoint_history' in dir(self):
+      self._checkpoint_history = []
+    self._checkpoint_history.append(id)
 
   def clear(self):
     """
@@ -80,6 +85,9 @@ class VersionedFile(object):
     """
     return self._backup_dir
 
+  def getCheckpointHistory(self):
+    return self._checkpoint_history
+
   def getMaxVersions(self):
     """
     :returns int: maximum depth
@@ -95,6 +103,7 @@ class VersionedFile(object):
       raise RuntimeError("Undo stack is empty.")
     self._redo_stack.push(self._filepath)
     self._undo_stack.pop(self._filepath)
+    pass
  
   def redo(self):
     """

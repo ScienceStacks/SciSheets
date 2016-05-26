@@ -123,10 +123,6 @@ def _setTableFilepath(request,
     import pdb; pdb.set_trace()
   if table_filepath[-4:] != ".pcl":
     import pdb; pdb.set_trace()
-  versioned_file = VersionedFile(table_filepath, 
-      settings.SCISHEETS_USER_TBLDIR_BACKUP,
-      settings.SCISHEETS_MAX_TABLE_VERSIONS)
-  table.setVersionedFile(versioned_file)
   return table_filepath
 
 def _getTableFilepath(request):
@@ -175,7 +171,13 @@ def saveTable(request, table):
       handle = tempfile.NamedTemporaryFile()
       table_filepath = handle.name
       handle.close()
-  _setTableFilepath(request, table, table_filepath, verify=False)
+  full_filepath = _setTableFilepath(request, table, table_filepath, 
+      verify=False)
+  if table.getVersionedFile() is None:
+    versioned_file = VersionedFile(full_filepath,
+        settings.SCISHEETS_USER_TBLDIR_BACKUP,
+        settings.SCISHEETS_MAX_TABLE_VERSIONS)
+    table.setVersionedFile(versioned_file)
   writeTableToFile(table)
 
 
@@ -208,8 +210,9 @@ def scisheets_command0(request):
   if command_result is None:
     # Use table processing command
     table = getTable(request)
-    command_result = table.processCommand(cmd_dict)
-    saveTable(request, table)  # Save table modifications
+    command_result, do_save = table.processCommand(cmd_dict)
+    if do_save:
+      saveTable(request, table)
   json_str = json.dumps(command_result)
   return HttpResponse(json_str, content_type="application/json")
 

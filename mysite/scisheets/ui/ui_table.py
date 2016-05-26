@@ -104,10 +104,12 @@ class UITable(Table):
     #          column_index - 0 based index
     #          row_index - 0 based index of row
     #          value - value assigned
-    # Output: response - Dictionary with response
+    # Output: response, do_save - Dictionary with response
     #            data: data returned
     #            success: True/False
+    #         do_save - bool (if should save table)
     target = cmd_dict["target"]
+    do_save = True
     if target == "Cell":
       response = self._cellCommand(cmd_dict)
     elif target == "Column":
@@ -115,11 +117,11 @@ class UITable(Table):
     elif target == "Row":
       response = self._rowCommand(cmd_dict)
     elif target == "Table":
-      response = self._tableCommand(cmd_dict)
+      response, do_save = self._tableCommand(cmd_dict)
     else:
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
-    return response
+    return response, do_save
 
   def _extractListFromString(self, list_as_str):
     # TODO: Test
@@ -137,8 +139,10 @@ class UITable(Table):
     # TODO: Test
     # Processes a UI request for a Table
     # Input: cmd_dict - dictionary with the keys
-    # Output: response - response to user
+    # Output: response, do_save - response to user
+    #         do_save - bool (if should save table)
     target = "Table"
+    do_save = True
     error = None
     command = cmd_dict["command"]
     versioned = self.getVersionedFile()
@@ -172,13 +176,14 @@ class UITable(Table):
       except Exception as err:
         error = str(err)
       response = self._createResponse(error)
+      do_save = False
     elif command == "Rename":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       proposed_name = cmd_dict['args'][0]
       error = self.setName(proposed_name)
       response = self._createResponse(error)
     elif command == "Trim":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       self.trimRows()
       response = self._createResponse(error)
     elif command == "Undo":
@@ -188,21 +193,23 @@ class UITable(Table):
       except Exception as err:
         error = str(err)
       response = self._createResponse(error)
+      do_save = False
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    return response
+    return response, do_save
 
   def _cellCommand(self, cmd_dict):
     # Processes a UI request for a Cell
     # Input: cmd_dict - dictionary with the keys
     # Output: response - response to user
     types = [int, str, bool, unicode]
+    target = "Cell"
     error = None
     command = cmd_dict["command"]
     versioned = self.getVersionedFile()
     if command == "Update":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       column = self.visibleColumnFromIndex(cmd_dict["column_index"])
       if column.getTypeForCells() == object:
         error = "Cannot update cells for the types in column %s"  \
@@ -226,11 +233,12 @@ class UITable(Table):
     # Input: cmd_dict - dictionary with the keys
     # Output: response - response to user
     error = None
+    target = "Column"
     command = cmd_dict["command"]
     column = self.visibleColumnFromIndex(cmd_dict["column_index"])
     versioned = self.getVersionedFile()
     if (command == "Append") or (command == "Insert"):
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       name = cmd_dict["args"][0]
       error = Column.isPermittedName(name)
       if error is None:
@@ -242,17 +250,17 @@ class UITable(Table):
         new_column_index = column_index + increment
         self.addColumn(new_column, new_column_index)
     elif command == "Delete":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       self.deleteColumn(column)
     elif command == "Formula":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       formula = cmd_dict["args"][0]
       if len(formula.strip()) == 0:
         error = column.setFormula(None)
       else:
         error = column.setFormula(formula)
     elif command == "Move":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       dest_column_name = cmd_dict["args"][0]
       try:
         if dest_column_name == "LAST":
@@ -265,14 +273,14 @@ class UITable(Table):
       except Exception:
         error = "Column %s does not exist." % dest_column_name
     elif command == "Refactor":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       proposed_name = cmd_dict["args"][0]
       try:
         self.refactorColumn(column.getName(), proposed_name)
       except Exception as err:
         error = str(err)
     elif command == "Rename":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       proposed_name = cmd_dict["args"][0]
       if not self.renameColumn(column, proposed_name):
         error = "%s is a duplicate column name." % proposed_name
@@ -287,22 +295,23 @@ class UITable(Table):
     # Input: cmd_dict - dictionary with the keys
     # Output: response - response to user
     error = None
+    target = "Row"
     command = cmd_dict["command"]
     row_index = cmd_dict['row_index']
     versioned = self.getVersionedFile()
     if command == "Move":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       new_name = cmd_dict["args"][0]
       self.renameRow(row_index, new_name)
     elif command == "Delete":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       self.deleteRows([row_index])
     elif command == "Insert":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       row = self.getRow()
       self.addRow(row, row_index - 0.1)  # Add a new row before 
     elif command == "Append":
-      versioned.checkpoint()
+      versioned.checkpoint(id="%s/%s" % (target, command))
       row = self.getRow()
       self.addRow(row, row_index + 0.1)  # Add a new row after
     else:
