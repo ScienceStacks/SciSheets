@@ -2,6 +2,8 @@
    Utilities used for testing MVCSheets code.
 '''
 
+from mysite.helpers.versioned_file import VersionedFile
+from mysite import settings
 from scisheets.ui.dt_table import DTTable
 import column as cl
 import contextlib
@@ -12,11 +14,11 @@ import StringIO
 import sys
 
 
-TEST_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                       'test_dir')
+TEST_DIR = settings.SCISHEETS_TEST_DIR
 TEST_TABLE = "TEST_TABLE"
 TEST_FILENAME = "%s.pcl" % TEST_TABLE
 TABLE_FILEPATH = os.path.join(TEST_DIR, TEST_FILENAME)
+MAX_VERSIONS = 3
 
 # Constants
 COLUMN = "DUMMY_COLUMN"
@@ -81,14 +83,21 @@ def createColumn(name, data=np.array([]), table=None, formula=None):
 
 def createTable(name, column_name=None):
   """
-  :param name: str table name
-  :param column_name: name of a column to create
+  :param str name: str table name
+  :param str or list column_name: column(s) to create
   :return: Table object
   """
+  if column_name is None:
+    colnms = []
+  elif isinstance(column_name, list):
+    colnms = column_name
+  else:
+    colnms = [column_name]
   table = DTTable(name)
-  table.setFilepath(TABLE_FILEPATH)
-  if column_name is not None:
-    column = cl.Column(column_name)
+  versioned_file = VersionedFile(TABLE_FILEPATH, TEST_DIR, MAX_VERSIONS)
+  table.setVersionedFile(versioned_file)
+  for colnm in colnms:
+    column = cl.Column(colnm)
     column.addCells(range(5), replace=True)
     table.addColumn(column)
   pickle.dump(table, open(TABLE_FILEPATH, "wb"))
@@ -163,6 +172,15 @@ class TableFileHelper(object):
   """
 
   @classmethod
+  def doesFilepathExist(cls, filepath):
+    """
+    Checks if the table file exists
+    :param str filepath: filepath to check
+    :return: boolean
+    """
+    return os.path.exists(filepath)
+
+  @classmethod
   def doesTableFileExist(cls, table_filename, filedir, suffix="pcl"):
     """
     Checks if the table file exists
@@ -173,7 +191,7 @@ class TableFileHelper(object):
     """
     full_filename = "%s.%s" % (table_filename, suffix)
     full_path = os.path.join(filedir, full_filename)
-    return os.path.exists(full_path)
+    return TableFileHelper.doesFilepathExist(full_path)
 
   def __init__(self, table_filename, table_filedir, table_name=None):
     """
@@ -200,7 +218,9 @@ class TableFileHelper(object):
     else:
       self.table = DTTable(self._table_name)
       pickle.dump(self.table, open(self._full_path, "wb"))
-    self.table.setFilepath(self._full_path)
+    versioned_file = VersionedFile(TABLE_FILEPATH, 
+        TEST_DIR, MAX_VERSIONS)
+    self.table.setVersionedFile(versioned_file)
 
   def destroy(self):
     """

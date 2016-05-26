@@ -1,11 +1,13 @@
 """ Tests for tabularize. """
 
-from scisheets.core.api import APIFormulas
+from mysite import settings
+from scisheets.core.api import APIFormulas, APIPlugin
 from scisheets.core.table import Table
 from scisheets.core.helpers.cell_types import isNan
 from tabularize import tabularize, _delElement
-import unittest
 import pandas as pd
+import os
+import unittest
 
 
 CATEGORY_COLNM = 'category'
@@ -52,6 +54,19 @@ class TestTabularize(unittest.TestCase):
       cells = [x for x in column.getCells() if not isNan(x)]
       size = len(VALUES)/len(SFX_NAMES)
       self.assertEqual(len(cells), size)
+
+  def testFromFile1(self):
+    filepath = os.path.join(settings.SCISHEETS_TEST_DIR, 
+                            "tabularize_test.pcl")
+    api = APIPlugin(filepath)
+    api.initialize()
+    tabularize(api, 'Groups', 1, 'MeanCt',
+        new_category_colnm='BioRuns',
+        values_colnm_prefix='Gene_')
+    BioRuns = api.getColumnValues('BioRuns')
+    Gene_I = api.getColumnValues('Gene_I')
+    Gene_R1 = api.getColumnValues('Gene_R1')
+    Gene_R2 = api.getColumnValues('Gene_R2')
 
 
 if __name__ == '__main__':

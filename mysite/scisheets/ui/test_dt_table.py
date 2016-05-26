@@ -3,6 +3,7 @@ Tests for YUI DataTable renderings.
 """
 
 from mysite import settings
+from mysite.helpers.versioned_file import VersionedFile
 from ..core.helpers.api_util import getTableFromFile
 from ..core.helpers_test import TEST_DIR
 import dt_table as dt
@@ -88,7 +89,8 @@ class TestUITable(TestCase):
     # set up the test table
     table_filepath = os.path.join(TEST_DIR, "testcase_2.pcl")
     table = getTableFromFile(table_filepath, verify=False)
-    table.setFilepath(table_filepath)
+    versioned_file = VersionedFile(table_filepath, TEST_DIR, 0)
+    table.setVersionedFile(versioned_file)
     html = table.render()
 
 if __name__ == '__main__':

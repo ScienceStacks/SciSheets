@@ -117,6 +117,10 @@ UPLOAD_DIR = os.path.join(BASE_DIR, 'mysite/uploads/')
 # Scisheets constants
 SCISHEETS_USER_PYDIR = os.path.join(BASE_DIR, 'user/guest/python')
 SCISHEETS_USER_TBLDIR = os.path.join(BASE_DIR, 'user/guest/tables')
+SCISHEETS_USER_TBLDIR_BACKUP = os.path.join(BASE_DIR, 
+    'user/guest/tables/backup')
 SCISHEETS_PLUGIN_PYDIR = os.path.join(BASE_DIR, 'scisheets/plugins')
 SCISHEETS_PLUGIN_PYPATH = 'scisheets.plugins'
-# Dir for user tables
+SCISHEETS_MAX_TABLE_VERSIONS = 5
+SCISHEETS_DEFAULT_TABLEFILE = os.path.join(SCISHEETS_USER_TBLDIR, 'scisheet_table.pcl')
+SCISHEETS_TEST_DIR = os.path.join(BASE_DIR, 'scisheets/core/test_dir')

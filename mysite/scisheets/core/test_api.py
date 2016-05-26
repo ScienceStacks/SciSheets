@@ -1,6 +1,6 @@
 '''Tests for formulas API'''
 
-from api import API, APIFormulas, APIPlugin
+from api import API, APIFormulas, APIPlugin, APIAdmin
 import helpers_test as ht
 from helpers.trinary import Trinary
 import table_evaluator as te
@@ -11,6 +11,7 @@ import unittest
 
 COLUMN1 = "Col_1"
 COLUMN2 = "Col_2"
+COLUMN3 = "Col_3"
 TRUTH_COLUMNS = ['A', 'B']
 COLUMN1_VALUES = range(10)
 
@@ -158,6 +159,16 @@ class TestAPIPlugin(unittest.TestCase):
   def setUp(self):
     table = ht.createTable("test", column_name=COLUMN1)
     self.api = APIPlugin(table.getFilepath())
+    self.api.initialize()
+    ht.setupTableInitialization(self)
+
+
+# pylint: disable=W0212,C0111,R0904
+class TestAPIAdmin(unittest.TestCase):
+
+  def setUp(self):
+    table = ht.createTable("test", column_name=[COLUMN1, COLUMN2])
+    self.api = APIAdmin(table.getFilepath())
     self.api.initialize()
     ht.setupTableInitialization(self)
 

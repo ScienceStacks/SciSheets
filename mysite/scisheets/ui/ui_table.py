@@ -141,6 +141,7 @@ class UITable(Table):
     target = "Table"
     error = None
     command = cmd_dict["command"]
+    versioned = self.getVersionedFile()
     if command == "Export":
       args_list = cmd_dict['args']
       # TODO: Create correct format for argument in test
@@ -164,12 +165,28 @@ class UITable(Table):
       file_name = cmd_dict['args'][0]
       file_path = os.path.join(st.BASE_DIR, "%s.pcl" % file_name)
       SET_CURRENT_FILE(file_path) # This is current in the session variable.
+    elif command == "Redo":
+      try:
+        versioned.redo()
+        error = None
+      except Exception as err:
+        error = str(err)
+      response = self._createResponse(error)
     elif command == "Rename":
+      versioned.checkpoint()
       proposed_name = cmd_dict['args'][0]
       error = self.setName(proposed_name)
       response = self._createResponse(error)
     elif command == "Trim":
+      versioned.checkpoint()
       self.trimRows()
+      response = self._createResponse(error)
+    elif command == "Undo":
+      try:
+        versioned.undo()
+        error = None
+      except Exception as err:
+        error = str(err)
       response = self._createResponse(error)
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
@@ -183,7 +200,9 @@ class UITable(Table):
     types = [int, str, bool, unicode]
     error = None
     command = cmd_dict["command"]
+    versioned = self.getVersionedFile()
     if command == "Update":
+      versioned.checkpoint()
       column = self.visibleColumnFromIndex(cmd_dict["column_index"])
       if column.getTypeForCells() == object:
         error = "Cannot update cells for the types in column %s"  \
@@ -209,7 +228,9 @@ class UITable(Table):
     error = None
     command = cmd_dict["command"]
     column = self.visibleColumnFromIndex(cmd_dict["column_index"])
+    versioned = self.getVersionedFile()
     if (command == "Append") or (command == "Insert"):
+      versioned.checkpoint()
       name = cmd_dict["args"][0]
       error = Column.isPermittedName(name)
       if error is None:
@@ -221,14 +242,17 @@ class UITable(Table):
         new_column_index = column_index + increment
         self.addColumn(new_column, new_column_index)
     elif command == "Delete":
+      versioned.checkpoint()
       self.deleteColumn(column)
     elif command == "Formula":
+      versioned.checkpoint()
       formula = cmd_dict["args"][0]
       if len(formula.strip()) == 0:
         error = column.setFormula(None)
       else:
         error = column.setFormula(formula)
     elif command == "Move":
+      versioned.checkpoint()
       dest_column_name = cmd_dict["args"][0]
       try:
         if dest_column_name == "LAST":
@@ -240,7 +264,15 @@ class UITable(Table):
         self.moveColumn(cur_column, new_column_index)
       except Exception:
         error = "Column %s does not exist." % dest_column_name
+    elif command == "Refactor":
+      versioned.checkpoint()
+      proposed_name = cmd_dict["args"][0]
+      try:
+        self.refactorColumn(column.getName(), proposed_name)
+      except Exception as err:
+        error = str(err)
     elif command == "Rename":
+      versioned.checkpoint()
       proposed_name = cmd_dict["args"][0]
       if not self.renameColumn(column, proposed_name):
         error = "%s is a duplicate column name." % proposed_name
@@ -257,15 +289,20 @@ class UITable(Table):
     error = None
     command = cmd_dict["command"]
     row_index = cmd_dict['row_index']
+    versioned = self.getVersionedFile()
     if command == "Move":
+      versioned.checkpoint()
       new_name = cmd_dict["args"][0]
       self.renameRow(row_index, new_name)
     elif command == "Delete":
+      versioned.checkpoint()
       self.deleteRows([row_index])
     elif command == "Insert":
+      versioned.checkpoint()
       row = self.getRow()
       self.addRow(row, row_index - 0.1)  # Add a new row before 
     elif command == "Append":
+      versioned.checkpoint()
       row = self.getRow()
       self.addRow(row, row_index + 0.1)  # Add a new row after
     else:

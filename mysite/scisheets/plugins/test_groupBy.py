@@ -69,6 +69,11 @@ class TestGroupBy(unittest.TestCase):
     fh.close()
     groups, grouped_values = groupBy(category_values, grouping_values)
 
+  def test5(self):
+    category_values = [0, 1, 1, 1, 2, 3]
+    grouping_values = [0.069000000000000006, 0.014999999999999999, 0.069000000000000006, 0.021000000000000001, 0.027, 0.027]
+    groups, grouped_values = groupBy(category_values, grouping_values)
+    self.assertTrue(groups == range(4))
 
 if __name__ == '__main__':
   unittest.main()

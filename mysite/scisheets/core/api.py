@@ -281,7 +281,8 @@ class APIPlugin(APIFormulas):
     Does initialization at the beginning of executing table
     code.
     """
-    self._table = api_util.getTableFromFile(self._table_filepath)
+    self._table = api_util.getTableFromFile(self._table_filepath,
+      verify=False)
 
   def compareToColumnValues(self, column_name, values):
     """
@@ -292,3 +293,18 @@ class APIPlugin(APIFormulas):
     """
     column = self._table.columnFromName(column_name)
     return api_util.compareIterables(column.getCells(), values)
+
+
+class APIAdmin(APIPlugin):
+  """
+  Support for running standalone codes
+     S = APIPlugin(table_filepath)
+     S.initialize()
+  """
+
+  def __init__(self, table_filepath):
+    """
+    :param str table_filepath: full path to the table file
+    """
+    super(APIAdmin, self).__init__(None)
+    self._table_filepath = table_filepath

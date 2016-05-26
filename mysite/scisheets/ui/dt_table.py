@@ -4,6 +4,8 @@
 
 from django.shortcuts import render
 from django.template.loader import get_template
+from mysite.helpers.versioned_file import VersionedFile
+import mysite.settings as settings
 from scisheets.core.helpers.api_util import getFileNameWithoutExtension
 from scisheets.core.helpers.cell_types import isFloats
 from scisheets.core.column import Column
@@ -97,6 +99,11 @@ class DTTable(UITable):
       #values_ext.append(None)
       column.addCells(np.array(values_ext))
       table.addColumn(column)
+    versioned_file = VersionedFile(
+        settings.SCISHEETS_DEFAULT_TABLEFILE,
+        st.SCISHEETS_USER_TBLDIR_BACKUP,
+        st.SCISHEETS_MAX_TABLE_VERSIONS)
+    table.setVersionedFile(versioned_file)
     return table
 
   def __init__(self, name):

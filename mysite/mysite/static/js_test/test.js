@@ -93,6 +93,7 @@ QUnit.test("table_setup", function (assert) {
     0, // Hide
     1, // Insert
     1, // Move
+    1,  // Refactor
     1  // Rename
   ];
   // The following tests fail in batch mode
