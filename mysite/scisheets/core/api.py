@@ -281,7 +281,8 @@ class APIPlugin(APIFormulas):
     Does initialization at the beginning of executing table
     code.
     """
-    self._table = api_util.getTableFromFile(self._table_filepath)
+    self._table = api_util.getTableFromFile(self._table_filepath,
+      verify=False)
 
   def compareToColumnValues(self, column_name, values):
     """

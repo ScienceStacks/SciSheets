@@ -17,6 +17,7 @@ CATEGORICAL as follows:
   y                2    4
 """
 
+from scisheets.core.helpers.cell_types import isNull
 import collections
 import numpy as np
 
@@ -63,19 +64,15 @@ def tabularize(s,
   # Initializations
   if new_category_colnm is None:
     new_category_colnm = "New%s" % category_colnm
-  category_elements = [ele for ele in s.getColumnValues(category_colnm)  \
-                       if ele is not None]
+  raw_category_elements = s.getColumnValues(category_colnm)
+  raw_values = s.getColumnValues(values_colnm)
+  pairs = zip(raw_category_elements, raw_values)
+  category_elements = []
   values = []
-  for val in s.getColumnValues(values_colnm):
-    if isinstance(val, float):
-      if not np.isnan(val):
-        values.append(val)
-    else:
-      if not val is None:
-        values.append(val)
-  if len(category_elements) != len(values):
-    raise ValueError('Unequal lengths for cateogry column %s and values column %s' %  \
-        (category_colnm, values_colnm))
+  for cat, val in pairs:
+    if not isNull(cat):
+      category_elements.append(cat)
+      values.append(val)
   size = len(values)
   # Construct the column values
   col_dict = {}
