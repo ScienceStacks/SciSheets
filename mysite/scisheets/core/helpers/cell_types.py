@@ -245,6 +245,13 @@ def coerceData(data):
       return [x_type.coerce(d) for d in data]
   return list(data)
 
+def isStr(val):
+  """
+  :param object val:
+  :return bool:
+  """
+  return isinstance(val, str) or isinstance(val, unicode)
+
 def isStrArray(array):
   """
   :param np.array array:
