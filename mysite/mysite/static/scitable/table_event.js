@@ -119,6 +119,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
         scisheetTable.utilSelectFile(names);
       });
     }
+    if (cmd.command === 'Redo') {
+      scisheet.utilSendAndReload(cmd);
+    }
     if (cmd.command === 'Rename') {
       scisheet.utilRename(cmd, "New table name", "");
     }
@@ -126,6 +129,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
       scisheet.utilRename(cmd, "Table file name", scisheet.tableFile);
     }
     if (cmd.command === 'Trim') {
+      scisheet.utilSendAndReload(cmd);
+    }
+    if (cmd.command === 'Undo') {
       scisheet.utilSendAndReload(cmd);
     }
   });

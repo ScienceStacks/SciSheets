@@ -76,9 +76,11 @@ QUnit.test("table_setup", function (assert) {
                     1,  // Export
                     1,  // New
                     1,  // Open
+                    1,  // Redo
                     1, // Rename
                     1, // Save
-                    1]; // Trim
+                    1, // Trim
+                    1]; // Undo
   clickTester(caption, "TableClickMenu", -1, assert,
       expectAjaxCalls);
   // Column Tests
