@@ -251,6 +251,21 @@ class TestTable(unittest.TestCase):
     expected_values = range(5)
     actual_values = [x for x in column.getCells()]
     self.assertTrue(expected_values == actual_values)
+
+  def testIsEquivalent(self):
+    new_table = self.table.copy()
+    self.assertTrue(self.table.isEquivalent(new_table))
+    column = new_table.columnFromIndex(1)
+    this_column = self.table.columnFromName(column.getName())
+    column = new_table.columnFromIndex(1)
+    cell = column.getCell(0)
+    new_cell = "New%s" % str(cell)
+    column.updateCell(new_cell, 0)
+    self.assertFalse(self.table.isEquivalent(new_table))
+    this_column.updateCell(new_cell, 0)
+    self.assertTrue(self.table.isEquivalent(new_table))
+    self.table.deleteColumn(this_column)
+    self.assertFalse(self.table.isEquivalent(new_table))
       
 
 if __name__ == '__main__':

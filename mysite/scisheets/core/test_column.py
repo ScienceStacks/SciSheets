@@ -166,6 +166,9 @@ class TestColumn(unittest.TestCase):
         column_copy._cells))
     self.assertEqual(self.column._formula_statement.getFormula(), 
         column_copy._formula_statement.getFormula())
+    self.assertEqual(self.column._data_class, 
+        column_copy.getDataClass())
+    self.assertEqual(self.column._asis, column_copy.getAsis())
     self.assertIsNone(column_copy._owning_table)
 
   def testDeleteCells(self):
@@ -232,6 +235,17 @@ class TestColumn(unittest.TestCase):
     short_array = np.array(range(len(LIST1) - 1))
     with self.assertRaises(er.InternalError):
       self.column.replaceCells(short_array)
+
+  def testIsEquivalent(self):
+    new_column = self.column.copy()
+    self.assertTrue(self.column.isEquivalent(new_column))
+    idx = 0
+    cell = self.column.getCell(idx)
+    new_cell = "new_%s" % str(cell)
+    self.column.updateCell(new_cell, idx)
+    self.assertFalse(self.column.isEquivalent(new_column))
+    new_column.updateCell(new_cell, idx)
+    self.assertTrue(self.column.isEquivalent(new_column))
 
 
 if __name__ == '__main__':

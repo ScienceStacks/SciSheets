@@ -306,19 +306,23 @@ Ntp104
 Rp105
 (dp106
 g50
-Nsg51
+S'VALID_FORMULA = np.sin(A) + B'
+p107
+sg51
 g101
 sg52
-I00
+I01
 sg53
 I00
 sg54
-Nsbsg55
+S'np.sin(A) + B'
+p108
+sbsg55
 g62
 sg63
 S'VALID_FORMULA'
-p107
+p109
 sbasg63
 S'DUMMY_TABLE'
-p108
+p110
 sb.

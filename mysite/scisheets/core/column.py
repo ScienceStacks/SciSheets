@@ -136,10 +136,12 @@ class Column(object):
     """
     Returns a copy of this object
     """
-    result = Column(self._name)
-    result.setFormula(self._formula_statement.getFormula())
-    result.addCells(self._cells)
-    return result
+    new_column = Column(self._name)
+    new_column.setFormula(self._formula_statement.getFormula())
+    new_column.addCells(self._cells)
+    new_column.setAsis(self._asis)
+    new_column.setDataClass(self._data_class)
+    return new_column
 
   def deleteCells(self, indicies):
     """
@@ -219,6 +221,27 @@ class Column(object):
       index = len(self._cells)
     data_list.insert(index, val)
     self._setDatavalues(data_list)
+
+  def isEquivalent(self, column):
+    """
+    Compares the internal state of this and the input column,
+    except the owning table.
+    :param Column column:
+    :return bool:
+    """
+    if not self.getFormula() == column.getFormula():
+      return False
+    if not self.getAsis() == column.getAsis():
+      return False
+    if not self.getDataClass() == column.getDataClass():
+      return False
+    if self.numCells() != column.numCells():
+      return False
+    pairs = zip(self.getCells(), column.getCells())
+    for this_cell, that_cell in pairs:
+      if this_cell != that_cell:
+        return False
+    return True
 
   def isExpression(self):
     return self._formula_statement.isExpression()

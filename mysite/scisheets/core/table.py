@@ -238,8 +238,7 @@ class Table(ColumnContainer):
     """
     new_table = Table(self._name)
     for column in self.getDataColumns():
-      new_column = cl.Column(column.getName())
-      new_column.addCells(column.getCells())
+      new_column = column.copy()
       new_table.addColumn(new_column)
     return new_table
 
@@ -307,6 +306,26 @@ class Table(ColumnContainer):
       if column.getName() == column_name:
         return True
     return False
+
+  def isEquivalent(self, table):
+    """
+    Checks that the tables have the same values of their properties,
+    excluding the VersionedFile.
+    :param Table table:
+    :returns bool:
+    """
+    if self.getName() != table.getName():
+      return False
+    if self.numColumns() != table.numColumns():
+      return False
+    for column in self._columns:
+      other_column = table.columnFromName(column.getName())
+      if other_column is None:
+        return False
+      if not column.isEquivalent(other_column):
+        return False
+    return True
+   
 
   def insertRow(self, row, index=None):
     """
