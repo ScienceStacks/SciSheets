@@ -2,10 +2,9 @@
 Compiles Python statements that evaluate formulas in a Table.
 """
 
+from mysite import settings
 import api_util
 from statement_accumulator import StatementAccumulator
-from mysite.settings import SCISHEETS_PLUGIN_PYDIR,  \
-    SCISHEETS_PLUGIN_PYPATH
 import os
 import numpy as np
 
@@ -60,15 +59,15 @@ class ProgramGenerator(object):
     2. Variable assignment statements that assign column values
        to variables used in the script.
     3. Formula evaluation blocks, one for each formula.
-    4. Column value assignment statements that assign script
-       variables to their associated column values.
+    4. Checking for termination of the formulation evaluation loop
   Exported functions have the following structure:
     1. Prologue statements. This includes the creation of the
        Plugin API object.
     2. Function header (def statement)
     3. Variable assignment statements (but not for the 
        function inputs).
-    4. Return statement
+    4. Checking for termination of the formulation evaluation loop
+    5. Return statement
   In addition, a test program is created that calls the exported function
   and verifies that the function produces the output columns in
   the table when it is called with the input columns.
@@ -80,8 +79,8 @@ class ProgramGenerator(object):
   def __init__(self, 
                table, 
                user_directory, 
-               plugin_directory=SCISHEETS_PLUGIN_PYDIR,
-               plugin_path=SCISHEETS_PLUGIN_PYPATH):
+               plugin_directory=settings.SCISHEETS_PLUGIN_PYDIR,
+               plugin_path=settings.SCISHEETS_PLUGIN_PYPATH):
     """
     Exports the table as python code
     :param Table table: table being processed
@@ -120,12 +119,8 @@ _table = api.getTableFromFile('%s')
       header = "# Uncomment the following to execute standalone"
       statement = "%s\n#%s" % (header, new_statement)
     sa.add(statement)
-    # Assign the column values to script variables
-    sa.add(self._makeVariableAssignmentStatements())
     # Create the formula evaluation blocks
-    sa.add(self._makeFormulaStatements())
-    # Assign script variable to the column values
-    sa.add(self._makeColumnValuesAssignmentStatements())
+    sa.add(self._makeFormulaEvaluationStatements())
     return sa.get()
 
   def makeExportScriptProgram(self):
@@ -147,10 +142,8 @@ _table = api.getTableFromFile('%s')
 %s = api.APIFormulas(_table) 
 """ % (filepath, API_OBJECT) 
     sa.add(statement)
-    # Assign the column values to script variables
-    sa.add(self._makeVariableAssignmentStatements())
     # Create the formula evaluation blocks
-    sa.add(self._makeFormulaStatements())
+    sa.add(self._makeFormulaEvaluationStatements())
     # Print the results
     sa.add(self._makeVariablePrintStatements())
     return sa.get()
@@ -196,9 +189,8 @@ _table = api.getTableFromFile('%s')
     # Note that inputs and outputs are not assigned.
     excludes = list(inputs)
     excludes.extend(outputs)
-    sa.add(self._makeVariableAssignmentStatements(excludes=excludes))
     # Create the formula evaluation blocks
-    sa.add(self._makeFormulaStatements())
+    sa.add(self._makeFormulaEvaluationStatements(excludes=excludes))
     # Make the return statement
     sa.add(_makeReturnStatement(outputs))
     return sa.get()
@@ -354,6 +346,48 @@ if __name__ == '__main__':
       sa.add(statement)
     return sa.get()
 
+  def _makeTableUpdateStatements(self, excludes=None):
+    """
+    Updates the cells in table based on column variables.
+    :return str statement:
+    """
+    if excludes is None:
+      excludes = []
+    sa = StatementAccumulator()
+    statement = "_excludes = %s" % excludes
+    sa.add(statement)
+    statement = """for _column in _table.getColumns():
+  if not _column.getName() in _excludes:
+    s.setColumnValues(_column.getName(), globals()[_column.getName()])"""
+    sa.add(statement)
+    return sa.get()
+
+  def _makeClosingOfFormulaEvaluationLoop(self, **kwargs):
+    """
+    Creates the statements at the end of the formula evaluation
+    loop.
+      1. Statements that update objects
+      2. Assignments of variables to columns
+      3. Loop termination checks
+    """
+    sa = StatementAccumulator()
+    statement = """
+# End of iteration - update state
+_iterations += 1"""
+    sa.add(statement)
+    sa.add(self._makeTableUpdateStatements(**kwargs))
+    statement = """
+# Check the termination conditions
+_num_formula_columns = len(_table.getFormulaColumns())
+if (_exception is None) and _table.isEquivalent(_old_table):
+  _done = True
+if _iterations >= _num_formula_columns + s.getDependencyCounter():
+  _done = True
+if _iterations > MAX_ITERATIONS:
+  _done = True"""
+    sa.add(statement)
+    return sa.get()
+
   def _makeColumnValuesAssignmentStatements(self, **kwargs):
     """
     Creates statements that assign column values to variables.
@@ -401,12 +435,32 @@ from numpy import nan  # Must follow sympy import '''
     statement = self._makeFormulaImportStatements(
         self._plugin_directory, import_path=self._plugin_path)
     sa.add(statement)
+    statement = '''
+MAX_ITERATIONS = %d
+''' % settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS
+    sa.add(statement)
+    return sa.get()
+
+  def _makeColumnVariableAssignmentStatements(self, excludes=None):
+    """
+    Constructs a block that assigns values to the 
+    column variables.
+    """
+    if excludes is None:
+      excludes = []
+    sa = StatementAccumulator()
+    statement = "_excludes = %s" % excludes
+    sa.add(statement)
+    statement = """for _column in _table.getColumns():
+  if not _column.getName() in _excludes:
+    globals()[_name()] = s.getColumnValues(_name)"""
+    sa.add(statement)
     return sa.get()
 
   # pylint: disable=R0913
   # pylint: disable=R0914
   # pylint: disable=R0915
-  def _makeFormulaStatements(self):
+  def _makeFormulaEvaluationStatements(self, **kwargs):
     """
     Constructs a script to evaluate table formulas.
     :return str: statements
@@ -421,33 +475,62 @@ from numpy import nan  # Must follow sympy import '''
       return []
     # Statements that evaluate the formulas
     sa.add("# Evaluate the formulas.")
-    # Special case for a single formula column
-    if num_formulas == 1:
-      column = formula_columns[0]
+    # Iteratively evaluate the formulas. The iteration
+    # terminates under three conditions:
+    #  1. No exception and no change in table data since the
+    #     last iteration.
+    #  2. No exception and the iteration count is equal to the
+    #     number of columns.
+    #  3. The iteration count exceeds a maximum value.
+    statement = """
+# Formulation Evaluation loop - Initializations
+_done = False
+_iterations = 0
+while not _done:
+"""
+    sa.add(statement)
+    sa.indent(1)
+    statement = """_columns = _table.getColumns()
+for _column in _columns:"""
+    sa.add(statement)
+    sa.indent(1)
+    statement = self._makeColumnVariableAssignmentStatements(**kwargs)
+    sa.add(statement)
+    statement = """_old_table = _table.copy()
+_exceptions = None"""
+    sa.add(statement)
+    # Formula Evaluation block header
+    sa.add("try:")
+    sa.indent(1)
+    # Formula Evaluation block formulas
+    statement = """
+# Formula Execution Blocks"""
+    sa.add(statement)
+    for column in formula_columns:
+      sa.add("# Column %s" % column.getName())
       sa.add(column.getFormulaStatement())
-      # Ensure that there is at least one executeable statement
-      sa.add("pass")  
-    else:
-      sa.add("for nn in range(%d):" % num_formulas)
-      sa.indent(1)
-      for column in formula_columns:
-        sa.add("try:  # Column %s" % column.getName())
-        sa.indent(1)
-        sa.add(column.getFormulaStatement())
-        name = column.getName()
-        if column.isExpression():
-          sa.add("%s = %s.coerceValues('%s', %s)"  \
-              % (name, API_OBJECT, name, name))
-        # Ensure that there is at least one executeable statement
+      name = column.getName()
+      if column.isExpression():
+        sa.add("%s = %s.coerceValues('%s', %s)"  \
+            % (name, API_OBJECT, name, name))
+      else:
         sa.add("pass")  
-        sa.indent(-1)
-        sa.add("except Exception as e:")
-        sa.indent(1)
-        sa.add("if nn == %d:" % (num_formulas-1))
-        sa.indent(1)
-        sa.add("raise Exception(e)")
-        sa.add("break")
-        sa.indent(-2)
+      sa.add(" ")
+    # Formula Evaluation block footer
+    sa.indent(-1)
+    sa.add("except Exception as _exception:")
+    sa.indent(1)
+    sa.add("pass")
+    sa.indent(-1)
+    # End of loop
+    statement = self._makeClosingOfFormulaEvaluationLoop(**kwargs)
+    sa.add(statement)
+    sa.indent(-1)
+    # Script closing - check for exception
+    sa.indent(-1)
+    statement = """if _exception is not None:
+  raise Exception(_exception)"""
+    sa.add(statement)
     return sa.get()
 
   def _makeAPIPluginInitializationStatements(self, function_name, prefix=""):

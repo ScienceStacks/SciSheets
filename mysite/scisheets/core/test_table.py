@@ -266,6 +266,20 @@ class TestTable(unittest.TestCase):
     self.assertTrue(self.table.isEquivalent(new_table))
     self.table.deleteColumn(this_column)
     self.assertFalse(self.table.isEquivalent(new_table))
+
+  def testGetColumnFormula(self):
+    table = ht.createTable("test", column_name=[ht.COLUMN1, ht.COLUMN2])
+    column1 = table.columnFromName(ht.COLUMN1)
+    self.assertEqual(len(table.getFormulaColumns()), 0)
+    formula1 = "range(5)"
+    column1.setFormula(formula1)
+    self.assertEqual(len(table.getFormulaColumns()), 1)
+    column2 = table.columnFromName(ht.COLUMN2)
+    formula2 = "[2*x for x in %s]" % ht.COLUMN1
+    column2.setFormula(formula2)
+    self.assertEqual(len(table.getFormulaColumns()), 2)
+    column2.setFormula(None)
+    self.assertEqual(len(table.getFormulaColumns()), 1)
       
 
 if __name__ == '__main__':

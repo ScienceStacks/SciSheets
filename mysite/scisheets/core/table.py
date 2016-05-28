@@ -73,7 +73,7 @@ class Table(ColumnContainer):
   # Data columns are those that have user data. The "row" column is excluded.
   def getDataColumns(self):
     """
-    Returns the data for a column
+    Returns the columns other than the name column
     """
     return self._columns[NAME_COLUMN_IDX + 1:]
 
@@ -82,6 +82,13 @@ class Table(ColumnContainer):
     Returns the data values in an array ordered by column index
     """
     return [c.getCells() for c in self._columns]
+
+  def getFormulaColumns(self):
+    """
+    :return list-of-Column:
+    """
+    result = [c for c in self._columns if c.getFormula() is not None]
+    return result
 
   # TODO: Verify the index
   @staticmethod
@@ -384,7 +391,7 @@ class Table(ColumnContainer):
     columns = self.getColumns()
     changed_columns = []
     try:
-      for col in [c for c in columns if c.getFormula() is not None]:
+      for col in self.getFormulaColumns():
         formula = col.getFormula()
         if cur_colnm in formula:
           new_formula = formula.replace(cur_colnm, new_colnm)

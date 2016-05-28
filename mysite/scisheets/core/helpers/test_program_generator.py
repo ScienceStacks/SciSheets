@@ -174,12 +174,6 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertTrue('import' in statements)
     self.assertIsNone(_compile(statements))
 
-  def testMakeFormulaStatements(self):
-    statements = self.generator._makeFormulaStatements()
-    formula_column = self.table.columnFromName('VALID_FORMULA')
-    self.assertTrue(formula_column.getFormula() in statements)
-    self.assertIsNone(_compile(statements))
-
   def testMakeAPIPluginInitializationStatements(self):
     function_name = "this_test"
     statements = self.generator._makeAPIPluginInitializationStatements(
@@ -194,6 +188,7 @@ class TestProgramGenerator(unittest.TestCase):
     :param str program:
     :param list-of-str tags:
     """
+    import pdb; pdb.set_trace()
     last_index = 0
     error = None
     for tag in tags:

@@ -7,6 +7,7 @@ import errors as er
 import numpy as np
 import helpers.cell_types as cell_types
 import helpers.api_util as api_util
+import collections
 
 
 ########### CLASSES ##################
@@ -229,6 +230,11 @@ class Column(object):
     :param Column column:
     :return bool:
     """
+    def isEquiv(val1, val2):
+      if cell_types.isNull(val1) and cell_types.isNull(val2):
+        return True
+      return val1 == val2
+
     if not self.getFormula() == column.getFormula():
       return False
     if not self.getAsis() == column.getAsis():
@@ -239,8 +245,20 @@ class Column(object):
       return False
     pairs = zip(self.getCells(), column.getCells())
     for this_cell, that_cell in pairs:
-      if this_cell != that_cell:
-        return False
+      if isinstance(this_cell, collections.Iterable)  \
+          and isinstance(that_cell, collections.Iterable):
+        if len(this_cell) != len(that_cell):
+          return False
+        sub_pairs = zip(list(this_cell), list(that_cell))
+        if not all([isEquiv(x,y) for x,y in sub_pairs]):
+          return False
+      else:
+        try:
+          if not isEquiv(this_cell, that_cell):
+            return False
+        except Exception as e:
+          import pdb; pdb.set_trace()
+          pass
     return True
 
   def isExpression(self):

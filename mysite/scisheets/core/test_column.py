@@ -1,6 +1,7 @@
 '''Tests for column'''
 
 import column as cl
+from table import Table
 import unittest
 import errors as er
 import numpy as np
@@ -37,6 +38,23 @@ class TestFormulaStatement(unittest.TestCase):
   
   def setUp(self):
     self.column = createColumn(COLUMN_NAME, data=LIST)
+    self.fs = cl.FormulaStatement(VALID_FORMULA, self.column)
+    self.invalid_fs = cl.FormulaStatement(INVALID_FORMULA, self.column)
+
+  def testDo(self):
+    error = self.fs.do()
+    self.assertIsNone(error)
+    error = self.invalid_fs.do()
+    self.assertIsNotNone(error)
+
+  def testGetStatement(self):
+    self.fs.do()
+    statement = self.fs.getStatement()
+    expected_statement = "%s = %s" % (COLUMN_NAME, VALID_FORMULA)
+    self.assertEqual(statement, expected_statement)
+
+  def testGetFormula(self):
+    self.assertEqual(VALID_FORMULA, self.fs.getFormula())
 
   def testExpression(self):
     fs = cl.FormulaStatement(VALID_FORMULA, self.column)
@@ -81,33 +99,6 @@ s.go()
     self.assertIsNone(fs.do())
     self.assertEqual(fs.getStatement().count("="), 0)
     self.assertFalse(fs.isExpression())
-
-
-# pylint: disable=W0212
-# pylint: disable=C0111
-# pylint: disable=R0904
-class TestColumn(unittest.TestCase):
-  
-  def setUp(self):
-    self.column = createColumn(COLUMN_NAME, data=LIST)
-    self.fs = cl.FormulaStatement(VALID_FORMULA, column)
-    self.invalid_fs = cl.FormulaStatement(INVALID_FORMULA, column)
-
-  def testDo(self):
-    error = self.fs.do()
-    self.assertIsNone(error)
-    error = self.invalid_fs.do()
-    self.assertIsNotNone(error)
-
-  def testGetStatement(self):
-    self.fs.do()
-    statement = self.fs.getStatement()
-    expected_statement = "%s = %s" % (COLUMN_NAME, VALID_FORMULA)
-    self.assertEqual(statement, expected_statement)
-
-  def testGetFormula(self):
-    self.assertEqual(VALID_FORMULA, self.fs.getFormula)
-
 
 
 # pylint: disable=W0212
@@ -246,6 +237,22 @@ class TestColumn(unittest.TestCase):
     self.assertFalse(self.column.isEquivalent(new_column))
     new_column.updateCell(new_cell, idx)
     self.assertTrue(self.column.isEquivalent(new_column))
+  
+  def testIsEquivalentNans(self):
+    new_column = self.column.copy()
+    new_column.insertCell(np.nan)
+    self.column.insertCell(np.nan)
+    self.assertTrue(self.column.isEquivalent(new_column))
+    new_column.insertCell(None)
+    self.column.insertCell(None)
+    self.assertTrue(self.column.isEquivalent(new_column))
+    
+  def testIsEquivalentNestedLists(self):
+    table = Table("dummy")
+    [column1, column2] = table.getCapture("column_is_equivalent")
+    self.assertTrue(column1.isEquivalent(column2))
+    [column1, column2] = table.getCapture("column_is_equivalent2")
+    self.assertTrue(column1.isEquivalent(column2))
 
 
 if __name__ == '__main__':
