@@ -67,7 +67,9 @@ class ProgramRunner(object):
     Creates the API object needed for the runtime.
     :return str error: error from execution
     """
-    globals()['_table'] = self._table
+    namespace = self._table.getNamespace()
+    namespace['_table'] = self._table
+    #globals()['_table'] = self._table  #NAMESPACE
     program = """
 import my_api as api
 s = api.APIFormulas(_table)
@@ -82,9 +84,11 @@ s = api.APIFormulas(_table)
     executes from the filepath.
     """
     error = None
+    namespace = self._table.getNamespace()
     # pylint: disable=W0122
     try:
-      exec(program, globals())
+      #exec(program, globals())  # NAMESPACE
+      exec program in namespace
     # pylint: disable=W0703
     except Exception as err:
       # Report the error without changing the table
@@ -107,6 +111,7 @@ s = api.APIFormulas(_table)
     if not self._user_directory is None:
       sys.path.append(self._user_directory)
     error = None
+    namespace = self._table.getNamespace()
     if create_API_object:
       error = self._createAPIObject()
       if error is not None:
@@ -115,7 +120,8 @@ s = api.APIFormulas(_table)
       self.writeFiles()
       # pylint: disable=W0122
       try:
-        execfile(self._pgm_filepath, globals())
+        #execfile(self._pgm_filepath, globals())  # NAMESPACE
+        execfile(self._pgm_filepath, namespace)
       # pylint: disable=W0703
       except Exception as err:
         # Report the error without changing the table

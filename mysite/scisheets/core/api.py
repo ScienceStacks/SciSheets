@@ -133,7 +133,6 @@ class API(object):
     """
     return [c.getName() for c in self._table.getColumns()]
 
-
   def getColumnValues(self, column_name):
     """
     :param str column_name: name of the column
@@ -253,6 +252,18 @@ class APIFormulas(API):
       raise ValueError(error)
     return column
 
+  def assignColumnVariables(self, excludes):
+    """
+    Creates and assigns values to the column variables
+    corresponding to the columns in the table.
+    :param list-of-str excludes: column variables that are not assigned
+    """
+    namespace = self._table.getNamespace()
+    for column in self._table.getColumns():
+      name = column.getName()
+      if not name in _excludes:
+        namespace[name] = s.getColumnValues(name)
+
   def createColumn(self, column_name, index=None, asis=False):
     """
     Creates a new column, either just to the right of the
@@ -275,6 +286,15 @@ class APIFormulas(API):
     if column is not None:
       _  = self._table.deleteColumn(column)
       self._dependency_counter += 1
+
+  def updateTableCellsAndColumnVariables(self, excludes):
+    """
+    Updates data in tables based on the values of the corresponding
+    column variable, if one exists. Creates column variables for
+    columns that do that have one.
+    :param list-of-str excludes: variable names that are excluded
+    """
+    namespace = self._table.getNamespace()
 
 class APIPlugin(APIFormulas):
   """

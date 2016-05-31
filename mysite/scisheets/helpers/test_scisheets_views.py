@@ -354,7 +354,7 @@ class TestScisheetsViews(TestCase):
 
   def testCommandColumnRefactorName(self):
     new_name = 'row'  # duplicate name
-    self._testCommandColumnRename(BASE_URL, new_name, False, command="Refactor")
+    self._testCommandColumnRename(BASE_URL, new_name, False)
     new_name = "New_Column"
     self._testCommandColumnRename(BASE_URL, new_name, True, command="Refactor")
 
@@ -806,6 +806,8 @@ class TestScisheetsViews(TestCase):
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
+    if not content["success"]:
+      import pdb; pdb.set_trace()
     self.assertTrue(content["success"])
     #table = self._getTableFromResponse(response)
     return response

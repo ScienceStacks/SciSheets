@@ -39,6 +39,7 @@ class Table(ColumnContainer):
 
   def __init__(self, name):
     super(Table, self).__init__(name)
+    self._namespace = {}  # Namespace for formula evaluation
     self._createNameColumn()
 
   # The following methods are used in debugging
@@ -89,6 +90,26 @@ class Table(ColumnContainer):
     """
     result = [c for c in self._columns if c.getFormula() is not None]
     return result
+
+  def getRow(self, index=None):
+    """
+    :param index: row desired
+           if None, then a row of None is returned
+    :return: Row object
+    """
+    row = Row()
+    for column in self._columns:
+      if index is None:
+        if column.isFloats():
+          row[column.getName()] = np.nan  # pylint: disable=E1101
+        else:
+          row[column.getName()] = None
+      else:
+        row[column.getName()] = column.getCells()[index]
+    return row
+
+  def getNamespace(self):
+    return self._namespace
 
   # TODO: Verify the index
   @staticmethod
@@ -287,23 +308,6 @@ class Table(ColumnContainer):
     evaluator = TableEvaluator(self)
     return evaluator.evaluate(user_directory=user_directory)
 
-  def getRow(self, index=None):
-    """
-    :param index: row desired
-           if None, then a row of None is returned
-    :return: Row object
-    """
-    row = Row()
-    for column in self._columns:
-      if index is None:
-        if column.isFloats():
-          row[column.getName()] = np.nan  # pylint: disable=E1101
-        else:
-          row[column.getName()] = None
-      else:
-        row[column.getName()] = column.getCells()[index]
-    return row
-
   def isColumnPresent(self, column_name):
     """
     :param str column_name:
@@ -357,6 +361,8 @@ class Table(ColumnContainer):
     """
     Handles older objects that lack some properties
     """
+    if not '_namespace' in dir(self):
+      self._namespace = {}
     super(Table, self).migrate()
 
   def moveRow(self, index1, index2):
@@ -450,6 +456,9 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
           column.replaceCells(new_data)
       except:
         import pdb; pdb.set_trace()
+
+  def setNamespace(self, namespace):
+    self._namespace = namespace
 
   def trimRows(self):
     """

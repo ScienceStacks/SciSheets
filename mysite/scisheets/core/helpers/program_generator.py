@@ -357,8 +357,9 @@ if __name__ == '__main__':
     statement = "_excludes = %s" % excludes
     sa.add(statement)
     statement = """for _column in _table.getColumns():
-  if not _column.getName() in _excludes:
-    s.setColumnValues(_column.getName(), globals()[_column.getName()])"""
+  _name = _column.getName()
+  if not _name in _excludes and (_name in globals()):
+    s.setColumnValues(_name, globals()[_name])"""
     sa.add(statement)
     return sa.get()
 
@@ -452,8 +453,9 @@ MAX_ITERATIONS = %d
     statement = "_excludes = %s" % excludes
     sa.add(statement)
     statement = """for _column in _table.getColumns():
-  if not _column.getName() in _excludes:
-    globals()[_name()] = s.getColumnValues(_name)"""
+  _name = _column.getName()
+  if not _name in _excludes:
+    globals()[_name] = s.getColumnValues(_name)"""
     sa.add(statement)
     return sa.get()
 
@@ -486,18 +488,15 @@ MAX_ITERATIONS = %d
 # Formulation Evaluation loop - Initializations
 _done = False
 _iterations = 0
+_exception = None
 while not _done:
 """
     sa.add(statement)
     sa.indent(1)
-    statement = """_columns = _table.getColumns()
-for _column in _columns:"""
-    sa.add(statement)
-    sa.indent(1)
     statement = self._makeColumnVariableAssignmentStatements(**kwargs)
     sa.add(statement)
-    statement = """_old_table = _table.copy()
-_exceptions = None"""
+    sa.add("_exception = None")
+    statement = "_old_table = _table.copy()"
     sa.add(statement)
     # Formula Evaluation block header
     sa.add("try:")
@@ -518,9 +517,9 @@ _exceptions = None"""
       sa.add(" ")
     # Formula Evaluation block footer
     sa.indent(-1)
-    sa.add("except Exception as _exception:")
+    sa.add("except Exception as _error:")
     sa.indent(1)
-    sa.add("pass")
+    sa.add("_exception = _error")
     sa.indent(-1)
     # End of loop
     statement = self._makeClosingOfFormulaEvaluationLoop(**kwargs)

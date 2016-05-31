@@ -53,11 +53,4 @@ def importExcelToTable(s, filepath, worksheet=None, names=None):
   """
   df = _importExcelToDataframe(filepath, worksheet=worksheet)
   imported_names = s.addColumnsToTableFromDataframe(df, names=names)
-  try:
-    s.updateTableFile()
-  except Exception as err:
-    # TODO: Find out cause of unicode error
-    if not 'coercing to Unicode' in err.message:
-      import pdb; pdb.set_trace()
-      raise ValueError(str(err))
   return imported_names
