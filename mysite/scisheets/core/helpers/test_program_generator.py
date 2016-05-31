@@ -188,7 +188,6 @@ class TestProgramGenerator(unittest.TestCase):
     :param str program:
     :param list-of-str tags:
     """
-    import pdb; pdb.set_trace()
     last_index = 0
     error = None
     for tag in tags:
@@ -208,18 +207,18 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertIsNone(_compile(program))
 
   def testMakeEvaluationScriptProgram(self):
-    tags = ["import", "#_table", "getColumnValues", "np.sin", \
-        "setColumnValues"]
+    tags = ["import", "#_table", "assignColumnVariables", "np.sin", \
+        "updateTableCellsAndColumnVariables"]
     program = self.generator.makeEvaluationScriptProgram()
     self._checkWorkflow(program, tags)
-    tags = ["import", "_table", "getColumnValues", "np.sin", \
-        "setColumnValues"]
+    tags = ["import", "_table", "assignColumnVariables", "np.sin", \
+        "updateTableCellsAndColumnVariables"]
     program = self.generator.makeEvaluationScriptProgram(
         create_API_object=True)
     self._checkWorkflow(program, tags)
 
   def testMakeExportScriptProgram(self):
-    tags = ["import", "_table", "getColumnValues", "np.sin", \
+    tags = ["import", "_table", "assignColumnVariables", "np.sin", \
         "print"]
     program = self.generator.makeExportScriptProgram()
     self._checkWorkflow(program, tags)
@@ -230,7 +229,7 @@ class TestProgramGenerator(unittest.TestCase):
     outputs = ["C"]
     def_stmt = "def %s(" % function_name
     tags = ["import", "api.APIPlugin", def_stmt,  \
-        "getColumnValues", "np.sin", "return"]
+        "assignColumnVariables", "np.sin", "return"]
     program = self.generator.makeFunctionProgram(function_name,
                                                inputs,
                                                outputs)

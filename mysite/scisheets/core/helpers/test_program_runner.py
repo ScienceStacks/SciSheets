@@ -94,7 +94,10 @@ class TestProgramRunner(unittest.TestCase):
     os.remove(TEST_TEXT_PATH)
 
   def testSimpleExecute(self):
-    runner = ProgramRunner(TEST_PROGRAM)
+    runner = ProgramRunner(TEST_PROGRAM, 
+                           user_directory=TEST_DIR,
+                           table=self.table,
+                           pgm_filename=TEST_TEXT_FILE)
     self._evaluateRunnerExecution(runner.execute())
 
   def testWriteFile(self):

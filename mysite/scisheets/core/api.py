@@ -252,17 +252,24 @@ class APIFormulas(API):
       raise ValueError(error)
     return column
 
+  def assignColumnVariable(self, colnm):
+    """
+    Creates and assigns values to a single column variable.
+    :param str colnm: column name
+    """
+    namespace = self._table.getNamespace()
+    namespace[colnm] = self.getColumnValues(colnm)
+
   def assignColumnVariables(self, excludes):
     """
     Creates and assigns values to the column variables
     corresponding to the columns in the table.
     :param list-of-str excludes: column variables that are not assigned
     """
-    namespace = self._table.getNamespace()
     for column in self._table.getColumns():
-      name = column.getName()
-      if not name in _excludes:
-        namespace[name] = s.getColumnValues(name)
+      colnm = column.getName()
+      if not colnm in excludes:
+        self.assignColumnVariable(colnm)
 
   def createColumn(self, column_name, index=None, asis=False):
     """
@@ -292,9 +299,16 @@ class APIFormulas(API):
     Updates data in tables based on the values of the corresponding
     column variable, if one exists. Creates column variables for
     columns that do that have one.
-    :param list-of-str excludes: variable names that are excluded
+    :param list-of-str excludes: table columns that are not updated
     """
     namespace = self._table.getNamespace()
+    for column in self._table.getColumns():
+      name = column.getName()
+      if not name in excludes:
+        if name in namespace:
+          self.setColumnValues(name, namespace[name])
+        else:
+          namespace[name] = self.getColumnValues(name)
 
 class APIPlugin(APIFormulas):
   """

@@ -354,12 +354,8 @@ if __name__ == '__main__':
     if excludes is None:
       excludes = []
     sa = StatementAccumulator()
-    statement = "_excludes = %s" % excludes
-    sa.add(statement)
-    statement = """for _column in _table.getColumns():
-  _name = _column.getName()
-  if not _name in _excludes and (_name in globals()):
-    s.setColumnValues(_name, globals()[_name])"""
+    statement = "s.updateTableCellsAndColumnVariables(%s)"  \
+        % str(excludes)
     sa.add(statement)
     return sa.get()
 
@@ -450,12 +446,7 @@ MAX_ITERATIONS = %d
     if excludes is None:
       excludes = []
     sa = StatementAccumulator()
-    statement = "_excludes = %s" % excludes
-    sa.add(statement)
-    statement = """for _column in _table.getColumns():
-  _name = _column.getName()
-  if not _name in _excludes:
-    globals()[_name] = s.getColumnValues(_name)"""
+    statement = "s.assignColumnVariables(%s)" % str(excludes)
     sa.add(statement)
     return sa.get()
 
@@ -476,7 +467,6 @@ MAX_ITERATIONS = %d
     if num_formulas == 0:
       return []
     # Statements that evaluate the formulas
-    sa.add("# Evaluate the formulas.")
     # Iteratively evaluate the formulas. The iteration
     # terminates under three conditions:
     #  1. No exception and no change in table data since the
@@ -485,16 +475,14 @@ MAX_ITERATIONS = %d
     #     number of columns.
     #  3. The iteration count exceeds a maximum value.
     statement = """
-# Formulation Evaluation loop - Initializations
+# Formulation evaluation loop
 _done = False
 _iterations = 0
-_exception = None
-while not _done:
-"""
+_exception = None"""
     sa.add(statement)
+    sa.add(self._makeColumnVariableAssignmentStatements(**kwargs))
+    sa.add("while not _done:")
     sa.indent(1)
-    statement = self._makeColumnVariableAssignmentStatements(**kwargs)
-    sa.add(statement)
     sa.add("_exception = None")
     statement = "_old_table = _table.copy()"
     sa.add(statement)
@@ -512,10 +500,10 @@ while not _done:
       if column.isExpression():
         sa.add("%s = %s.coerceValues('%s', %s)"  \
             % (name, API_OBJECT, name, name))
-      else:
-        sa.add("pass")  
       sa.add(" ")
     # Formula Evaluation block footer
+    sa.add("pass")  # Ensure at least one executeable statement
+    sa.add("")  # Ensure at least one executeable statement
     sa.indent(-1)
     sa.add("except Exception as _error:")
     sa.indent(1)

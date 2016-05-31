@@ -71,10 +71,11 @@ class ProgramRunner(object):
     namespace['_table'] = self._table
     #globals()['_table'] = self._table  #NAMESPACE
     program = """
-import my_api as api
+from scisheets.core import my_api as api
 s = api.APIFormulas(_table)
 """
-    return self._executeProgram(program)
+    error = self._executeProgram(program)
+    return error
 
   def _executeProgram(self, program):
     """
@@ -111,6 +112,8 @@ s = api.APIFormulas(_table)
     if not self._user_directory is None:
       sys.path.append(self._user_directory)
     error = None
+    if self._table is None:
+      import pdb; pdb.set_trace()
     namespace = self._table.getNamespace()
     if create_API_object:
       error = self._createAPIObject()

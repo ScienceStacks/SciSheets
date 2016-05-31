@@ -49,6 +49,9 @@ def writeTableToFile(table):
   Get the table from the file
   :param Table table:
   """
+  # The namespace cannot be preserved in pickle since it
+  # contains module objects
+  table.setNamespace({})
   pickle.dump(table, open(table.getFilepath(), "wb"))
     
 

@@ -53,4 +53,8 @@ def importExcelToTable(s, filepath, worksheet=None, names=None):
   """
   df = _importExcelToDataframe(filepath, worksheet=worksheet)
   imported_names = s.addColumnsToTableFromDataframe(df, names=names)
+  table = s.getTable()
+  for name in imported_names:
+    column = table.columnFromName(name)
+    s.assignColumnVariable(name)
   return imported_names
