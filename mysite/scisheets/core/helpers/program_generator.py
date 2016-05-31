@@ -112,6 +112,7 @@ class ProgramGenerator(object):
     # Handle the API import
     statement = """
 _table = api.getTableFromFile('%s')
+_table.setNamespace(globals())
 %s = api.APIFormulas(_table) 
 """ % (self._table.getFilepath(), API_OBJECT) 
     if not create_API_object:
@@ -139,6 +140,7 @@ _table = api.getTableFromFile('%s')
                                              self._user_directory)
     statement = """
 _table = api.getTableFromFile('%s')
+_table.setNamespace(globals())
 %s = api.APIFormulas(_table) 
 """ % (filepath, API_OBJECT) 
     sa.add(statement)
