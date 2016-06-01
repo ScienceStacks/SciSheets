@@ -173,7 +173,14 @@ def saveTable(request, table):
       handle.close()
   full_filepath = _setTableFilepath(request, table, table_filepath, 
       verify=False)
-  if table.getVersionedFile() is None:
+  versioned_file = table.getVersionedFile()
+  if versioned_file is None:
+    is_changed_filepath = True
+  elif full_filepath != versioned_file.getFilepath():
+    is_changed_filepath = True
+  else:
+    is_changed_filepath = False
+  if is_changed_filepath:
     versioned_file = VersionedFile(full_filepath,
         settings.SCISHEETS_USER_TBLDIR_BACKUP,
         settings.SCISHEETS_MAX_TABLE_VERSIONS)

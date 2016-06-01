@@ -531,5 +531,6 @@ _exception = None"""
     filepath = api_util.getTableCopyFilepath(function_name,
                                              self._user_directory)
     statement = """%s = api.APIPlugin('%s')
-%s.initialize()""" % (full_object, filepath, full_object)
+%s.initialize()
+_table = s.getTable()""" % (full_object, filepath, full_object)
     return statement
