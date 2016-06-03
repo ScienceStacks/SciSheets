@@ -569,7 +569,7 @@ class TestScisheetsViews(TestCase):
       self.assertEqual(formula, new_column.getFormula())
     else:
       self.assertFalse(content["success"])
-      self.assertEqual(old_formula, new_column.getFormula())
+      self.assertEqual(formula, new_column.getFormula())
     # Check the columns
     self.assertTrue(compareTableData(old_table, 
                                      new_table, 
@@ -907,6 +907,29 @@ for x in Col_2:
     changed_table = self._submitCommand("Column", "Formula", colidx, formula)
     column = changed_table.columnFromIndex(colidx)
     self.assertEqual(column.getFormula(), formula)
+
+  def _setPrologueEpilogue(self, formula, is_valid):
+    """
+    Sets the prologue and epilogue
+    :param str formula:
+    :param bool is_valid:
+    :return HTTP response:
+    """
+    base_response = self._createBaseTable()
+    for command in ["Prologue", "Epilogue"]:
+      ajax_cmd = self._ajaxCommandFactory()
+      ajax_cmd['target'] = "Table"
+      ajax_cmd['command'] = command
+      ajax_cmd['args[]'] = formula
+      command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+      response = self.client.get(command_url)
+      content = json.loads(response.content)
+      self.assertTrue(content.has_key("success"))
+      self.assertEqual(content["success"], is_valid)
+
+  def testPrologueEpilogue(self):
+    self._setPrologueEpilogue("import pdb", True)
+    self._setPrologueEpilogue("impor pdb", False)
 
 
 if __name__ == '__main__':

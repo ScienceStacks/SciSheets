@@ -248,11 +248,8 @@ class Column(object):
     Inputs: formula - valid python expression
     Outputs: error - string giving error encountered
     """
-    formula_statement = FormulaStatement(formula, self.getName())
-    error = formula_statement.do()
-    if error is None:
-      self._formula_statement = formula_statement
-    return error
+    self._formula_statement = FormulaStatement(formula, self.getName())
+    return self._formula_statement.do()
 
   @staticmethod
   def cleanName(name):

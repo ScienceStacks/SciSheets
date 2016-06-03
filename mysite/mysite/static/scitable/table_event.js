@@ -106,6 +106,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
     if (cmd.command === 'Delete') {
       scisheet.utilSendAndReload(cmd);
     }
+    if (cmd.command === 'Epilogue') {
+      scisheet.utilUpdateFormula(cmd, scisheet.epilogue);
+    }
     if (cmd.command === 'Export') {
       scisheetTable.utilExportDialog(cmd);
     }
@@ -118,6 +121,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
         // User selects the file to open
         scisheetTable.utilSelectFile(names);
       });
+    }
+    if (cmd.command === 'Prologue') {
+      scisheet.utilUpdateFormula(cmd, scisheet.prologue);
     }
     if (cmd.command === 'Redo') {
       scisheet.utilSendAndReload(cmd);

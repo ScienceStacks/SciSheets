@@ -46,8 +46,8 @@ class Table(ColumnContainer):
     super(Table, self).__init__(name)
     self._namespace = {}  # Namespace for formula evaluation
     self._createNameColumn()
-    self._prologue = self._getCodeInFile(PROLOGUE_FILEPATH)
-    self._epilogue = self._getCodeInFile(EPILOGUE_FILEPATH)
+    self._prologue = self.fromulaStatementFromFile(PROLOGUE_FILEPATH)
+    self._epilogue = self.fromulaStatementFromFile(EPILOGUE_FILEPATH)
 
 
   # The following methods are used in debugging
@@ -79,7 +79,7 @@ class Table(ColumnContainer):
         names.append(Table._rowNameFromIndex(row_num))
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
-  def _getCodeInFile(self, filepath):
+  def fromulaStatementFromFile(self, filepath):
     """
     Reads the file contents and creates the FormulaStatement object.
     :param str filepath: path to file to read
@@ -389,9 +389,9 @@ class Table(ColumnContainer):
     if not '_namespace' in dir(self):
       self._namespace = {}
     if not '_prologue' in dir(self):
-      self._prologue = self._getCodeInFile(PROLOGUE_FILEPATH)
+      self._prologue = self.fromulaStatementFromFile(PROLOGUE_FILEPATH)
     if not '_epilogue' in dir(self):
-      self._epilogue = self._getCodeInFile(EPILOGUE_FILEPATH)
+      self._epilogue = self.fromulaStatementFromFile(EPILOGUE_FILEPATH)
     for column in self._columns:
       formula = column.getFormula()
       if formula is not None:
@@ -494,10 +494,12 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     self._namespace = namespace
 
   def setEpilogue(self, epilogue):
-    self._epilogue = epilogue
+    self._epilogue = FormulaStatement(epilogue, self.getName())
+    return self._epilogue.do()
 
   def setPrologue(self, prologue):
-    self._prologue = prologue
+    self._prologue = FormulaStatement(prologue, self.getName())
+    return self._prologue.do()
 
   def trimRows(self):
     """

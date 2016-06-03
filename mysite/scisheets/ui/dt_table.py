@@ -119,6 +119,19 @@ class DTTable(UITable):
     """
     return '`%s`' % str(in_string)
 
+  @staticmethod
+  def _formatFormula(formula):
+    """
+    Formats a formula for the web page
+    :param str formula:
+    :return str: formatte formula
+    """
+    if formula is None or (formula == "None"):
+      result = "''"
+    else:
+      result = DTTable._formatStringForJS(formula)
+    return result
+
   def render(self, table_id="scitable"):
     """
     Input: table_id - how the table is identified in the HTML
@@ -134,27 +147,26 @@ class DTTable(UITable):
       column_names.append(name)
     column_data = [c.getCells() for c in self.getVisibleColumns()]
     raw_formulas = [c.getFormula() for c in self.getVisibleColumns()]
-    formulas = []
-    for ff in raw_formulas:
-      if ff is None or (ff == "None"):
-        formulas.append("''")
-      else:
-        formulas.append(DTTable._formatStringForJS(ff))
+    formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]
     formula_dict = {}
     for nn in range(len(column_names)):
       formula_dict[column_names[nn]] = formulas[nn]
     data = makeJSON(column_names, column_data)
     indicies = range(len(column_names))
     table_file = getFileNameWithoutExtension(self.getFilepath())
+    formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
+    formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
     ctx_dict = {'column_names': column_names,
-                'final_column_name': column_names[-1],
-                'table_caption': self.getName(),
-                'table_id': table_id,
+                'count': 1,
                 'data': data,
+                'epilogue': formatted_epilogue,
+                'final_column_name': column_names[-1],
                 'formula_dict': formula_dict,
                 'num_cols': len(column_names),
-                'count': 1,
+                'prologue': formatted_prologue,
+                'table_caption': self.getName(),
                 'table_file': DTTable._formatStringForJS(table_file),
+                'table_id': table_id,
                }
     html = get_template('scitable.html').render(ctx_dict)
     return html

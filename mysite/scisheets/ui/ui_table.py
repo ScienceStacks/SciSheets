@@ -146,7 +146,11 @@ class UITable(Table):
     error = None
     command = cmd_dict["command"]
     versioned = self.getVersionedFile()
-    if command == "Export":
+    if command == "Epilogue":
+      epilogue = cmd_dict['args'][0]
+      error = self.setEpilogue(epilogue)
+      response = self._createResponse(error)
+    elif command == "Export":
       args_list = cmd_dict['args']
       # TODO: Create correct format for argument in test
       if isinstance(args_list, list):
@@ -169,6 +173,10 @@ class UITable(Table):
       file_name = cmd_dict['args'][0]
       file_path = os.path.join(st.BASE_DIR, "%s.pcl" % file_name)
       SET_CURRENT_FILE(file_path) # This is current in the session variable.
+    elif command == "Prologue":
+      prologue = cmd_dict['args'][0]
+      error = self.setPrologue(prologue)
+      response = self._createResponse(error)
     elif command == "Redo":
       try:
         versioned.redo()

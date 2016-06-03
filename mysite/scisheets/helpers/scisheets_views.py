@@ -42,11 +42,13 @@ def createCommandDict(request):
    TARGET  COMMAND   DESCRIPTION
     Table   Delete   Delete the table file and switch to the
                      using a random file
+    Table   Epilogue Update the epilogue code for the table
     Table   Export   Export the table into python
     Table   ListTableFiles Returns a list of the table files
     Table   New      Opens a new blank table
     Table   OpenTableFile Change the current Table file to
                      what is specified in the args list
+    Table   Prologue Update the prologue code for the table
     Table   Rename   Change the table name. Must be a valid python name
     Table   SaveAs   Save the table to the specified table file
     Table   Trim     Remove None rows from the end of the table

@@ -83,7 +83,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       }
       if (cmd.command === 'Formula') {
         formula = scisheet.formulas[ep.columnName];
-        scisheetColumn.formula(cmd, formula);
+        scisheet.utilUpdateFormula(cmd, formula);
       }
       if (cmd.command === 'Insert') {
         scisheet.utilRename(cmd, "New column name", "");
