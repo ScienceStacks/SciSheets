@@ -1,5 +1,5 @@
 '''
-  Implements the column class for MVCSheets.
+  Implements manager of formula statements
 '''
 
 import cell_types as cell_types
@@ -17,12 +17,12 @@ class FormulaStatement(object):
     statement = fs.getStatement()
   """
 
-  def __init__(self, formula, column):
+  def __init__(self, formula, name):
     """
     :param str formula:
     """
     self._formula = formula
-    self._column = column
+    self._name = name
     self._statement = None
     self._isExpression = False
     self._isStatement = False
@@ -42,7 +42,7 @@ class FormulaStatement(object):
     try:
       # See if this is an expression
       _ = compile(self._formula, "string", "eval")
-      statement = "%s = %s" % (self._column.getName(), 
+      statement = "%s = %s" % (self._name, 
           self._formula)
       self._isExpression = True
       self._statement = statement

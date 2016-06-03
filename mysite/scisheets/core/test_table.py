@@ -23,6 +23,7 @@ class TestTable(unittest.TestCase):
     self.assertEqual(table._name, ht.TABLE_NAME)
     self.assertEqual(len(table._columns), 1)
     self.assertEqual(table._columns[0].getName(), "row")
+    self.assertTrue('import' in table._prologue.getFormula())
 
   def testAdjustColumnLength(self):
     table = ht.createTable(ht.TABLE_NAME)

@@ -83,7 +83,7 @@ class TestAPIFormulas(unittest.TestCase):
     self.assertTrue(is_absent)
 
   def testCreateTruthTable(self):
-    return
+    return  # Don't test TruthTable since not completed
     self._createTruthTable()
     for n in range(len(TRUTH_COLUMNS)):
       self.assertTrue(any([c.getName() == TRUTH_COLUMNS[n]

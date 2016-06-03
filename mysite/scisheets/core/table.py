@@ -3,16 +3,21 @@
 '''
 
 from mysite.helpers.data_capture import DataCapture
+from helpers.formula_statement import FormulaStatement
 from column import Column
 from column_container import ColumnContainer
 from table_evaluator import TableEvaluator
 import errors as er
 import column as cl
 import numpy as np
+import os
 import pandas as pd
 
 NAME_COLUMN_STR = "row"
 NAME_COLUMN_IDX = 0
+CUR_DIR = os.path.dirname(__file__)
+PROLOGUE_FILEPATH = os.path.join(CUR_DIR, "table.prologue")
+EPILOGUE_FILEPATH = os.path.join(CUR_DIR,"table.epilogue")
 
 
 class Row(dict):
@@ -41,6 +46,9 @@ class Table(ColumnContainer):
     super(Table, self).__init__(name)
     self._namespace = {}  # Namespace for formula evaluation
     self._createNameColumn()
+    self._prologue = self._getCodeInFile(PROLOGUE_FILEPATH)
+    self._epilogue = self._getCodeInFile(EPILOGUE_FILEPATH)
+
 
   # The following methods are used in debugging
 
@@ -71,6 +79,17 @@ class Table(ColumnContainer):
         names.append(Table._rowNameFromIndex(row_num))
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
+  def _getCodeInFile(self, filepath):
+    """
+    Reads the file contents and creates the FormulaStatement object.
+    :param str filepath: path to file to read
+    :returns str: file contents
+    """
+    with open(filepath, 'r') as f:
+      lines = f.readlines()
+    statements = ''.join(lines)
+    return FormulaStatement(statements, self._name)
+
   # Data columns are those that have user data. The "row" column is excluded.
   def getDataColumns(self):
     """
@@ -83,6 +102,9 @@ class Table(ColumnContainer):
     Returns the data values in an array ordered by column index
     """
     return [c.getCells() for c in self._columns]
+
+  def getEpilogue(self):
+    return self._epilogue
 
   def getFormulaColumns(self):
     """
@@ -110,6 +132,9 @@ class Table(ColumnContainer):
 
   def getNamespace(self):
     return self._namespace
+
+  def getPrologue(self):
+    return self._prologue
 
   # TODO: Verify the index
   @staticmethod
@@ -363,6 +388,14 @@ class Table(ColumnContainer):
     """
     if not '_namespace' in dir(self):
       self._namespace = {}
+    if not '_prologue' in dir(self):
+      self._prologue = self._getCodeInFile(PROLOGUE_FILEPATH)
+    if not '_epilogue' in dir(self):
+      self._epilogue = self._getCodeInFile(EPILOGUE_FILEPATH)
+    for column in self._columns:
+      formula = column.getFormula()
+      if formula is not None:
+        column.setFormula(formula)
     super(Table, self).migrate()
 
   def moveRow(self, index1, index2):
@@ -459,6 +492,12 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
 
   def setNamespace(self, namespace):
     self._namespace = namespace
+
+  def setEpilogue(self, epilogue):
+    self._epilogue = epilogue
+
+  def setPrologue(self, prologue):
+    self._prologue = prologue
 
   def trimRows(self):
     """

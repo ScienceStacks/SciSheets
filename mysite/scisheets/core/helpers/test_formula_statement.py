@@ -1,4 +1,4 @@
-'''Tests for column'''
+'''Tests for FormulaStatement'''
 
 from formula_statement import FormulaStatement
 from scisheets.core.helpers_test import createColumn, compareValues
@@ -6,7 +6,6 @@ import unittest
 
 # Constants
 COLUMN_NAME = "DUMMY"
-COLUMN_STR_NAME = "DUMMY_STR"
 LIST = [2.1, 3.0]
 LIST1 = [20.0, 30.0]
 LIST_STR = ["aa bb", "cc"]
@@ -24,9 +23,8 @@ INVALID_FORMULA = "a + b*math.cos(x"
 class TestFormulaStatement(unittest.TestCase):
   
   def setUp(self):
-    self.column = createColumn(COLUMN_NAME, data=LIST)
-    self.fs = FormulaStatement(VALID_FORMULA, self.column)
-    self.invalid_fs = FormulaStatement(INVALID_FORMULA, self.column)
+    self.fs = FormulaStatement(VALID_FORMULA, COLUMN_NAME)
+    self.invalid_fs = FormulaStatement(INVALID_FORMULA, "INVALID")
 
   def testDo(self):
     error = self.fs.do()
@@ -44,21 +42,21 @@ class TestFormulaStatement(unittest.TestCase):
     self.assertEqual(VALID_FORMULA, self.fs.getFormula())
 
   def testExpression(self):
-    fs = FormulaStatement(VALID_FORMULA, self.column)
+    fs = FormulaStatement(VALID_FORMULA, "TEST_FORMULA")
     self.assertIsNone(fs.do())
     self.assertEqual(fs.getStatement().count("="), 1)
     self.assertTrue(fs.isExpression())
 
   def testStatement(self):
-    formula = "%s = %s" % (self.column.getName(), VALID_FORMULA)
-    fs = FormulaStatement(formula, self.column)
+    formula = "%s = %s" % ("TEST_FORMULA", VALID_FORMULA)
+    fs = FormulaStatement(formula, "TEST_FORMULA")
     self.assertIsNone(fs.do())
     self.assertEqual(fs.getStatement().count("="), 1)
     self.assertFalse(fs.isExpression())
 
   def testAmbiguousStatement(self):
     formula = "s.initialize()"
-    fs = FormulaStatement(formula, self.column)
+    fs = FormulaStatement(formula, "TEST_FORMULA")
     self.assertIsNone(fs.do())
     self.assertEqual(fs.getStatement().count("="), 1)
     self.assertTrue(fs.isExpression())
@@ -68,21 +66,21 @@ class TestFormulaStatement(unittest.TestCase):
 s.initialize()
 s.go()
 """
-    fs = FormulaStatement(formula, self.column)
+    fs = FormulaStatement(formula, "TEST_FORMULA")
     self.assertIsNone(fs.do())
     self.assertEqual(fs.getStatement().count("="), 0)
     self.assertFalse(fs.isExpression())
 
   def testSemicolonStatement(self):
     formula = "s.initialize();s.go()"
-    fs = FormulaStatement(formula, self.column)
+    fs = FormulaStatement(formula, "TEST_FORMULA")
     self.assertIsNone(fs.do())
     self.assertEqual(fs.getStatement().count("="), 0)
     self.assertFalse(fs.isExpression())
 
   def testSemicolonOneStatement(self):
     formula = "s.initialize();"
-    fs = FormulaStatement(formula, self.column)
+    fs = FormulaStatement(formula, "TEST_FORMULA")
     self.assertIsNone(fs.do())
     self.assertEqual(fs.getStatement().count("="), 0)
     self.assertFalse(fs.isExpression())

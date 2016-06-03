@@ -92,24 +92,12 @@ class ProgramGenerator(object):
     self._plugin_directory = plugin_directory
     self._plugin_path = plugin_path
 
-  def makeEvaluationScriptProgram(self, create_API_object=False):
+  def _makeAPIInitializationStatements(self, create_API_object=False):
     """
-    Creates a python script that evaluates the table formulas
-    when there is a change to the scisheet
     :param bool create_API_object: True means that code will be generated
                                  that creates the API object.
-    :return str program: Program as a string
     """
     sa = StatementAccumulator()
-    # File Prologue
-    statement = '''# Evaluation of the table %s.
-
-    ''' % self._table.getName()
-    sa.add(statement)
-    sa.add(self._makePrologue())
-    filepath = api_util.getTableCopyFilepath(self._table.getName(),
-                                             self._user_directory)
-    # Handle the API import
     statement = """
 _table = api.getTableFromFile('%s')
 _table.setNamespace(globals())
@@ -120,8 +108,27 @@ _table.setNamespace(globals())
       header = "# Uncomment the following to execute standalone"
       statement = "%s\n#%s" % (header, new_statement)
     sa.add(statement)
-    # Create the formula evaluation blocks
+    return sa.get()
+
+  def makeEvaluationScriptProgram(self, create_API_object=False):
+    """
+    Creates a python script that evaluates the table formulas
+    when there is a change to the scisheet
+    :param bool create_API_object: True means that code will be generated
+                                 that creates the API object.
+    :return str program: Program as a string
+    """
+    sa = StatementAccumulator()
+    statement = '''# Evaluation of the table %s.
+
+    ''' % self._table.getName()
+    sa.add(statement)
+    sa.add("from scisheets.core import api as api")
+    sa.add(self._makeAPIInitializationStatements(
+        create_API_object=create_API_object))
+    sa.add(self._makePrologue())
     sa.add(self._makeFormulaEvaluationStatements())
+    sa.add(self._makeEpilogue())
     return sa.get()
 
   def makeExportScriptProgram(self):
@@ -130,23 +137,14 @@ _table.setNamespace(globals())
     :return str program: Program as a string
     """
     sa = StatementAccumulator()
-    # File Prologue
     statement = '''# Script that runs formulas in the table %s.
 
     ''' % self._table.getName()
     sa.add(statement)
+    sa.add(self._makeAPIInitializationStatements(create_API_object=True))
     sa.add(self._makePrologue())
-    filepath = api_util.getTableCopyFilepath(self._table.getName(),
-                                             self._user_directory)
-    statement = """
-_table = api.getTableFromFile('%s')
-_table.setNamespace(globals())
-%s = api.APIFormulas(_table) 
-""" % (filepath, API_OBJECT) 
-    sa.add(statement)
-    # Create the formula evaluation blocks
     sa.add(self._makeFormulaEvaluationStatements())
-    # Print the results
+    sa.add(self._makeEpilogue())
     sa.add(self._makeVariablePrintStatements())
     return sa.get()
 
@@ -179,21 +177,19 @@ _table.setNamespace(globals())
 
     ''' % self._table.getName()
     sa.add(statement)
-    sa.add(self._makePrologue())
+    sa.add(self._makeAPIPluginInitializationStatements(function_name))
     sa.add("")
-    # Generate statements to create the API object
-    statement = self._makeAPIPluginInitializationStatements(function_name)
-    sa.add(statement)
     # Make the function definition
     sa.add(_makeFunctionStatement(function_name, inputs))
     sa.indent(1)
+    sa.add(self._makePrologue())
     # Assign the column values to function variables.
     # Note that inputs and outputs are not assigned.
     excludes = list(inputs)
     excludes.extend(outputs)
-    # Create the formula evaluation blocks
+    #
     sa.add(self._makeFormulaEvaluationStatements(excludes=excludes))
-    # Make the return statement
+    sa.add(self._makeEpilogue())
     sa.add(_makeReturnStatement(outputs))
     return sa.get()
 
@@ -215,7 +211,7 @@ _table.setNamespace(globals())
 Tests for %s
 """
 
-import my_api as api
+from scisheets.core import api as api
 from %s import %s
 import unittest
 
@@ -415,29 +411,30 @@ if _iterations > MAX_ITERATIONS:
     Creates the imports that go at the head of the file
     :return str: statements
     """
-    # Initializations
     sa = StatementAccumulator()
-    # Construct the imports
-    statement = '''import my_api as api
-import math as mt
-import numpy as np
-from os import listdir
-from os.path import isfile, join
-import pandas as pd
-import scipy as sp
-from sympy import *
-from numpy import nan  # Must follow sympy import '''
-    sa.add(statement)
+    # Import the plugins
     if self._user_directory is not None:
       statement = self._makeFormulaImportStatements(self._user_directory)
       sa.add(statement)
     statement = self._makeFormulaImportStatements(
         self._plugin_directory, import_path=self._plugin_path)
     sa.add(statement)
+    # Add the table prologue
+    sa.add(self._table.getPrologue().getFormula())
+    # Make the internally used constants
     statement = '''
 MAX_ITERATIONS = %d
 ''' % settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS
     sa.add(statement)
+    return sa.get()
+
+  def _makeEpilogue(self):
+    """
+    Adds code that only runs at the end
+    :return str: statements
+    """
+    sa = StatementAccumulator()
+    sa.add(self._table.getEpilogue().getFormula())
     return sa.get()
 
   def _makeColumnVariableAssignmentStatements(self, excludes=None):
@@ -527,10 +524,13 @@ _exception = None"""
     :param str function_name:
     :param str prefix: prefix for API Object
     """
+    sa = StatementAccumulator()
+    sa.add("from scisheets.core import api as api")
     full_object = "%s%s" % (prefix, API_OBJECT)
     filepath = api_util.getTableCopyFilepath(function_name,
                                              self._user_directory)
     statement = """%s = api.APIPlugin('%s')
 %s.initialize()
 _table = s.getTable()""" % (full_object, filepath, full_object)
-    return statement
+    sa.add(statement)
+    return sa.get()
