@@ -18,6 +18,7 @@ DATA = {'v1': [11, 22, 33], 'v2': [111, 222, 333]}
 #############################
 # Tests
 #############################
+# TODO: Tests for column_position argument
 # pylint: disable=W0212,C0111,R0904
 class TestImportExcel(unittest.TestCase):
 

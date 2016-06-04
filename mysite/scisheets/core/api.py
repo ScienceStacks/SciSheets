@@ -44,22 +44,32 @@ class API(object):
     # additional nodes in the dependency graph
     self._dependency_counter = 0
 
-  def addColumnsToTableFromDataframe(self, dataframe, names=None):
+  def addColumnsToTableFromDataframe(self, 
+                                     dataframe, 
+                                     names=None, 
+                                     column_position=None):
     """
     Adds columns from a dataframe to the table. If a column of the same
     name exists, its data is replaced.
     :param pandas.DataFrame dataframe:
     :param list-of-str names: column names to include. Default is all.
+    :param str column_position: name of the column to place after
     :return list-of-str names: names of columns added to the table
     """
     if names is None:
       names = list(dataframe.columns)
+    if column_position is None:
+      index = self._table.numColumns()
+    else:
+      column = self._table.columnFromName(column_position)
+      index = self._table.indexFromColumn(column)
     for name in names:
       if self._table.isColumnPresent(name):
         column = self._table.columnFromName(name)
       else:
         column = Column(name)
-        self._table.addColumn(column)
+        self._table.addColumn(column, index=index)
+        index += 1
       column.addCells(dataframe[name], replace=True)
     return names
 

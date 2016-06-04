@@ -154,8 +154,11 @@ class XBool(XType):
     :param val: value to check if it's an extended type
     :return: True if extended type; otherwise False.
     """
-    return cls.isBaseType (val)  \
-           or val in ['True', 'False']
+    if isinstance(val, collections.Iterable) and not isStr(val):
+      return False
+    is_base = cls.isBaseType (val)
+    is_bool = val in ['True', 'False']
+    return is_base or is_bool
 
   @classmethod
   def isCoercible(cls, a_type):

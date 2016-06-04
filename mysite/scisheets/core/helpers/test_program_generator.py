@@ -207,18 +207,18 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertIsNone(_compile(program))
 
   def testMakeEvaluationScriptProgram(self):
-    tags = ["import", "#_table", "numpy", "assignColumnVariables", 
+    tags = ["import", "#_table", "assignColumnVariables", "numpy", 
         "np.sin", "updateTableCellsAndColumnVariables"]
     program = self.generator.makeEvaluationScriptProgram()
     self._checkWorkflow(program, tags)
-    tags = ["import", "_table", "numpy", "assignColumnVariables", 
+    tags = ["import", "_table", "assignColumnVariables", "numpy",
         "np.sin", "updateTableCellsAndColumnVariables"]
     program = self.generator.makeEvaluationScriptProgram(
         create_API_object=True)
     self._checkWorkflow(program, tags)
 
   def testMakeExportScriptProgram(self):
-    tags = ["_table", "numpy", "assignColumnVariables", "np.sin", \
+    tags = ["_table", "assignColumnVariables", "numpy", "np.sin", \
         "print"]
     program = self.generator.makeExportScriptProgram()
     self._checkWorkflow(program, tags)
@@ -229,7 +229,7 @@ class TestProgramGenerator(unittest.TestCase):
     outputs = ["C"]
     def_stmt = "def %s(" % function_name
     tags = ["import", "api.APIPlugin", def_stmt,  \
-        "numpy", "assignColumnVariables", "np.sin", "return"]
+        "assignColumnVariables", "numpy", "np.sin", "return"]
     program = self.generator.makeFunctionProgram(function_name,
                                                inputs,
                                                outputs)

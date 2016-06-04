@@ -48,6 +48,7 @@ class Table(ColumnContainer):
     self._createNameColumn()
     self._prologue = self.fromulaStatementFromFile(PROLOGUE_FILEPATH)
     self._epilogue = self.fromulaStatementFromFile(EPILOGUE_FILEPATH)
+    self._is_evaluate_formulas = True
 
 
   # The following methods are used in debugging
@@ -65,6 +66,9 @@ class Table(ColumnContainer):
   def getCapture(self, filename):
     dc = DataCapture(filename)
     return dc.getData()
+ 
+  def getIsEvaluateFormulas(self):
+    return self._is_evaluate_formulas
   
   # Internal and other methods
 
@@ -396,6 +400,8 @@ class Table(ColumnContainer):
       formula = column.getFormula()
       if formula is not None:
         column.setFormula(formula)
+    if not "_is_evaluate_formulas" in dir(self):
+      self._is_evaluate_formulas = True
     super(Table, self).migrate()
 
   def moveRow(self, index1, index2):
@@ -492,6 +498,9 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
 
   def setNamespace(self, namespace):
     self._namespace = namespace
+ 
+  def setIsEvaluateFormulas(self, setting):
+    self._is_evaluate_formulas = setting
 
   def setEpilogue(self, epilogue):
     self._epilogue = FormulaStatement(epilogue, self.getName())

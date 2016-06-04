@@ -41,7 +41,11 @@ def _importExcelToDataframe(filepath, worksheet=None):
   df = pd.DataFrame(data)
   return df
 
-def importExcelToTable(s, filepath, worksheet=None, names=None):
+def importExcelToTable(s, 
+                       filepath, 
+                       worksheet=None, 
+                       names=None,
+                       column_position=None):
   """
   Imports the specified columns from the excel file.
   Columns that don't exist in the current table are created.
@@ -49,10 +53,11 @@ def importExcelToTable(s, filepath, worksheet=None, names=None):
   :param str filepath: full path to CSV file
   :param str worksheet: worksheet to import. Default is first.
   :param list-of-str names: names of columns added
+  :param str column_position: name of the column to place after
   :return list-of-str: column names imported
   """
   df = _importExcelToDataframe(filepath, worksheet=worksheet)
-  imported_names = s.addColumnsToTableFromDataframe(df, names=names)
+  imported_names = s.addColumnsToTableFromDataframe(df, names=names, column_position=column_position)
   table = s.getTable()
   for name in imported_names:
     column = table.columnFromName(name)

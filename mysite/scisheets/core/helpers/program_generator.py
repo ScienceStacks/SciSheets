@@ -182,11 +182,11 @@ _table.setNamespace(globals())
     # Make the function definition
     sa.add(_makeFunctionStatement(function_name, inputs))
     sa.indent(1)
-    sa.add(self._makePrologue())
-    # Assign the column values to function variables.
-    # Note that inputs and outputs are not assigned.
     excludes = list(inputs)
     excludes.extend(outputs)
+    sa.add(self._makePrologue(excludes=excludes))
+    # Assign the column values to function variables.
+    # Note that inputs and outputs are not assigned.
     #
     sa.add(self._makeFormulaEvaluationStatements(excludes=excludes))
     sa.add(self._makeEpilogue())
@@ -291,6 +291,8 @@ if __name__ == '__main__':
     """
     formulas = [c.getFormula() for c in self._table.getColumns()
                    if not (c.getFormula() is None)]
+    formulas.append(self._table.getPrologue().getFormula())
+    formulas.append(self._table.getEpilogue().getFormula())
     python_filenames = self._findFilenames(directory)
     # Determine which files are referenced in a formula
     referenced_filenames = []
@@ -406,7 +408,7 @@ if _iterations > MAX_ITERATIONS:
     return [fc for fc in self._table.getColumns()
             if fc.getFormula() is not None]
 
-  def _makePrologue(self):
+  def _makePrologue(self, **kwargs):
     """
     Creates the imports that go at the head of the file
     :return str: statements
@@ -419,6 +421,8 @@ if _iterations > MAX_ITERATIONS:
     statement = self._makeFormulaImportStatements(
         self._plugin_directory, import_path=self._plugin_path)
     sa.add(statement)
+    # Create the column variables
+    sa.add(self._makeColumnVariableAssignmentStatements(**kwargs))
     # Add the table prologue
     sa.add(self._table.getPrologue().getFormula())
     # Make the internally used constants
@@ -475,11 +479,10 @@ MAX_ITERATIONS = %d
     #  3. The iteration count exceeds a maximum value.
     statement = """
 # Formulation evaluation loop
-_done = False
+_done = not _table.getIsEvaluateFormulas()
 _iterations = 0
 _exception = None"""
     sa.add(statement)
-    sa.add(self._makeColumnVariableAssignmentStatements(**kwargs))
     sa.add("while not _done:")
     sa.indent(1)
     sa.add("_exception = None")
