@@ -494,7 +494,8 @@ _exception = None"""
     sa.add(statement)
     for column in formula_columns:
       sa.add("# Column %s" % column.getName())
-      sa.add(column.getFormulaStatement())
+      statement = column.getFormulaStatement()
+      sa.add(statement)
       name = column.getName()
       if column.isExpression():
         sa.add("%s = %s.coerceValues('%s', %s)"  \

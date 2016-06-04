@@ -114,9 +114,6 @@ class TestColumn(unittest.TestCase):
         VALID_FORMULA)
     error = self.column.setFormula(INVALID_FORMULA)
     self.assertIsNotNone(error)
-    # Should not change the formula if there's an error
-    self.assertEqual(self.column._formula_statement.getFormula(), 
-        VALID_FORMULA)
     error = self.column.setFormula("a = sin(x")
     self.assertIsNotNone(error)
 

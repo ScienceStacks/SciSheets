@@ -915,8 +915,8 @@ for x in Col_2:
     :param bool is_valid:
     :return HTTP response:
     """
-    base_response = self._createBaseTable()
     for command in ["Prologue", "Epilogue"]:
+      base_response = self._createBaseTable()
       ajax_cmd = self._ajaxCommandFactory()
       ajax_cmd['target'] = "Table"
       ajax_cmd['command'] = command
