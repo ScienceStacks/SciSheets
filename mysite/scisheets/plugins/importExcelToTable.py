@@ -52,7 +52,8 @@ def importExcelToTable(s,
   :param API s: API object
   :param str filepath: full path to CSV file
   :param str worksheet: worksheet to import. Default is first.
-  :param list-of-str names: names of columns added
+  :param list-of-str names: names of columns in worksheet to add in
+                            the order they are to be added
   :param str column_position: name of the column to place after
   :return list-of-str: column names imported
   """

@@ -52,7 +52,8 @@ class API(object):
     Adds columns from a dataframe to the table. If a column of the same
     name exists, its data is replaced.
     :param pandas.DataFrame dataframe:
-    :param list-of-str names: column names to include. Default is all.
+    :param list-of-str names: names of columns in the dataframe
+        to include. Default (None) is all.
     :param str column_position: name of the column to place after
     :return list-of-str names: names of columns added to the table
     """
@@ -62,7 +63,7 @@ class API(object):
       index = self._table.numColumns()
     else:
       column = self._table.columnFromName(column_position)
-      index = self._table.indexFromColumn(column)
+      index = self._table.indexFromColumn(column) + 1
     for name in names:
       if self._table.isColumnPresent(name):
         column = self._table.columnFromName(name)
