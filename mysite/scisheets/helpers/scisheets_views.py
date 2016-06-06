@@ -42,11 +42,13 @@ def createCommandDict(request):
    TARGET  COMMAND   DESCRIPTION
     Table   Delete   Delete the table file and switch to the
                      using a random file
+    Table   Epilogue Update the epilogue code for the table
     Table   Export   Export the table into python
     Table   ListTableFiles Returns a list of the table files
     Table   New      Opens a new blank table
     Table   OpenTableFile Change the current Table file to
                      what is specified in the args list
+    Table   Prologue Update the prologue code for the table
     Table   Rename   Change the table name. Must be a valid python name
     Table   SaveAs   Save the table to the specified table file
     Table   Trim     Remove None rows from the end of the table
@@ -123,10 +125,6 @@ def _setTableFilepath(request,
     import pdb; pdb.set_trace()
   if table_filepath[-4:] != ".pcl":
     import pdb; pdb.set_trace()
-  versioned_file = VersionedFile(table_filepath, 
-      settings.SCISHEETS_USER_TBLDIR_BACKUP,
-      settings.SCISHEETS_MAX_TABLE_VERSIONS)
-  table.setVersionedFile(versioned_file)
   return table_filepath
 
 def _getTableFilepath(request):
@@ -175,7 +173,20 @@ def saveTable(request, table):
       handle = tempfile.NamedTemporaryFile()
       table_filepath = handle.name
       handle.close()
-  _setTableFilepath(request, table, table_filepath, verify=False)
+  full_filepath = _setTableFilepath(request, table, table_filepath, 
+      verify=False)
+  versioned_file = table.getVersionedFile()
+  if versioned_file is None:
+    is_changed_filepath = True
+  elif full_filepath != versioned_file.getFilepath():
+    is_changed_filepath = True
+  else:
+    is_changed_filepath = False
+  if is_changed_filepath:
+    versioned_file = VersionedFile(full_filepath,
+        settings.SCISHEETS_USER_TBLDIR_BACKUP,
+        settings.SCISHEETS_MAX_TABLE_VERSIONS)
+    table.setVersionedFile(versioned_file)
   writeTableToFile(table)
 
 
@@ -208,8 +219,9 @@ def scisheets_command0(request):
   if command_result is None:
     # Use table processing command
     table = getTable(request)
-    command_result = table.processCommand(cmd_dict)
-    saveTable(request, table)  # Save table modifications
+    command_result, do_save = table.processCommand(cmd_dict)
+    if do_save:
+      saveTable(request, table)
   json_str = json.dumps(command_result)
   return HttpResponse(json_str, content_type="application/json")
 

@@ -83,7 +83,7 @@ class TestAPIFormulas(unittest.TestCase):
     self.assertTrue(is_absent)
 
   def testCreateTruthTable(self):
-    return
+    return  # Don't test TruthTable since not completed
     self._createTruthTable()
     for n in range(len(TRUTH_COLUMNS)):
       self.assertTrue(any([c.getName() == TRUTH_COLUMNS[n]
@@ -151,6 +151,60 @@ class TestAPIFormulas(unittest.TestCase):
     self.api._table = self.table
     self._testToDataframe()
     self._testToDataframe(names=['DUMMY1_COLUMN'])
+
+  def _testAssignColumnVariables(self, colnms, excludes):
+    """
+    :param list-of-str colnms: column names in table
+    :param list-of-str excludes: column names not updated
+    """
+    table = ht.createTable("test", column_name=colnms)
+    self.api._table = table
+    data = {}
+    for colnm in colnms:
+      column = table.columnFromName(colnm)
+      data[colnm] = column.getCells()
+    namespace = table.getNamespace()
+    self.assertEqual(len(namespace.keys()), 0)
+    self.api.assignColumnVariables(excludes)
+    count = len(colnms) + 1 - len(excludes)
+    self.assertEqual(len(namespace.keys()), count)
+    for colnm in colnms:
+      if not colnm in excludes:
+        self.assertTrue(list(namespace[colnm]) == list(data[colnm]))
+
+  def testAssignColumnVariables(self):
+    colnms = [COLUMN1, COLUMN2]
+    self._testAssignColumnVariables(colnms, [])
+    self._testAssignColumnVariables(colnms, [COLUMN1])
+    self._testAssignColumnVariables(colnms, colnms)
+
+  def _testUpdateTableCellsAndColumnVariables(self, colnms, excludes):
+    new_data = range(30)
+    self._testAssignColumnVariables(colnms, excludes)  # Assign COLUMN1
+    table = self.api.getTable()
+    namespace = table.getNamespace()
+    for colnm in colnms:
+      if colnm in excludes:
+        self.assertFalse(colnm in namespace)
+      else:
+        column = table.columnFromName(colnm)
+        data = [x for x in list(column.getCells()) if x is not np.nan]
+        namespace_data = [x for x in namespace[colnm]]
+        self.assertTrue(namespace_data == data)
+        namespace[colnm] = new_data
+    self.api.updateTableCellsAndColumnVariables([])
+    for colnm in colnms:
+      if colnm in excludes:
+        self.assertTrue(colnm in namespace)
+      else:
+        namespace_data = [x for x in namespace[colnm]]
+        self.assertTrue(namespace_data == list(column.getCells()))
+
+  def testUpdateTableCellsAndColumnVariables(self):
+    colnms = [COLUMN1, COLUMN2]
+    self._testUpdateTableCellsAndColumnVariables(colnms, [])
+    self._testUpdateTableCellsAndColumnVariables(colnms, [COLUMN1])
+    self._testUpdateTableCellsAndColumnVariables(colnms, colnms)
     
 
 # pylint: disable=W0212,C0111,R0904
@@ -161,6 +215,15 @@ class TestAPIPlugin(unittest.TestCase):
     self.api = APIPlugin(table.getFilepath())
     self.api.initialize()
     ht.setupTableInitialization(self)
+
+  def testDependencyCounter(self):
+    self.assertEqual(self.api.getDependencyCounter(), 0)
+    self.api.createColumn(COLUMN2)
+    self.assertEqual(self.api.getDependencyCounter(), 1)
+    self.api.deleteColumn(COLUMN2)
+    self.assertEqual(self.api.getDependencyCounter(), 2)
+    self.api.setDependencyCounter()
+    self.assertEqual(self.api.getDependencyCounter(), 0)
 
 
 # pylint: disable=W0212,C0111,R0904

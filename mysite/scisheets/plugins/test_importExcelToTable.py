@@ -18,6 +18,7 @@ DATA = {'v1': [11, 22, 33], 'v2': [111, 222, 333]}
 #############################
 # Tests
 #############################
+# TODO: Tests for column_position argument
 # pylint: disable=W0212,C0111,R0904
 class TestImportExcel(unittest.TestCase):
 
@@ -40,21 +41,43 @@ class TestImportExcel(unittest.TestCase):
       importExcelToTable(self.api, TEST_FILE, ['w'])
 
   def _testImportTable(self, names=None, worksheet=None):
-    imported_names = importExcelToTable(self.api, 
-                                        TEST_FILE, 
-                                        worksheet=worksheet,
-                                        names=names)
-    if worksheet is None:
-      worksheet = 'Sheet1'
-    if names is None:
-      names = COLUMN_NAMES
-    self.assertTrue(imported_names == names)
-    for name in names:
-      self.assertTrue(self.api._table.isColumnPresent(name))
-      column = self.api._table.columnFromName(name)
-      imported_values = column.getCells()
-      expected_values = DATA[name]
-      self.assertTrue(imported_values == expected_values)
+    table = self.api.getTable()
+    old_table = table.copy()
+    for col_pos in [ht.COLUMN1, ht.COLUMN5, None]:
+      table = old_table
+      self.api._table = table
+      column_position = col_pos
+      imported_names = importExcelToTable(self.api,
+          TEST_FILE, worksheet=worksheet, names=names,
+          column_position=column_position)
+      if worksheet is None:
+        worksheet = 'Sheet1'
+      if names is None:
+        names = COLUMN_NAMES
+      self.assertTrue(imported_names == names)
+      indicies = range(len(names))
+      pairs = zip(names, indicies)
+      for name, index in pairs:
+        self.assertTrue(table.isColumnPresent(name))
+        column = table.columnFromName(name)
+        if column is None:
+          import pdb; pdb.set_trace()
+        imported_values = column.getCells()
+        expected_values = DATA[name]
+        self.assertTrue(imported_values == expected_values)
+        # Check the column position
+        old_column = old_table.columnFromName(name)
+        if old_column is not None:
+          expected_index = old_table.indexFromColumn(old_column)
+        elif column_position is None:
+          expected_index = old_table.numColumns() + index
+        else:
+          ref_column = old_table.columnFromName(column_position)
+          expected_index = old_table.indexFromColumn(ref_column) + index
+        column_index = table.indexFromColumn(column)
+        if column_index != expected_index:
+          import pdb; pdb.set_trace()
+        self.assertEqual(column_index, expected_index)
 
   def testImportTable(self):
     self._testImportTable()

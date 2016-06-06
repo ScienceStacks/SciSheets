@@ -2,10 +2,9 @@
 Compiles Python statements that evaluate formulas in a Table.
 """
 
+from mysite import settings
 import api_util
 from statement_accumulator import StatementAccumulator
-from mysite.settings import SCISHEETS_PLUGIN_PYDIR,  \
-    SCISHEETS_PLUGIN_PYPATH
 import os
 import numpy as np
 
@@ -60,15 +59,15 @@ class ProgramGenerator(object):
     2. Variable assignment statements that assign column values
        to variables used in the script.
     3. Formula evaluation blocks, one for each formula.
-    4. Column value assignment statements that assign script
-       variables to their associated column values.
+    4. Checking for termination of the formulation evaluation loop
   Exported functions have the following structure:
     1. Prologue statements. This includes the creation of the
        Plugin API object.
     2. Function header (def statement)
     3. Variable assignment statements (but not for the 
        function inputs).
-    4. Return statement
+    4. Checking for termination of the formulation evaluation loop
+    5. Return statement
   In addition, a test program is created that calls the exported function
   and verifies that the function produces the output columns in
   the table when it is called with the input columns.
@@ -80,8 +79,8 @@ class ProgramGenerator(object):
   def __init__(self, 
                table, 
                user_directory, 
-               plugin_directory=SCISHEETS_PLUGIN_PYDIR,
-               plugin_path=SCISHEETS_PLUGIN_PYPATH):
+               plugin_directory=settings.SCISHEETS_PLUGIN_PYDIR,
+               plugin_path=settings.SCISHEETS_PLUGIN_PYPATH):
     """
     Exports the table as python code
     :param Table table: table being processed
@@ -93,6 +92,24 @@ class ProgramGenerator(object):
     self._plugin_directory = plugin_directory
     self._plugin_path = plugin_path
 
+  def _makeAPIInitializationStatements(self, create_API_object=False):
+    """
+    :param bool create_API_object: True means that code will be generated
+                                 that creates the API object.
+    """
+    sa = StatementAccumulator()
+    statement = """
+_table = api.getTableFromFile('%s')
+_table.setNamespace(globals())
+%s = api.APIFormulas(_table) 
+""" % (self._table.getFilepath(), API_OBJECT) 
+    if not create_API_object:
+      new_statement = statement.replace('\n', '\n#')
+      header = "# Uncomment the following to execute standalone"
+      statement = "%s\n#%s" % (header, new_statement)
+    sa.add(statement)
+    return sa.get()
+
   def makeEvaluationScriptProgram(self, create_API_object=False):
     """
     Creates a python script that evaluates the table formulas
@@ -102,30 +119,16 @@ class ProgramGenerator(object):
     :return str program: Program as a string
     """
     sa = StatementAccumulator()
-    # File Prologue
     statement = '''# Evaluation of the table %s.
 
     ''' % self._table.getName()
     sa.add(statement)
+    sa.add("from scisheets.core import api as api")
+    sa.add(self._makeAPIInitializationStatements(
+        create_API_object=create_API_object))
     sa.add(self._makePrologue())
-    filepath = api_util.getTableCopyFilepath(self._table.getName(),
-                                             self._user_directory)
-    # Handle the API import
-    statement = """
-_table = api.getTableFromFile('%s')
-%s = api.APIFormulas(_table) 
-""" % (self._table.getFilepath(), API_OBJECT) 
-    if not create_API_object:
-      new_statement = statement.replace('\n', '\n#')
-      header = "# Uncomment the following to execute standalone"
-      statement = "%s\n#%s" % (header, new_statement)
-    sa.add(statement)
-    # Assign the column values to script variables
-    sa.add(self._makeVariableAssignmentStatements())
-    # Create the formula evaluation blocks
-    sa.add(self._makeFormulaStatements())
-    # Assign script variable to the column values
-    sa.add(self._makeColumnValuesAssignmentStatements())
+    sa.add(self._makeFormulaEvaluationStatements())
+    sa.add(self._makeEpilogue())
     return sa.get()
 
   def makeExportScriptProgram(self):
@@ -134,24 +137,14 @@ _table = api.getTableFromFile('%s')
     :return str program: Program as a string
     """
     sa = StatementAccumulator()
-    # File Prologue
     statement = '''# Script that runs formulas in the table %s.
 
     ''' % self._table.getName()
     sa.add(statement)
+    sa.add(self._makeAPIInitializationStatements(create_API_object=True))
     sa.add(self._makePrologue())
-    filepath = api_util.getTableCopyFilepath(self._table.getName(),
-                                             self._user_directory)
-    statement = """
-_table = api.getTableFromFile('%s')
-%s = api.APIFormulas(_table) 
-""" % (filepath, API_OBJECT) 
-    sa.add(statement)
-    # Assign the column values to script variables
-    sa.add(self._makeVariableAssignmentStatements())
-    # Create the formula evaluation blocks
-    sa.add(self._makeFormulaStatements())
-    # Print the results
+    sa.add(self._makeFormulaEvaluationStatements())
+    sa.add(self._makeEpilogue())
     sa.add(self._makeVariablePrintStatements())
     return sa.get()
 
@@ -184,22 +177,19 @@ _table = api.getTableFromFile('%s')
 
     ''' % self._table.getName()
     sa.add(statement)
-    sa.add(self._makePrologue())
+    sa.add(self._makeAPIPluginInitializationStatements(function_name))
     sa.add("")
-    # Generate statements to create the API object
-    statement = self._makeAPIPluginInitializationStatements(function_name)
-    sa.add(statement)
     # Make the function definition
     sa.add(_makeFunctionStatement(function_name, inputs))
     sa.indent(1)
-    # Assign the column values to function variables.
-    # Note that inputs and outputs are not assigned.
     excludes = list(inputs)
     excludes.extend(outputs)
-    sa.add(self._makeVariableAssignmentStatements(excludes=excludes))
-    # Create the formula evaluation blocks
-    sa.add(self._makeFormulaStatements())
-    # Make the return statement
+    sa.add(self._makePrologue(excludes=excludes))
+    # Assign the column values to function variables.
+    # Note that inputs and outputs are not assigned.
+    #
+    sa.add(self._makeFormulaEvaluationStatements(excludes=excludes))
+    sa.add(self._makeEpilogue())
     sa.add(_makeReturnStatement(outputs))
     return sa.get()
 
@@ -221,7 +211,7 @@ _table = api.getTableFromFile('%s')
 Tests for %s
 """
 
-import my_api as api
+from scisheets.core import api as api
 from %s import %s
 import unittest
 
@@ -301,6 +291,8 @@ if __name__ == '__main__':
     """
     formulas = [c.getFormula() for c in self._table.getColumns()
                    if not (c.getFormula() is None)]
+    formulas.append(self._table.getPrologue().getFormula())
+    formulas.append(self._table.getEpilogue().getFormula())
     python_filenames = self._findFilenames(directory)
     # Determine which files are referenced in a formula
     referenced_filenames = []
@@ -354,6 +346,45 @@ if __name__ == '__main__':
       sa.add(statement)
     return sa.get()
 
+  def _makeTableUpdateStatements(self, excludes=None):
+    """
+    Updates the cells in table based on column variables.
+    :return str statement:
+    """
+    if excludes is None:
+      excludes = []
+    sa = StatementAccumulator()
+    statement = "s.updateTableCellsAndColumnVariables(%s)"  \
+        % str(excludes)
+    sa.add(statement)
+    return sa.get()
+
+  def _makeClosingOfFormulaEvaluationLoop(self, **kwargs):
+    """
+    Creates the statements at the end of the formula evaluation
+    loop.
+      1. Statements that update objects
+      2. Assignments of variables to columns
+      3. Loop termination checks
+    """
+    sa = StatementAccumulator()
+    statement = """
+# End of iteration - update state
+_iterations += 1"""
+    sa.add(statement)
+    sa.add(self._makeTableUpdateStatements(**kwargs))
+    statement = """
+# Check the termination conditions
+_num_formula_columns = len(_table.getFormulaColumns())
+if (_exception is None) and _table.isEquivalent(_old_table):
+  _done = True
+if _iterations >= _num_formula_columns + s.getDependencyCounter():
+  _done = True
+if _iterations > MAX_ITERATIONS:
+  _done = True"""
+    sa.add(statement)
+    return sa.get()
+
   def _makeColumnValuesAssignmentStatements(self, **kwargs):
     """
     Creates statements that assign column values to variables.
@@ -377,36 +408,55 @@ if __name__ == '__main__':
     return [fc for fc in self._table.getColumns()
             if fc.getFormula() is not None]
 
-  def _makePrologue(self):
+  def _makePrologue(self, **kwargs):
     """
     Creates the imports that go at the head of the file
     :return str: statements
     """
-    # Initializations
     sa = StatementAccumulator()
-    # Construct the imports
-    statement = '''import my_api as api
-import math as mt
-import numpy as np
-from os import listdir
-from os.path import isfile, join
-import pandas as pd
-import scipy as sp
-from sympy import *
-from numpy import nan  # Must follow sympy import '''
-    sa.add(statement)
+    # Import the plugins
     if self._user_directory is not None:
       statement = self._makeFormulaImportStatements(self._user_directory)
       sa.add(statement)
     statement = self._makeFormulaImportStatements(
         self._plugin_directory, import_path=self._plugin_path)
     sa.add(statement)
+    # Create the column variables
+    sa.add(self._makeColumnVariableAssignmentStatements(**kwargs))
+    # Add the table prologue
+    sa.add(self._table.getPrologue().getFormula())
+    # Make the internally used constants
+    statement = '''
+MAX_ITERATIONS = %d
+''' % settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS
+    sa.add(statement)
+    return sa.get()
+
+  def _makeEpilogue(self):
+    """
+    Adds code that only runs at the end
+    :return str: statements
+    """
+    sa = StatementAccumulator()
+    sa.add(self._table.getEpilogue().getFormula())
+    return sa.get()
+
+  def _makeColumnVariableAssignmentStatements(self, excludes=None):
+    """
+    Constructs a block that assigns values to the 
+    column variables.
+    """
+    if excludes is None:
+      excludes = []
+    sa = StatementAccumulator()
+    statement = "s.assignColumnVariables(%s)" % str(excludes)
+    sa.add(statement)
     return sa.get()
 
   # pylint: disable=R0913
   # pylint: disable=R0914
   # pylint: disable=R0915
-  def _makeFormulaStatements(self):
+  def _makeFormulaEvaluationStatements(self, **kwargs):
     """
     Constructs a script to evaluate table formulas.
     :return str: statements
@@ -420,34 +470,57 @@ from numpy import nan  # Must follow sympy import '''
     if num_formulas == 0:
       return []
     # Statements that evaluate the formulas
-    sa.add("# Evaluate the formulas.")
-    # Special case for a single formula column
-    if num_formulas == 1:
-      column = formula_columns[0]
-      sa.add(column.getFormulaStatement())
-      # Ensure that there is at least one executeable statement
-      sa.add("pass")  
-    else:
-      sa.add("for nn in range(%d):" % num_formulas)
-      sa.indent(1)
-      for column in formula_columns:
-        sa.add("try:  # Column %s" % column.getName())
-        sa.indent(1)
-        sa.add(column.getFormulaStatement())
-        name = column.getName()
-        if column.isExpression():
-          sa.add("%s = %s.coerceValues('%s', %s)"  \
-              % (name, API_OBJECT, name, name))
-        # Ensure that there is at least one executeable statement
-        sa.add("pass")  
-        sa.indent(-1)
-        sa.add("except Exception as e:")
-        sa.indent(1)
-        sa.add("if nn == %d:" % (num_formulas-1))
-        sa.indent(1)
-        sa.add("raise Exception(e)")
-        sa.add("break")
-        sa.indent(-2)
+    # Iteratively evaluate the formulas. The iteration
+    # terminates under three conditions:
+    #  1. No exception and no change in table data since the
+    #     last iteration.
+    #  2. No exception and the iteration count is equal to the
+    #     number of columns.
+    #  3. The iteration count exceeds a maximum value.
+    statement = """
+# Formulation evaluation loop
+_done = not _table.getIsEvaluateFormulas()
+_iterations = 0
+_exception = None"""
+    sa.add(statement)
+    sa.add("while not _done:")
+    sa.indent(1)
+    sa.add("_exception = None")
+    statement = "_old_table = _table.copy()"
+    sa.add(statement)
+    # Formula Evaluation block header
+    sa.add("try:")
+    sa.indent(1)
+    # Formula Evaluation block formulas
+    statement = """
+# Formula Execution Blocks"""
+    sa.add(statement)
+    for column in formula_columns:
+      sa.add("# Column %s" % column.getName())
+      statement = column.getFormulaStatement()
+      sa.add(statement)
+      name = column.getName()
+      if column.isExpression():
+        sa.add("%s = %s.coerceValues('%s', %s)"  \
+            % (name, API_OBJECT, name, name))
+      sa.add(" ")
+    # Formula Evaluation block footer
+    sa.add("pass")  # Ensure at least one executeable statement
+    sa.add("")  # Ensure at least one executeable statement
+    sa.indent(-1)
+    sa.add("except Exception as _error:")
+    sa.indent(1)
+    sa.add("_exception = _error")
+    sa.indent(-1)
+    # End of loop
+    statement = self._makeClosingOfFormulaEvaluationLoop(**kwargs)
+    sa.add(statement)
+    sa.indent(-1)
+    # Script closing - check for exception
+    sa.indent(-1)
+    statement = """if _exception is not None:
+  raise Exception(_exception)"""
+    sa.add(statement)
     return sa.get()
 
   def _makeAPIPluginInitializationStatements(self, function_name, prefix=""):
@@ -455,9 +528,13 @@ from numpy import nan  # Must follow sympy import '''
     :param str function_name:
     :param str prefix: prefix for API Object
     """
+    sa = StatementAccumulator()
+    sa.add("from scisheets.core import api as api")
     full_object = "%s%s" % (prefix, API_OBJECT)
     filepath = api_util.getTableCopyFilepath(function_name,
                                              self._user_directory)
     statement = """%s = api.APIPlugin('%s')
-%s.initialize()""" % (full_object, filepath, full_object)
-    return statement
+%s.initialize()
+_table = s.getTable()""" % (full_object, filepath, full_object)
+    sa.add(statement)
+    return sa.get()

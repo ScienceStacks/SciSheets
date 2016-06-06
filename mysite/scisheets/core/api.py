@@ -13,6 +13,7 @@ Plugins may use the API to do data manipulation and calculations.
 from column import Column
 from table import Table, NAME_COLUMN_STR
 import helpers.api_util as api_util
+import helpers.cell_types as cell_types
 from helpers.combinatoric_list import CombinatoricList
 import collections
 import os
@@ -39,23 +40,37 @@ class API(object):
     # Columns excluded from update because created dynamically
     # and so the user has responsibility for their update
     self._exclude_column_update = []
+    # Counter for the number of operations that may create
+    # additional nodes in the dependency graph
+    self._dependency_counter = 0
 
-  def addColumnsToTableFromDataframe(self, dataframe, names=None):
+  def addColumnsToTableFromDataframe(self, 
+                                     dataframe, 
+                                     names=None, 
+                                     column_position=None):
     """
     Adds columns from a dataframe to the table. If a column of the same
     name exists, its data is replaced.
     :param pandas.DataFrame dataframe:
-    :param list-of-str names: column names to include. Default is all.
+    :param list-of-str names: names of columns in the dataframe
+        to include. Default (None) is all.
+    :param str column_position: name of the column to place after
     :return list-of-str names: names of columns added to the table
     """
     if names is None:
       names = list(dataframe.columns)
+    if column_position is None:
+      index = self._table.numColumns()
+    else:
+      column = self._table.columnFromName(column_position)
+      index = self._table.indexFromColumn(column) + 1
     for name in names:
       if self._table.isColumnPresent(name):
         column = self._table.columnFromName(name)
       else:
         column = Column(name)
-        self._table.addColumn(column)
+        self._table.addColumn(column, index=index)
+        index += 1
       column.addCells(dataframe[name], replace=True)
     return names
 
@@ -114,11 +129,12 @@ class API(object):
     """
     if isinstance(column_id, int):
       column = self._table.columnFromIndex(column_id)
-    elif isinstance(column_id, str):
+    elif cell_types.isStr(column_id):
       column = self._table.columnFromName(column_id)
     else:
       column = None
     if column is None and validate:
+      import pdb; pdb.set_trace()
       raise ValueError("%s column does not exist." % str(column_id))
     return column
 
@@ -128,7 +144,6 @@ class API(object):
     """
     return [c.getName() for c in self._table.getColumns()]
 
-
   def getColumnValues(self, column_name):
     """
     :param str column_name: name of the column
@@ -137,6 +152,9 @@ class API(object):
     """
     column = self.getColumn(column_name)
     return self._coerceValues(column, column.getCells())
+
+  def getDependencyCounter(self):
+    return self._dependency_counter
 
   def getTable(self):
     return self._table
@@ -161,6 +179,7 @@ class API(object):
     else:
       self._table.hideColumns(columns)
 
+
   def setColumnValues(self, column_name, values):
     """
     :param str column_name: name of the column
@@ -181,6 +200,9 @@ class API(object):
     else:
       list_values = list(values)
     self._table.updateColumn(column, list_values)
+
+  def setDependencyCounter(self):
+    self._dependency_counter = 0
 
   def tableToDataframe(self, columns=None):
     """
@@ -231,6 +253,7 @@ class APIFormulas(API):
     :return: column object
     :raises: ValueError if invalid name for column
     """
+    self._dependency_counter += 1
     if self._table.isColumnPresent(column_name):
       return self._table.columnFromName(column_name)
     # Create the column
@@ -239,6 +262,25 @@ class APIFormulas(API):
     if error is not None:
       raise ValueError(error)
     return column
+
+  def assignColumnVariable(self, colnm):
+    """
+    Creates and assigns values to a single column variable.
+    :param str colnm: column name
+    """
+    namespace = self._table.getNamespace()
+    namespace[colnm] = self.getColumnValues(colnm)
+
+  def assignColumnVariables(self, excludes):
+    """
+    Creates and assigns values to the column variables
+    corresponding to the columns in the table.
+    :param list-of-str excludes: column variables that are not assigned
+    """
+    for column in self._table.getColumns():
+      colnm = column.getName()
+      if not colnm in excludes:
+        self.assignColumnVariable(colnm)
 
   def createColumn(self, column_name, index=None, asis=False):
     """
@@ -261,6 +303,23 @@ class APIFormulas(API):
     column = self.getColumn(column_id, validate=False)
     if column is not None:
       _  = self._table.deleteColumn(column)
+      self._dependency_counter += 1
+
+  def updateTableCellsAndColumnVariables(self, excludes):
+    """
+    Updates data in tables based on the values of the corresponding
+    column variable, if one exists. Creates column variables for
+    columns that do that have one.
+    :param list-of-str excludes: table columns that are not updated
+    """
+    namespace = self._table.getNamespace()
+    for column in self._table.getColumns():
+      name = column.getName()
+      if not name in excludes:
+        if name in namespace:
+          self.setColumnValues(name, namespace[name])
+        else:
+          namespace[name] = self.getColumnValues(name)
 
 class APIPlugin(APIFormulas):
   """

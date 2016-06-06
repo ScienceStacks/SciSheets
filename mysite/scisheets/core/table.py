@@ -3,16 +3,21 @@
 '''
 
 from mysite.helpers.data_capture import DataCapture
+from helpers.formula_statement import FormulaStatement
 from column import Column
 from column_container import ColumnContainer
 from table_evaluator import TableEvaluator
 import errors as er
 import column as cl
 import numpy as np
+import os
 import pandas as pd
 
 NAME_COLUMN_STR = "row"
 NAME_COLUMN_IDX = 0
+CUR_DIR = os.path.dirname(__file__)
+PROLOGUE_FILEPATH = os.path.join(CUR_DIR, "table.prologue")
+EPILOGUE_FILEPATH = os.path.join(CUR_DIR,"table.epilogue")
 
 
 class Row(dict):
@@ -39,7 +44,12 @@ class Table(ColumnContainer):
 
   def __init__(self, name):
     super(Table, self).__init__(name)
+    self._namespace = {}  # Namespace for formula evaluation
     self._createNameColumn()
+    self._prologue = self.fromulaStatementFromFile(PROLOGUE_FILEPATH)
+    self._epilogue = self.fromulaStatementFromFile(EPILOGUE_FILEPATH)
+    self._is_evaluate_formulas = True
+
 
   # The following methods are used in debugging
 
@@ -56,6 +66,9 @@ class Table(ColumnContainer):
   def getCapture(self, filename):
     dc = DataCapture(filename)
     return dc.getData()
+ 
+  def getIsEvaluateFormulas(self):
+    return self._is_evaluate_formulas
   
   # Internal and other methods
 
@@ -70,10 +83,21 @@ class Table(ColumnContainer):
         names.append(Table._rowNameFromIndex(row_num))
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
+  def fromulaStatementFromFile(self, filepath):
+    """
+    Reads the file contents and creates the FormulaStatement object.
+    :param str filepath: path to file to read
+    :returns str: file contents
+    """
+    with open(filepath, 'r') as f:
+      lines = f.readlines()
+    statements = ''.join(lines)
+    return FormulaStatement(statements, self._name)
+
   # Data columns are those that have user data. The "row" column is excluded.
   def getDataColumns(self):
     """
-    Returns the data for a column
+    Returns the columns other than the name column
     """
     return self._columns[NAME_COLUMN_IDX + 1:]
 
@@ -82,6 +106,39 @@ class Table(ColumnContainer):
     Returns the data values in an array ordered by column index
     """
     return [c.getCells() for c in self._columns]
+
+  def getEpilogue(self):
+    return self._epilogue
+
+  def getFormulaColumns(self):
+    """
+    :return list-of-Column:
+    """
+    result = [c for c in self._columns if c.getFormula() is not None]
+    return result
+
+  def getRow(self, index=None):
+    """
+    :param index: row desired
+           if None, then a row of None is returned
+    :return: Row object
+    """
+    row = Row()
+    for column in self._columns:
+      if index is None:
+        if column.isFloats():
+          row[column.getName()] = np.nan  # pylint: disable=E1101
+        else:
+          row[column.getName()] = None
+      else:
+        row[column.getName()] = column.getCells()[index]
+    return row
+
+  def getNamespace(self):
+    return self._namespace
+
+  def getPrologue(self):
+    return self._prologue
 
   # TODO: Verify the index
   @staticmethod
@@ -238,8 +295,7 @@ class Table(ColumnContainer):
     """
     new_table = Table(self._name)
     for column in self.getDataColumns():
-      new_column = cl.Column(column.getName())
-      new_column.addCells(column.getCells())
+      new_column = column.copy()
       new_table.addColumn(new_column)
     return new_table
 
@@ -281,23 +337,6 @@ class Table(ColumnContainer):
     evaluator = TableEvaluator(self)
     return evaluator.evaluate(user_directory=user_directory)
 
-  def getRow(self, index=None):
-    """
-    :param index: row desired
-           if None, then a row of None is returned
-    :return: Row object
-    """
-    row = Row()
-    for column in self._columns:
-      if index is None:
-        if column.isFloats():
-          row[column.getName()] = np.nan  # pylint: disable=E1101
-        else:
-          row[column.getName()] = None
-      else:
-        row[column.getName()] = column.getCells()[index]
-    return row
-
   def isColumnPresent(self, column_name):
     """
     :param str column_name:
@@ -307,6 +346,26 @@ class Table(ColumnContainer):
       if column.getName() == column_name:
         return True
     return False
+
+  def isEquivalent(self, table):
+    """
+    Checks that the tables have the same values of their properties,
+    excluding the VersionedFile.
+    :param Table table:
+    :returns bool:
+    """
+    if self.getName() != table.getName():
+      return False
+    if self.numColumns() != table.numColumns():
+      return False
+    for column in self._columns:
+      other_column = table.columnFromName(column.getName())
+      if other_column is None:
+        return False
+      if not column.isEquivalent(other_column):
+        return False
+    return True
+   
 
   def insertRow(self, row, index=None):
     """
@@ -331,6 +390,18 @@ class Table(ColumnContainer):
     """
     Handles older objects that lack some properties
     """
+    if not '_namespace' in dir(self):
+      self._namespace = {}
+    if not '_prologue' in dir(self):
+      self._prologue = self.fromulaStatementFromFile(PROLOGUE_FILEPATH)
+    if not '_epilogue' in dir(self):
+      self._epilogue = self.fromulaStatementFromFile(EPILOGUE_FILEPATH)
+    for column in self._columns:
+      formula = column.getFormula()
+      if formula is not None:
+        column.setFormula(formula)
+    if not "_is_evaluate_formulas" in dir(self):
+      self._is_evaluate_formulas = True
     super(Table, self).migrate()
 
   def moveRow(self, index1, index2):
@@ -365,7 +436,7 @@ class Table(ColumnContainer):
     columns = self.getColumns()
     changed_columns = []
     try:
-      for col in [c for c in columns if c.getFormula() is not None]:
+      for col in self.getFormulaColumns():
         formula = col.getFormula()
         if cur_colnm in formula:
           new_formula = formula.replace(cur_colnm, new_colnm)
@@ -424,6 +495,20 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
           column.replaceCells(new_data)
       except:
         import pdb; pdb.set_trace()
+
+  def setNamespace(self, namespace):
+    self._namespace = namespace
+ 
+  def setIsEvaluateFormulas(self, setting):
+    self._is_evaluate_formulas = setting
+
+  def setEpilogue(self, epilogue):
+    self._epilogue = FormulaStatement(epilogue, self.getName())
+    return self._epilogue.do()
+
+  def setPrologue(self, prologue):
+    self._prologue = FormulaStatement(prologue, self.getName())
+    return self._prologue.do()
 
   def trimRows(self):
     """

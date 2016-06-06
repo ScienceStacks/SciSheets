@@ -146,7 +146,7 @@ class TestTableEvaluator(unittest.TestCase):
 
   def testEvalWithMixedTypes(self):
     self.column_b.setFormula("range(len(A))")
-    self.column_valid_formula.setFormula("np.sin(np.array(B, dtype=float)")
+    self.column_valid_formula.setFormula("np.sin(np.array(B, dtype=float))")
     self.table.evaluate(user_directory=TEST_DIR)
     for val in self.column_valid_formula.getCells():
       self.assertIsNotNone(val)

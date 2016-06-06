@@ -96,9 +96,12 @@ def createTable(name, column_name=None):
   table = DTTable(name)
   versioned_file = VersionedFile(TABLE_FILEPATH, TEST_DIR, MAX_VERSIONS)
   table.setVersionedFile(versioned_file)
+  factor = 1
   for colnm in colnms:
     column = cl.Column(colnm)
-    column.addCells(range(5), replace=True)
+    values = [factor*n for n in range(5)]
+    factor += 1
+    column.addCells(values, replace=True)
     table.addColumn(column)
   pickle.dump(table, open(TABLE_FILEPATH, "wb"))
   return table

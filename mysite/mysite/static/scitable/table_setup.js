@@ -67,6 +67,8 @@ YAHOO.util.Event.addListener(window, "load", function () {
         );
     sciSheets.setup(myDataTable);
     sciSheets.formulas = d.formulas;
+    sciSheets.epilogue = d.epilogue;
+    sciSheets.prologue = d.prologue;
     sciSheets.tableFile = d.tableFile;
 
     // Set up events

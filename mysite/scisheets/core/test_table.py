@@ -23,6 +23,7 @@ class TestTable(unittest.TestCase):
     self.assertEqual(table._name, ht.TABLE_NAME)
     self.assertEqual(len(table._columns), 1)
     self.assertEqual(table._columns[0].getName(), "row")
+    self.assertTrue('import' in table._prologue.getFormula())
 
   def testAdjustColumnLength(self):
     table = ht.createTable(ht.TABLE_NAME)
@@ -251,6 +252,35 @@ class TestTable(unittest.TestCase):
     expected_values = range(5)
     actual_values = [x for x in column.getCells()]
     self.assertTrue(expected_values == actual_values)
+
+  def testIsEquivalent(self):
+    new_table = self.table.copy()
+    self.assertTrue(self.table.isEquivalent(new_table))
+    column = new_table.columnFromIndex(1)
+    this_column = self.table.columnFromName(column.getName())
+    column = new_table.columnFromIndex(1)
+    cell = column.getCell(0)
+    new_cell = "New%s" % str(cell)
+    column.updateCell(new_cell, 0)
+    self.assertFalse(self.table.isEquivalent(new_table))
+    this_column.updateCell(new_cell, 0)
+    self.assertTrue(self.table.isEquivalent(new_table))
+    self.table.deleteColumn(this_column)
+    self.assertFalse(self.table.isEquivalent(new_table))
+
+  def testGetColumnFormula(self):
+    table = ht.createTable("test", column_name=[ht.COLUMN1, ht.COLUMN2])
+    column1 = table.columnFromName(ht.COLUMN1)
+    self.assertEqual(len(table.getFormulaColumns()), 0)
+    formula1 = "range(5)"
+    column1.setFormula(formula1)
+    self.assertEqual(len(table.getFormulaColumns()), 1)
+    column2 = table.columnFromName(ht.COLUMN2)
+    formula2 = "[2*x for x in %s]" % ht.COLUMN1
+    column2.setFormula(formula2)
+    self.assertEqual(len(table.getFormulaColumns()), 2)
+    column2.setFormula(None)
+    self.assertEqual(len(table.getFormulaColumns()), 1)
       
 
 if __name__ == '__main__':

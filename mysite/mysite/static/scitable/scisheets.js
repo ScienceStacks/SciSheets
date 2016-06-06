@@ -50,7 +50,7 @@ SciSheetsBlinker.prototype.stop = function () {
 
 /* --------------- SciSheets Objects ------------------*/
 
-/* Create the SciSheets namespace */
+/* Create the SciSheets namespace. Values are assigned in table_setup.js */
 function SciSheets() {
   "use strict";
   this.baseURL = "http://localhost:8000/scisheets/";
@@ -58,6 +58,8 @@ function SciSheets() {
   this.mockAjax = false;
   this.ajaxCallCount = 0;
   this.formulas = null;  // Dictionary by column name of formulas
+  this.epilogue = null; 
+  this.prologue = null; 
   this.tableFile = null;  // No file specified for the table
   this.blinker = new SciSheetsBlinker($("#notification-working"));
 }
@@ -168,6 +170,40 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   }
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }
+
+// Formula updates
+SciSheets.prototype.utilUpdateFormula = function (cmd, formula) {
+  // Change the dialog prompt
+  "use strict";
+  var scisheet, eleTextarea;
+  scisheet = this
+  eleTextarea = $("#formula-textarea")[0];
+  if (formula !== "") {
+    eleTextarea.value = formula;
+  }
+  if (scisheet.mockAjax) {
+    scisheet.ajaxCallCount += 1;  // Count as an Ajax call
+  }
+  $("#formula-dialog").dialog({
+    autoOpen: true,
+    modal: true,
+    closeOnEscape: true,
+    close: function (event, ui) {
+      scisheet.utilReload();
+    },
+    dialogClass: "dlg-no-close",
+    buttons: {
+      "Submit": function () {
+        cmd.args = [eleTextarea.value];
+        scisheet.utilSendAndReload(cmd);
+      },
+      "Cancel": function () {
+        $(this).dialog("close");
+        scisheet.utilReload();
+      }
+    }
+  });
+};
 
 // Generic click handle for a popup menu
 // Input: eleId - ID of the popup menu to use

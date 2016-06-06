@@ -354,7 +354,7 @@ class TestScisheetsViews(TestCase):
 
   def testCommandColumnRefactorName(self):
     new_name = 'row'  # duplicate name
-    self._testCommandColumnRename(BASE_URL, new_name, False, command="Refactor")
+    self._testCommandColumnRename(BASE_URL, new_name, False)
     new_name = "New_Column"
     self._testCommandColumnRename(BASE_URL, new_name, True, command="Refactor")
 
@@ -569,7 +569,7 @@ class TestScisheetsViews(TestCase):
       self.assertEqual(formula, new_column.getFormula())
     else:
       self.assertFalse(content["success"])
-      self.assertEqual(old_formula, new_column.getFormula())
+      self.assertEqual(formula, new_column.getFormula())
     # Check the columns
     self.assertTrue(compareTableData(old_table, 
                                      new_table, 
@@ -806,6 +806,8 @@ class TestScisheetsViews(TestCase):
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
+    if not content["success"]:
+      import pdb; pdb.set_trace()
     self.assertTrue(content["success"])
     #table = self._getTableFromResponse(response)
     return response
@@ -853,38 +855,81 @@ for x in Col_2:
     self.assertTrue(content.has_key("success"))
     self.assertTrue(content["success"])
 
-  # TODO: Complete test for Undo. Verify that all changes
-  # are undone - value, column, table
-  def _undoTable(self, formula, isValid, col_idx=NCOL-1):
-    # Inputs: formula - new formula for column
-    #         isValid - is a valid formula
-    base_response = self._createBaseTable()
-    # Change the formula
+  def _submitCommand(self, target, command, colidx, args):
+    """
+    Submits the command and checks the response. Returns the table.
+    :param str target:
+    :param str command:
+    :param int colidx:
+    :param str args:
+    :return Table table:
+    """
     ajax_cmd = self._ajaxCommandFactory()
-    ajax_cmd['target'] = "Column"
-    ajax_cmd['command'] = "Formula"
-    ajax_cmd['column'] = col_idx
-    ajax_cmd['args[]'] = formula
+    ajax_cmd['target'] = target
+    ajax_cmd['command'] = command
+    ajax_cmd['column'] = colidx
+    ajax_cmd['args[]'] = args
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
-    # Check the table
-    new_table = self._getTableFromResponse(response)
-    error = new_table.evaluate(user_directory=TEST_DIR)
-    if isValid:
-      self.assertTrue(content["success"])
-    else:
-      self.assertFalse(content["success"])
+    table = self._getTableFromResponse(response)
+    return table
 
   # TODO: Complete test for Undo. Verify that all changes
   # are undone - value, column, table
-  def testTableUndo(self):
-    return
-    self._evaluateTable("np.sin(3.2)", True)  # Valid formula
-    formula = "Col_2 = np.sin(np.array(range(10), dtype=float));B =  Col_1**3"
-    self._evaluateTable(formula, True)  # Compound formula
-    self._evaluateTable("np.sin(x)", False)  # Invalid formula
+  def _testUndoTable(self, formula):
+    colidx = 1
+    # Inputs: formula - new formula for column
+    base_response = self._createBaseTable()
+    old_table = self._getTableFromResponse(base_response)
+    column = old_table.columnFromIndex(colidx)
+    self.assertIsNone(column.getFormula())
+    # Change the formula
+    changed_table = self._submitCommand("Column", "Formula", colidx, formula)
+    column = changed_table.columnFromIndex(colidx)
+    self.assertEqual(column.getFormula(), formula)
+    # Undo the change
+    undone_table = self._submitCommand("Table", "Undo", colidx, "")
+    column = undone_table.columnFromIndex(colidx)
+    self.assertIsNone(column.getFormula())
+    self.assertTrue(compareTableData(old_table, undone_table))
+
+  def testUndoTable(self):
+    formula = "sin(4)"
+    self._testUndoTable(formula)
+
+  def testRedoTable(self):
+    colidx = 1
+    formula = "sin(4)"
+    self._testUndoTable(formula)
+    undone_table = self._submitCommand("Table", "Redo", colidx, "")
+    changed_table = self._submitCommand("Column", "Formula", colidx, formula)
+    column = changed_table.columnFromIndex(colidx)
+    self.assertEqual(column.getFormula(), formula)
+
+  def _setPrologueEpilogue(self, formula, is_valid):
+    """
+    Sets the prologue and epilogue
+    :param str formula:
+    :param bool is_valid:
+    :return HTTP response:
+    """
+    for command in ["Prologue", "Epilogue"]:
+      base_response = self._createBaseTable()
+      ajax_cmd = self._ajaxCommandFactory()
+      ajax_cmd['target'] = "Table"
+      ajax_cmd['command'] = command
+      ajax_cmd['args[]'] = formula
+      command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+      response = self.client.get(command_url)
+      content = json.loads(response.content)
+      self.assertTrue(content.has_key("success"))
+      self.assertEqual(content["success"], is_valid)
+
+  def testPrologueEpilogue(self):
+    self._setPrologueEpilogue("import pdb", True)
+    self._setPrologueEpilogue("impor pdb", False)
 
 
 if __name__ == '__main__':

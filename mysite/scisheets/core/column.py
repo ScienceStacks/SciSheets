@@ -1,84 +1,14 @@
 '''
-  Implements the column class for MVCSheets.
+  Implements the column class
 '''
 
 
 import errors as er
 import numpy as np
+from helpers.formula_statement import FormulaStatement
 import helpers.cell_types as cell_types
 import helpers.api_util as api_util
-
-
-########### CLASSES ##################
-class FormulaStatement(object):
-  """
-  Creates a python statement from the formula
-  Usage:
-    fs = FormulaStatement(formula)
-    error = fs.do()  # Constructs the statement
-    statement = fs.getStatement()
-  """
-
-  def __init__(self, formula, column):
-    """
-    :param str formula:
-    """
-    self._formula = formula
-    self._column = column
-    self._statement = None
-    self._isExpression = False
-    self._isStatement = False
-
-  def do(self):
-    """
-    Construct the statement
-    :return str: error or None
-    """
-    if self._formula is None:
-      self._statement = None
-      self._isExpression = False
-      self._isStatement = False
-      return
-    exception_stmt = None
-    exception_expr = None
-    try:
-      # See if this is an expression
-      _ = compile(self._formula, "string", "eval")
-      statement = "%s = %s" % (self._column.getName(), 
-          self._formula)
-      self._isExpression = True
-      self._statement = statement
-    except SyntaxError as err:
-      exception_expr = err
-    if exception_expr is not None:
-      try:
-        # See if this is a statement
-        _ = compile(self._formula, "string", "exec")
-        self._statement = self._formula
-      except SyntaxError as err:
-        exception_stmt = err
-    if (exception_stmt is not None) and (exception_expr is not None):
-      # Guess whether is is intended to be a statement or an expression
-      # so that the correct error message can be delivered.
-      if "=" in self._formula:
-        exception = exception_stmt
-      else:
-        exception = exception_expr
-      error = "%s: %s" % (exception.msg, exception.text)
-    else:
-      error = None
-    return error
-
-  def isExpression(self):
-    self.do()
-    return self._isExpression
-
-  def getFormula(self):
-    return self._formula
-
-  def getStatement(self):
-    self.do()
-    return self._statement
+import collections
 
 
 class Column(object):
@@ -99,7 +29,7 @@ class Column(object):
     self.setName(name)
     self.setAsis(asis)
     self._cells = []
-    self._formula_statement = FormulaStatement(None, self)
+    self._formula_statement = FormulaStatement(None, self.getName())
     self._owning_table = None
     self._data_class = data_class
 
@@ -136,10 +66,12 @@ class Column(object):
     """
     Returns a copy of this object
     """
-    result = Column(self._name)
-    result.setFormula(self._formula_statement.getFormula())
-    result.addCells(self._cells)
-    return result
+    new_column = Column(self._name)
+    new_column.setFormula(self._formula_statement.getFormula())
+    new_column.addCells(self._cells)
+    new_column.setAsis(self._asis)
+    new_column.setDataClass(self._data_class)
+    return new_column
 
   def deleteCells(self, indicies):
     """
@@ -220,6 +152,44 @@ class Column(object):
     data_list.insert(index, val)
     self._setDatavalues(data_list)
 
+  def isEquivalent(self, column):
+    """
+    Compares the internal state of this and the input column,
+    except the owning table.
+    :param Column column:
+    :return bool:
+    """
+    def isEquiv(val1, val2):
+      if cell_types.isNull(val1) and cell_types.isNull(val2):
+        return True
+      return val1 == val2
+
+    if not self.getFormula() == column.getFormula():
+      return False
+    if not self.getAsis() == column.getAsis():
+      return False
+    if not self.getDataClass() == column.getDataClass():
+      return False
+    if self.numCells() != column.numCells():
+      return False
+    pairs = zip(self.getCells(), column.getCells())
+    for this_cell, that_cell in pairs:
+      if isinstance(this_cell, collections.Iterable)  \
+          and isinstance(that_cell, collections.Iterable):
+        if len(this_cell) != len(that_cell):
+          return False
+        sub_pairs = zip(list(this_cell), list(that_cell))
+        if not all([isEquiv(x,y) for x,y in sub_pairs]):
+          return False
+      else:
+        try:
+          if not isEquiv(this_cell, that_cell):
+            return False
+        except Exception as e:
+          import pdb; pdb.set_trace()
+          pass
+    return True
+
   def isExpression(self):
     return self._formula_statement.isExpression()
 
@@ -278,11 +248,8 @@ class Column(object):
     Inputs: formula - valid python expression
     Outputs: error - string giving error encountered
     """
-    formula_statement = FormulaStatement(formula, self)
-    error = formula_statement.do()
-    if error is None:
-      self._formula_statement = formula_statement
-    return error
+    self._formula_statement = FormulaStatement(formula, self.getName())
+    return self._formula_statement.do()
 
   @staticmethod
   def cleanName(name):

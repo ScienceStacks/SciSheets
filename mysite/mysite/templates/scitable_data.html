@@ -25,6 +25,8 @@ function DataSource() {
     {% endif %}
   {% endfor %}
   this.dataSource = {{ data|safe }};
+  this.epilogue = {{ epilogue|safe }};
+  this.prologue = {{ prologue|safe }};
   this.tableFile = {{ table_file }};
   this.formulas = {
   {% for key, value in formula_dict.items %}

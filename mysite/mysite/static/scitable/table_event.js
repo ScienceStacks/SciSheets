@@ -106,6 +106,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
     if (cmd.command === 'Delete') {
       scisheet.utilSendAndReload(cmd);
     }
+    if (cmd.command === 'Epilogue') {
+      scisheet.utilUpdateFormula(cmd, scisheet.epilogue);
+    }
     if (cmd.command === 'Export') {
       scisheetTable.utilExportDialog(cmd);
     }
@@ -119,6 +122,12 @@ SciSheetsTable.prototype.click = function (oArgs) {
         scisheetTable.utilSelectFile(names);
       });
     }
+    if (cmd.command === 'Prologue') {
+      scisheet.utilUpdateFormula(cmd, scisheet.prologue);
+    }
+    if (cmd.command === 'Redo') {
+      scisheet.utilSendAndReload(cmd);
+    }
     if (cmd.command === 'Rename') {
       scisheet.utilRename(cmd, "New table name", "");
     }
@@ -126,6 +135,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
       scisheet.utilRename(cmd, "Table file name", scisheet.tableFile);
     }
     if (cmd.command === 'Trim') {
+      scisheet.utilSendAndReload(cmd);
+    }
+    if (cmd.command === 'Undo') {
       scisheet.utilSendAndReload(cmd);
     }
   });

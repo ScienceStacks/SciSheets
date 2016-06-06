@@ -174,12 +174,6 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertTrue('import' in statements)
     self.assertIsNone(_compile(statements))
 
-  def testMakeFormulaStatements(self):
-    statements = self.generator._makeFormulaStatements()
-    formula_column = self.table.columnFromName('VALID_FORMULA')
-    self.assertTrue(formula_column.getFormula() in statements)
-    self.assertIsNone(_compile(statements))
-
   def testMakeAPIPluginInitializationStatements(self):
     function_name = "this_test"
     statements = self.generator._makeAPIPluginInitializationStatements(
@@ -213,18 +207,18 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertIsNone(_compile(program))
 
   def testMakeEvaluationScriptProgram(self):
-    tags = ["import", "#_table", "getColumnValues", "np.sin", \
-        "setColumnValues"]
+    tags = ["import", "#_table", "assignColumnVariables", "numpy", 
+        "np.sin", "updateTableCellsAndColumnVariables"]
     program = self.generator.makeEvaluationScriptProgram()
     self._checkWorkflow(program, tags)
-    tags = ["import", "_table", "getColumnValues", "np.sin", \
-        "setColumnValues"]
+    tags = ["import", "_table", "assignColumnVariables", "numpy",
+        "np.sin", "updateTableCellsAndColumnVariables"]
     program = self.generator.makeEvaluationScriptProgram(
         create_API_object=True)
     self._checkWorkflow(program, tags)
 
   def testMakeExportScriptProgram(self):
-    tags = ["import", "_table", "getColumnValues", "np.sin", \
+    tags = ["_table", "assignColumnVariables", "numpy", "np.sin", \
         "print"]
     program = self.generator.makeExportScriptProgram()
     self._checkWorkflow(program, tags)
@@ -235,7 +229,7 @@ class TestProgramGenerator(unittest.TestCase):
     outputs = ["C"]
     def_stmt = "def %s(" % function_name
     tags = ["import", "api.APIPlugin", def_stmt,  \
-        "getColumnValues", "np.sin", "return"]
+        "assignColumnVariables", "numpy", "np.sin", "return"]
     program = self.generator.makeFunctionProgram(function_name,
                                                inputs,
                                                outputs)

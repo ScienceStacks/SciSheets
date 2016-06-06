@@ -1,6 +1,7 @@
 '''Tests for column'''
 
 import column as cl
+from table import Table
 import unittest
 import errors as er
 import numpy as np
@@ -15,99 +16,6 @@ LIST_STR = ["aa bb", "cc"]
 TABLE = 'DUMMY'
 VALID_FORMULA = "a + b*math.cos(x)"
 INVALID_FORMULA = "a + b*math.cos(x"
-
-
-#############################
-# Helpers
-#############################
-def checkStrColumnType(column_type):
-  """
-  Checks the column data type
-  """
-  return (column_type == '|S1000') or (column_type == object)
-
-
-#############################
-# Tests
-#############################
-# pylint: disable=W0212
-# pylint: disable=C0111
-# pylint: disable=R0904
-class TestFormulaStatement(unittest.TestCase):
-  
-  def setUp(self):
-    self.column = createColumn(COLUMN_NAME, data=LIST)
-
-  def testExpression(self):
-    fs = cl.FormulaStatement(VALID_FORMULA, self.column)
-    self.assertIsNone(fs.do())
-    self.assertEqual(fs.getStatement().count("="), 1)
-    self.assertTrue(fs.isExpression())
-
-  def testStatement(self):
-    formula = "%s = %s" % (self.column.getName(), VALID_FORMULA)
-    fs = cl.FormulaStatement(formula, self.column)
-    self.assertIsNone(fs.do())
-    self.assertEqual(fs.getStatement().count("="), 1)
-    self.assertFalse(fs.isExpression())
-
-  def testAmbiguousStatement(self):
-    formula = "s.initialize()"
-    fs = cl.FormulaStatement(formula, self.column)
-    self.assertIsNone(fs.do())
-    self.assertEqual(fs.getStatement().count("="), 1)
-    self.assertTrue(fs.isExpression())
-
-  def testMultilineStatement(self):
-    formula = """
-s.initialize()
-s.go()
-"""
-    fs = cl.FormulaStatement(formula, self.column)
-    self.assertIsNone(fs.do())
-    self.assertEqual(fs.getStatement().count("="), 0)
-    self.assertFalse(fs.isExpression())
-
-  def testSemicolonStatement(self):
-    formula = "s.initialize();s.go()"
-    fs = cl.FormulaStatement(formula, self.column)
-    self.assertIsNone(fs.do())
-    self.assertEqual(fs.getStatement().count("="), 0)
-    self.assertFalse(fs.isExpression())
-
-  def testSemicolonOneStatement(self):
-    formula = "s.initialize();"
-    fs = cl.FormulaStatement(formula, self.column)
-    self.assertIsNone(fs.do())
-    self.assertEqual(fs.getStatement().count("="), 0)
-    self.assertFalse(fs.isExpression())
-
-
-# pylint: disable=W0212
-# pylint: disable=C0111
-# pylint: disable=R0904
-class TestColumn(unittest.TestCase):
-  
-  def setUp(self):
-    self.column = createColumn(COLUMN_NAME, data=LIST)
-    self.fs = cl.FormulaStatement(VALID_FORMULA, column)
-    self.invalid_fs = cl.FormulaStatement(INVALID_FORMULA, column)
-
-  def testDo(self):
-    error = self.fs.do()
-    self.assertIsNone(error)
-    error = self.invalid_fs.do()
-    self.assertIsNotNone(error)
-
-  def testGetStatement(self):
-    self.fs.do()
-    statement = self.fs.getStatement()
-    expected_statement = "%s = %s" % (COLUMN_NAME, VALID_FORMULA)
-    self.assertEqual(statement, expected_statement)
-
-  def testGetFormula(self):
-    self.assertEqual(VALID_FORMULA, self.fs.getFormula)
-
 
 
 # pylint: disable=W0212
@@ -166,6 +74,9 @@ class TestColumn(unittest.TestCase):
         column_copy._cells))
     self.assertEqual(self.column._formula_statement.getFormula(), 
         column_copy._formula_statement.getFormula())
+    self.assertEqual(self.column._data_class, 
+        column_copy.getDataClass())
+    self.assertEqual(self.column._asis, column_copy.getAsis())
     self.assertIsNone(column_copy._owning_table)
 
   def testDeleteCells(self):
@@ -203,9 +114,6 @@ class TestColumn(unittest.TestCase):
         VALID_FORMULA)
     error = self.column.setFormula(INVALID_FORMULA)
     self.assertIsNotNone(error)
-    # Should not change the formula if there's an error
-    self.assertEqual(self.column._formula_statement.getFormula(), 
-        VALID_FORMULA)
     error = self.column.setFormula("a = sin(x")
     self.assertIsNotNone(error)
 
@@ -232,6 +140,33 @@ class TestColumn(unittest.TestCase):
     short_array = np.array(range(len(LIST1) - 1))
     with self.assertRaises(er.InternalError):
       self.column.replaceCells(short_array)
+
+  def testIsEquivalent(self):
+    new_column = self.column.copy()
+    self.assertTrue(self.column.isEquivalent(new_column))
+    idx = 0
+    cell = self.column.getCell(idx)
+    new_cell = "new_%s" % str(cell)
+    self.column.updateCell(new_cell, idx)
+    self.assertFalse(self.column.isEquivalent(new_column))
+    new_column.updateCell(new_cell, idx)
+    self.assertTrue(self.column.isEquivalent(new_column))
+  
+  def testIsEquivalentNans(self):
+    new_column = self.column.copy()
+    new_column.insertCell(np.nan)
+    self.column.insertCell(np.nan)
+    self.assertTrue(self.column.isEquivalent(new_column))
+    new_column.insertCell(None)
+    self.column.insertCell(None)
+    self.assertTrue(self.column.isEquivalent(new_column))
+    
+  def testIsEquivalentNestedLists(self):
+    table = Table("dummy")
+    [column1, column2] = table.getCapture("column_is_equivalent")
+    self.assertTrue(column1.isEquivalent(column2))
+    [column1, column2] = table.getCapture("column_is_equivalent2")
+    self.assertTrue(column1.isEquivalent(column2))
 
 
 if __name__ == '__main__':

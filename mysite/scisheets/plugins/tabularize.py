@@ -60,6 +60,7 @@ def tabularize(s,
   :param str new_category_colnm: name of the new category column. Default
                                   is to prepend "New" to the existing name
   :param str values_colnm_prefix: Prefix that prepends the new values column
+  Creates the column variables corresponding to the new columns.
   """
   # Initializations
   if new_category_colnm is None:
@@ -92,6 +93,8 @@ def tabularize(s,
     name = "%s%s" % (values_colnm_prefix, str(sfx))
     s.createColumn(name)
     s.setColumnValues(name, col_dict[sfx])
+    s.assignColumnVariable(name)
   s.createColumn(new_category_colnm)
   s.setColumnValues(new_category_colnm, 
                     col_dict[new_category_colnm])
+  s.assignColumnVariable(new_category_colnm)
