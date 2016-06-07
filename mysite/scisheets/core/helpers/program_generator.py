@@ -535,6 +535,7 @@ _exception = None"""
                                              self._user_directory)
     statement = """%s = api.APIPlugin('%s')
 %s.initialize()
-_table = s.getTable()""" % (full_object, filepath, full_object)
+_table = %s.getTable()
+""" % (full_object, filepath, full_object, full_object)
     sa.add(statement)
     return sa.get()
