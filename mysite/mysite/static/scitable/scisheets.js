@@ -58,8 +58,8 @@ function SciSheets() {
   this.mockAjax = false;
   this.ajaxCallCount = 0;
   this.formulas = null;  // Dictionary by column name of formulas
-  this.epilogue = null; 
-  this.prologue = null; 
+  this.epilogue = null;
+  this.prologue = null;
   this.tableFile = null;  // No file specified for the table
   this.blinker = new SciSheetsBlinker($("#notification-working"));
 }
@@ -176,7 +176,7 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formula) {
   // Change the dialog prompt
   "use strict";
   var scisheet, eleTextarea;
-  scisheet = this
+  scisheet = this;
   eleTextarea = $("#formula-textarea")[0];
   if (formula !== "") {
     eleTextarea.value = formula;

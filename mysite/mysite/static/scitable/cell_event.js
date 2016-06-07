@@ -22,6 +22,9 @@ SciSheetsCell.prototype.click = function (oArgs) {
   scisheet = this.scisheet;
   if (oArgs.target) {
     ep = new SciSheetsUtilEvent(scisheet, oArgs);
+    scisheet.dataTable.subscribe('editorCancelEvent', function (editEvent) {
+      sciSheets.utilReload();
+    });
     scisheet.dataTable.subscribe('editorSaveEvent', function (editEvent) {
       var msg, cmd;
       msg = "Clicked cell = (" + ep.rowIndex + ", " + ep.columnIndex + ").";

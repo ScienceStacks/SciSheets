@@ -52,9 +52,8 @@ SciSheetsColumn.prototype.formula = function (cmd, formula) {
 
 SciSheetsColumn.prototype.click = function (oArgs) {
   "use strict";
-  var ep, scisheet, scisheetColumn, formula;
+  var ep, scisheet, formula;
   scisheet = this.scisheet;
-  scisheetColumn = this;
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
