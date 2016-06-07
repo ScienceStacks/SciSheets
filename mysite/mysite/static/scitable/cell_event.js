@@ -23,7 +23,7 @@ SciSheetsCell.prototype.click = function (oArgs) {
   if (oArgs.target) {
     ep = new SciSheetsUtilEvent(scisheet, oArgs);
     scisheet.dataTable.subscribe('editorCancelEvent', function (editEvent) {
-      sciSheets.utilReload();
+      scisheet.utilReload();
     });
     scisheet.dataTable.subscribe('editorSaveEvent', function (editEvent) {
       var msg, cmd;
