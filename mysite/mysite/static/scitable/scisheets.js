@@ -207,15 +207,17 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formula) {
 
 // Generic click handle for a popup menu
 // Input: eleId - ID of the popup menu to use
+//        oArgs - object provided to the click handler
 //        selectedEleFunc - function that processes the selected element
 //            argument - ID of the selected element
 // Output: establishes the click handlers
-SciSheets.prototype.utilClick = function (eleId, selectedEleFunc) {
+SciSheets.prototype.utilClick = function (eleId, oArgs, selectedEleFunc) {
   "use strict";
   var clickMenu, scisheet, selected;
   selected = false;
   scisheet = this;
   clickMenu = document.getElementById(eleId);
+  $(clickMenu).css({left:oArgs.pageX, top:oArgs.pageY});
   $(clickMenu).menu(
     {
       role: "listbox",

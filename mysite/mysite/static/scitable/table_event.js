@@ -44,8 +44,6 @@ SciSheetsTable.prototype.utilSelectFile = function (fileNames) {
     ele = "#" + fileNames[n];
     $(ele).click(selFunction);
   }
-  //$(selMenu).css("display", "block");
-  //$(selMenu).find('select').selectmenu('refresh');
   $(selMenu).dialog({
     autoOpen: true,
     modal: true,
@@ -97,7 +95,7 @@ SciSheetsTable.prototype.click = function (oArgs) {
   var scisheet, scisheetTable;
   scisheetTable = this;
   scisheet = this.scisheet;
-  this.scisheet.utilClick("TableClickMenu", function (eleId) {
+  this.scisheet.utilClick("TableClickMenu", oArgs, function (eleId) {
     var cmd;
     console.log("Table click. Selected " + eleId + ".");
     cmd = scisheet.createServerCommand();

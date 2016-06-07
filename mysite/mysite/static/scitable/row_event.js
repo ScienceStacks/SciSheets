@@ -23,7 +23,7 @@ SciSheetsRow.prototype.click = function (oArgs) {
   ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
-  scisheet.utilClick("RowClickMenu", function (eleId) {
+  scisheet.utilClick("RowClickMenu", oArgs.event, function (eleId) {
     var msg, cmd, ele;
     msg = "Row '" + ep.rowIndex + "' clicked.";
     msg += " Selected " + eleId + ".";

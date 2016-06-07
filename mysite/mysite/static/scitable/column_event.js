@@ -58,14 +58,14 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
   if (ep.columnName  === ROW_NAME) {
-    scisheet.utilClick("NameColumnClickMenu", function (eleId) {
+    scisheet.utilClick("NameColumnClickMenu", oArgs.event, function (eleId) {
       var msg;
       msg = "Row Name Column clicked.";
       console.log(msg);
       $(ep.target).stop();
     });
   } else {
-    scisheet.utilClick("ColumnClickMenu", function (eleId) {
+    scisheet.utilClick("ColumnClickMenu", oArgs.event, function (eleId) {
       var msg, cmd, newPrompt;
       msg = "Column " + ep.columnIndex + " (" + ep.columnName + ")" + " clicked.";
       msg += " Selected " + eleId + ".";
