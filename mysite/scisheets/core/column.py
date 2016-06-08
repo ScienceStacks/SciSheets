@@ -170,9 +170,11 @@ class Column(object):
       return False
     if not self.getDataClass() == column.getDataClass():
       return False
-    if self.numCells() != column.numCells():
+    this_cells = self.prunedCells()
+    that_cells = column.prunedCells()
+    if len(this_cells) != len(that_cells):
       return False
-    pairs = zip(self.getCells(), column.getCells())
+    pairs = zip(this_cells, that_cells)
     for this_cell, that_cell in pairs:
       if isinstance(this_cell, collections.Iterable)  \
           and isinstance(that_cell, collections.Iterable):
@@ -204,6 +206,16 @@ class Column(object):
     Returns the number of cells in the column
     """
     return len(self._cells)
+
+  def prunedCells(self):
+    """
+    Returns cells in the column, excluding ending Nulls
+    """
+    indicies = range(len(self._cells))
+    pairs = zip(self._cells, indicies)
+    nonnull_indicies = [n for c,n in pairs if not cell_types.isNull(c)]
+    idx = max(nonnull_indicies) + 1
+    return self._cells[:idx]
 
   def rename(self, new_name):
     """

@@ -16,5 +16,4 @@ def importCSV(s, filepath, names=None):
   """
   df = pd.read_csv(filepath)  # May raise IOError
   imported_names = s.addColumnsToTableFromDataframe(df, names=names)
-  s.updateTableFile()
   return imported_names

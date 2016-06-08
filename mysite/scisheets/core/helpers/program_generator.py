@@ -189,7 +189,7 @@ _table.setNamespace(globals())
     # Note that inputs and outputs are not assigned.
     #
     sa.add(self._makeFormulaEvaluationStatements(excludes=excludes))
-    sa.add(self._makeEpilogue())
+    sa.add(self._makeEpilogue(excludes=excludes))
     sa.add(_makeReturnStatement(outputs))
     return sa.get()
 
@@ -432,13 +432,14 @@ MAX_ITERATIONS = %d
     sa.add(statement)
     return sa.get()
 
-  def _makeEpilogue(self):
+  def _makeEpilogue(self, **kwargs):
     """
     Adds code that only runs at the end
     :return str: statements
     """
     sa = StatementAccumulator()
     sa.add(self._table.getEpilogue().getFormula())
+    sa.add(self._makeTableUpdateStatements(**kwargs))
     return sa.get()
 
   def _makeColumnVariableAssignmentStatements(self, excludes=None):
