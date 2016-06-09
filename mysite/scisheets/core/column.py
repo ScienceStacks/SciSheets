@@ -214,8 +214,11 @@ class Column(object):
     indicies = range(len(self._cells))
     pairs = zip(self._cells, indicies)
     nonnull_indicies = [n for c,n in pairs if not cell_types.isNull(c)]
-    idx = max(nonnull_indicies) + 1
-    return self._cells[:idx]
+    if len(nonnull_indicies) > 0:
+      idx = max(nonnull_indicies) + 1
+      return self._cells[:idx]
+    else:
+      return []
 
   def rename(self, new_name):
     """

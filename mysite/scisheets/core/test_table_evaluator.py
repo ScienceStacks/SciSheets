@@ -57,6 +57,7 @@ class TestTableEvaluator(unittest.TestCase):
     self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)
     self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA,
                                                 formula=VALID_FORMULA)
+    api_util.writeTableToFile(self.table)
     self.evaluator = TableEvaluator(self.table)
 
   def _addColumn(self, name, cells=None, formula=None):
@@ -237,7 +238,6 @@ def find_primes(n):
 DUMMY1 = find_primes(100)
 '''
     self.column_valid_formula.setFormula(formula)
-    api_util.writeTableToFile(self.table)
     errors = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(errors)
 

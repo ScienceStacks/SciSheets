@@ -1,5 +1,5 @@
 '''
-   Utilities used for testing MVCSheets code.
+   Utilities used for testing
 '''
 
 from mysite.helpers.versioned_file import VersionedFile
