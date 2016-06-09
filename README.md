@@ -9,7 +9,7 @@ SciSheets addresses these shortcomings with several features. First, SciSheets f
 
 SciSheets is a web application that is accessed from a web browser. So, no program installation is required to use SciSheets. A beta release of SciSheets is planned for the end of 2016. Currently, SciSheets is at an alpha level that is suitable for evaluation purposes. Please contact jlheller@uw.edu if you are interested in doing such an evaluation.
 
-More details can be found in the [SciSheets overview document] (https://docs.google.com/document/d/1ktPUQiicD-dPEBLVSi4kRYyQSTEgBIdkT39S9NGS24U/edit).
+More details can be found in the [SciSheets overview document] (https://docs.google.com/document/d/1dOgMzlOWAx5SGB8ev_E02jO79eewbPZ25m37SrK7IAo/edit#heading=h.lmbccclro00t).
 
 The following is for interested developers. SciSheets makes use of a related project, BaseStack, that provides an easy way to install web applications in VMs.
 
