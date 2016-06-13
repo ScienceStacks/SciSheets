@@ -3,6 +3,7 @@
 from mysite.helpers.versioned_file import VersionedFile
 import cell_types
 import collections
+from extended_array import ExtendedArray
 import numpy as np
 import os
 import pickle
@@ -20,8 +21,8 @@ DataClass = collections.namedtuple('DataClass', 'cls cons')
 
 ########### CONSTANTS ################
 def makeArray(aList):
-  return np.array(aList)
-DATACLASS_ARRAY = DataClass(cls=np.ndarray,
+  return ExtendedArray(values=aList)
+DATACLASS_ARRAY = DataClass(cls=ExtendedArray,
     cons=makeArray)
 
 

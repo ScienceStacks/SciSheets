@@ -6,6 +6,7 @@ import unittest
 import errors as er
 import numpy as np
 from helpers_test import createColumn, compareValues
+from helpers.extended_array import ExtendedArray
 
 # Constants
 COLUMN_NAME = "DUMMY"
@@ -87,9 +88,9 @@ class TestColumn(unittest.TestCase):
 
   def testGetDataClass(self):
     data_class = self.column.getDataClass()
-    self.assertEqual(data_class.cls, np.ndarray)
+    self.assertEqual(data_class.cls, ExtendedArray)
     data_class = self.column_str.getDataClass()
-    self.assertEqual(data_class.cls, np.ndarray)
+    self.assertEqual(data_class.cls, ExtendedArray)
 
   def testGetArrayType(self):
     array_type = self.column.getArrayType()

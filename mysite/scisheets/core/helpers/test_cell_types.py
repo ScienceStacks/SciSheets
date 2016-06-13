@@ -1,4 +1,4 @@
-'''Tests for column'''
+'''Tests for cell_types.'''
 
 import numpy as np
 import cell_types

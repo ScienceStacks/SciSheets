@@ -24,7 +24,7 @@ class Trinary(object):
   Class implementing trinary logic
   """
 
-  def __init__(self, values):
+  def __init__(self, values, name=None):
     """
     :param iterable values: a Trinary or an iterable of XBool and None
     """
@@ -32,6 +32,7 @@ class Trinary(object):
       self._values = values.tolist()
     else:
       self._values = Trinary._convert(values)
+    self.name = name
 
   @staticmethod
   def _convert(values):
@@ -51,6 +52,9 @@ class Trinary(object):
 
   def tolist(self):
     return self._values
+
+  def setName(self, name):
+    self.name = name
  
   @staticmethod
   def _pad(values1, values2):

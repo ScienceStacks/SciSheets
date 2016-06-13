@@ -14,6 +14,7 @@ from column import Column
 from table import Table, NAME_COLUMN_STR
 import helpers.api_util as api_util
 import helpers.cell_types as cell_types
+from helpers.extended_array import ExtendedArray
 from helpers.combinatoric_list import CombinatoricList
 import collections
 import os
@@ -82,7 +83,9 @@ class API(object):
     :raises: ValueError
     """
     data_class = column.getDataClass()
-    return data_class.cons(values)
+    values = data_class.cons(values)
+    values.name = column.getName()
+    return values
 
   def dataframeToTable(self, table_name, dataframe, names=None):
     """

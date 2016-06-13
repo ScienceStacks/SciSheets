@@ -6,6 +6,7 @@
 import errors as er
 import numpy as np
 from helpers.formula_statement import FormulaStatement
+from helpers.extended_array import ExtendedArray
 import helpers.cell_types as cell_types
 import helpers.api_util as api_util
 import collections
@@ -118,7 +119,8 @@ class Column(object):
     """
     :return: np.ndarray type if array; else, None
     """
-    if self._data_class.cls == np.ndarray:
+    if (self._data_class.cls == np.ndarray)  \
+        or (self._data_class.cls == ExtendedArray):
       return np.array(self._cells).dtype
     else:
       return None
@@ -169,7 +171,11 @@ class Column(object):
     if not self.getAsis() == column.getAsis():
       return False
     if not self.getDataClass() == column.getDataClass():
-      return False
+      type_list = [np.ndarray, ExtendedArray]
+      is_ok = (self.getDataClass().cls in type_list)  \
+         and (column.getDataClass().cls in type_list)
+      if not is_ok:
+        return False
     this_cells = self.prunedCells()
     that_cells = column.prunedCells()
     if len(this_cells) != len(that_cells):
