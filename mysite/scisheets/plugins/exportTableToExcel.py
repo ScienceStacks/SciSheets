@@ -27,6 +27,7 @@ def _exportDataframeToExcel(df, filepath, worksheet=None):
   df.to_excel(writer, worksheet, index=False)
   writer.save()
 
+#TODO: Eliminate column_name since have an ExtendedArray
 def exportTableToExcel(s, filepath, worksheet=None, columns=None):
   """
   Export the specified columns of the Table to the excel file.

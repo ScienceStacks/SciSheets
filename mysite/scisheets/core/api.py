@@ -8,11 +8,16 @@ The API consists of these parts:
   3. API base clase provides common code.
 The API is intended to be sparse in that it focuses on table manipulation.
 Plugins may use the API to do data manipulation and calculations.
+
+The argument to many API methods are column variables, such as
+ExtendedArray. Column variables must have a public name property,
+which is the column name.
 """
 
 from column import Column
 from table import Table, NAME_COLUMN_STR
 import helpers.api_util as api_util
+from helpers.block_execution_controller import BlockExecutionController
 import helpers.cell_types as cell_types
 from helpers.extended_array import ExtendedArray
 from helpers.combinatoric_list import CombinatoricList
@@ -116,12 +121,6 @@ class API(object):
     column = self.getColumn(column_name)
     return self._coerceValues(column, values)
 
-  def excludeColumnUpdate(self, list_of_names):
-    """
-    :param list-of-str list_of_names:
-    """
-    self._exclude_column_update.extend(list_of_names)
-
   def getColumn(self, column_id, validate=True):
     """
     :param column_id: either the name of the column or
@@ -147,6 +146,15 @@ class API(object):
     """
     return [c.getName() for c in self._table.getColumns()]
 
+  def _getColumnValues(self, column_name):
+    """
+    :param str column_name: name of the column
+    :return: iterable of object
+    :raises: ValueError
+    """
+    column = self.getColumn(column_name)
+    return self._coerceValues(column, column.getCells())
+
   def getColumnValues(self, column_name):
     """
     :param str column_name: name of the column
@@ -162,6 +170,7 @@ class API(object):
   def getTable(self):
     return self._table
 
+  #TODO: Eliminate column_name since have an ExtendedArray
   def setColumnVisibility(self, column_names=None, is_visible=True):
     """
     Sets whether the column is visible
@@ -245,6 +254,7 @@ class APIFormulas(API):
     """
     super(APIFormulas, self).__init__()
     self._table = table
+    self.controller = BlockExecutionController(self)
 
   def _createColumn(self, column_name, index=None, asis=False):
     """
@@ -272,7 +282,7 @@ class APIFormulas(API):
     :param str colnm: column name
     """
     namespace = self._table.getNamespace()
-    namespace[colnm] = self.getColumnValues(colnm)
+    namespace[colnm] = self._getColumnValues(colnm)
 
   def assignColumnVariables(self, excludes):
     """
@@ -322,7 +332,7 @@ class APIFormulas(API):
         if name in namespace:
           self.setColumnValues(name, namespace[name])
         else:
-          namespace[name] = self.getColumnValues(name)
+          namespace[name] = self._getColumnValues(name)
 
 class APIPlugin(APIFormulas):
   """

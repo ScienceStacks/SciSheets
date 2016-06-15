@@ -15,8 +15,10 @@ THRESHOLD = 0.01  # Threshold for value comparisons
 # cls is the data type that can be tested in isinstance
 # cons is a function that constructs an instance of cls
 #   taking as an argument a list
-# Usage: data_class = DataClass(cls=np.ndarray, 
-#                               cons=(lambda(x: np.array(x))))
+# Usage: data_class = DataClass(cls=ExtendedArray,
+#                               cons=(lambda(x: ExtendedArray(x))))
+# Note: Classes must have a public property name that is the
+#       name of the column
 DataClass = collections.namedtuple('DataClass', 'cls cons')
 
 ########### CONSTANTS ################

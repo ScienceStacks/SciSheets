@@ -192,6 +192,8 @@ class TestTableEvaluator(unittest.TestCase):
       formula = formula1
       self.column_valid_formula.setFormula(formula)
       error = self.evaluator.evaluate(user_directory=TEST_DIR)
+      if error is not None:
+        import pdb; pdb.set_trace()
       self.assertIsNone(error)
       self.assertEqual(
           TestTableEvaluator._countNonNone(
