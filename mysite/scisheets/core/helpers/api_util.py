@@ -34,6 +34,7 @@ def getTableFromFile(file_path, verify=True):
   Get the table from the file
   :param str table_file: full path to table file
   :param bool verify: checks the file path in the table
+  :return Table:
   :raises ValueError: Checks that the file path is set
   """
   fh = open(file_path, "rb")

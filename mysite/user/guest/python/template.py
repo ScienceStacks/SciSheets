@@ -28,6 +28,8 @@ s.controller.endBlock()
 # Formulation evaluation loop
 s.controller.initializeLoop()
 while not s.controller.isTerminateIteration():
+  s.controller.startAnIteration()
+
   try:
     
     # Formula Execution Blocks
@@ -72,11 +74,12 @@ while not s.controller.isTerminateIteration():
   except Exception as _error:
     s.controller.exceptionForBlock(_error)
   
-  s.controller.endIteration() 
+  s.controller.endAnIteration() 
   
 if s.controller.getException() is not None:
   # ProgramRunner calls s.controller.formatError()
   raise Exception(s.controller.getException())
+
 # Epilogue
 s.controller.startBlock("prologue")
 s.controller.endBlock()

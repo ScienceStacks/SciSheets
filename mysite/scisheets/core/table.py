@@ -357,6 +357,8 @@ class Table(ColumnContainer):
     :param Table table:
     :returns bool:
     """
+    if not isinstance(table, Table):
+      return False
     if self.getName() != table.getName():
       return False
     if self.numColumns() != table.numColumns():

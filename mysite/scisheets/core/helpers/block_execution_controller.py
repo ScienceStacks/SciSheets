@@ -7,6 +7,7 @@ epilogue.
 
 from mysite import settings
 import inspect
+import os
 import sys
 
 class BlockExecutionController(object):
@@ -29,11 +30,14 @@ class BlockExecutionController(object):
     self._block_name = None
     self._block_start_linenumber = None  # Start of block in source
     self._block_linenumber = None  # Where exception occurred in block
+    self._caller_filename = None
     self._exception = None
+    self._exception_filename = None
     self._iterations = 0
     self._old_table = None
     self._table = self._api.getTable()
 
+  # TODO: Handle different file for caller
   def startBlock(self, name):
     """
     Called at the start of a block that is being evaluated.
@@ -42,7 +46,9 @@ class BlockExecutionController(object):
     self._block_name = name
     context = inspect.getouterframes(inspect.currentframe())[1]
     linenumber = context[2]
+    self._caller_filename = context[1]
     self._block_start_linenumber = linenumber + 1
+    self._exception_filename = None
 
   def endBlock(self):
     """
@@ -50,7 +56,8 @@ class BlockExecutionController(object):
     """
     self._block_name = None
     self._block_start_linenumber = None
-
+    self._caller_filename = None
+    self._exception_filename = None
 
   def exceptionForBlock(self, exception):
     """
@@ -62,10 +69,15 @@ class BlockExecutionController(object):
     if self._block_name is None:
       raise RuntimeError ("Not in a block.")
     self._exception = exception
-    _, absolute_linenumber, _ = sys.exc_info()
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    self._exception_filename = exc_tb.tb_frame.f_code.co_filename
+    abs_linenumber = exc_tb.tb_lineno
     # Compute the line number of the exception
-    self._block_linenumber = absolute_linenumber  \
-        - self._block_start_linenumber + 1
+    if self._exception_filename == self._caller_filename:
+      self._block_linenumber = abs_linenumber  \
+          - self._block_start_linenumber + 1
+    else:
+      self._block_linenumber = abs_linenumber
 
   def formatError(self):
     """
@@ -74,8 +86,12 @@ class BlockExecutionController(object):
     """
     if self._exception is None:
       return None
-    msg = "In %s line $%d, %s" % (self._block_name, 
-        self._block_linenumber, str(self._exception))
+    if self._caller_filename == self._exception_filename:
+      msg = "In the scisheet %s at line %d: %s" % (self._block_name, 
+          self._block_linenumber, str(self._exception))
+    else:
+      msg = "In the file %s at line %d: %s" % (self._exception_filename,
+          self._block_linenumber, str(self._exception))
     return msg
 
   def initializeLoop(self):
@@ -83,22 +99,23 @@ class BlockExecutionController(object):
     Initializes variables before loop begins
     """
     self._iterations = 0
+    self._old_table = None
 
-  def startIteration(self):
+  def startAnIteration(self):
     """
     Beginning of a loop iteration
     """
     self._exception = None
     self._old_table = self._table.copy()
 
-  def endIteration(self):
+  def endAnIteration(self):
     """
     End of a loop iteration
     """
     self._iterations += 1
-    self._api.updateTableCellsAndColumnVariable([])
+    self._api.updateTableCellsAndColumnVariables([])
 
-  def isTerminateIteration(self):
+  def isTerminateLoop(self):
     """
     Determines if the loop should terminate
     :return bool: terminate loop if True
@@ -113,7 +130,7 @@ class BlockExecutionController(object):
         + self._api.getDependencyCounter():
       done = True
     elif self._iterations >  \
-        settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS
+        settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS:
       done = True
     else:
       done = False
