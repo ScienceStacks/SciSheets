@@ -37,10 +37,12 @@ def getTableFromFile(file_path, verify=True):
   :return Table:
   :raises ValueError: Checks that the file path is set
   """
+  error = None
   fh = open(file_path, "rb")
   try:
     table = pickle.load(fh)  # BUG - fails here
   except Exception as e:
+    error = e
     import pdb; pdb.set_trace()
   fh.close()
   table.migrate()  # Handle case of older objects
