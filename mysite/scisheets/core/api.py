@@ -355,6 +355,7 @@ class APIPlugin(APIFormulas):
     """
     self._table = api_util.getTableFromFile(self._table_filepath,
       verify=False)
+    self.controller.setTable(self._table)
 
   def compareToColumnValues(self, column_name, values):
     """

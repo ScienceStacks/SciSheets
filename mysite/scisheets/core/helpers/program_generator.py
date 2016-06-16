@@ -126,9 +126,35 @@ _table.setNamespace(globals())
     sa.add(statement)
     sa.add(self._makeAPIInitializationStatements(
         create_API_object=create_API_object))
+    sa.add("try:")
+    sa.indent(1)
     sa.add(self._makePrologue())
     sa.add(self._makeFormulaEvaluationStatements())
+    statement = "if %s.controller.getException() is None:"  \
+        % API_OBJECT
+    sa.add(statement)
+    sa.indent(1)
     sa.add(self._makeEpilogue())
+    sa.indent(-2)
+    # Handle exceptions in the Prologue and Epilogue
+    statement = """
+except Exception as exc:
+  %s.controller.exceptionForBlock(exc)""" % API_OBJECT
+    sa.add(statement)
+    sa.add(self._makeClosingException(is_absolute_linenumber=False))
+    return sa.get()
+
+  def _makeClosingException(self, is_absolute_linenumber=True):
+    """
+    Raises exceptions that have been recorded.
+    :param bool is_absolute_linenumber:
+    """
+    sa = StatementAccumulator()
+    statement = """
+if %s.controller.getException() is not None:
+  raise Exception(%s.controller.formatError(is_absolute_linenumber=%s))"""   \
+        % (API_OBJECT, API_OBJECT, is_absolute_linenumber)
+    sa.add(statement)
     return sa.get()
 
   def makeExportScriptProgram(self):
@@ -144,6 +170,7 @@ _table.setNamespace(globals())
     sa.add(self._makeAPIInitializationStatements(create_API_object=True))
     sa.add(self._makePrologue())
     sa.add(self._makeFormulaEvaluationStatements())
+    sa.add(self._makeClosingException())
     sa.add(self._makeEpilogue())
     sa.add(self._makeVariablePrintStatements())
     return sa.get()
@@ -189,6 +216,7 @@ _table.setNamespace(globals())
     # Note that inputs and outputs are not assigned.
     #
     sa.add(self._makeFormulaEvaluationStatements(excludes=excludes))
+    sa.add(self._makeClosingException())
     sa.add(self._makeEpilogue(excludes=excludes))
     sa.add(_makeReturnStatement(outputs))
     return sa.get()
@@ -423,6 +451,7 @@ if __name__ == '__main__':
     :return str: statements
     """
     sa = StatementAccumulator()
+    sa.add("")
     sa.add("%s.controller.startBlock('Epilogue')" % API_OBJECT)
     sa.add(self._table.getEpilogue().getFormula())
     sa.add("%s.controller.endBlock()" % API_OBJECT)
@@ -501,13 +530,6 @@ while not %s.controller.isTerminateLoop():
     sa.indent(-1)
     # End of loop
     statement = self._makeClosingOfFormulaEvaluationLoop(**kwargs)
-    sa.add(statement)
-    sa.indent(-1)
-    # Script closing - check for exception
-    sa.indent(-1)
-    statement = """if %s.controller.getException() is not None:
-  raise Exception(%s.controller.getException())""" %  \
-        (API_OBJECT, API_OBJECT)
     sa.add(statement)
     return sa.get()
 

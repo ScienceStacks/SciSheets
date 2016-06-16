@@ -2,7 +2,6 @@
 Helper for program export and evaluation.
 """
 
-from program_generator import API_OBJECT
 import api_util
 import os
 import sys
@@ -11,7 +10,6 @@ import sys
 class ProgramRunner(object):
   """
   Writes and/or runs one or more programs.
-  Assumes that the user_directory has the file my_api.py.
   """
 
   def __init__(self, 
@@ -23,7 +21,7 @@ class ProgramRunner(object):
     :param str program: string of one or more python program
     :param Table table: table for which execution is done
     :param str user_directory: user directory where program
-                               will execute. Must have file my_api.py
+                               will execute. 
     :param str pgm_filename: program filename w/o extension
     :raises: ValueError if inconsistent inputs
     """
@@ -72,7 +70,7 @@ class ProgramRunner(object):
     namespace['_table'] = self._table
     #globals()['_table'] = self._table  #NAMESPACE
     program = """
-from scisheets.core import my_api as api
+from scisheets.core import api as api
 s = api.APIFormulas(_table)
 """
     error = self._executeProgram(program)
@@ -111,7 +109,6 @@ s = api.APIFormulas(_table)
     if not self._user_directory is None:
       sys.path.append(self._user_directory)
     error = None
-    controller = None
     if self._table is None:
       import pdb; pdb.set_trace()
     namespace = self._table.getNamespace()
@@ -119,8 +116,6 @@ s = api.APIFormulas(_table)
       error = self._createAPIObject()
       if error is not None:
         return error
-      api_object = namespace[API_OBJECT]
-      controller = api_object.controller
     if self._pgm_filepath is not None:
       self.writeFiles()
       # pylint: disable=W0122
@@ -130,15 +125,9 @@ s = api.APIFormulas(_table)
       # pylint: disable=W0703
       except Exception as err:
         # Report the error without changing the table
-        if controller is not None:
-          if controller.getException() is None:
-            controller.exceptionForBlock(err, verify=False)
         error = err
     elif len(self._program) > 0:
       error = self._executeProgram(self._program)
     else:
       error = "Nothing to execute!"
-    if controller is not None:
-      return controller.formatError()
-    else:
-      return error
+    return error
