@@ -59,10 +59,11 @@ class BlockExecutionController(object):
     self._caller_filename = None
     self._exception_filename = None
 
-  def exceptionForBlock(self, exception):
+  def exceptionForBlock(self, exception, verify=True):
     """
     Called when an exception has occurred.
     :param Exception exception:
+    :param bool verify: checks if the files match
     :return str, int: block name, line number in the block
     :raises RuntimeError: if not within a block
     """
@@ -73,7 +74,8 @@ class BlockExecutionController(object):
     self._exception_filename = exc_tb.tb_frame.f_code.co_filename
     abs_linenumber = exc_tb.tb_lineno
     # Compute the line number of the exception
-    if self._exception_filename == self._caller_filename:
+    if (not verify)  \
+        or self._exception_filename == self._caller_filename:
       self._block_linenumber = abs_linenumber  \
           - self._block_start_linenumber + 1
     else:

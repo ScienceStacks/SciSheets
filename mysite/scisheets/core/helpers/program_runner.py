@@ -2,6 +2,7 @@
 Helper for program export and evaluation.
 """
 
+from program_generator import API_OBJECT
 import api_util
 import os
 import sys
@@ -91,12 +92,10 @@ s = api.APIFormulas(_table)
       #exec(program, globals())  # NAMESPACE
       exec program in namespace
     # pylint: disable=W0703
-    except Exception as err:
+    except Exception as exc:
       # Report the error without changing the table
-      error = err
+      error = exc
     if error is not None:
-      # TODO: Better error message
-      #msg = "%s: %s" % (error.msg, error.text)
       msg = str(error)
     else:
       msg = None
@@ -112,6 +111,7 @@ s = api.APIFormulas(_table)
     if not self._user_directory is None:
       sys.path.append(self._user_directory)
     error = None
+    controller = None
     if self._table is None:
       import pdb; pdb.set_trace()
     namespace = self._table.getNamespace()
@@ -119,6 +119,8 @@ s = api.APIFormulas(_table)
       error = self._createAPIObject()
       if error is not None:
         return error
+      api_object = namespace[API_OBJECT]
+      controller = api_object.controller
     if self._pgm_filepath is not None:
       self.writeFiles()
       # pylint: disable=W0122
@@ -128,12 +130,15 @@ s = api.APIFormulas(_table)
       # pylint: disable=W0703
       except Exception as err:
         # Report the error without changing the table
+        if controller is not None:
+          if controller.getException() is None:
+            controller.exceptionForBlock(err, verify=False)
         error = err
     elif len(self._program) > 0:
       error = self._executeProgram(self._program)
     else:
       error = "Nothing to execute!"
-    if error is not None:
-      return error
+    if controller is not None:
+      return controller.formatError()
     else:
-      return None
+      return error

@@ -227,19 +227,25 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertIsNone(_compile(program))
 
   def testMakeEvaluationScriptProgram(self):
-    tags = ["import", "#_table", "assignColumnVariables", "numpy", 
-        "np.sin", "updateTableCellsAndColumnVariables"]
+    tags = ["import", "#_table", "assignColumnVariables", 
+            "Prologue", "initializeLoop", 
+            "isTerminateLoop", "startAnIteration", "np.sin",
+            "endAnIteration"]
     program = self.generator.makeEvaluationScriptProgram()
     self._checkWorkflow(program, tags)
-    tags = ["import", "_table", "assignColumnVariables", "numpy",
-        "np.sin", "updateTableCellsAndColumnVariables"]
+    tags = ["import", "_table", "assignColumnVariables", 
+            "Prologue", "initializeLoop", 
+            "isTerminateLoop", "startAnIteration", "np.sin",
+            "endAnIteration"]
     program = self.generator.makeEvaluationScriptProgram(
         create_API_object=True)
     self._checkWorkflow(program, tags)
 
   def testMakeExportScriptProgram(self):
-    tags = ["_table", "assignColumnVariables", "numpy", "np.sin", \
-        "print"]
+    tags = ["import", "_table", "assignColumnVariables", 
+            "Prologue", "initializeLoop", 
+            "isTerminateLoop", "startAnIteration", "np.sin",
+            "endAnIteration", "print"]
     program = self.generator.makeExportScriptProgram()
     self._checkWorkflow(program, tags)
 
