@@ -87,7 +87,7 @@ class BlockExecutionController(object):
     if self._exception is None:
       return None
     if self._caller_filename == self._exception_filename:
-      msg = "In the scisheet %s at line %d: %s" % (self._block_name, 
+      msg = "In the scisheet computing %s at line %d: %s" % (self._block_name, 
           self._block_linenumber, str(self._exception))
     else:
       msg = "In the file %s at line %d: %s" % (self._exception_filename,

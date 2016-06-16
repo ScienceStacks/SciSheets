@@ -11,6 +11,7 @@ import unittest
 TEST_TABLE_FILE = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_block_execution_controller_1.pcl")
 NAME = "test"
+BLOCK_NAME = "INV_S"
 
 
 
@@ -83,6 +84,42 @@ class TestBlockExecutionController(unittest.TestCase):
   def testGetException(self):
     error = self._exceptionForBlock()
     self.assertEqual(error, self.api.controller.getException())
+
+  def _evaluateBlock(self, block_name, expression):
+    """
+    Assigns a value to a global
+    :param str block_name:
+    :param str expression: valid python expression
+    :return value_assigned, exception: exception may be None
+    """
+    exc = None
+    value = None
+    self.api.assignColumnVariables([])
+    self.api.controller.initializeLoop()
+    while not self.api.controller.isTerminateLoop():
+      self.api.controller.startAnIteration()
+      try:
+        self.api.controller.startBlock(block_name)
+        value = eval(expression, self.api.getTable().getNamespace())
+        self.api.controller.endBlock()
+      except Exception as exc:
+        self.api.controller.exceptionForBlock(exc)
+      self.api.controller.endAnIteration()
+    return value, exc
+
+  def testEvaluationOfBlocks(self):
+    namespace = self.api.getTable().getNamespace()
+    values, exc = self._evaluateBlock(BLOCK_NAME, '1/S')
+    pairs = zip(values, namespace[BLOCK_NAME])
+    evals = [ abs((x-y)/x) < 0.001 for x,y in pairs]
+    self.assertTrue(all(evals))
+
+  def testEvaluationOfBlocksWithException(self):
+    namespace = self.api.getTable().getNamespace()
+    values, exc = self._evaluateBlock(BLOCK_NAME, '1/0')
+    self.assertIsNotNone(exc)
+    msg = self.api.controller.formatError()
+    self.assertTrue(BLOCK_NAME in msg)
     
 
 if  __name__ == '__main__':
