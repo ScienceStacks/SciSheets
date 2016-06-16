@@ -10,7 +10,6 @@ import sys
 class ProgramRunner(object):
   """
   Writes and/or runs one or more programs.
-  Assumes that the user_directory has the file my_api.py.
   """
 
   def __init__(self, 
@@ -22,7 +21,7 @@ class ProgramRunner(object):
     :param str program: string of one or more python program
     :param Table table: table for which execution is done
     :param str user_directory: user directory where program
-                               will execute. Must have file my_api.py
+                               will execute. 
     :param str pgm_filename: program filename w/o extension
     :raises: ValueError if inconsistent inputs
     """
@@ -71,7 +70,7 @@ class ProgramRunner(object):
     namespace['_table'] = self._table
     #globals()['_table'] = self._table  #NAMESPACE
     program = """
-from scisheets.core import my_api as api
+from scisheets.core import api as api
 s = api.APIFormulas(_table)
 """
     error = self._executeProgram(program)
@@ -91,12 +90,10 @@ s = api.APIFormulas(_table)
       #exec(program, globals())  # NAMESPACE
       exec program in namespace
     # pylint: disable=W0703
-    except Exception as err:
+    except Exception as exc:
       # Report the error without changing the table
-      error = err
+      error = exc
     if error is not None:
-      # TODO: Better error message
-      #msg = "%s: %s" % (error.msg, error.text)
       msg = str(error)
     else:
       msg = None
@@ -133,7 +130,4 @@ s = api.APIFormulas(_table)
       error = self._executeProgram(self._program)
     else:
       error = "Nothing to execute!"
-    if error is not None:
-      return error
-    else:
-      return None
+    return error

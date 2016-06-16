@@ -169,9 +169,29 @@ class TestProgramGenerator(unittest.TestCase):
     for column in self.table.getColumns():
       self.assertTrue(column.getName() in statements)
 
-  def testMakePrologue(self):
+  def testMakePrologueAndEpilogueWithFormulas(self):
     statements = self.generator._makePrologue()
     self.assertTrue('import' in statements)
+    self.assertIsNone(_compile(statements))
+    statements = self.generator._makeEpilogue()
+    self.assertTrue('s.updateTableCellsAndColumnVariables' in statements)
+    self.assertIsNone(_compile(statements))
+
+  def testMakePrologueWithoutFormulas(self):
+    # Table without formulas
+    self.table = createTable(TABLE_NAME)
+    self._addColumn(COLUMN1, cells=COLUMN1_CELLS)
+    self.column_a = self._addColumn(COLUMN2, cells=COLUMN2_CELLS)
+    self.column_b = self._addColumn(COLUMN5, cells=COLUMN5_CELLS)
+    self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)
+    writeTableToFile(self.table)
+    self.generator = pg.ProgramGenerator(self.table, TEST_DIR)
+    # Test Prologue and Epilogue
+    statements = self.generator._makePrologue()
+    self.assertTrue('import' in statements)
+    self.assertIsNone(_compile(statements))
+    statements = self.generator._makeEpilogue()
+    self.assertTrue('s.updateTableCellsAndColumnVariables' in statements)
     self.assertIsNone(_compile(statements))
 
   def testMakeAPIPluginInitializationStatements(self):
@@ -207,19 +227,25 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertIsNone(_compile(program))
 
   def testMakeEvaluationScriptProgram(self):
-    tags = ["import", "#_table", "assignColumnVariables", "numpy", 
-        "np.sin", "updateTableCellsAndColumnVariables"]
+    tags = ["import", "#_table", "assignColumnVariables", 
+            "Prologue", "initializeLoop", 
+            "isTerminateLoop", "startAnIteration", "np.sin",
+            "endAnIteration"]
     program = self.generator.makeEvaluationScriptProgram()
     self._checkWorkflow(program, tags)
-    tags = ["import", "_table", "assignColumnVariables", "numpy",
-        "np.sin", "updateTableCellsAndColumnVariables"]
+    tags = ["import", "_table", "assignColumnVariables", 
+            "Prologue", "initializeLoop", 
+            "isTerminateLoop", "startAnIteration", "np.sin",
+            "endAnIteration"]
     program = self.generator.makeEvaluationScriptProgram(
         create_API_object=True)
     self._checkWorkflow(program, tags)
 
   def testMakeExportScriptProgram(self):
-    tags = ["_table", "assignColumnVariables", "numpy", "np.sin", \
-        "print"]
+    tags = ["import", "_table", "assignColumnVariables", 
+            "Prologue", "initializeLoop", 
+            "isTerminateLoop", "startAnIteration", "np.sin",
+            "endAnIteration", "print"]
     program = self.generator.makeExportScriptProgram()
     self._checkWorkflow(program, tags)
 

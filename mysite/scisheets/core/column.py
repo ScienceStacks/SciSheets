@@ -6,6 +6,7 @@
 import errors as er
 import numpy as np
 from helpers.formula_statement import FormulaStatement
+from helpers.extended_array import ExtendedArray
 import helpers.cell_types as cell_types
 import helpers.api_util as api_util
 import collections
@@ -118,7 +119,8 @@ class Column(object):
     """
     :return: np.ndarray type if array; else, None
     """
-    if self._data_class.cls == np.ndarray:
+    if (self._data_class.cls == np.ndarray)  \
+        or (self._data_class.cls == ExtendedArray):
       return np.array(self._cells).dtype
     else:
       return None
@@ -169,10 +171,16 @@ class Column(object):
     if not self.getAsis() == column.getAsis():
       return False
     if not self.getDataClass() == column.getDataClass():
+      type_list = [np.ndarray, ExtendedArray]
+      is_ok = (self.getDataClass().cls in type_list)  \
+         and (column.getDataClass().cls in type_list)
+      if not is_ok:
+        return False
+    this_cells = self.prunedCells()
+    that_cells = column.prunedCells()
+    if len(this_cells) != len(that_cells):
       return False
-    if self.numCells() != column.numCells():
-      return False
-    pairs = zip(self.getCells(), column.getCells())
+    pairs = zip(this_cells, that_cells)
     for this_cell, that_cell in pairs:
       if isinstance(this_cell, collections.Iterable)  \
           and isinstance(that_cell, collections.Iterable):
@@ -204,6 +212,19 @@ class Column(object):
     Returns the number of cells in the column
     """
     return len(self._cells)
+
+  def prunedCells(self):
+    """
+    Returns cells in the column, excluding ending Nulls
+    """
+    indicies = range(len(self._cells))
+    pairs = zip(self._cells, indicies)
+    nonnull_indicies = [n for c,n in pairs if not cell_types.isNull(c)]
+    if len(nonnull_indicies) > 0:
+      idx = max(nonnull_indicies) + 1
+      return self._cells[:idx]
+    else:
+      return []
 
   def rename(self, new_name):
     """

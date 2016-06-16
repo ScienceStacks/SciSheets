@@ -3,6 +3,7 @@
 from mysite.helpers.versioned_file import VersionedFile
 import cell_types
 import collections
+from extended_array import ExtendedArray
 import numpy as np
 import os
 import pickle
@@ -14,14 +15,16 @@ THRESHOLD = 0.01  # Threshold for value comparisons
 # cls is the data type that can be tested in isinstance
 # cons is a function that constructs an instance of cls
 #   taking as an argument a list
-# Usage: data_class = DataClass(cls=np.ndarray, 
-#                               cons=(lambda(x: np.array(x))))
+# Usage: data_class = DataClass(cls=ExtendedArray,
+#                               cons=(lambda(x: ExtendedArray(x))))
+# Note: Classes must have a public property name that is the
+#       name of the column
 DataClass = collections.namedtuple('DataClass', 'cls cons')
 
 ########### CONSTANTS ################
 def makeArray(aList):
-  return np.array(aList)
-DATACLASS_ARRAY = DataClass(cls=np.ndarray,
+  return ExtendedArray(values=aList)
+DATACLASS_ARRAY = DataClass(cls=ExtendedArray,
     cons=makeArray)
 
 
@@ -31,6 +34,7 @@ def getTableFromFile(file_path, verify=True):
   Get the table from the file
   :param str table_file: full path to table file
   :param bool verify: checks the file path in the table
+  :return Table:
   :raises ValueError: Checks that the file path is set
   """
   fh = open(file_path, "rb")

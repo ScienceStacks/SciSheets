@@ -77,7 +77,10 @@ class Table(ColumnContainer):
     Changes the cells in the name column to be consecutive ints.
     """
     names = []
-    num_cells = self._columns[NAME_COLUMN_IDX + 1].numCells()
+    if len(self._columns) > 1:
+      num_cells = self._columns[NAME_COLUMN_IDX + 1].numCells()
+    else:
+      num_cells = self._columns[NAME_COLUMN_IDX].numCells()
     if len(self._columns) > 1:
       for row_num in range(num_cells):
         names.append(Table._rowNameFromIndex(row_num))
@@ -354,6 +357,8 @@ class Table(ColumnContainer):
     :param Table table:
     :returns bool:
     """
+    if not isinstance(table, Table):
+      return False
     if self.getName() != table.getName():
       return False
     if self.numColumns() != table.numColumns():

@@ -98,6 +98,7 @@ class ProgramGenerator(object):
                                  that creates the API object.
     """
     sa = StatementAccumulator()
+    sa.add("from scisheets.core import api as api")
     statement = """
 _table = api.getTableFromFile('%s')
 _table.setNamespace(globals())
@@ -123,12 +124,37 @@ _table.setNamespace(globals())
 
     ''' % self._table.getName()
     sa.add(statement)
-    sa.add("from scisheets.core import api as api")
     sa.add(self._makeAPIInitializationStatements(
         create_API_object=create_API_object))
+    sa.add("try:")
+    sa.indent(1)
     sa.add(self._makePrologue())
     sa.add(self._makeFormulaEvaluationStatements())
+    statement = "if %s.controller.getException() is None:"  \
+        % API_OBJECT
+    sa.add(statement)
+    sa.indent(1)
     sa.add(self._makeEpilogue())
+    sa.indent(-2)
+    # Handle exceptions in the Prologue and Epilogue
+    statement = """
+except Exception as exc:
+  %s.controller.exceptionForBlock(exc)""" % API_OBJECT
+    sa.add(statement)
+    sa.add(self._makeClosingException(is_absolute_linenumber=False))
+    return sa.get()
+
+  def _makeClosingException(self, is_absolute_linenumber=True):
+    """
+    Raises exceptions that have been recorded.
+    :param bool is_absolute_linenumber:
+    """
+    sa = StatementAccumulator()
+    statement = """
+if %s.controller.getException() is not None:
+  raise Exception(%s.controller.formatError(is_absolute_linenumber=%s))"""   \
+        % (API_OBJECT, API_OBJECT, is_absolute_linenumber)
+    sa.add(statement)
     return sa.get()
 
   def makeExportScriptProgram(self):
@@ -144,6 +170,7 @@ _table.setNamespace(globals())
     sa.add(self._makeAPIInitializationStatements(create_API_object=True))
     sa.add(self._makePrologue())
     sa.add(self._makeFormulaEvaluationStatements())
+    sa.add(self._makeClosingException())
     sa.add(self._makeEpilogue())
     sa.add(self._makeVariablePrintStatements())
     return sa.get()
@@ -189,7 +216,8 @@ _table.setNamespace(globals())
     # Note that inputs and outputs are not assigned.
     #
     sa.add(self._makeFormulaEvaluationStatements(excludes=excludes))
-    sa.add(self._makeEpilogue())
+    sa.add(self._makeClosingException())
+    sa.add(self._makeEpilogue(excludes=excludes))
     sa.add(_makeReturnStatement(outputs))
     return sa.get()
 
@@ -354,8 +382,8 @@ if __name__ == '__main__':
     if excludes is None:
       excludes = []
     sa = StatementAccumulator()
-    statement = "s.updateTableCellsAndColumnVariables(%s)"  \
-        % str(excludes)
+    statement = "%s.updateTableCellsAndColumnVariables(%s)"  \
+        % (API_OBJECT, str(excludes))
     sa.add(statement)
     return sa.get()
 
@@ -368,21 +396,9 @@ if __name__ == '__main__':
       3. Loop termination checks
     """
     sa = StatementAccumulator()
-    statement = """
-# End of iteration - update state
-_iterations += 1"""
-    sa.add(statement)
-    sa.add(self._makeTableUpdateStatements(**kwargs))
-    statement = """
-# Check the termination conditions
-_num_formula_columns = len(_table.getFormulaColumns())
-if (_exception is None) and _table.isEquivalent(_old_table):
-  _done = True
-if _iterations >= _num_formula_columns + s.getDependencyCounter():
-  _done = True
-if _iterations > MAX_ITERATIONS:
-  _done = True"""
-    sa.add(statement)
+    sa.add("")
+    sa.add("%s.controller.endAnIteration()" % API_OBJECT)
+    sa.add("")
     return sa.get()
 
   def _makeColumnValuesAssignmentStatements(self, **kwargs):
@@ -424,21 +440,22 @@ if _iterations > MAX_ITERATIONS:
     # Create the column variables
     sa.add(self._makeColumnVariableAssignmentStatements(**kwargs))
     # Add the table prologue
+    sa.add("%s.controller.startBlock('Prologue')" % API_OBJECT)
     sa.add(self._table.getPrologue().getFormula())
-    # Make the internally used constants
-    statement = '''
-MAX_ITERATIONS = %d
-''' % settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS
-    sa.add(statement)
+    sa.add("%s.controller.endBlock()" % API_OBJECT)
     return sa.get()
 
-  def _makeEpilogue(self):
+  def _makeEpilogue(self, **kwargs):
     """
     Adds code that only runs at the end
     :return str: statements
     """
     sa = StatementAccumulator()
+    sa.add("")
+    sa.add("%s.controller.startBlock('Epilogue')" % API_OBJECT)
     sa.add(self._table.getEpilogue().getFormula())
+    sa.add("%s.controller.endBlock()" % API_OBJECT)
+    sa.add(self._makeTableUpdateStatements(**kwargs))
     return sa.get()
 
   def _makeColumnVariableAssignmentStatements(self, excludes=None):
@@ -449,7 +466,8 @@ MAX_ITERATIONS = %d
     if excludes is None:
       excludes = []
     sa = StatementAccumulator()
-    statement = "s.assignColumnVariables(%s)" % str(excludes)
+    statement = "%s.assignColumnVariables(%s)" %  \
+        (API_OBJECT, str(excludes))
     sa.add(statement)
     return sa.get()
 
@@ -479,47 +497,39 @@ MAX_ITERATIONS = %d
     #  3. The iteration count exceeds a maximum value.
     statement = """
 # Formulation evaluation loop
-_done = not _table.getIsEvaluateFormulas()
-_iterations = 0
-_exception = None"""
+%s.controller.initializeLoop()
+while not %s.controller.isTerminateLoop():
+""" % (API_OBJECT, API_OBJECT)
     sa.add(statement)
-    sa.add("while not _done:")
     sa.indent(1)
-    sa.add("_exception = None")
-    statement = "_old_table = _table.copy()"
-    sa.add(statement)
+    sa.add("%s.controller.startAnIteration()" % API_OBJECT)
     # Formula Evaluation block header
+    sa.add("# Formula Execution Blocks")
     sa.add("try:")
     sa.indent(1)
     # Formula Evaluation block formulas
-    statement = """
-# Formula Execution Blocks"""
-    sa.add(statement)
     for column in formula_columns:
-      sa.add("# Column %s" % column.getName())
+      colnm = column.getName()
+      sa.add("# Column %s" % colnm)
+      statement = "%s.controller.startBlock('%s')" %  \
+        (API_OBJECT, colnm)
+      sa.add(statement)
       statement = column.getFormulaStatement()
       sa.add(statement)
-      name = column.getName()
+      sa.add("%s.controller.endBlock()" % API_OBJECT)
       if column.isExpression():
         sa.add("%s = %s.coerceValues('%s', %s)"  \
-            % (name, API_OBJECT, name, name))
+            % (colnm, API_OBJECT, colnm, colnm))
       sa.add(" ")
     # Formula Evaluation block footer
     sa.add("pass")  # Ensure at least one executeable statement
-    sa.add("")  # Ensure at least one executeable statement
     sa.indent(-1)
-    sa.add("except Exception as _error:")
+    sa.add("except Exception as exc:")
     sa.indent(1)
-    sa.add("_exception = _error")
+    sa.add("%s.controller.exceptionForBlock(exc)" % API_OBJECT)
     sa.indent(-1)
     # End of loop
     statement = self._makeClosingOfFormulaEvaluationLoop(**kwargs)
-    sa.add(statement)
-    sa.indent(-1)
-    # Script closing - check for exception
-    sa.indent(-1)
-    statement = """if _exception is not None:
-  raise Exception(_exception)"""
     sa.add(statement)
     return sa.get()
 

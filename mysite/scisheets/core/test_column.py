@@ -6,6 +6,7 @@ import unittest
 import errors as er
 import numpy as np
 from helpers_test import createColumn, compareValues
+from helpers.extended_array import ExtendedArray
 
 # Constants
 COLUMN_NAME = "DUMMY"
@@ -87,9 +88,9 @@ class TestColumn(unittest.TestCase):
 
   def testGetDataClass(self):
     data_class = self.column.getDataClass()
-    self.assertEqual(data_class.cls, np.ndarray)
+    self.assertEqual(data_class.cls, ExtendedArray)
     data_class = self.column_str.getDataClass()
-    self.assertEqual(data_class.cls, np.ndarray)
+    self.assertEqual(data_class.cls, ExtendedArray)
 
   def testGetArrayType(self):
     array_type = self.column.getArrayType()
@@ -144,6 +145,9 @@ class TestColumn(unittest.TestCase):
   def testIsEquivalent(self):
     new_column = self.column.copy()
     self.assertTrue(self.column.isEquivalent(new_column))
+    new_column.addCells(np.nan)
+    self.assertTrue(self.column.isEquivalent(new_column))
+    new_column = self.column.copy()
     idx = 0
     cell = self.column.getCell(idx)
     new_cell = "new_%s" % str(cell)
@@ -167,6 +171,21 @@ class TestColumn(unittest.TestCase):
     self.assertTrue(column1.isEquivalent(column2))
     [column1, column2] = table.getCapture("column_is_equivalent2")
     self.assertTrue(column1.isEquivalent(column2))
+
+  def testPrunedCells(self):
+    values = [n*1.0 for n in range(5)]
+    self.column.addCells(values, replace=True)
+    self.assertEqual(self.column.prunedCells(), values)
+    new_values = list(values)
+    new_values.append(np.nan)
+    self.column.addCells(new_values, replace=True)
+    self.assertEqual(self.column.prunedCells(), values)
+    new_values = list(values)
+    new_values.insert(0, np.nan)
+    self.column.addCells(new_values, replace=True)
+    self.assertEqual(self.column.prunedCells(), 
+        new_values)
+    
 
 
 if __name__ == '__main__':

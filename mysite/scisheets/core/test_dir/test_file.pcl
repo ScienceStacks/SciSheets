@@ -131,8 +131,8 @@ p59
 c__builtin__
 tuple
 p60
-(cnumpy
-ndarray
+(cscisheets.core.helpers.extended_array
+ExtendedArray
 p61
 cscisheets.core.helpers.api_util
 makeArray

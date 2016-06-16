@@ -112,6 +112,7 @@ class TestTable(unittest.TestCase):
     new_table = self.table.copy()
     self.assertEqual(self.table.numRows(), new_table.numRows())
     self.assertEqual(self.table.numColumns(), new_table.numColumns())
+    self.assertTrue(new_table.isEquivalent(self.table))
 
   def testDeleteColumn(self):
     num_col = self.table.numColumns()
