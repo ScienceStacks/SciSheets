@@ -62,6 +62,7 @@ function SciSheets() {
   this.prologue = null;
   this.tableFile = null;  // No file specified for the table
   this.blinker = new SciSheetsBlinker($("#notification-working"));
+  this.tableName = null;
 }
 
 // Setup
@@ -259,36 +260,21 @@ SciSheets.prototype.utilSendAndReload = function (cmd) {
 };
 
 /* ---------- Dialog management ---------------*/
-SciSheets.prototype.utilRename = function (cmd, newPrompt, defaultValue) {
+SciSheets.prototype.utilPromptForInput = function (cmd, newPrompt, defaultValue) {
   // Change the dialog prompt
   "use strict";
-  var ele, scisheet, eleInput;
+  var scisheet, response;
   scisheet = this;
-  eleInput = $("#rename-dialog-name")[0];
-  eleInput.value = defaultValue;
-  ele = $("#rename-dialog-label")[0].childNodes[0];
-  ele.nodeValue = newPrompt;
   if (scisheet.mockAjax) {
     scisheet.ajaxCallCount += 1;  // Count as an Ajax call
   }
-  $("#rename-dialog").dialog({
-    autoOpen: true,
-    modal: true,
-    closeOnEscape: true,
-    dialogClass: "dlg-no-close",
-    close: function (event, ui) {
-      scisheet.utilReload();
-    },
-    buttons: {
-      "Submit": function () {
-        cmd.args = [$("#rename-dialog-name").val()];
-        scisheet.utilSendAndReload(cmd);
-      },
-      "Cancel": function () {
-        scisheet.utilReload();
-      }
-    }
-  });
+  response = window.prompt(newPrompt, defaultValue);
+  if (response !== null) {
+    cmd.args = [response];
+    scisheet.utilSendAndReload(cmd);
+  } else {
+    scisheet.utilReload();
+  }
 };
 
 /* Setup the global variable */

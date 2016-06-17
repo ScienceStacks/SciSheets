@@ -127,10 +127,11 @@ SciSheetsTable.prototype.click = function (oArgs) {
       scisheet.utilSendAndReload(cmd);
     }
     if (cmd.command === 'Rename') {
-      scisheet.utilRename(cmd, "New table name", "");
+      scisheet.utilPromptForInput(cmd, "New table name", 
+          scisheet.tableCaption);
     }
     if (cmd.command === 'SaveAs') {
-      scisheet.utilRename(cmd, "Table file name", scisheet.tableFile);
+      scisheet.utilPromptForInput(cmd, "Table file name", scisheet.tableFile);
     }
     if (cmd.command === 'Trim') {
       scisheet.utilSendAndReload(cmd);

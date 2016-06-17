@@ -70,6 +70,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
     sciSheets.epilogue = d.epilogue;
     sciSheets.prologue = d.prologue;
     sciSheets.tableFile = d.tableFile;
+    sciSheets.tableName = d.tableCaption;
 
     // Set up events
     highlightEditableCell = function (oArgs) {
