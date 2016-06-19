@@ -18,7 +18,7 @@ function SciSheetsColumn(scisheet) {
   this.scisheet = scisheet;
 }
 SciSheetsColumn.prototype.formula = function (cmd, formula) {
-  // Change the dialog prompt
+  // Add an argument for the line number to position.
   "use strict";
   var scisheet, eleTextarea;
   scisheet = this.scisheet;
