@@ -23,24 +23,30 @@
 <button onclick="doit()">Run</button>
 
 <div id="formula-dialog" 
-    style="display:none;
+    style="
+           display:none;
            min-width:875px;
            width: 50%;
            max-width: 1000px;
-           margin: 0 auto;">
+           margin: 0 auto;
+           ">
 <h2 id="formula-header"style="font-size:200%">Formula Name</h2>
 <br/>
   <form id="formula-form">
 <textarea name="formula-entry" id="formula-textarea" form="formula-form" 
-    style="background-color:WhiteSmoke;
+    style="
+           background-color:WhiteSmoke;
            border-style: solid;
-           resize:both;
-           font-size: 125%;
+           font-family: Courier New;
+           font-size: 105%;
+           height: 100%;
+           margin: 0;
            overflow:auto;
-           font-family:Courier-New;
-           padding-top:10px;padding-right:1px;padding-bottom:1px;padding-left:1px;
+           padding-top: 5px;
+           resize:both;
+           white-space:pre-wrap;
            width: 100%;
-           white-space:pre-wrap"
+           "
     rows="25" 
     cols="80">
 Formula...
