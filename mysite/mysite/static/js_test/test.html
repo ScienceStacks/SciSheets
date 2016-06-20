@@ -28,8 +28,10 @@ caption {
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-linedtextarea/jquery-linedtextarea.js"></script>
 <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css"/>
 <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-linedtextarea/jquery-linedtextarea.css"/>
 <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.css"/>
 
 <!--begin custom header content for this page-->
@@ -183,10 +185,43 @@ height: auto;
 </ul>
 </div>
 
-<div id="formula-dialog" style="width:900px;display:none;overflow:auto;white-space:pre-wrap" >
+<div id="formula-dialog" 
+    style="
+           display:none;
+           min-width:875px;
+           width: 50%;
+           max-width: 1000px;
+           margin: 0 auto;
+           ">
+<h2 id="formula-header"
+    style="
+           font-size:100%;
+           background-color:WhiteSmoke
+          ">
+  Formula Name</h2>
+<br/>
   <form id="formula-form">
-  </form>
-<textarea name="formula-entry" id="formula-textarea" form="formula-form" rows="15" cols="80" >Formula...</textarea>
+<textarea name="formula-entry" id="formula-textarea" form="formula-form" 
+    style="
+           background-color:WhiteSmoke;
+           border-style: solid;
+           font-family: Courier New;
+           font-size: 105%;
+           height: 100%;
+           margin: 0;
+           overflow:auto;
+           padding-top: 5px;
+           resize:both;
+           white-space:pre-wrap;
+           width: 100%;
+           "
+    rows="10" 
+    cols="80">
+Formula...
+</textarea>
+<br/>
+<input type="button" id="formula-dialog-send" value="Send"/> <input type="button" id="formula-dialog-cancel" value="Cancel"/>
+</form>
 </div>
 
 <div id="moverow-dialog" style="width:100px;display:none">

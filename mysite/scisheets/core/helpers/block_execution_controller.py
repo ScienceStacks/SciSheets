@@ -94,7 +94,7 @@ class BlockExecutionController(object):
           self._block_linenumber, str(self._exception))
     else:
       msg = "In the file %s at line %d: %s" % (self._exception_filename,
-          self._block_linenumber, str(self._exception))
+          self._block_block_linenumber, str(self._exception))
     return msg
 
   def initializeLoop(self):

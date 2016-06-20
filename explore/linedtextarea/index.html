@@ -10,9 +10,11 @@
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-linedtextarea/jquery-linedtextarea.js"></script>
 <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css"/>
 <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.css"/>
 <link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-linedtextarea/jquery-linedtextarea.css"/>
 
 </head>
 <body>
@@ -30,7 +32,12 @@
            max-width: 1000px;
            margin: 0 auto;
            ">
-<h2 id="formula-header"style="font-size:200%">Formula Name</h2>
+<h2 id="formula-header"
+    style="
+           font-size:200%;
+           background-color:WhiteSmoke
+          ">
+  Formula Name</h2>
 <br/>
   <form id="formula-form">
 <textarea name="formula-entry" id="formula-textarea" form="formula-form" 
@@ -60,8 +67,6 @@ Formula...
 <!-- =============================== -->
 
 
-<script src="jquery-linedtextarea.js"></script>
-<link href="jquery-linedtextarea.css" type="text/css" rel="stylesheet" />
 <script src="lineedit.js"> </script>
 <!-- ========= Incorporate data from server ====================== -->
 

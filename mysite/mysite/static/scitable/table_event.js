@@ -105,7 +105,7 @@ SciSheetsTable.prototype.click = function (oArgs) {
       scisheet.utilSendAndReload(cmd);
     }
     if (cmd.command === 'Epilogue') {
-      scisheet.utilUpdateFormula(cmd, scisheet.epilogue);
+      scisheet.utilUpdateFormula(cmd, cmd.command, scisheet.epilogue, 1);
     }
     if (cmd.command === 'Export') {
       scisheetTable.utilExportDialog(cmd);
@@ -121,13 +121,13 @@ SciSheetsTable.prototype.click = function (oArgs) {
       });
     }
     if (cmd.command === 'Prologue') {
-      scisheet.utilUpdateFormula(cmd, scisheet.prologue);
+      scisheet.utilUpdateFormula(cmd, cmd.command, scisheet.prologue, 1);
     }
     if (cmd.command === 'Redo') {
       scisheet.utilSendAndReload(cmd);
     }
     if (cmd.command === 'Rename') {
-      scisheet.utilPromptForInput(cmd, "New table name", 
+      scisheet.utilPromptForInput(cmd, "New table name",
           scisheet.tableCaption);
     }
     if (cmd.command === 'SaveAs') {
