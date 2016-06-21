@@ -172,7 +172,6 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }
 
-// Formula dialogue
 SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula, linePosition, evObj) {
   // Create the dialogue and extract formula changes
   // Input: cmd - AJAX command
