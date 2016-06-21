@@ -173,12 +173,13 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
 }
 
 // Formula dialogue
-SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula, linePosition) {
+SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula, linePosition, evObj) {
   // Create the dialogue and extract formula changes
   // Input: cmd - AJAX command
   //        formulaLocation (str) - Column/Prologue/Epilogue
   //        formula (str)
   //        linePosition (int) - where the dialogue is positioned
+  //        evObj - event object
   "use strict";
   var scisheet, eleTextarea;
   scisheet = this;
@@ -193,7 +194,8 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   $("#formula-header").html(formulaLocation);
   $("#formula-dialog").draggable();
   $("#formula-textarea").linedtextarea({selectedLine: linePosition});
-  $("#formula-dialog-send").click(function () {
+  $("#formula-dialog").css({left: evObj.pageX, top: evObj.pageY});
+  $("#formula-dialog-submit").click(function () {
     cmd.args = [eleTextarea.value];
     $("#formula-dialog").css("display", "none");
     scisheet.utilSendAndReload(cmd);

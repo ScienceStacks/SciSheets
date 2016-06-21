@@ -105,7 +105,8 @@ SciSheetsTable.prototype.click = function (oArgs) {
       scisheet.utilSendAndReload(cmd);
     }
     if (cmd.command === 'Epilogue') {
-      scisheet.utilUpdateFormula(cmd, cmd.command, scisheet.epilogue, 1);
+      scisheet.utilUpdateFormula(cmd, cmd.command, 
+          scisheet.epilogue, 1, oArgs);
     }
     if (cmd.command === 'Export') {
       scisheetTable.utilExportDialog(cmd);
@@ -121,7 +122,8 @@ SciSheetsTable.prototype.click = function (oArgs) {
       });
     }
     if (cmd.command === 'Prologue') {
-      scisheet.utilUpdateFormula(cmd, cmd.command, scisheet.prologue, 1);
+      scisheet.utilUpdateFormula(cmd, cmd.command, 
+          scisheet.prologue, 1, oArgs);
     }
     if (cmd.command === 'Redo') {
       scisheet.utilSendAndReload(cmd);
