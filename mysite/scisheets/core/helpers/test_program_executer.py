@@ -1,6 +1,6 @@
 '''Tests for Program Executer.'''
 
-from program_executer import ProgramExecuter
+from program_executer import ProgramExecuter, CONTROLLER
 import os
 import unittest
 
@@ -18,7 +18,7 @@ c = [a*n for n in b]  # Line 4
 """
 COMPILE_ERROR_PROGRAM = """import numpy as np  # Line 1
 a   np.cos(np.pi)  # Line 2
-b = range(10)  # Line 3
+b = range 10)  # Line 3
 c = [a*n for n in b]  # Line 4
 """
 
@@ -35,22 +35,33 @@ class TestProgramExecuter(unittest.TestCase):
   def setUp(self):
     self.namespace = {}
 
+  def _runProgram(self, program_name, program, exc_lineno):
+    """
+    Executes the program.
+    :param str program_name:
+    :param str program:
+    :param int exc_lineno: line number of exception (0 if None)
+    :return str: message from syntax checking and program execution
+    """
+    executer = ProgramExecuter(program_name, program,
+        self.namespace)
+    msg = executer.checkSyntax()
+    if msg is None:
+      msg = executer.execute()
+      if exc_lineno == 0:
+        self.assertIsNone(msg)
+      else:
+        self.assertTrue(str(exc_lineno) in msg)
+    return msg
+
   def testGoodProgram(self):
-    executer = ProgramExecuter('GOOD', 
-        GOOD_PROGRAM, self.namespace)
-    executer.execute()
+    self._runProgram('GOOD', GOOD_PROGRAM, 0)
     result = self.namespace['c']
     self.assertTrue(result, EXPECTED_C)
-    self.assertIsNone(executer.getException())
 
-  def testRuntimeError(self):
-    executer = ProgramExecuter('RUNTIME_ERROR', 
-        RUNTIME_ERROR_PROGRAM, self.namespace)
-    executer.execute()
-    self.assertIsNotNone(executer.getBlockExecutionController().getException())
-    msg = executer.formatError()
-    import pdb; pdb.set_trace()
-    self.assertTrue('2' in msg)
+  def testExceptions(self):
+    self._runProgram('RUNTIME_ERROR', RUNTIME_ERROR_PROGRAM, 2)
+    self._runProgram('COMPILE_ERROR', COMPILE_ERROR_PROGRAM, 3)
     
 
 if  __name__ == '__main__':
