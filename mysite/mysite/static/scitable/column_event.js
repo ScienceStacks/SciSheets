@@ -50,7 +50,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       }
       if (cmd.command === 'Formula') {
         formula = scisheet.formulas[ep.columnName];
-        scisheet.utilUpdateFormula(cmd, ep.columnName, 
+        scisheet.utilUpdateFormula(cmd, ep.columnName,
             formula, 1, oArgs);
       }
       if (cmd.command === 'Insert') {

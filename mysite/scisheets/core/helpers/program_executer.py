@@ -1,5 +1,6 @@
 """
-Executes a program.
+Runs a program, checking syntax. Does not depend on
+the SciSheets context.
 """
 
 from block_execution_controller import BlockExecutionController
@@ -80,6 +81,12 @@ except Exception as exc:
       return None
     else:
       return self._controller.formatError()
+
+  def checkSyntaxAndExecute(self):
+    msg = self.checkSyntax()
+    if msg is None:
+      msg = self.execute()
+    return msg
 
   def getException(self):
     return self._controller.getException()

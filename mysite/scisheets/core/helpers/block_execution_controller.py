@@ -90,22 +90,28 @@ class BlockExecutionController(object):
     else:
       self._block_linenumber = abs_linenumber
 
-  def formatError(self, is_absolute_linenumber=False):
+  def formatError(self, 
+                  is_absolute_linenumber=False,
+                  is_use_block_name=True):
     """
     Formats the exception to include the block and line number.
     :param bool is_absolute_linenumber: Forces message to be
                                       an absolute line number
+    :param bool is_use_block_name: Use the block name in the message
     :return str/None:
     """
     if self._exception is None:
       return None
-    if (not is_absolute_linenumber)  \
-        and self._caller_filename == self._exception_filename:
-      msg = "In the scisheet computing %s at line %d: %s" % (self._block_name, 
-          self._block_linenumber, str(self._exception))
+    if is_use_block_name:
+      if (not is_absolute_linenumber)  \
+          and self._caller_filename == self._exception_filename:
+        msg = "In the scisheet computing %s at line %d: %s" % (self._block_name, 
+            self._block_linenumber, str(self._exception))
+      else:
+        msg = "In the file %s at line %d: %s" % (self._exception_filename,
+            self._block_linenumber, str(self._exception))
     else:
-      msg = "In the file %s at line %d: %s" % (self._exception_filename,
-          self._block_linenumber, str(self._exception))
+      msg = "at line %d: %s" % (self._block_linenumber, str(self._exception))
     return msg
 
   def initializeLoop(self):

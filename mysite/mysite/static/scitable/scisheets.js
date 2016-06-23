@@ -180,7 +180,7 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   //        linePosition (int) - where the dialogue is positioned
   //        evObj - event object
   "use strict";
-  var scisheet, eleTextarea;
+  var scisheet, eleTextarea, leftPos, topPos;
   scisheet = this;
   eleTextarea = $("#formula-textarea")[0];
   if (formula !== "") {
@@ -193,7 +193,10 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   $("#formula-header").html(formulaLocation);
   $("#formula-dialog").draggable();
   $("#formula-textarea").linedtextarea({selectedLine: linePosition});
-  $("#formula-dialog").css({left: evObj.pageX, top: evObj.pageY});
+  leftPos = evObj.pageX1+30;
+  topPos = 10;
+  // evObj.pageX1, evObj.pageY
+  $("#formula-dialog").css({left: leftPos, top: topPos});
   $("#formula-dialog-submit").click(function () {
     cmd.args = [eleTextarea.value];
     $("#formula-dialog").css("display", "none");

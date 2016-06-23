@@ -3,6 +3,7 @@
 '''
 
 import cell_types as cell_types
+from program_executer import ProgramExecuter
 import api_util as api_util
 import collections
 import inspect
@@ -39,6 +40,7 @@ class FormulaStatement(object):
     Construct the statement
     :return str: error or None
     """
+    error = None
     if self._formula is None:
       self._statement = None
       self._isExpression = False
@@ -54,28 +56,14 @@ class FormulaStatement(object):
       self._isExpression = True
       self._statement = statement
     except SyntaxError as err:
-      exception_expr = err
-      linenumber_expr = self._exceptionLinenumber()
-    if exception_expr is not None:
-      try:
-        # See if this is a statement
-        _ = compile(self._formula, "string", "exec")
-        self._statement = self._formula
-      except SyntaxError as err:
-        exception_stmt = err
-        linenumber_stmt = self._exceptionLinenumber()
-    if (exception_stmt is not None) and (exception_expr is not None):
-      # Guess whether is is intended to be a statement or an expression
-      # so that the correct error message can be delivered.
-      if "=" in self._formula:
-        exception = exception_stmt
-        linenumber = linenumber_stmt
-      else:
-        exception = exception_expr
-        linenumber = linenumber_expr
-      error = "At line %d, %s: %s" % (linenumber, exception.msg, exception.text)
-    else:
-      error = None
+      linenumber = 1
+      error = "At line %d, %s" % (linenumber, str(err))
+    if error is not None:
+      executer = ProgramExecuter("formula_statement",
+          self._formula, {})
+      error = executer.checkSyntax()
+      self._isExpression = False
+      self._statement = self._formula
     return error
 
   def isExpression(self):

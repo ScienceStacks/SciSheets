@@ -95,25 +95,25 @@ class TestProgramRunner(unittest.TestCase):
 
   def testSimpleExecute(self):
     runner = ProgramRunner(TEST_PROGRAM, 
+                           self.table,
                            user_directory=TEST_DIR,
-                           table=self.table,
-                           pgm_filename=TEST_TEXT_FILE)
+                           program_filename=TEST_TEXT_FILE)
     self._evaluateRunnerExecution(runner.execute())
 
   def testWriteFile(self):
     runner = ProgramRunner(TEST_PROGRAM, 
-                           table = self.table,
+                           self.table,
                            user_directory=TEST_DIR,
-                           pgm_filename=TEST_TEXT_FILE)
+                           program_filename=TEST_TEXT_FILE)
     self._evaluateRunnerExecution(runner.writeFiles(),
                                   expected_lines=TEST_PROGRAM)
 
   def testExecuteWithAPIObject(self):
     writeTableToFile(self.table)
     runner = ProgramRunner(TEST_PROGRAM, 
-                           table=self.table,
+                           self.table,
                            user_directory=TEST_DIR,
-                           pgm_filename=TEST_PROGRAM_FILE)
+                           program_filename=TEST_PROGRAM_FILE)
     column = self.table.columnFromName("VALID_FORMULA")
     column.setFormula(TEST_PROGRAM)
     error = runner.execute(create_API_object=True)

@@ -1,8 +1,10 @@
 """
-Helper for program export and evaluation.
+Runs a program created from SciSheets formulas. This creates
+creating the API object and managing associated resources (e.g., table files).
 """
 
 import api_util
+from program_executer import ProgramExecuter
 import os
 import sys
 
@@ -14,67 +16,61 @@ class ProgramRunner(object):
 
   def __init__(self, 
                program, 
-               table=None,
+               table,
                user_directory=None, 
-               pgm_filename=None):
+               program_filename=None):
     """
     :param str program: string of one or more python program
     :param Table table: table for which execution is done
-    :param str user_directory: user directory where program
-                               will execute. 
-    :param str pgm_filename: program filename w/o extension
-    :raises: ValueError if inconsistent inputs
+    :param str user_directory: user directory where other
+                               exported programs live
+    :param str program_filename: writes file executed to this file
+                             filename without extension
     """
     self._program = program
     self._table = table
+    if table is None:
+      raise ValueError("Must specify table.")
     self._user_directory = user_directory
-    self._pgm_filename = pgm_filename
-    no_table = table is None
-    no_filename = pgm_filename is None
-    if (no_table and not no_filename)  \
-        or (no_filename and not no_table):
-      raise ValueError("A table must be specified if a pgm_filename is specified.")
-    if self._pgm_filename is not None:
-      self._pgm_filepath = os.path.join(self._user_directory, 
-                                        "%s.py" % pgm_filename)
-    else:
-      self._pgm_filepath = None
+    self._program_filename = program_filename
+    self.writeFiles()
 
   def writeFiles(self, write_table=True):
     """
     Writes the program and table files.
     :param bool write_table: writes the table file if True
     :return str error: error from file I/O
-    :raises ValueError: if no valid file path
     """
-    if self._pgm_filepath is None:
-      raise ValueError("No file path.")
-    error = None
+    full_filename = "%s.py" % self._program_filename
+    program_filepath = os.path.join(self._user_directory,
+        full_filename)
     try:
-      with open(self._pgm_filepath, "w") as file_handle:
+      with open(program_filepath, "w") as file_handle:
         file_handle.write(self._program)
     except IOError as err:
-      error = str(err)
+      return str(err)
     if write_table:
       api_util.copyTableToFile(self._table, 
-                               self._pgm_filename, 
+                               self._program_filename, 
                                self._user_directory)
-    return error
+    return None
 
   def _createAPIObject(self):  
     """
     Creates the API object needed for the runtime.
+    Note that the APIFormulas object is created in the program
+    to avoid circular imports.
     :return str error: error from execution
     """
     namespace = self._table.getNamespace()
     namespace['_table'] = self._table
-    #globals()['_table'] = self._table  #NAMESPACE
     program = """
 from scisheets.core import api as api
 s = api.APIFormulas(_table)
 """
-    error = self._executeProgram(program)
-    return error
+    executer = ProgramExecuter("ProgramRunner._createAPIObject", program, 
+        namespace)
+    return executer.checkSyntaxAndExecute()
 
   def _executeProgram(self, program):
     """
@@ -106,28 +102,13 @@ s = api.APIFormulas(_table)
     Executes as a string if there is no filepath. Otherwise,
     executes from the filepath.
     """
+    executer = ProgramExecuter("ProgramRunner.execute",
+        self._program, self._table.getNamespace())
+    # Is this needed since I construct the correct imports?
     if not self._user_directory is None:
       sys.path.append(self._user_directory)
-    error = None
-    if self._table is None:
-      import pdb; pdb.set_trace()
-    namespace = self._table.getNamespace()
     if create_API_object:
       error = self._createAPIObject()
       if error is not None:
         return error
-    if self._pgm_filepath is not None:
-      self.writeFiles()
-      # pylint: disable=W0122
-      try:
-        #execfile(self._pgm_filepath, globals())  # NAMESPACE
-        execfile(self._pgm_filepath, namespace)
-      # pylint: disable=W0703
-      except Exception as err:
-        # Report the error without changing the table
-        error = err
-    elif len(self._program) > 0:
-      error = self._executeProgram(self._program)
-    else:
-      error = "Nothing to execute!"
-    return error
+    return executer.checkSyntaxAndExecute()
