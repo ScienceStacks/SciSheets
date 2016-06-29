@@ -840,7 +840,8 @@ for x in Col_2:
     self.assertEqual(val, 0.5)
 
   def testImportExcelToTable(self):
-    formula = "a = importExcelToTable(s, 'RawData.xlsx')"
+    filepath = os.path.join(TEST_DIR, 'RawData.xlsx')
+    formula = "a = importExcelToTable(s, '%s')" % filepath
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     # Reset the formula
