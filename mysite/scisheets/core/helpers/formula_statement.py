@@ -23,6 +23,7 @@ class FormulaStatement(object):
   def __init__(self, formula, name):
     """
     :param str formula:
+    :param str name: Column, prologue, epilogue
     """
     self._formula = formula
     self._name = name
@@ -59,7 +60,7 @@ class FormulaStatement(object):
       linenumber = 1
       error = "At line %d, %s" % (linenumber, str(err))
     if error is not None:
-      executer = ProgramExecuter("formula_statement",
+      executer = ProgramExecuter(self._name,
           self._formula, {})
       error = executer.checkSyntax()
       self._isExpression = False

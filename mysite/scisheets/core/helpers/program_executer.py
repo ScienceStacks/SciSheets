@@ -50,9 +50,10 @@ except Exception as exc:
     sa.add(statement)
     return sa.get()
 
-  def checkSyntax(self):
+  def checkSyntax(self, adjust_linenumber=0):
     """
     Checks the syntax.
+    :param int adjust_linenumber:
     :returns str: error message or None
     """
     # Check for syntax errors
@@ -64,9 +65,10 @@ except Exception as exc:
     except Exception as exc:
       if isinstance(exc, exceptions.SyntaxError):
         error = exc
-        lineno = exc.lineno
+        lineno = exc.lineno + adjust_linenumber
     if error is not None:
-      msg = "Syntax error a line %d: %s" % (lineno, str(error))
+      msg = "In %s, syntax error at line %d: %s" %  \
+          (self._program_name, lineno, str(error))
     return msg
 
   def execute(self):
@@ -82,8 +84,8 @@ except Exception as exc:
     else:
       return self._controller.formatError()
 
-  def checkSyntaxAndExecute(self):
-    msg = self.checkSyntax()
+  def checkSyntaxAndExecute(self, **kwargs):
+    msg = self.checkSyntax(**kwargs)
     if msg is None:
       msg = self.execute()
     return msg

@@ -69,10 +69,10 @@ class TestBlockExecutionController(unittest.TestCase):
   def testFormatError(self):
     _ = self._exceptionForBlock()
     msg = self.api.controller.formatError()
-    self.assertTrue('scisheet' in msg)
+    self.assertIsNotNone(msg)
     _ = self._exceptionForBlock(new_filename='x')
     msg = self.api.controller.formatError()
-    self.assertTrue('file' in msg)
+    msg = self.api.controller.formatError()
 
   def testLoopControls(self):
     self.api.controller.initializeLoop()

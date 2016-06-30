@@ -83,7 +83,6 @@ s = api.APIFormulas(_table)
     namespace = self._table.getNamespace()
     # pylint: disable=W0122
     try:
-      #exec(program, globals())  # NAMESPACE
       exec program in namespace
     # pylint: disable=W0703
     except Exception as exc:
@@ -102,7 +101,7 @@ s = api.APIFormulas(_table)
     Executes as a string if there is no filepath. Otherwise,
     executes from the filepath.
     """
-    executer = ProgramExecuter("ProgramRunner.execute",
+    executer = ProgramExecuter(self._program_filename,
         self._program, self._table.getNamespace())
     # Is this needed since I construct the correct imports?
     if not self._user_directory is None:
@@ -111,4 +110,4 @@ s = api.APIFormulas(_table)
       error = self._createAPIObject()
       if error is not None:
         return error
-    return executer.checkSyntaxAndExecute()
+    return executer.checkSyntaxAndExecute(adjust_linenumber=-4)
