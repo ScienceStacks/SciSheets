@@ -193,7 +193,7 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   $("#formula-header").html(formulaLocation);
   $("#formula-dialog").draggable();
   $("#formula-textarea").linedtextarea({selectedLine: linePosition});
-  leftPos = evObj.pageX1+30;
+  leftPos = evObj.pageX1 + 30;
   topPos = 10;
   // evObj.pageX1, evObj.pageY
   $("#formula-dialog").css({left: leftPos, top: topPos});
@@ -242,6 +242,11 @@ SciSheets.prototype.utilClick = function (eleId, evObj, selectedEleFunc) {
     }
   );
   $(clickMenu).css("display", "block");
+  $(document).keydown(function (e) {
+    if (e.keyCode === 27) {
+      $(clickMenu).css("display", "none");
+    }
+  });
 };
 
 SciSheets.prototype.utilReload = function () {

@@ -219,7 +219,8 @@ height: auto;
 Formula...
 </textarea>
 <br/>
-<input type="button" id="formula-dialog-submit" value="Submit"/> <input type="button" id="formula-dialog-cancel" value="Cancel"/>
+<input type="button" id="formula-dialog-submit" value="Submit"/> 
+<input type="button" id="formula-dialog-cancel" value="Cancel"/>
 </form>
 </div>
 
@@ -232,20 +233,36 @@ Formula...
   </form>
 </div>
 
-<div id="export-dialog" style="width:100px;display:none;resize:both;overflow:auto" >
+<div id="export-dialog" 
+    style="
+          background-color:WhiteSmoke;
+          width: 30%;
+          display:none;
+          resize:both;
+          overflow:auto
+          " 
+>
+<h2 id="export-header"
+    style="
+           font-size:150%;
+          ">
+  Table Export</h2>
   <form>
     <fieldset>
       <label for="function-name" id="export-dialog-function-name-label">Function name: </label>
-      <input type="text" name="function-name" id="export-dialog-function-name" size="1000" class="ui-widget-content">
+      <input type="text" name="function-name" id="export-dialog-function-name">
     </fieldset>
     <fieldset>
       <label for="inputs" id="export-dialog-inputs-label">List of input columns: </label>
-      <input type="text" name="inputs" id="export-dialog-inputs" size="1000" class="ui-widget-content">
+      <input type="text" name="inputs" id="export-dialog-inputs">
     </fieldset>
     <fieldset>
       <label for="outputs" id="export-dialog-outputs-label">List of output columns: </label>
-      <input type="text" name="outputs" id="export-dialog-outputs" size="1000" class="ui-widget-content">
+      <input type="text" name="outputs" id="export-dialog-outputs">
     </fieldset>
+    <br/>
+    <input type="button" id="export-dialog-submit" value="Submit"/> 
+    <input type="button" id="export-dialog-cancel" value="Cancel"/>
   </form>
 </div>
 

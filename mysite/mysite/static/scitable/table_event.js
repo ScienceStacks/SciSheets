@@ -65,28 +65,26 @@ SciSheetsTable.prototype.utilExportDialog = function (cmd) {
   if (scisheet.mockAjax) {
     scisheet.ajaxCallCount += 1;  // Count as an Ajax call
   }
-  $("#export-dialog").dialog({
-    autoOpen: true,
-    modal: true,
-    closeOnEscape: true,
-    close: function (event, ui) {
-      scisheet.utilReload();
-    },
-    dialogClass: "dlg-no-close",
-    buttons: {
-      "Submit": function () {
-        cmd.args = [$("#export-dialog-function-name").val()];
-        cmd.args.push($("#export-dialog-inputs").val());
-        cmd.args.push($("#export-dialog-outputs").val());
-        $(this).dialog("close");
-        scisheet.utilSendAndReload(cmd);
-        alert("Pressed Submit");
-      },
-      "Cancel": function () {
-        $(this).dialog("close");
-        scisheet.utilReload();
-      }
+  $("#export-dialog").css("display", "block");
+  $("#export-dialog").draggable();
+  //leftPos = evObj.pageX1+30;
+  //topPos = 10;
+  //$("#export-dialog").css({left: leftPos, top: topPos});
+  $(document).keydown(function (e) {
+    if (e.keyCode === 27) {
+      $("#export-dialog").css("display", "none");
     }
+  });
+  $("#export-dialog-submit").click(function () {
+    cmd.args = [$("#export-dialog-function-name").val()];
+    cmd.args.push($("#export-dialog-inputs").val());
+    cmd.args.push($("#export-dialog-outputs").val());
+    $("#export-dialog").css("display", "none");
+    scisheet.utilSendAndReload(cmd);
+  });
+  $("#export-dialog-cancel").click(function () {
+    $("#export-dialog").css("display", "none");
+    scisheet.utilReload();
   });
 };
 
