@@ -118,6 +118,7 @@ jquery_mockjax:
 	cp jquery-mockjax/src/jquery.mockjax.js $(DDIR_JQUERYMOCKJAX)/jquery_mockjax
 
 jquery:
+	@mkdir -p $(DDIR_JQUERY)
 	@wget http://code.jquery.com/jquery-2.1.4.min.js
 	@mv jquery-2.1.4.min.js $(DDIR_JQUERY)/jquery.min.js
 

@@ -204,7 +204,14 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   });
   $("#formula-dialog-cancel").click(function () {
     $("#formula-dialog").css("display", "none");
-    scisheet.utilReload();
+    location.reload();
+  });
+  $(document).keydown(function (e) {
+    if (e.keyCode === 27) {
+      $("#formula-dialog").css("display", "none");
+      location.reload();
+      location.reload();
+    }
   });
 };
 
@@ -232,7 +239,7 @@ SciSheets.prototype.utilClick = function (eleId, evObj, selectedEleFunc) {
         if (event.handleObj.type === "mouseout") {
           $(clickMenu).hide();
           if (!selected) {
-            scisheet.utilReload();  // Eliminate the highlighting
+            location.reload();
           }
         }
       },
@@ -280,7 +287,7 @@ SciSheets.prototype.utilPromptForInput = function (cmd, newPrompt, defaultValue)
     cmd.args = [response];
     scisheet.utilSendAndReload(cmd);
   } else {
-    scisheet.utilReload();
+    location.reload();
   }
 };
 
