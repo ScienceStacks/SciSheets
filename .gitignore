@@ -3,6 +3,7 @@ mysite/db.sqlite3
 mysite/test_db.sqlite3
 openpyxl
 *.csv
+.*.swp
 *_generated.*
 test_dir
 !test_dir/my_api.py

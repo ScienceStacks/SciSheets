@@ -47,9 +47,9 @@ class TableEvaluator(object):
     program = generator.makeEvaluationScriptProgram()
     # Run the statements from a file
     runner = ProgramRunner(program, 
-                       table=self._table,
+                       self._table,
                        user_directory=user_directory,  
-                       pgm_filename=GENERATED_FILE)
+                       program_filename=GENERATED_FILE)
     runner.writeFiles()
     return runner.execute(create_API_object=True)
 
@@ -86,9 +86,9 @@ class TableEvaluator(object):
                                                      outputs)
     # Write the function file
     runner = ProgramRunner(function_program, 
-                           table=self._table,
+                           self._table,
                            user_directory=user_directory, 
-                           pgm_filename=function_name)
+                           program_filename=function_name)
     error = runner.writeFiles()
     if error is not None:
       return "Error constructing %s: %s" % (function_filepath, error)
@@ -96,9 +96,9 @@ class TableEvaluator(object):
     test_filename = "test_%s" % function_name
     test_program = generator.makeTestProgram(function_name, inputs, outputs)
     test_runner = ProgramRunner(test_program, 
-                                table=self._table,
+                                self._table,
                                 user_directory=user_directory, 
-                                pgm_filename=test_filename)
+                                program_filename=test_filename)
     error = test_runner.writeFiles(write_table=False)
     if error is not None:
       return "Error constructing %s: %s" % (test_filepath, error)

@@ -35,9 +35,18 @@ def _importExcelToDataframe(filepath, worksheet=None):
     data[name] = []
   data_rows = list(rows)
   del data_rows[0]
+  row_num = 1
+  num_names = len(names)
   for row in data_rows:
-    for idx in range(len(names)):
+    if len(row) < len(names):
+      msg = "Missing data in row %d of imported worksheet" % row_num
+      # Issue warningraise ValueError(msg)
+    row_num += 1
+    num_in_row = len(row)
+    for idx in range(num_in_row):
       data[names[idx]].append(row[idx])
+    for idx in range(num_in_row, num_names):
+      data[names[idx]].append(None)
   df = pd.DataFrame(data)
   return df
 

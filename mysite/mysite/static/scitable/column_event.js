@@ -17,38 +17,6 @@ function SciSheetsColumn(scisheet) {
   "use strict";
   this.scisheet = scisheet;
 }
-SciSheetsColumn.prototype.formula = function (cmd, formula) {
-  // Change the dialog prompt
-  "use strict";
-  var scisheet, eleTextarea;
-  scisheet = this.scisheet;
-  eleTextarea = $("#formula-textarea")[0];
-  if (formula !== "") {
-    eleTextarea.value = formula;
-  }
-  if (scisheet.mockAjax) {
-    scisheet.ajaxCallCount += 1;  // Count as an Ajax call
-  }
-  $("#formula-dialog").dialog({
-    autoOpen: true,
-    modal: true,
-    closeOnEscape: true,
-    close: function (event, ui) {
-      scisheet.utilReload();
-    },
-    dialogClass: "dlg-no-close",
-    buttons: {
-      "Submit": function () {
-        cmd.args = [eleTextarea.value];
-        scisheet.utilSendAndReload(cmd);
-      },
-      "Cancel": function () {
-        $(this).dialog("close");
-        scisheet.utilReload();
-      }
-    }
-  });
-};
 
 SciSheetsColumn.prototype.click = function (oArgs) {
   "use strict";
@@ -82,7 +50,8 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       }
       if (cmd.command === 'Formula') {
         formula = scisheet.formulas[ep.columnName];
-        scisheet.utilUpdateFormula(cmd, formula);
+        scisheet.utilUpdateFormula(cmd, ep.columnName,
+            formula, 1, oArgs);
       }
       if (cmd.command === 'Insert') {
         scisheet.utilPromptForInput(cmd, "New column name", "");

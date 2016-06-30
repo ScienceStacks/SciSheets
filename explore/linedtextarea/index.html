@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>JQuery LinedTextArea Demo</title>
+
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-linedtextarea/jquery-linedtextarea.js"></script>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-linedtextarea/jquery-linedtextarea.css"/>
+
+</head>
+<body>
+
+<h0>JQuery LinedTextArea Demo</h0>
+<br>
+
+<button onclick="doit()">Run</button>
+
+<div id="formula-dialog" 
+    style="
+           display:none;
+           min-width:875px;
+           width: 50%;
+           max-width: 1000px;
+           margin: 0 auto;
+           ">
+<h2 id="formula-header"
+    style="
+           font-size:200%;
+           background-color:WhiteSmoke
+          ">
+  Formula Name</h2>
+<br/>
+  <form id="formula-form">
+<textarea name="formula-entry" id="formula-textarea" form="formula-form" 
+    style="
+           background-color:WhiteSmoke;
+           border-style: solid;
+           font-family: Courier New;
+           font-size: 105%;
+           height: 100%;
+           margin: 0;
+           overflow:auto;
+           padding-top: 5px;
+           resize:both;
+           white-space:pre-wrap;
+           width: 100%;
+           "
+    rows="25" 
+    cols="80">
+Formula...
+</textarea>
+<br/>
+<input type="button" id="formula-dialog-send" value="Send"/> <input type="button" id="formula-dialog-cancel" value="Cancel"/>
+</form>
+</div>
+
+
+<!-- =============================== -->
+
+
+<script src="lineedit.js"> </script>
+<!-- ========= Incorporate data from server ====================== -->
+
+</body>
+</html>

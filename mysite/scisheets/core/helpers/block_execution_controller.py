@@ -35,7 +35,10 @@ class BlockExecutionController(object):
     self._exception_filename = None
     self._iterations = 0
     self._old_table = None
-    self._table = self._api.getTable()
+    if self._api is not None:
+      self._table = self._api.getTable()
+    else:
+      self._table = None
 
   # TODO: Handle different file for caller
   def startBlock(self, name):
@@ -69,32 +72,49 @@ class BlockExecutionController(object):
     if self._block_name is None:
       self._block_name = "Unknown"
     self._exception = exception
-    exc_type, exc_obj, exc_tb = sys.exc_info()
+    _, _, exc_tb = sys.exc_info()
     self._exception_filename = exc_tb.tb_frame.f_code.co_filename
-    abs_linenumber = exc_tb.tb_lineno
+    # Check for compile error
+    if 'lineno' in dir(self._exception):
+      abs_linenumber = self._exception.lineno
+      is_runtime_error = False
+    # Must be runtime error
+    else:
+      abs_linenumber = exc_tb.tb_lineno
+      is_runtime_error = True
     # Compute the line number of the exception
-    if self._exception_filename == self._caller_filename:
+    if is_runtime_error and   \
+        self._exception_filename == self._caller_filename:
       self._block_linenumber = abs_linenumber  \
           - self._block_start_linenumber + 1
     else:
       self._block_linenumber = abs_linenumber
 
-  def formatError(self, is_absolute_linenumber=False):
+  def formatError(self, 
+                  is_absolute_linenumber=False,
+                  is_use_block_name=True):
     """
     Formats the exception to include the block and line number.
     :param bool is_absolute_linenumber: Forces message to be
                                       an absolute line number
+    :param bool is_use_block_name: Use the block name in the message
     :return str/None:
     """
     if self._exception is None:
       return None
-    if (not is_absolute_linenumber)  \
-        and self._caller_filename == self._exception_filename:
-      msg = "In the scisheet computing %s at line %d: %s" % (self._block_name, 
-          self._block_linenumber, str(self._exception))
+    if is_use_block_name:
+      if (not is_absolute_linenumber)  \
+          and self._caller_filename == self._exception_filename:
+        if not "Computing" in str(self._exception):
+          msg = "Computing %s near line %d: %s" % (self._block_name, 
+              self._block_linenumber, str(self._exception))
+        else:
+          msg = str(self._exception)
+      else:
+        msg = "In %s near line %d: %s" % (self._exception_filename,
+            self._block_linenumber, str(self._exception))
     else:
-      msg = "In the file %s at line %d: %s" % (self._exception_filename,
-          self._block_linenumber, str(self._exception))
+      msg = "near line %d: %s" % (self._block_linenumber, str(self._exception))
     return msg
 
   def initializeLoop(self):
@@ -141,6 +161,9 @@ class BlockExecutionController(object):
     
   def getException(self):
     return self._exception
+
+  def getExceptionLineNumber(self):
+    return self._block_linenumber
 
   def setTable(self, table):
     self._table = table

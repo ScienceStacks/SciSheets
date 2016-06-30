@@ -15,6 +15,7 @@ DDIR=mysite/mysite/static
 DDIR_YUI=$(DDIR)/yui
 DDIR_JQUERY=$(DDIR)/jquery
 DDIR_JQUERYUI=$(DDIR)/jquery-ui
+DDIR_JQUERYLINEDTEXTAREA=$(DDIR)/jquery-linedtextarea
 DDIR_JQUERYMOCKJAX=$(DDIR)/jquery_mockjax
 DDIR_QUNIT=$(DDIR)/qunit
 
@@ -26,7 +27,7 @@ SMASH=$(N)/.bin/smash
 UGLIFYJS=$(N)/.bin/uglifyjs
 UGLIFYCSS=/usr/local/bin/uglifycss
 
-JQUERY = $(DDIR)/jquery.min.js
+JQUERY = $(DDIR_JQUERYUI)/jquery.min.js
 
 YUI_GENERATED_FILES = \
 	$(DDIR_YUI)/yui.min.js \
@@ -85,8 +86,11 @@ YUI_JS_SRC = \
 clean:
 	@rm -f $(YUI_GENERATED_FILES)
 	@rm -f $(DDIR_JQUERY)/*.*
+	@rm -f $(DDIR_JQUERYUI)/*.*
+	@rm -f $(DDIR_JQUERYLINEDTEXTAREA)/*.*
 
-all: yui jquery
+# TODO: Add jquery-ui
+all: yui jquery jquery-linedtextarea
 
 
 ############# YUI ####################
@@ -116,6 +120,12 @@ jquery_mockjax:
 jquery:
 	@wget http://code.jquery.com/jquery-2.1.4.min.js
 	@mv jquery-2.1.4.min.js $(DDIR_JQUERY)/jquery.min.js
+
+# Bad files in git repo
+jquery-linedtextarea:
+	#j@wget https://github.com/cotenoni/jquery-linedtextarea/blob/master/jquery-linedtextarea.css
+	#@wget https://github.com/cotenoni/jquery-linedtextarea/blob/master/jquery-linedtextarea.js
+	#@mv jquery-linedtextarea.* $(DDIR_JQUERYLINEDTEXTAREA)
 
 # Acquire the dependencies used for qunit
 qunit:

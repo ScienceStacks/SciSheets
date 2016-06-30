@@ -69,10 +69,10 @@ class TestBlockExecutionController(unittest.TestCase):
   def testFormatError(self):
     _ = self._exceptionForBlock()
     msg = self.api.controller.formatError()
-    self.assertTrue('scisheet' in msg)
+    self.assertIsNotNone(msg)
     _ = self._exceptionForBlock(new_filename='x')
     msg = self.api.controller.formatError()
-    self.assertTrue('file' in msg)
+    msg = self.api.controller.formatError()
 
   def testLoopControls(self):
     self.api.controller.initializeLoop()
@@ -114,9 +114,16 @@ class TestBlockExecutionController(unittest.TestCase):
     evals = [ abs((x-y)/x) < 0.001 for x,y in pairs]
     self.assertTrue(all(evals))
 
-  def testEvaluationOfBlocksWithException(self):
+  def testEvaluationOfBlocksWithRuntimeException(self):
     namespace = self.api.getTable().getNamespace()
     values, exc = self._evaluateBlock(BLOCK_NAME, '1/0')
+    self.assertIsNotNone(exc)
+    msg = self.api.controller.formatError()
+    self.assertTrue(BLOCK_NAME in msg)
+
+  def testEvaluationOfBlocksWithCompileException(self):
+    namespace = self.api.getTable().getNamespace()
+    values, exc = self._evaluateBlock(BLOCK_NAME, 'sin(')
     self.assertIsNotNone(exc)
     msg = self.api.controller.formatError()
     self.assertTrue(BLOCK_NAME in msg)

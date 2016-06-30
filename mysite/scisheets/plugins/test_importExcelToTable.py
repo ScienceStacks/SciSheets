@@ -10,7 +10,8 @@ import os
 import pandas as pd
 import unittest
 
-TEST_FILE = os.path.join(ht.TEST_DIR, "excel_read.xlsx")
+TEST_FILE1 = os.path.join(ht.TEST_DIR, "excel_read.xlsx")
+TEST_FILE2 = os.path.join(ht.TEST_DIR, "test_importExcelToTable_1.xlsx")
 COLUMN_NAMES = ['v1', 'v2']
 DATA = {'v1': [11, 22, 33], 'v2': [111, 222, 333]}
 
@@ -38,9 +39,10 @@ class TestImportExcel(unittest.TestCase):
 
   def testBadColumn(self):
     with self.assertRaises(ValueError):
-      importExcelToTable(self.api, TEST_FILE, ['w'])
+      importExcelToTable(self.api, TEST_FILE1, ['w'])
 
-  def _testImportTable(self, names=None, worksheet=None):
+  def _testImportTable(self, names=None, worksheet=None, 
+      filename=TEST_FILE1):
     table = self.api.getTable()
     old_table = table.copy()
     for col_pos in [ht.COLUMN1, ht.COLUMN5, None]:
@@ -48,7 +50,7 @@ class TestImportExcel(unittest.TestCase):
       self.api._table = table
       column_position = col_pos
       imported_names = importExcelToTable(self.api,
-          TEST_FILE, worksheet=worksheet, names=names,
+          filename, worksheet=worksheet, names=names,
           column_position=column_position)
       if worksheet is None:
         worksheet = 'Sheet1'
@@ -80,10 +82,21 @@ class TestImportExcel(unittest.TestCase):
         self.assertEqual(column_index, expected_index)
 
   def testImportTable(self):
+    return
     self._testImportTable()
     self._testImportTable(names=['v1'])
     self._testImportTable(worksheet='Sheet1')
     self._testImportTable(worksheet='Sheet1', names=['v2'])
+
+  def testImportTableWithMissingData(self):
+    names = ['ItemRelation', 'AccountRelation', 'QuantityAmount', 
+        'Amount', 'FromDate', 'ToDate']
+    worksheet = 'Sheet1'
+    filename = TEST_FILE2
+    table = self.api.getTable()
+    imported_names = importExcelToTable(self.api,
+        filename, worksheet=worksheet, names=names)
+    self.assertTrue(imported_names == names)
     
 
 if __name__ == '__main__':

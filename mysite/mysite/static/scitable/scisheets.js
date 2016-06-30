@@ -172,11 +172,15 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   this.rowIndex = table.getRecordIndex(this.target) + 1;
 }
 
-// Formula updates
-SciSheets.prototype.utilUpdateFormula = function (cmd, formula) {
-  // Change the dialog prompt
+SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula, linePosition, evObj) {
+  // Create the dialogue and extract formula changes
+  // Input: cmd - AJAX command
+  //        formulaLocation (str) - Column/Prologue/Epilogue
+  //        formula (str)
+  //        linePosition (int) - where the dialogue is positioned
+  //        evObj - event object
   "use strict";
-  var scisheet, eleTextarea;
+  var scisheet, eleTextarea, leftPos, topPos;
   scisheet = this;
   eleTextarea = $("#formula-textarea")[0];
   if (formula !== "") {
@@ -185,24 +189,22 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formula) {
   if (scisheet.mockAjax) {
     scisheet.ajaxCallCount += 1;  // Count as an Ajax call
   }
-  $("#formula-dialog").dialog({
-    autoOpen: true,
-    modal: true,
-    closeOnEscape: true,
-    close: function (event, ui) {
-      scisheet.utilReload();
-    },
-    dialogClass: "dlg-no-close",
-    buttons: {
-      "Submit": function () {
-        cmd.args = [eleTextarea.value];
-        scisheet.utilSendAndReload(cmd);
-      },
-      "Cancel": function () {
-        $(this).dialog("close");
-        scisheet.utilReload();
-      }
-    }
+  $("#formula-dialog").css("display", "block");
+  $("#formula-header").html(formulaLocation);
+  $("#formula-dialog").draggable();
+  $("#formula-textarea").linedtextarea({selectedLine: linePosition});
+  leftPos = evObj.pageX1+30;
+  topPos = 10;
+  // evObj.pageX1, evObj.pageY
+  $("#formula-dialog").css({left: leftPos, top: topPos});
+  $("#formula-dialog-submit").click(function () {
+    cmd.args = [eleTextarea.value];
+    $("#formula-dialog").css("display", "none");
+    scisheet.utilSendAndReload(cmd);
+  });
+  $("#formula-dialog-cancel").click(function () {
+    $("#formula-dialog").css("display", "none");
+    scisheet.utilReload();
   });
 };
 
