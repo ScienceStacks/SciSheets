@@ -216,16 +216,6 @@ class TestAPIPlugin(unittest.TestCase):
     self.api.initialize()
     ht.setupTableInitialization(self)
 
-  def testDependencyCounter(self):
-    self.assertEqual(self.api.getDependencyCounter(), 0)
-    self.api.createColumn(COLUMN2)
-    self.assertEqual(self.api.getDependencyCounter(), 1)
-    self.api.deleteColumn(COLUMN2)
-    self.assertEqual(self.api.getDependencyCounter(), 2)
-    self.api.setDependencyCounter()
-    self.assertEqual(self.api.getDependencyCounter(), 0)
-
-
 # pylint: disable=W0212,C0111,R0904
 class TestAPIAdmin(unittest.TestCase):
 

@@ -149,8 +149,8 @@ class BlockExecutionController(object):
     elif (self._exception is None)  \
         and self._table.isEquivalent(self._old_table):
       done = True
-    elif self._iterations >= num_formula_columns  \
-        + self._api.getDependencyCounter():
+    elif self._iterations >= num_formula_columns:
+       # + self._api.getDependencyCounter():
       done = True
     elif self._iterations >  \
         settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS:

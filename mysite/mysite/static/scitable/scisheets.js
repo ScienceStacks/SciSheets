@@ -210,7 +210,11 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   });
   $(document).keydown(function (e) {
     if (e.keyCode === 27) {
-      $("#formula-dialog-cancel").trigger("click");
+      var response;
+      response = window.confirm("Exit formula editing?");
+      if (response === true) {
+        $("#formula-dialog-cancel").trigger("click");
+      }
     }
   });
 };
@@ -223,8 +227,9 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
 // Output: establishes the click handlers
 SciSheets.prototype.utilClick = function (eleId, evObj, selectedEleFunc) {
   "use strict";
-  var clickMenu, selected;
+  var clickMenu, selected, scisheet;
   selected = false;
+  scisheet = this;
   clickMenu = document.getElementById(eleId);
   $(clickMenu).css({left: evObj.pageX, top: evObj.pageY});
   $(clickMenu).menu(

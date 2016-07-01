@@ -46,9 +46,6 @@ class API(object):
     # Columns excluded from update because created dynamically
     # and so the user has responsibility for their update
     self._exclude_column_update = []
-    # Counter for the number of operations that may create
-    # additional nodes in the dependency graph
-    self._dependency_counter = 0
 
   def addColumnsToTableFromDataframe(self, 
                                      dataframe, 
@@ -164,9 +161,6 @@ class API(object):
     column = self.getColumn(column_name)
     return self._coerceValues(column, column.getCells())
 
-  def getDependencyCounter(self):
-    return self._dependency_counter
-
   def getTable(self):
     return self._table
 
@@ -212,9 +206,6 @@ class API(object):
     else:
       list_values = list(values)
     self._table.updateColumn(column, list_values)
-
-  def setDependencyCounter(self):
-    self._dependency_counter = 0
 
   def tableToDataframe(self, columns=None):
     """
@@ -266,7 +257,6 @@ class APIFormulas(API):
     :return: column object
     :raises: ValueError if invalid name for column
     """
-    self._dependency_counter += 1
     if self._table.isColumnPresent(column_name):
       return self._table.columnFromName(column_name)
     # Create the column
@@ -316,7 +306,6 @@ class APIFormulas(API):
     column = self.getColumn(column_id, validate=False)
     if column is not None:
       _  = self._table.deleteColumn(column)
-      self._dependency_counter += 1
 
   def updateTableCellsAndColumnVariables(self, excludes):
     """
