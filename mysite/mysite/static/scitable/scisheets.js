@@ -185,6 +185,8 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   eleTextarea = $("#formula-textarea")[0];
   if (formula !== "") {
     eleTextarea.value = formula;
+  } else {
+    eleTextarea.value = "Formula...";
   }
   if (scisheet.mockAjax) {
     scisheet.ajaxCallCount += 1;  // Count as an Ajax call
@@ -204,13 +206,11 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   });
   $("#formula-dialog-cancel").click(function () {
     $("#formula-dialog").css("display", "none");
-    location.reload();
+    scisheet.utilReload();
   });
   $(document).keydown(function (e) {
     if (e.keyCode === 27) {
-      $("#formula-dialog").css("display", "none");
-      location.reload();
-      location.reload();
+      $("#formula-dialog-cancel").trigger("click");
     }
   });
 };
@@ -223,9 +223,8 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
 // Output: establishes the click handlers
 SciSheets.prototype.utilClick = function (eleId, evObj, selectedEleFunc) {
   "use strict";
-  var clickMenu, scisheet, selected;
+  var clickMenu, selected;
   selected = false;
-  scisheet = this;
   clickMenu = document.getElementById(eleId);
   $(clickMenu).css({left: evObj.pageX, top: evObj.pageY});
   $(clickMenu).menu(
@@ -239,7 +238,7 @@ SciSheets.prototype.utilClick = function (eleId, evObj, selectedEleFunc) {
         if (event.handleObj.type === "mouseout") {
           $(clickMenu).hide();
           if (!selected) {
-            location.reload();
+            scisheet.utilReload();
           }
         }
       },
@@ -287,7 +286,7 @@ SciSheets.prototype.utilPromptForInput = function (cmd, newPrompt, defaultValue)
     cmd.args = [response];
     scisheet.utilSendAndReload(cmd);
   } else {
-    location.reload();
+    scisheet.utilReload();
   }
 };
 
