@@ -154,6 +154,7 @@ class Column(object):
     data_list.insert(index, val)
     self._setDatavalues(data_list)
 
+  # TODO: Refactor to use api_util.isEquivalentData
   def isEquivalent(self, column):
     """
     Compares the internal state of this and the input column,
@@ -296,6 +297,9 @@ class Column(object):
     Sets the table being used for this column
     """
     self._owning_table = table
+
+  def getTable(self):
+    return self._owning_table
 
   @staticmethod
   def isPermittedName(name):

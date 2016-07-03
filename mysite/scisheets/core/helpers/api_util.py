@@ -91,6 +91,20 @@ def copyTableToFile(table, filename, directory):
   pickle.dump(new_table, open(filepath, "wb"))
   return filepath
 
+# TODO: Add test
+def isEquivalentData(self, values1, values2):
+  """
+  Determines if two values are equivalent
+  :param Iterable/object values1, values2:
+  :return bool:
+  """
+  if isinstance(values1, collections.Iterable)  \
+      and isinstance(values2, collections.Iterable):
+    result = api_util.compareIterables(values1, values2)
+  else:
+    result = values1 == values2
+  return result
+
 def compareIterables(iter1, iter2):
   """
   Compares two iterables. Considered equal if different lengths

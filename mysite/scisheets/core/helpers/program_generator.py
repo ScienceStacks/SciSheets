@@ -59,14 +59,14 @@ class ProgramGenerator(object):
     2. Variable assignment statements that assign column values
        to variables used in the script.
     3. Formula evaluation blocks, one for each formula.
-    4. Checking for termination of the formulation evaluation loop
+    4. Checking for termination of the formula evaluation loop
   Exported functions have the following structure:
     1. Prologue statements. This includes the creation of the
        Plugin API object.
     2. Function header (def statement)
     3. Variable assignment statements (but not for the 
        function inputs).
-    4. Checking for termination of the formulation evaluation loop
+    4. Checking for termination of the formula evaluation loop
     5. Return statement
   In addition, a test program is created that calls the exported function
   and verifies that the function produces the output columns in
@@ -496,7 +496,7 @@ if __name__ == '__main__':
     #     number of columns.
     #  3. The iteration count exceeds a maximum value.
     statement = """
-# Formulation evaluation loop
+# Formula evaluation loop
 %s.controller.initializeLoop()
 while not %s.controller.isTerminateLoop():
 """ % (API_OBJECT, API_OBJECT)
