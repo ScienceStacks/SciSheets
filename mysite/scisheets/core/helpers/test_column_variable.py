@@ -25,12 +25,13 @@ class TestColumnVariable(unittest.TestCase):
     self.table.addColumn(new_column)
     self.table.evaluate()
     columns = self.table.getColumns()
-    self.column_variables = [ColumnVariable(c) for c in columns] 
+    self.column_variables =  \
+        [ColumnVariable(c) for c in columns] 
+       #[ColumnVariable(c) for c in columns if c.getName() != 'row'] 
 
   def testConstructor(self):
     for cv in self.column_variables:
       self.assertEqual(cv._baseline_value, cv._column.getCells())
-      self.assertEqual(cv._iteration_start_value, cv._baseline_value)
 
   def testGetColumnValue(self):
     for cv in self.column_variables:
@@ -52,10 +53,29 @@ class TestColumnVariable(unittest.TestCase):
       self.assertEqual(cv.getColumnValue(), new_value)
 
   def testIsChangedFromBaselineValue(self):
-    pass
+    namespace = self.table.getNamespace()
+    for cv in self.column_variables:
+      self.assertFalse(cv.isChangedFromBaselineValue())
+      num_rows = cv._column.numCells()
+      new_value = [10*n for n in range(num_rows)]
+      namespace[cv._column.getName()] = new_value
+      cv.setIterationStartValue()
+      self.assertTrue(cv.isChangedFromBaselineValue())
+      cv.setColumnValue()
+      cv._baseline_value = cv.getColumnValue()
+      self.assertFalse(cv.isChangedFromBaselineValue())
 
   def testIsChangedFromIterationStartValue(self):
-    pass
+    namespace = self.table.getNamespace()
+    for cv in self.column_variables:
+      cv.setIterationStartValue()
+      self.assertFalse(cv.isChangedFromIterationStartValue())
+      num_rows = cv._column.numCells()
+      new_value = [10*n for n in range(num_rows)]
+      namespace[cv._column.getName()] = new_value
+      self.assertTrue(cv.isChangedFromIterationStartValue())
+      cv.setIterationStartValue()
+      self.assertFalse(cv.isChangedFromIterationStartValue())
       
     
 

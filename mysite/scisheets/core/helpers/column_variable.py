@@ -1,9 +1,7 @@
 """
    Abstracts a column to handle its existence as both part of a Table and
-   a namespace variable.
-   Issues:
-   1. Consistency for the use of padding values so can do comparisons and
-      do vector operations.
+   a namespace variable. A ColumnVariable has a lifetime no longer than the
+   period that the underlying column is static.
 """
 
 import api_util
@@ -27,11 +25,9 @@ class ColumnVariable(object):
     :param Column column:
     """
     self._column = column
-    self._baseline_value = None
+    self._baseline_value = self.getColumnValue()
     self._iteration_start_value = None
-    self.setBaselineValue()
     self._setNamespaceValue()
-    self.setIterationStartValue()
  
   def getNamespaceValue(self):
     return self._column.getTable().getNamespace()[self._column.getName()]
@@ -62,19 +58,13 @@ class ColumnVariable(object):
     """
     self._iteration_start_value = self.getNamespaceValue()
 
-  def setBaselineValue(self):
-    """
-    Sets the baseline values from the column values.
-    """
-    self._baseline_value = self.getColumnValue()
-
   def isChangedFromBaselineValue(self):
     """
     Checks if the value of the variable in the namespace
     has changed from its baselineline value.
     :return bool: True if changed
     """
-    return api_util.isEquivalentData(self.getNamespaceValue(), self._baseline_value)
+    return not api_util.isEquivalentData(self.getNamespaceValue(), self._baseline_value)
 
   def isChangedFromIterationStartValue(self):
     """
@@ -82,4 +72,4 @@ class ColumnVariable(object):
     has changed from its iteration start value
     :return bool: True if changed
     """
-    return api_util.isEquivalentData(self.getNamespaceValue(), self._iteration_start_value)
+    return not api_util.isEquivalentData(self.getNamespaceValue(), self._iteration_start_value)

@@ -92,7 +92,7 @@ def copyTableToFile(table, filename, directory):
   return filepath
 
 # TODO: Add test
-def isEquivalentData(self, values1, values2):
+def isEquivalentData(values1, values2):
   """
   Determines if two values are equivalent
   :param Iterable/object values1, values2:
@@ -100,7 +100,7 @@ def isEquivalentData(self, values1, values2):
   """
   if isinstance(values1, collections.Iterable)  \
       and isinstance(values2, collections.Iterable):
-    result = api_util.compareIterables(values1, values2)
+    result = compareIterables(values1, values2)
   else:
     result = values1 == values2
   return result
@@ -124,14 +124,16 @@ def compareIterables(iter1, iter2):
       return False
     result = False
     for typ in types:
-      if typ == float:
+      if typ == float and cell_types.isFloats([val1, val2]):
         if np.isnan(val1) or np.isnan(val2):
           result = np.isnan(val1) == np.isnan(val2)
+          result = True
           break
       if isinstance(val1, typ) and isinstance(val2, typ):
         result = True
         break
     return result
+
   # Make sure the inputs are iterables
   if not isinstance(iter1, collections.Iterable):
     iter1 = np.array([iter1])
