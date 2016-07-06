@@ -1,13 +1,26 @@
 """
-   Abstraction for values of columns that encompasses both their representation
-   in Columns and in the namespace used for table evaluation.
-   the execution namespace.
+   Abstracts a column to handle its existence as both part of a Table and
+   a namespace variable.
+   Issues:
+   1. Consistency for the use of padding values so can do comparisons and
+      do vector operations.
 """
 
 import api_util
 
 
 class ColumnVariable(object):
+  """
+  Manages the relationship between the data in a Column and a namespace variable
+  with the same name. This is done in the context of formula evaluation, especially
+  iterative evaluation of formulas.
+  The ColumnVariable assumes that the underlying table is not updated.
+  If the underlying table is to be updated:
+    1. use setColumnValue() to update the column from the namespace variable
+    2. Make the table modifications
+    3. Create a new ColumnVariable.
+  """
+
 
   def __init__(self, column):
     """
@@ -17,34 +30,41 @@ class ColumnVariable(object):
     self._baseline_value = None
     self._iteration_start_value = None
     self.setBaselineValue()
-    self._setNamespaceValue(self._baseline_value)
+    self._setNamespaceValue()
+    self.setIterationStartValue()
  
   def getNamespaceValue(self):
     return self._column.getTable().getNamespace()[self._column.getName()]
 
   def getColumnValue(self):
-    return self._column.prunedCells()
+    return self._column.getCells()
 
-  def _setNamespaceValue(self, values):
+  def _setNamespaceValue(self):
     """
     Establishes the value of the variable in the namespace.
-    :param list values:
     """
     table = self._column.getTable()
-    table.getNamespace()[self._column.getName()] = values
+    table.getNamespace()[self._column.getName()] = self.getColumnValue()
 
-  def setIterationStartValue(self, values):
+  def setColumnValue(self):
+    """
+    Establishes the value of the variable in the Column.
+    Called if the column is changed outside the namespace during
+    formula evaluation.
+    :param object value:
+    """
+    self._column.addCells(self.getNamespaceValue(), replace=True)
+
+  def setIterationStartValue(self):
     """
     Establishes the value of the variable in the namespace at the
     start of an iteration in formula evaluation.
-    :param list values:
     """
-    table = self._column.getTable()
-    table.getNamespace()[self._column.getName()] = values
+    self._iteration_start_value = self.getNamespaceValue()
 
   def setBaselineValue(self):
     """
-    Sets the baseline reference values from the column values.
+    Sets the baseline values from the column values.
     """
     self._baseline_value = self.getColumnValue()
 

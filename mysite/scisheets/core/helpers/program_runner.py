@@ -5,6 +5,7 @@ creating the API object and managing associated resources (e.g., table files).
 
 import api_util
 from program_executer import ProgramExecuter
+from mysite import settings
 import os
 import sys
 
@@ -32,6 +33,8 @@ class ProgramRunner(object):
     if table is None:
       raise ValueError("Must specify table.")
     self._user_directory = user_directory
+    if self._user_directory is None:
+      self._user_directory = settings.SCISHEETS_TEST_DIR
     self._program_filename = program_filename
     self.writeFiles()
 
@@ -42,8 +45,12 @@ class ProgramRunner(object):
     :return str error: error from file I/O
     """
     full_filename = "%s.py" % self._program_filename
-    program_filepath = os.path.join(self._user_directory,
-        full_filename)
+    try:
+      program_filepath = os.path.join(self._user_directory,
+          full_filename)
+    except Exception as err:
+      import pdb; pdb.set_trace()
+      pass
     try:
       with open(program_filepath, "w") as file_handle:
         file_handle.write(self._program)
