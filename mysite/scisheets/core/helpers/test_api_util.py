@@ -5,6 +5,7 @@ files in core.
 
 from scisheets.core import helpers_test as ht
 from scisheets.core.helpers import api_util as api_util
+from scisheets.core.helpers.extended_array import ExtendedArray
 import numpy as np
 import os
 import unittest
@@ -43,6 +44,17 @@ class TestAPIUtil(unittest.TestCase):
     new_table = api_util.getTableFromFile(path)
     self.assertEqual(table.getName(), new_table.getName())
     os.remove(path)
+
+  def testIsEquivalentData(self):
+    self.assertTrue(api_util.isEquivalentData(1, 1))
+    self.assertFalse(api_util.isEquivalentData(1, 2))
+    range1 = range(5)
+    range2 = range(6)
+    self.assertTrue(api_util.isEquivalentData(range1, range1))
+    self.assertFalse(api_util.isEquivalentData(range1, range2))
+    values1 = [np.nan, np.nan, np.nan]
+    values2 = ExtendedArray(0.41509)
+    self.assertFalse(api_util.isEquivalentData(values1, values2))
 
 
 if __name__ == '__main__':

@@ -78,6 +78,8 @@ class TestBlockExecutionController(unittest.TestCase):
     self.api.controller.initializeLoop()
     self.assertFalse(self.api.controller.isTerminateLoop())
     self.api.controller.startAnIteration()
+    self.assertTrue(self.api.controller.isTerminateLoop())
+    self.api.controller.startAnIteration()
     self.api.controller.endAnIteration()
     self.assertTrue(self.api.controller.isTerminateLoop())
 

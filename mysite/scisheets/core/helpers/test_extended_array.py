@@ -34,7 +34,17 @@ class TestExtendedArray(unittest.TestCase):
     name = 'another dummy'
     ea.setName(name)
     self.assertEqual(ea.name, name)
-   
+
+  def testLen(self):
+    values = range(5)
+    ea = ExtendedArray(name='Dummy', values=values)
+    self.assertEqual(len(values), len(ea))
+    ea = ExtendedArray(name='Dummy', values=1)
+    self.assertEqual(1, len(ea))
+
+  def testSingleValue(self):
+    ea = ExtendedArray(name='Dummy', values=1)
+    self.assertEqual(len(ea), 1)
 
 
 if __name__ == '__main__':

@@ -167,7 +167,6 @@ class TestTableEvaluator(unittest.TestCase):
       with stdoutIO():
         execfile(file_path)
       success = True
-    ## BUG HERE. Also writing separate .pcl for test
     except IOError:
       success = False
     self.assertTrue(success)

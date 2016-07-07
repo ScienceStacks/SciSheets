@@ -101,6 +101,8 @@ def isEquivalentData(values1, values2):
   if isinstance(values1, collections.Iterable)  \
       and isinstance(values2, collections.Iterable):
     result = compareIterables(values1, values2)
+  elif type(values1) != type(values2):
+    return False
   else:
     result = values1 == values2
   return result
@@ -134,12 +136,23 @@ def compareIterables(iter1, iter2):
         break
     return result
 
+  def cleanup(val):
+    result = val
+    if not isinstance(val, collections.Iterable):
+      result = np.array([val])
+    if isinstance(val, ExtendedArray):
+      result = val.tolist()
+    return result
+
   # Make sure the inputs are iterables
-  if not isinstance(iter1, collections.Iterable):
-    iter1 = np.array([iter1])
-  if not isinstance(iter2, collections.Iterable):
-    iter2 = np.array([iter2])
+  iter1 = cleanup(iter1)
+  iter2 = cleanup(iter2)
   # Check the lengths, ignoring NaN and None
+  try:
+    b = len(iter1) != len(iter2)
+  except Exception as err:
+    import pdb; pdb.set_trace()
+    pass
   if len(iter1) != len(iter2):
     min_len = min(len(iter1), len(iter2))
     max_len = max(len(iter1), len(iter2))

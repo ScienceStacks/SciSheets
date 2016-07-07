@@ -17,6 +17,7 @@ which is the column name.
 from column import Column
 from table import Table, NAME_COLUMN_STR
 import helpers.api_util as api_util
+from helpers.column_variable import ColumnVariable
 from helpers.block_execution_controller import BlockExecutionController
 import helpers.cell_types as cell_types
 from helpers.extended_array import ExtendedArray
@@ -40,12 +41,31 @@ class API(object):
   """
 
   def __init__(self):
-    self._table = None
+    self.setTable(None)  # self._table
+    self.setColumnVariables()  # self._column_variables
     self._column_idx = None
     self._table_filepath = None
     # Columns excluded from update because created dynamically
     # and so the user has responsibility for their update
     self._exclude_column_update = []
+
+  def setTable(self, table):
+    self._table = table
+    self.setColumnVariables()
+    self.controller = BlockExecutionController(self)
+
+  def setColumnVariables(self):
+    if self._table is not None:
+      columns = self._table.getColumns()
+      self._column_variables = [ColumnVariable(c) for c in columns]
+    else:
+      self._column_variables = []
+
+  def getColumnVariables(self):
+    return self._column_variables
+
+  def updateColumnFromColumnVariables(self):
+    [cv.setColumnValue() for cv in self._column_variables]
 
   def addColumnsToTableFromDataframe(self, 
                                      dataframe, 
@@ -75,6 +95,9 @@ class API(object):
         self._table.addColumn(column, index=index)
         index += 1
       column.addCells(dataframe[name], replace=True)
+      if column._owning_table is None:
+        import pdb; pdb.set_trace()
+        pass
     return names
 
   def _coerceValues(self, column, values):
@@ -244,8 +267,8 @@ class APIFormulas(API):
     :param Table table: table for which execution is done
     """
     super(APIFormulas, self).__init__()
-    self._table = table
-    self.controller = BlockExecutionController(self)
+    self.setTable(table)
+    self.setColumnVariables()
 
   def _createColumn(self, column_name, index=None, asis=False):
     """
@@ -342,8 +365,9 @@ class APIPlugin(APIFormulas):
     Does initialization at the beginning of executing table
     code.
     """
-    self._table = api_util.getTableFromFile(self._table_filepath,
+    table = api_util.getTableFromFile(self._table_filepath,
       verify=False)
+    self.setTable(table)
     self.controller.setTable(self._table)
 
   def compareToColumnValues(self, column_name, values):

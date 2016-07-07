@@ -27,18 +27,18 @@ class BlockExecutionController(object):
     :param Table table:
     """
     self._api = scisheets_api
+    self._block_linenumber = None  # Where exception occurred in block
     self._block_name = None
     self._block_start_linenumber = None  # Start of block in source
-    self._block_linenumber = None  # Where exception occurred in block
     self._caller_filename = None
+    self._column_variables = []
     self._exception = None
     self._exception_filename = None
     self._iterations = 0
-    self._old_table = None
+    self._table = None
     if self._api is not None:
       self._table = self._api.getTable()
-    else:
-      self._table = None
+      self._column_variables = self._api.getColumnVariables()
 
   # TODO: Handle different file for caller
   def startBlock(self, name):
@@ -122,21 +122,32 @@ class BlockExecutionController(object):
     Initializes variables before loop begins
     """
     self._iterations = 0
-    self._old_table = None
 
   def startAnIteration(self):
     """
     Beginning of a loop iteration
     """
     self._exception = None
-    self._old_table = self._table.copy()
+    [cv.setIterationStartValue() for cv in self._column_variables]
 
   def endAnIteration(self):
     """
     End of a loop iteration
     """
     self._iterations += 1
-    self._api.updateTableCellsAndColumnVariables([])
+
+  def _isEquivalentValues(self):
+    """
+    Checks if not namespace variable has changed since the start of the iteration.
+    :return bool: True if no change
+    """
+    try:
+      result = not any([cv.isChangedFromIterationStartValue()  \
+                for cv in self._column_variables])
+    except Exception as err:
+      import pdb; pdb.set_trace()
+      pass
+    return result
 
   def isTerminateLoop(self):
     """
@@ -146,11 +157,9 @@ class BlockExecutionController(object):
     num_formula_columns = len(self._table.getFormulaColumns())
     if not self._table.getIsEvaluateFormulas():
       return True
-    elif (self._exception is None)  \
-        and self._table.isEquivalent(self._old_table):
+    elif (self._exception is None) and self._isEquivalentValues():
       done = True
     elif self._iterations >= num_formula_columns:
-       # + self._api.getDependencyCounter():
       done = True
     elif self._iterations >  \
         settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS:

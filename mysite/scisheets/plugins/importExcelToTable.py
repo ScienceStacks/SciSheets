@@ -66,10 +66,12 @@ def importExcelToTable(s,
   :param str column_position: name of the column to place after
   :return list-of-str: column names imported
   """
+  s.updateColumnFromColumnVariables()
   df = _importExcelToDataframe(filepath, worksheet=worksheet)
   imported_names = s.addColumnsToTableFromDataframe(df, names=names, column_position=column_position)
   table = s.getTable()
   for name in imported_names:
     column = table.columnFromName(name)
     s.assignColumnVariable(name)
+  s.setColumnVariables()
   return imported_names
