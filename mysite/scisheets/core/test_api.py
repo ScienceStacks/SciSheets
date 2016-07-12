@@ -1,6 +1,7 @@
 '''Tests for formulas API'''
 
 from api import API, APIFormulas, APIPlugin, APIAdmin
+from column import Column
 import helpers_test as ht
 from helpers.trinary import Trinary
 import table_evaluator as te
@@ -14,6 +15,7 @@ COLUMN2 = "Col_2"
 COLUMN3 = "Col_3"
 TRUTH_COLUMNS = ['A', 'B']
 COLUMN1_VALUES = range(10)
+TEST_FILE1 = "test_api_1"
 
 #############################
 # Tests
@@ -48,6 +50,17 @@ class TestAPI(unittest.TestCase):
     self.assertTrue(column in self.api._table._hidden_columns)
     self.api.setColumnVisibility(names, is_visible=True)
     self.assertEqual(len(self.api._table._hidden_columns), 0)
+
+  def testSetColumnVariables(self):
+    table = self.api.getTable()
+    self.api.setColumnVariables()
+    for column in table.getColumns():
+      self.assertTrue(column.getName() in table.getNamespace())
+    new_column_name = "New_Column"
+    new_column = Column(new_column_name)
+    table.addColumn(new_column)
+    self.api.setColumnVariables()
+    self.assertTrue(new_column_name in table.getNamespace())
     
 
 # pylint: disable=W0212,C0111,R0904
@@ -125,6 +138,19 @@ class TestAPIFormulas(unittest.TestCase):
                for n in range(num)])
       self.assertTrue(b)
 
+  def testAddColumnsToDataframeMissingTable(self):
+    table = self.api.getTable()
+    df, names = table.getCapture(TEST_FILE1)
+    column_names = [c.getName() for c in table.getColumns()]
+    for name in names:
+      self.assertFalse(name in column_names)
+    self.api.addColumnsToTableFromDataframe(df, names=names)
+    column_names = [c.getName() for c in table.getColumns()]
+    for name in names:
+      self.assertTrue(name in column_names)
+      column = table.columnFromName(name)
+      self.assertIsNotNone(column._owning_table)
+
   def _testAddFromDataframe(self, prefix="", names=None):
     df = self._createDataframe(prefix=prefix)
     self.api.addColumnsToTableFromDataframe(df, names=names)
@@ -151,60 +177,6 @@ class TestAPIFormulas(unittest.TestCase):
     self.api._table = self.table
     self._testToDataframe()
     self._testToDataframe(names=['DUMMY1_COLUMN'])
-
-  def _testAssignColumnVariables(self, colnms, excludes):
-    """
-    :param list-of-str colnms: column names in table
-    :param list-of-str excludes: column names not updated
-    """
-    table = ht.createTable("test", column_name=colnms)
-    self.api._table = table
-    data = {}
-    for colnm in colnms:
-      column = table.columnFromName(colnm)
-      data[colnm] = column.getCells()
-    namespace = table.getNamespace()
-    self.assertEqual(len(namespace.keys()), 0)
-    self.api.assignColumnVariables(excludes)
-    count = len(colnms) + 1 - len(excludes)
-    self.assertEqual(len(namespace.keys()), count)
-    for colnm in colnms:
-      if not colnm in excludes:
-        self.assertTrue(list(namespace[colnm]) == list(data[colnm]))
-
-  def testAssignColumnVariables(self):
-    colnms = [COLUMN1, COLUMN2]
-    self._testAssignColumnVariables(colnms, [])
-    self._testAssignColumnVariables(colnms, [COLUMN1])
-    self._testAssignColumnVariables(colnms, colnms)
-
-  def _testUpdateTableCellsAndColumnVariables(self, colnms, excludes):
-    new_data = range(30)
-    self._testAssignColumnVariables(colnms, excludes)  # Assign COLUMN1
-    table = self.api.getTable()
-    namespace = table.getNamespace()
-    for colnm in colnms:
-      if colnm in excludes:
-        self.assertFalse(colnm in namespace)
-      else:
-        column = table.columnFromName(colnm)
-        data = [x for x in list(column.getCells()) if x is not np.nan]
-        namespace_data = [x for x in namespace[colnm]]
-        self.assertTrue(namespace_data == data)
-        namespace[colnm] = new_data
-    self.api.updateTableCellsAndColumnVariables([])
-    for colnm in colnms:
-      if colnm in excludes:
-        self.assertTrue(colnm in namespace)
-      else:
-        namespace_data = [x for x in namespace[colnm]]
-        self.assertTrue(namespace_data == list(column.getCells()))
-
-  def testUpdateTableCellsAndColumnVariables(self):
-    colnms = [COLUMN1, COLUMN2]
-    self._testUpdateTableCellsAndColumnVariables(colnms, [])
-    self._testUpdateTableCellsAndColumnVariables(colnms, [COLUMN1])
-    self._testUpdateTableCellsAndColumnVariables(colnms, colnms)
     
 
 # pylint: disable=W0212,C0111,R0904

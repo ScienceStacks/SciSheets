@@ -174,7 +174,7 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertTrue('import' in statements)
     self.assertIsNone(_compile(statements))
     statements = self.generator._makeEpilogue()
-    self.assertTrue('s.updateTableCellsAndColumnVariables' in statements)
+    self.assertTrue('s.controller.startBlock' in statements)
     self.assertIsNone(_compile(statements))
 
   def testMakePrologueWithoutFormulas(self):
@@ -191,7 +191,7 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertTrue('import' in statements)
     self.assertIsNone(_compile(statements))
     statements = self.generator._makeEpilogue()
-    self.assertTrue('s.updateTableCellsAndColumnVariables' in statements)
+    self.assertTrue('s.controller.startBlock' in statements)
     self.assertIsNone(_compile(statements))
 
   def testMakeAPIPluginInitializationStatements(self):
@@ -227,13 +227,13 @@ class TestProgramGenerator(unittest.TestCase):
     self.assertIsNone(_compile(program))
 
   def testMakeEvaluationScriptProgram(self):
-    tags = ["import", "#_table", "assignColumnVariables", 
+    tags = ["import", "#_table", 
             "Prologue", "initializeLoop", 
             "isTerminateLoop", "startAnIteration", "np.sin",
             "endAnIteration"]
     program = self.generator.makeEvaluationScriptProgram()
     self._checkWorkflow(program, tags)
-    tags = ["import", "_table", "assignColumnVariables", 
+    tags = ["import", "_table", 
             "Prologue", "initializeLoop", 
             "isTerminateLoop", "startAnIteration", "np.sin",
             "endAnIteration"]
@@ -242,7 +242,7 @@ class TestProgramGenerator(unittest.TestCase):
     self._checkWorkflow(program, tags)
 
   def testMakeExportScriptProgram(self):
-    tags = ["import", "_table", "assignColumnVariables", 
+    tags = ["import", "_table", 
             "Prologue", "initializeLoop", 
             "isTerminateLoop", "startAnIteration", "np.sin",
             "endAnIteration", "print"]
@@ -255,7 +255,7 @@ class TestProgramGenerator(unittest.TestCase):
     outputs = ["C"]
     def_stmt = "def %s(" % function_name
     tags = ["import", "api.APIPlugin", def_stmt,  \
-        "assignColumnVariables", "numpy", "np.sin", "return"]
+        "numpy", "np.sin", "return"]
     program = self.generator.makeFunctionProgram(function_name,
                                                inputs,
                                                outputs)

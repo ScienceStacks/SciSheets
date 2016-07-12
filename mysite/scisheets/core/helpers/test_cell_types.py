@@ -1,5 +1,6 @@
 '''Tests for cell_types.'''
 
+from extended_array import ExtendedArray
 import numpy as np
 import cell_types
 import unittest
@@ -12,22 +13,14 @@ class TestUtil(unittest.TestCase):
   def setUp(self):
     pass
 
-  def testIsNan(self):
-    self.assertTrue(cell_types.isNan(np.nan))
-    self.assertFalse(cell_types.isNan(3.0))
-    self.assertFalse(cell_types.isNan(3))
-    self.assertFalse(cell_types.isNan("a"))
-    self.assertFalse(cell_types.isNan([np.nan]))
-
-  def testIsNull(self):
-    self.assertTrue(cell_types.isNull(np.nan))
-    self.assertTrue(cell_types.isNull(None))
-    self.assertFalse(cell_types.isNull(3.0))
-    self.assertFalse(cell_types.isNull(3))
-    self.assertFalse(cell_types.isNull("a"))
-    self.assertFalse(cell_types.isNull([np.nan]))
-
   def testIsFloat(self):
+    self.assertTrue(cell_types.isFloat(4.1))
+    self.assertFalse(cell_types.isFloat(4.0))
+    self.assertTrue(cell_types.isFloat(np.nan))
+    self.assertFalse(cell_types.isFloat('an'))
+    self.assertFalse(cell_types.isFloat(1))
+
+  def testIsFloats(self):
     self.assertTrue(cell_types.isFloats(4.1))
     self.assertFalse(cell_types.isFloats(4.0))
     self.assertTrue(cell_types.isFloats([4.1, 3.0]))
@@ -98,6 +91,58 @@ class TestUtil(unittest.TestCase):
       cell_types.XBool)
     self.assertEqual(cell_types.getIterableType([[1,2], [3]]), object)
 
+  def testIsEquivalentFloats(self):
+    self.assertFalse(cell_types.isEquivalentFloats(1, 2))
+    self.assertTrue(cell_types.isEquivalentFloats(1.0, 1.0))
+    self.assertFalse(cell_types.isEquivalentFloats(1.0, 2.0))
+    self.assertTrue(cell_types.isEquivalentFloats(1, 1))
+    self.assertFalse(cell_types.isEquivalentFloats(1, 1.0001))
+    self.assertFalse(cell_types.isEquivalentFloats(1, np.nan))
+    self.assertTrue(cell_types.isEquivalentFloats(np.nan, np.nan))
+
+  def testIsEquivalentData(self):
+    self.assertTrue(cell_types.isEquivalentData(1, 1))
+    self.assertFalse(cell_types.isEquivalentData(1, 2))
+    range1 = range(5)
+    range2 = range(6)
+    self.assertTrue(cell_types.isEquivalentData(range1, range1))
+    self.assertFalse(cell_types.isEquivalentData(range1, range2))
+    values1 = [np.nan, np.nan, np.nan]
+    values2 = ExtendedArray(0.41509)
+    self.assertFalse(cell_types.isEquivalentData(values1, values2))
+
+  def testIsEquivalentData(self):
+    self.assertTrue(cell_types.isEquivalentData(1, 1))
+    self.assertFalse(cell_types.isEquivalentData(1, 2))
+    range1 = range(5)
+    range2 = range(6)
+    self.assertTrue(cell_types.isEquivalentData(range1, range1))
+    self.assertFalse(cell_types.isEquivalentData(range1, range2))
+    values1 = [np.nan, np.nan, np.nan]
+    values2 = ExtendedArray(0.41509)
+    self.assertFalse(cell_types.isEquivalentData(values1, values2))
+
+  def testIsEquivalentData2(self):
+    values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13',
+       '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24',
+       '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35',
+       '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46',
+       '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57',
+       '58', '59', '60', '61', '62', '63', '64']
+    array = ExtendedArray(values)
+    self.assertTrue(cell_types.isEquivalentData(array, array))
+
+  def testIsEquivalentNestedArray(self):
+    array = ExtendedArray([np.array([ 0.069]), 
+                          np.array([ 0.015,  0.069,  0.021]), 
+                          np.array([ 0.027]),
+                          np.array([ 0.027]), np.array([ 0.027])])
+    self.assertTrue(cell_types.isEquivalentData(array, array))
+    array2 = ExtendedArray([np.array([ 0.069]), 
+                          np.array([ 0.15,  0.069,  0.021]),  # 0.015->0.15
+                          np.array([ 0.027]),
+                          np.array([ 0.027]), np.array([ 0.027])])
+    self.assertFalse(cell_types.isEquivalentData(array, array2))
 
 
 if __name__ == '__main__':

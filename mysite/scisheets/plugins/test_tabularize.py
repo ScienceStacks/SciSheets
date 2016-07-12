@@ -3,7 +3,7 @@
 from mysite import settings
 from scisheets.core.api import APIFormulas, APIPlugin
 from scisheets.core.table import Table
-from scisheets.core.helpers.cell_types import isNan
+from scisheets.core.helpers.is_null import isNan
 from tabularize import tabularize, _delElement
 import pandas as pd
 import os

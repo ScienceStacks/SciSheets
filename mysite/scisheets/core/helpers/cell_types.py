@@ -1,8 +1,12 @@
 '''Utilities used in core scitable code.'''
 
+from prune_nulls import pruneNulls
 import collections
 import math
 import numpy as np
+import warnings
+
+THRESHOLD = 0.000001  # Threshold for value comparisons
 
 
 ################ Internal Classes ################
@@ -184,13 +188,42 @@ class XBool(XType):
       raise ValueError("Input is not %s." % str(cls))
 
 ################ Functions ################
+def isEquivalentFloats(val1, val2):
+  """
+  Determines if two floats are close enough to be equal.
+  :param float val1, val2:
+  :return bool:
+  """
+  try:
+    if np.isnan(val1) and np.isnan(val2):
+      result = True
+    elif np.isnan(val1) or np.isnan(val2):
+      result = False
+    else:
+      denom = max(abs(val1), abs(val2))
+      if denom == 0:
+        result = True
+      else:
+        diff = 1.0*abs(val1 - val2)/denom
+        result = diff < THRESHOLD
+  except ValueError:
+    result = False
+  return result
+
+def isFloat(value):
+  """
+  :param object value:
+  :return: True if float or np.nan; otherwise, fasle.
+  """
+  expected_type = getType(value)
+  return expected_type == XFloat
+
 def isFloats(values):
   """
   :param values: single or multiple values
   :return: True if float or np.nan; otherwise, fasle.
   """
-  if not isinstance(values, collections.Iterable):
-    values = [values]
+  values = makeIterable(values)
   computed_type = getIterableType(values)
   expected_type = XFloat  # Must do assignment to get correct format
   return computed_type == expected_type
@@ -240,6 +273,7 @@ def coerceData(data):
   :param data: iterable
   :return type, list: coerced data if coercion was required
   """
+  data = makeIterable(data)
   types = [getType(d) for d in data]
   # Check for conversion in order from the most restrictive
   # type to the most permissive type
@@ -262,24 +296,55 @@ def isStrArray(array):
   """
   return str(array.dtype)[0:2] == '|S'
 
-def isNan(val):
+def makeIterable(val):
   """
-  Checks for NaN even if not float
+  Ensures that val is an iterable
   :param object val:
-  :return bool:
+  :return collections.Iterable:
   """
   if isinstance(val, collections.Iterable):
-    return False
-  try:
-    result = np.isnan(val)
-  except:
-    result = False
-  return result
+    return val
+  else:
+    return [val]
 
-def isNull(val):
+def isIterable(val):
   """
-  Checks if this is a null value, either None or Nan
+  Verfies that the value truly is iterable
+  :return bool: True if iterable
   """
-  is_nan = isNan(val)
-  is_none = val is None
-  return is_nan or is_none
+  if isStr(val):
+    return False
+  return isinstance(val, collections.Iterable)
+
+def isEquivalentData(val1, val2):
+  """
+  Determines if two objects are equivalent. Recursively
+  inspects iterables. 
+  :param object val1, val2:
+  :return bool:
+  """
+  warnings.filterwarnings('error')
+  try:
+    if isStr(val1) and isStr(val2):
+      return val1 == val2  # Catch where this becomes a warning
+  except Warning:
+    import pdb; pdb.set_trace()
+    pass
+  if isinstance(val1, collections.Iterable):
+    try:
+      pruned_val1 = pruneNulls(val1)
+      pruned_val2 = pruneNulls(val2)
+      if len(pruned_val1) == len(pruned_val2):
+        length = len(pruned_val1)
+        for idx in range(length):
+          if not isEquivalentData(pruned_val1[idx], pruned_val2[idx]):
+            return False
+        return True
+      else:
+        return False
+    except TypeError as err:
+      return False
+  elif isFloat(val1):
+    return isEquivalentFloats(val1, val2)
+  else:
+    return val1 == val2

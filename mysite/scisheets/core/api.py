@@ -53,8 +53,19 @@ class API(object):
     self._table = table
     self.setColumnVariables()
     self.controller = BlockExecutionController(self)
+    self.setTableInColumns()
 
-  def setColumnVariables(self):
+  def setTableInColumns(self):
+    if self._table is None:
+      return   
+    for column in self._table.getColumns():
+      if column.getTable() is None:
+        column.setTable(self._table)
+
+  def setColumnVariables(self, names=None):
+    """
+    Creates ColumnVariables for each column in the table
+    """
     if self._table is not None:
       columns = self._table.getColumns()
       self._column_variables = [ColumnVariable(c) for c in columns]
@@ -80,6 +91,7 @@ class API(object):
     :param str column_position: name of the column to place after
     :return list-of-str names: names of columns added to the table
     """
+    self.updateColumnFromColumnVariables()  # Make sure table is current
     if names is None:
       names = list(dataframe.columns)
     if column_position is None:
@@ -98,19 +110,8 @@ class API(object):
       if column._owning_table is None:
         import pdb; pdb.set_trace()
         pass
+    self.setColumnVariables()
     return names
-
-  def _coerceValues(self, column, values):
-    """
-    Coerces the values to the type appropriate for the column
-    :param Column column:
-    :return: type appropriate for column
-    :raises: ValueError
-    """
-    data_class = column.getDataClass()
-    values = data_class.cons(values)
-    values.name = column.getName()
-    return values
 
   def dataframeToTable(self, table_name, dataframe, names=None):
     """
@@ -139,7 +140,7 @@ class API(object):
     :raises: ValueError
     """
     column = self.getColumn(column_name)
-    return self._coerceValues(column, values)
+    return api_util.coerceValuesForColumn(column, values)
 
   def getColumn(self, column_id, validate=True):
     """
@@ -173,7 +174,7 @@ class API(object):
     :raises: ValueError
     """
     column = self.getColumn(column_name)
-    return self._coerceValues(column, column.getCells())
+    return api_util.coerceValuesForColumn(column, column.getCells())
 
   def getColumnValues(self, column_name):
     """
@@ -182,7 +183,7 @@ class API(object):
     :raises: ValueError
     """
     column = self.getColumn(column_name)
-    return self._coerceValues(column, column.getCells())
+    return api_util.coerceValuesForColumn(column, column.getCells())
 
   def getTable(self):
     return self._table
@@ -207,7 +208,6 @@ class API(object):
       self._table.unhideColumns(columns)
     else:
       self._table.hideColumns(columns)
-
 
   def setColumnValues(self, column_name, values):
     """
@@ -288,25 +288,6 @@ class APIFormulas(API):
     if error is not None:
       raise ValueError(error)
     return column
-
-  def assignColumnVariable(self, colnm):
-    """
-    Creates and assigns values to a single column variable.
-    :param str colnm: column name
-    """
-    namespace = self._table.getNamespace()
-    namespace[colnm] = self._getColumnValues(colnm)
-
-  def assignColumnVariables(self, excludes):
-    """
-    Creates and assigns values to the column variables
-    corresponding to the columns in the table.
-    :param list-of-str excludes: column variables that are not assigned
-    """
-    for column in self._table.getColumns():
-      colnm = column.getName()
-      if not colnm in excludes:
-        self.assignColumnVariable(colnm)
 
   def createColumn(self, column_name, index=None, asis=False):
     """

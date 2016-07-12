@@ -7,6 +7,7 @@ import errors as er
 import numpy as np
 from helpers.formula_statement import FormulaStatement
 from helpers.extended_array import ExtendedArray
+from helpers.prune_nulls import pruneNulls
 import helpers.cell_types as cell_types
 import helpers.api_util as api_util
 import collections
@@ -154,7 +155,6 @@ class Column(object):
     data_list.insert(index, val)
     self._setDatavalues(data_list)
 
-  # TODO: Refactor to use api_util.isEquivalentData
   def isEquivalent(self, column):
     """
     Compares the internal state of this and the input column,
@@ -162,11 +162,6 @@ class Column(object):
     :param Column column:
     :return bool:
     """
-    def isEquiv(val1, val2):
-      if cell_types.isNull(val1) and cell_types.isNull(val2):
-        return True
-      return val1 == val2
-
     if not self.getFormula() == column.getFormula():
       return False
     if not self.getAsis() == column.getAsis():
@@ -177,26 +172,8 @@ class Column(object):
          and (column.getDataClass().cls in type_list)
       if not is_ok:
         return False
-    this_cells = self.prunedCells()
-    that_cells = column.prunedCells()
-    if len(this_cells) != len(that_cells):
+    if not cell_types.isEquivalentData(self._cells, column.getCells()):
       return False
-    pairs = zip(this_cells, that_cells)
-    for this_cell, that_cell in pairs:
-      if isinstance(this_cell, collections.Iterable)  \
-          and isinstance(that_cell, collections.Iterable):
-        if len(this_cell) != len(that_cell):
-          return False
-        sub_pairs = zip(list(this_cell), list(that_cell))
-        if not all([isEquiv(x,y) for x,y in sub_pairs]):
-          return False
-      else:
-        try:
-          if not isEquiv(this_cell, that_cell):
-            return False
-        except Exception as e:
-          import pdb; pdb.set_trace()
-          pass
     return True
 
   def isExpression(self):
@@ -218,14 +195,7 @@ class Column(object):
     """
     Returns cells in the column, excluding ending Nulls
     """
-    indicies = range(len(self._cells))
-    pairs = zip(self._cells, indicies)
-    nonnull_indicies = [n for c,n in pairs if not cell_types.isNull(c)]
-    if len(nonnull_indicies) > 0:
-      idx = max(nonnull_indicies) + 1
-      return self._cells[:idx]
-    else:
-      return []
+    return pruneNulls(self._cells)
 
   def rename(self, new_name):
     """

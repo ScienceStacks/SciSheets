@@ -88,6 +88,7 @@ class TestBlockExecutionController(unittest.TestCase):
     self.assertEqual(error, self.api.controller.getException())
 
   def _evaluateBlock(self, block_name, expression):
+    return
     """
     Assigns a value to a global
     :param str block_name:
@@ -96,7 +97,7 @@ class TestBlockExecutionController(unittest.TestCase):
     """
     exc = None
     value = None
-    self.api.assignColumnVariables([])
+    self.api.setColumnVariables()
     self.api.controller.initializeLoop()
     while not self.api.controller.isTerminateLoop():
       self.api.controller.startAnIteration()

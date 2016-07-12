@@ -40,8 +40,8 @@ class TestColumnVariable(unittest.TestCase):
   def testGetNamespaceValue(self):
     namespace = self.table.getNamespace()
     for cv in self.column_variables:
-      self.assertEqual(cv.getNamespaceValue(), 
-          namespace[cv._column.getName()])
+      self.assertTrue(cv.getNamespaceValue().tolist() == 
+          namespace[cv._column.getName()].tolist())
 
   def testSetColumnValue(self):
     namespace = self.table.getNamespace()

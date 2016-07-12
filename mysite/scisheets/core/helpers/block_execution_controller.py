@@ -35,6 +35,7 @@ class BlockExecutionController(object):
     self._exception = None
     self._exception_filename = None
     self._iterations = 0
+    self._is_first = True
     self._table = None
     if self._api is not None:
       self._table = self._api.getTable()
@@ -141,13 +142,14 @@ class BlockExecutionController(object):
     Checks if not namespace variable has changed since the start of the iteration.
     :return bool: True if no change
     """
-    try:
-      result = not any([cv.isChangedFromIterationStartValue()  \
-                for cv in self._column_variables])
-    except Exception as err:
-      import pdb; pdb.set_trace()
-      pass
-    return result
+    for cv in self._column_variables:
+      try:
+        if cv.isChangedFromIterationStartValue():
+          return False
+      except Exception as err:
+        import pdb; pdb.set_trace()
+        pass
+    return True
 
   def isTerminateLoop(self):
     """
@@ -157,7 +159,8 @@ class BlockExecutionController(object):
     num_formula_columns = len(self._table.getFormulaColumns())
     if not self._table.getIsEvaluateFormulas():
       return True
-    elif (self._exception is None) and self._isEquivalentValues():
+    elif (self._exception is None) and self._isEquivalentValues()  \
+        and not self._is_first:
       done = True
     elif self._iterations >= num_formula_columns:
       done = True
@@ -166,6 +169,7 @@ class BlockExecutionController(object):
       done = True
     else:
       done = False
+    self._is_first = False
     return done
     
   def getException(self):

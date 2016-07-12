@@ -5,6 +5,7 @@ creating the API object and managing associated resources (e.g., table files).
 
 import api_util
 from program_executer import ProgramExecuter
+from program_generator import API_OBJECT
 from mysite import settings
 import os
 import sys
@@ -73,33 +74,11 @@ class ProgramRunner(object):
     namespace['_table'] = self._table
     program = """
 from scisheets.core import api as api
-s = api.APIFormulas(_table)
-"""
+%s = api.APIFormulas(_table)
+""" % API_OBJECT
     executer = ProgramExecuter("ProgramRunner._createAPIObject", program, 
         namespace)
     return executer.checkSyntaxAndExecute()
-
-  def _executeProgram(self, program):
-    """
-    :param str program: program to execute
-    :returns str: error from execution
-    Executes as a string if there is no filepath. Otherwise,
-    executes from the filepath.
-    """
-    error = None
-    namespace = self._table.getNamespace()
-    # pylint: disable=W0122
-    try:
-      exec program in namespace
-    # pylint: disable=W0703
-    except Exception as exc:
-      # Report the error without changing the table
-      error = exc
-    if error is not None:
-      msg = str(error)
-    else:
-      msg = None
-    return msg
 
   def execute(self, create_API_object=False):
     """
@@ -108,13 +87,21 @@ s = api.APIFormulas(_table)
     Executes as a string if there is no filepath. Otherwise,
     executes from the filepath.
     """
+    self._table.setNamespace({})  # Initialize the namespace
     executer = ProgramExecuter(self._program_filename,
         self._program, self._table.getNamespace())
-    # Is this needed since I construct the correct imports?
     if not self._user_directory is None:
       sys.path.append(self._user_directory)
     if create_API_object:
       error = self._createAPIObject()
       if error is not None:
         return error
-    return executer.checkSyntaxAndExecute(adjust_linenumber=-4)
+    # Check syntax here because there may be an uncorrected
+    # syntax error in a column
+    msg = executer.checkSyntaxAndExecute(adjust_linenumber=-4)
+    # Update the table columns
+    namespace = self._table.getNamespace()
+    if API_OBJECT in namespace:
+      api_object = namespace[API_OBJECT]
+      api_object.updateColumnFromColumnVariables()
+    return msg

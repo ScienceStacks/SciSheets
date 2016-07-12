@@ -5,6 +5,7 @@
 """
 
 import api_util
+import cell_types
 
 
 class ColumnVariable(object):
@@ -40,7 +41,9 @@ class ColumnVariable(object):
     Establishes the value of the variable in the namespace.
     """
     table = self._column.getTable()
-    table.getNamespace()[self._column.getName()] = self.getColumnValue()
+    table.getNamespace()[self._column.getName()] =  \
+        api_util.coerceValuesForColumn(self._column, 
+                                       self.getColumnValue())
 
   def setColumnValue(self):
     """
@@ -49,6 +52,8 @@ class ColumnVariable(object):
     formula evaluation.
     :param object value:
     """
+    if self._column._owning_table is None:
+      import pdb; pdb.set_trace()
     self._column.addCells(self.getNamespaceValue(), replace=True)
 
   def setIterationStartValue(self):
@@ -64,7 +69,7 @@ class ColumnVariable(object):
     has changed from its baselineline value.
     :return bool: True if changed
     """
-    return not api_util.isEquivalentData(self.getNamespaceValue(), self._baseline_value)
+    return not cell_types.isEquivalentData(self.getNamespaceValue(), self._baseline_value)
 
   def isChangedFromIterationStartValue(self):
     """
@@ -72,4 +77,4 @@ class ColumnVariable(object):
     has changed from its iteration start value
     :return bool: True if changed
     """
-    return not api_util.isEquivalentData(self.getNamespaceValue(), self._iteration_start_value)
+    return not cell_types.isEquivalentData(self.getNamespaceValue(), self._iteration_start_value)

@@ -5,6 +5,7 @@ from groupBy import groupBy
 from roundValues import roundValues
 import os
 import pandas as pd
+import numpy as np
 import pickle
 import unittest
 
@@ -74,6 +75,13 @@ class TestGroupBy(unittest.TestCase):
     grouping_values = [0.069000000000000006, 0.014999999999999999, 0.069000000000000006, 0.021000000000000001, 0.027, 0.027]
     groups, grouped_values = groupBy(category_values, grouping_values)
     self.assertTrue(groups == range(4))
+
+  def test6(self):
+    category_values = [u'0', u'1', u'1', u'1', u'2', u'3', u'4']
+    grouping_values = [0.069000000000000006, 0.014999999999999999, 0.069000000000000006, 0.021000000000000001, 0.027, 0.027, 0.027, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
+    groups, grouped_values = groupBy(category_values, grouping_values)
+    self.assertEqual(len(groups), 5)
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -4,11 +4,11 @@ from mysite.helpers.versioned_file import VersionedFile
 import cell_types
 import collections
 from extended_array import ExtendedArray
+from prune_nulls import pruneNulls
 import numpy as np
 import os
 import pickle
 
-THRESHOLD = 0.01  # Threshold for value comparisons
 
 ################### Classes ############################
 # Used to define a DataClass
@@ -98,7 +98,9 @@ def isEquivalentData(values1, values2):
   :param Iterable/object values1, values2:
   :return bool:
   """
-  if isinstance(values1, collections.Iterable)  \
+  if cell_types.isStr(values1) and cell_types.isStr(values2):
+    result = values1 == values2
+  elif isinstance(values1, collections.Iterable)  \
       and isinstance(values2, collections.Iterable):
     result = compareIterables(values1, values2)
   elif type(values1) != type(values2):
@@ -115,83 +117,26 @@ def compareIterables(iter1, iter2):
   :param Iterable iter2: iterable possibly with None values
   :return: True if equivalent; otherwise false
   """
-  def sameType(val1, val2):
-    """
-    :param val1, val2: values to compare
-    """
-    types = [int, float, bool, str]
-    if (val1 is None) and (val2 is None):
-      return True
-    elif (val1 is None) or (val2 is None):
-      return False
-    result = False
-    for typ in types:
-      if typ == float and cell_types.isFloats([val1, val2]):
-        if np.isnan(val1) or np.isnan(val2):
-          result = np.isnan(val1) == np.isnan(val2)
-          result = True
-          break
-      if isinstance(val1, typ) and isinstance(val2, typ):
-        result = True
-        break
-    return result
-
-  def cleanup(val):
-    result = val
-    if not isinstance(val, collections.Iterable):
-      result = np.array([val])
-    if isinstance(val, ExtendedArray):
-      result = val.tolist()
-    return result
+  def makeList(val):
+    result = cell_types.makeIterable(val)
+    pruned_result = pruneNulls(result)
+    if isinstance(pruned_result, list):
+      return pruned_result
+    else:
+      return [v for v in pruned_result]
 
   # Make sure the inputs are iterables
-  iter1 = cleanup(iter1)
-  iter2 = cleanup(iter2)
-  # Check the lengths, ignoring NaN and None
-  try:
-    b = len(iter1) != len(iter2)
-  except Exception as err:
-    import pdb; pdb.set_trace()
-    pass
+  iter1 = makeList(iter1)
+  iter2 = makeList(iter2)
   if len(iter1) != len(iter2):
-    min_len = min(len(iter1), len(iter2))
-    max_len = max(len(iter1), len(iter2))
-    if len(iter1) == max_len:
-      extra_values = iter1[min_len:]
-    else:
-      extra_values = iter2[min_len:]
-    is_okay = all([(e is None) or cell_types.isNan(e) \
-        for e in extra_values])
-    if not is_okay:
-      return False
-    length = min_len
-  else:
-    length = len(iter1)
-  # Compare the values for the applicable lengths
-  is_equal = True
-  for idx in range(length):
-    if not sameType(iter1[idx], iter2[idx]):
-      is_equal = False
-      break
-    # Handle approximate equality for floats
-    elif isinstance(iter1[idx], float):
-      if abs(iter1[idx]) < THRESHOLD:
-        denom = 1.0
-      else:
-        denom = iter1[idx]
-      if np.isnan(iter1[idx]) != np.isnan(iter2[idx]):
-        is_equal = False
-        break
-      if np.isnan(iter1[idx]) and np.isnan(iter2[idx]):
-        break
-      elif abs((iter1[idx] - iter2[idx])/denom) > THRESHOLD:
-        is_equal = False
-        break
-    else:
-      if iter1[idx] != iter2[idx]:
-        is_equal = False
-        break
-  return is_equal
+    return False
+  pairs = zip(iter1, iter2)
+  try:
+    if cell_types.isFloats(iter1):
+      return all([cell_types.isEquivalentFloats(i1, i2) for i1, i2 in pairs])
+  except TypeError as err:
+    return False
+  return all([i1 == i2 for i1, i2 in pairs])
 
 def getFileNameWithoutExtension(file_path):
   """
@@ -203,3 +148,16 @@ def getFileNameWithoutExtension(file_path):
   full_file_name = os.path.split(file_path)[1]
   pos = full_file_name.index(".")
   return full_file_name[:pos]
+
+
+def coerceValuesForColumn(column, values):
+  """
+  Coerces the values to the type appropriate for the column
+  :param Column column:
+  :return: type appropriate for column
+  :raises: ValueError
+  """
+  data_class = column.getDataClass()
+  values = data_class.cons(values)
+  values.name = column.getName()
+  return values

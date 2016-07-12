@@ -12,6 +12,7 @@ import unittest
 
 TEST_FILE1 = os.path.join(ht.TEST_DIR, "excel_read.xlsx")
 TEST_FILE2 = os.path.join(ht.TEST_DIR, "test_importExcelToTable_1.xlsx")
+TEST_FILE3 = "test_importExcelToTable_2"
 COLUMN_NAMES = ['v1', 'v2']
 DATA = {'v1': [11, 22, 33], 'v2': [111, 222, 333]}
 

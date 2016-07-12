@@ -17,7 +17,7 @@ CATEGORICAL as follows:
   y                2    4
 """
 
-from scisheets.core.helpers.cell_types import isNull
+from scisheets.core.helpers.is_null import isNull
 import collections
 import numpy as np
 
@@ -63,6 +63,7 @@ def tabularize(s,
   Creates the column variables corresponding to the new columns.
   """
   # Initializations
+  s.updateColumnFromColumnVariables()
   if new_category_colnm is None:
     new_category_colnm = "New%s" % category_colnm
   raw_category_elements = s.getColumnValues(category_colnm)
@@ -93,8 +94,7 @@ def tabularize(s,
     name = "%s%s" % (values_colnm_prefix, str(sfx))
     s.createColumn(name)
     s.setColumnValues(name, col_dict[sfx])
-    s.assignColumnVariable(name)
   s.createColumn(new_category_colnm)
   s.setColumnValues(new_category_colnm, 
                     col_dict[new_category_colnm])
-  s.assignColumnVariable(new_category_colnm)
+  s.setColumnVariables()

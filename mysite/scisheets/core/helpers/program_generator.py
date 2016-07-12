@@ -217,7 +217,7 @@ if %s.controller.getException() is not None:
     #
     sa.add(self._makeFormulaEvaluationStatements(excludes=excludes))
     sa.add(self._makeClosingException())
-    sa.add(self._makeEpilogue(excludes=excludes))
+    sa.add(self._makeEpilogue())
     sa.add(_makeReturnStatement(outputs))
     return sa.get()
 
@@ -374,19 +374,6 @@ if __name__ == '__main__':
       sa.add(statement)
     return sa.get()
 
-  def _makeTableUpdateStatements(self, excludes=None):
-    """
-    Updates the cells in table based on column variables.
-    :return str statement:
-    """
-    if excludes is None:
-      excludes = []
-    sa = StatementAccumulator()
-    statement = "%s.updateTableCellsAndColumnVariables(%s)"  \
-        % (API_OBJECT, str(excludes))
-    sa.add(statement)
-    return sa.get()
-
   def _makeClosingOfFormulaEvaluationLoop(self, **kwargs):
     """
     Creates the statements at the end of the formula evaluation
@@ -437,15 +424,13 @@ if __name__ == '__main__':
     statement = self._makeFormulaImportStatements(
         self._plugin_directory, import_path=self._plugin_path)
     sa.add(statement)
-    # Create the column variables
-    sa.add(self._makeColumnVariableAssignmentStatements(**kwargs))
     # Add the table prologue
     sa.add("%s.controller.startBlock('Prologue')" % API_OBJECT)
     sa.add(self._table.getPrologue().getFormula())
     sa.add("%s.controller.endBlock()" % API_OBJECT)
     return sa.get()
 
-  def _makeEpilogue(self, **kwargs):
+  def _makeEpilogue(self):
     """
     Adds code that only runs at the end
     :return str: statements
@@ -455,20 +440,6 @@ if __name__ == '__main__':
     sa.add("%s.controller.startBlock('Epilogue')" % API_OBJECT)
     sa.add(self._table.getEpilogue().getFormula())
     sa.add("%s.controller.endBlock()" % API_OBJECT)
-    sa.add(self._makeTableUpdateStatements(**kwargs))
-    return sa.get()
-
-  def _makeColumnVariableAssignmentStatements(self, excludes=None):
-    """
-    Constructs a block that assigns values to the 
-    column variables.
-    """
-    if excludes is None:
-      excludes = []
-    sa = StatementAccumulator()
-    statement = "%s.assignColumnVariables(%s)" %  \
-        (API_OBJECT, str(excludes))
-    sa.add(statement)
     return sa.get()
 
   # pylint: disable=R0913

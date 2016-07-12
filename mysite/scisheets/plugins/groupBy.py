@@ -2,7 +2,8 @@
 Get the group names and their values
 """
 
-from pruneNulls import pruneNulls
+from scisheets.core.helpers.prune_nulls import pruneNulls
+from scisheets.core.helpers import cell_types
 import collections
 import pandas as pd
 
@@ -19,7 +20,7 @@ def groupBy(category_values, grouping_values):
   df = pd.DataFrame()
   groupby_list = []
   try:
-    if isinstance(category_values[0], collections.Iterable):
+    if cell_types.isIterable(category_values[0]):
       for n in range(len(category_values)):
         idx = str(n)
         df[idx] = category_values[n]
@@ -29,8 +30,8 @@ def groupBy(category_values, grouping_values):
       df[idx] = pruneNulls(category_values)
       groupby_list.append(df[idx])
     required_length = len(df['0'])
-    df[idx_data] = pruneNulls(grouping_values,
-        required_length=required_length)
+    # May need to have the same length?
+    df[idx_data] = pruneNulls(grouping_values)
     groupby = df[idx_data].groupby(groupby_list)
     groups = [g[0] for g in groupby]
     grouped_values = [list(g[1]) for g in groupby]
