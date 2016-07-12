@@ -38,12 +38,14 @@ class TestBlockExecutionController(unittest.TestCase):
     self.api.controller.endBlock()
     self.assertIsNone(self.api.controller._block_name)
 
-  def _exceptionForBlock(self, new_filename=None):
+  def _exceptionForBlock(self, new_filename=None, is_logging=False):
     """
     Creates an exception. Optionally changes the caller file.
     :param str new_filename:
+    :param bool is_logging:
     :returns Exception:
     """
+    self.api = api.APIFormulas(self.table, is_logging=is_logging)
     error = None
     self.api.controller.startBlock(NAME)
     if new_filename is None:  # Line 1
@@ -88,7 +90,6 @@ class TestBlockExecutionController(unittest.TestCase):
     self.assertEqual(error, self.api.controller.getException())
 
   def _evaluateBlock(self, block_name, expression):
-    return
     """
     Assigns a value to a global
     :param str block_name:
@@ -130,6 +131,10 @@ class TestBlockExecutionController(unittest.TestCase):
     self.assertIsNotNone(exc)
     msg = self.api.controller.formatError()
     self.assertTrue(BLOCK_NAME in msg)
+
+  def testWithLogging(self):
+    error = self._exceptionForBlock(is_logging=True)
+    self.assertIsNotNone(error)
     
 
 if  __name__ == '__main__':

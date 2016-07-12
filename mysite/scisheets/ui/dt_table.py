@@ -7,7 +7,7 @@ from django.template.loader import get_template
 from mysite.helpers.versioned_file import VersionedFile
 import mysite.settings as settings
 from scisheets.core.helpers.api_util import getFileNameWithoutExtension
-from scisheets.core.helpers.cell_types import isFloats
+from scisheets.core.helpers.cell_types import isFloats, isStr
 from scisheets.core.column import Column
 from ui_table import UITable
 from mysite import settings as st
@@ -52,8 +52,9 @@ def makeJSON(column_names, data):
           value = ""
         else:
           value = str(item)
-      elif item == 'nan':
-        value = ""
+      elif isStr(item): 
+        if item == 'nan':
+          value = ""
       result += '"' + column_names[c] + '": ' + '`' + value + '`'
       if c != number_of_columns - 1:
         result += ","

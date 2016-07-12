@@ -5,6 +5,7 @@ of code (hereafter, just block) can be a formulas, prologue, or
 epilogue.
 """
 
+from mysite.helpers.logger import Logger
 from mysite import settings
 import inspect
 import os
@@ -22,9 +23,10 @@ class BlockExecutionController(object):
        See: initializeLoop, startIteration, endIteration
   """
 
-  def __init__(self, scisheets_api):
+  def __init__(self, scisheets_api, is_logging=False):
     """
-    :param Table table:
+    :param ApiFormula scisheets_api:
+    :param bool is_logging: creates a log file
     """
     self._api = scisheets_api
     self._block_linenumber = None  # Where exception occurred in block
@@ -34,12 +36,21 @@ class BlockExecutionController(object):
     self._column_variables = []
     self._exception = None
     self._exception_filename = None
+    if is_logging:
+      self._logger = Logger(settings.SCISHEETS_LOG,
+          "controller")
+    else:
+      self._logger = None
     self._iterations = 0
     self._is_first = True
     self._table = None
     if self._api is not None:
       self._table = self._api.getTable()
       self._column_variables = self._api.getColumnVariables()
+
+  def _log(self, name, details):
+    if self._logger is not None:
+      self._logger.log(name, details=details)
 
   # TODO: Handle different file for caller
   def startBlock(self, name):
@@ -53,6 +64,7 @@ class BlockExecutionController(object):
     self._caller_filename = context[1]
     self._block_start_linenumber = linenumber + 1
     self._exception_filename = None
+    self._log("start/%s" % self._block_name, "")
 
   def endBlock(self):
     """
@@ -62,6 +74,7 @@ class BlockExecutionController(object):
     self._block_start_linenumber = None
     self._caller_filename = None
     self._exception_filename = None
+    self._log("end/%s" % self._block_name, "")
 
   def exceptionForBlock(self, exception):
     """
@@ -90,6 +103,7 @@ class BlockExecutionController(object):
           - self._block_start_linenumber + 1
     else:
       self._block_linenumber = abs_linenumber
+    self._log("exception/%s" % self._block_name, self.formatError())
 
   def formatError(self, 
                   is_absolute_linenumber=False,
@@ -123,19 +137,22 @@ class BlockExecutionController(object):
     Initializes variables before loop begins
     """
     self._iterations = 0
+    self._log("initializeLoop", "")
 
   def startAnIteration(self):
     """
     Beginning of a loop iteration
     """
+    self._iterations += 1
     self._exception = None
     [cv.setIterationStartValue() for cv in self._column_variables]
+    self._log("startAnIteration", "iterations=%d" % self._iterations)
 
   def endAnIteration(self):
     """
     End of a loop iteration
     """
-    self._iterations += 1
+    self._log("endAnIteration", "iterations=%d" % self._iterations)
 
   def _isEquivalentValues(self):
     """
@@ -157,19 +174,26 @@ class BlockExecutionController(object):
     :return bool: terminate loop if True
     """
     num_formula_columns = len(self._table.getFormulaColumns())
+    reason = ""
     if not self._table.getIsEvaluateFormulas():
-      return True
+      reason = "True - not isEvaluateFormulas"
+      done = True
     elif (self._exception is None) and self._isEquivalentValues()  \
         and not self._is_first:
+      reason = "True - not exception & equivalent values"
       done = True
     elif self._iterations >= num_formula_columns:
+      reason = "True - iterations >= num_formula_columns"
       done = True
     elif self._iterations >  \
         settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS:
+      reason = "True - iterations >= MAX"
       done = True
     else:
+      reason = "False"
       done = False
     self._is_first = False
+    self._log("isTerminateLoop", reason)
     return done
     
   def getException(self):

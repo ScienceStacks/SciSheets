@@ -40,7 +40,8 @@ class API(object):
   Usage:
   """
 
-  def __init__(self):
+  def __init__(self, is_logging=False):
+    self._is_logging = is_logging
     self.setTable(None)  # self._table
     self.setColumnVariables()  # self._column_variables
     self._column_idx = None
@@ -52,7 +53,8 @@ class API(object):
   def setTable(self, table):
     self._table = table
     self.setColumnVariables()
-    self.controller = BlockExecutionController(self)
+    self.controller = BlockExecutionController(self, 
+        is_logging=self._is_logging)
     self.setTableInColumns()
 
   def setTableInColumns(self):
@@ -262,11 +264,11 @@ class APIFormulas(API):
     column_id - either the column name or column index
   """
 
-  def __init__(self, table):
+  def __init__(self, table, is_logging=False):
     """
     :param Table table: table for which execution is done
     """
-    super(APIFormulas, self).__init__()
+    super(APIFormulas, self).__init__(is_logging=is_logging)
     self.setTable(table)
     self.setColumnVariables()
 
@@ -334,7 +336,7 @@ class APIPlugin(APIFormulas):
      S.initialize()
   """
 
-  def __init__(self, table_filepath):
+  def __init__(self, table_filepath, is_logging=True):
     """
     :param str table_filepath: full path to the table file
     """
