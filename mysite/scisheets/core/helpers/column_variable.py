@@ -27,12 +27,10 @@ class ColumnVariable(object):
     """
     self._column = column
     self._baseline_value = self.getColumnValue()
-    self._iteration_start_value = None
     self._setNamespaceValue()
+    self._iteration_start_value = self.getNamespaceValue()
  
   def getNamespaceValue(self):
-    if self._column._owning_table is None:
-      import pdb; pdb.set_trace()
     return self._column.getTable().getNamespace()[self._column.getName()]
 
   def getColumnValue(self):
@@ -54,8 +52,6 @@ class ColumnVariable(object):
     formula evaluation.
     :param object value:
     """
-    if self._column._owning_table is None:
-      import pdb; pdb.set_trace()
     self._column.addCells(self.getNamespaceValue(), replace=True)
 
   def setIterationStartValue(self):
@@ -63,8 +59,6 @@ class ColumnVariable(object):
     Establishes the value of the variable in the namespace at the
     start of an iteration in formula evaluation.
     """
-    if self._column._owning_table is None:
-      import pdb; pdb.set_trace()
     self._iteration_start_value = self.getNamespaceValue()
 
   def isNamespaceValueEquivalentToBaselineValue(self):

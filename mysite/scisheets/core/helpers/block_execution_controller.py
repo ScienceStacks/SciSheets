@@ -163,12 +163,8 @@ class BlockExecutionController(object):
     :return bool: True if no change
     """
     for cv in self._api.getColumnVariables():
-      try:
-        if cv.isNamespaceValueEquivalentToIterationStartValue():
-          return False
-      except Exception as err:
-        import pdb; pdb.set_trace()
-        pass
+      if not cv.isNamespaceValueEquivalentToIterationStartValue():
+        return False
     return True
 
   def isTerminateLoop(self):
