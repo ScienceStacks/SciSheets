@@ -50,6 +50,25 @@ except Exception as exc:
     sa.add(statement)
     return sa.get()
 
+  def execute(self):
+    """
+    Executes the program.
+    :returns str: error message or None
+    """
+    # Check for syntax errors
+    error = None
+    wrapped_program = self._wrapProgram()
+    try:
+      exec wrapped_program in self._namespace
+    except Exception as exc:
+      if isinstance(exc, exceptions.SyntaxError):
+        error = exc
+    if error is not None:
+      msg = "In %s, syntax error at line %d: %s" %  \
+          (self._program_name, error.lineno, str(error))
+      return msg
+    return self._controller.formatError()
+
   def checkSyntax(self, adjust_linenumber=0):
     """
     Checks the syntax.
@@ -69,25 +88,6 @@ except Exception as exc:
     if error is not None:
       msg = "In %s, syntax error at line %d: %s" %  \
           (self._program_name, lineno, str(error))
-    return msg
-
-  def execute(self):
-    """
-    Executes the program.
-    :returns str: error message or None
-    """
-    # Check for syntax errors
-    wrapped_program = self._wrapProgram()
-    exec wrapped_program in self._namespace
-    if self.getException() is None:
-      return None
-    else:
-      return self._controller.formatError()
-
-  def checkSyntaxAndExecute(self, **kwargs):
-    msg = self.checkSyntax(**kwargs)
-    if msg is None:
-      msg = self.execute()
     return msg
 
   def getException(self):

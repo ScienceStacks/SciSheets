@@ -42,8 +42,8 @@ class API(object):
 
   def __init__(self, is_logging=False):
     self._is_logging = is_logging
+    self._column_variables = []
     self.setTable(None)  # self._table
-    self.setColumnVariables()  # self._column_variables
     self._column_idx = None
     self._table_filepath = None
     # Columns excluded from update because created dynamically
@@ -270,7 +270,6 @@ class APIFormulas(API):
     """
     super(APIFormulas, self).__init__(is_logging=is_logging)
     self.setTable(table)
-    self.setColumnVariables()
 
   def _createColumn(self, column_name, index=None, asis=False):
     """
@@ -312,6 +311,7 @@ class APIFormulas(API):
     column = self.getColumn(column_id, validate=False)
     if column is not None:
       _  = self._table.deleteColumn(column)
+      self.setColumnVariables()
 
   def updateTableCellsAndColumnVariables(self, excludes):
     """

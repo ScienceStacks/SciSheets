@@ -45,7 +45,7 @@ class TestProgramExecuter(unittest.TestCase):
     """
     executer = ProgramExecuter(program_name, program,
         self.namespace)
-    msg = executer.checkSyntax()
+    msg = executer.execute()
     if msg is None:
       msg = executer.execute()
       if exc_lineno == 0:

@@ -33,7 +33,6 @@ class BlockExecutionController(object):
     self._block_name = None
     self._block_start_linenumber = None  # Start of block in source
     self._caller_filename = None
-    self._column_variables = []
     self._exception = None
     self._exception_filename = None
     if is_logging:
@@ -46,7 +45,6 @@ class BlockExecutionController(object):
     self._table = None
     if self._api is not None:
       self._table = self._api.getTable()
-      self._column_variables = self._api.getColumnVariables()
 
   def _log(self, name, details):
     if self._logger is not None:
@@ -70,11 +68,11 @@ class BlockExecutionController(object):
     """
     Called at the end of a block
     """
-    self._block_name = None
+    self._log("end/%s" % self._block_name, "")
     self._block_start_linenumber = None
     self._caller_filename = None
     self._exception_filename = None
-    self._log("end/%s" % self._block_name, "")
+    self._block_name = None
 
   def exceptionForBlock(self, exception):
     """
@@ -145,7 +143,12 @@ class BlockExecutionController(object):
     """
     self._iterations += 1
     self._exception = None
-    [cv.setIterationStartValue() for cv in self._column_variables]
+    for cv in self._api.getColumnVariables():
+      try:
+        cv.setIterationStartValue()
+      except Exception as err:
+        import pdb; pdb.set_trace()
+        pass
     self._log("startAnIteration", "iterations=%d" % self._iterations)
 
   def endAnIteration(self):
@@ -159,9 +162,9 @@ class BlockExecutionController(object):
     Checks if not namespace variable has changed since the start of the iteration.
     :return bool: True if no change
     """
-    for cv in self._column_variables:
+    for cv in self._api.getColumnVariables():
       try:
-        if cv.isChangedFromIterationStartValue():
+        if cv.isNamespaceValueEquivalentToIterationStartValue():
           return False
       except Exception as err:
         import pdb; pdb.set_trace()
@@ -174,26 +177,28 @@ class BlockExecutionController(object):
     :return bool: terminate loop if True
     """
     num_formula_columns = len(self._table.getFormulaColumns())
-    reason = ""
-    if not self._table.getIsEvaluateFormulas():
-      reason = "True - not isEvaluateFormulas"
+    outcome = ""
+    is_not_evaluate = not self._table.getIsEvaluateFormulas()
+    is_not_except= self._exception is None
+    is_equiv = self._isEquivalentValues()
+    is_not_first = not self._is_first
+    is_large = self._iterations >= num_formula_columns
+    if is_not_evaluate:
+      outcome = "True - not isEvaluateFormulas"
       done = True
-    elif (self._exception is None) and self._isEquivalentValues()  \
-        and not self._is_first:
-      reason = "True - not exception & equivalent values"
+    elif is_not_except and is_equiv and is_not_first:
+      outcome = "True - not exception & equivalent values"
       done = True
-    elif self._iterations >= num_formula_columns:
-      reason = "True - iterations >= num_formula_columns"
-      done = True
-    elif self._iterations >  \
-        settings.SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS:
-      reason = "True - iterations >= MAX"
+    elif is_large:
+      outcome = "True - iterations >= num_formula_columns"
       done = True
     else:
-      reason = "False"
+      outcome = "False"
       done = False
     self._is_first = False
-    self._log("isTerminateLoop", reason)
+    details = "%s: %s %s %s %s %s" % (outcome, is_not_evaluate,
+        is_not_except, is_equiv, is_not_first, is_large)
+    self._log("isTerminateLoop", details)
     return done
     
   def getException(self):

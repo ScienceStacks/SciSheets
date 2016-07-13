@@ -31,6 +31,8 @@ class ColumnVariable(object):
     self._setNamespaceValue()
  
   def getNamespaceValue(self):
+    if self._column._owning_table is None:
+      import pdb; pdb.set_trace()
     return self._column.getTable().getNamespace()[self._column.getName()]
 
   def getColumnValue(self):
@@ -61,20 +63,22 @@ class ColumnVariable(object):
     Establishes the value of the variable in the namespace at the
     start of an iteration in formula evaluation.
     """
+    if self._column._owning_table is None:
+      import pdb; pdb.set_trace()
     self._iteration_start_value = self.getNamespaceValue()
 
-  def isChangedFromBaselineValue(self):
+  def isNamespaceValueEquivalentToBaselineValue(self):
     """
     Checks if the value of the variable in the namespace
     has changed from its baselineline value.
     :return bool: True if changed
     """
-    return not cell_types.isEquivalentData(self.getNamespaceValue(), self._baseline_value)
+    return cell_types.isEquivalentData(self.getNamespaceValue(), self._baseline_value)
 
-  def isChangedFromIterationStartValue(self):
+  def isNamespaceValueEquivalentToIterationStartValue(self):
     """
     Checks if the value of the variable in the namespace
     has changed from its iteration start value
     :return bool: True if changed
     """
-    return not cell_types.isEquivalentData(self.getNamespaceValue(), self._iteration_start_value)
+    return cell_types.isEquivalentData(self.getNamespaceValue(), self._iteration_start_value)

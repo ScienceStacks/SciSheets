@@ -52,30 +52,30 @@ class TestColumnVariable(unittest.TestCase):
       cv.setColumnValue()
       self.assertEqual(cv.getColumnValue(), new_value)
 
-  def testIsChangedFromBaselineValue(self):
+  def testIsNamespaceValueEquivalentToBaselineValue(self):
     namespace = self.table.getNamespace()
     for cv in self.column_variables:
-      self.assertFalse(cv.isChangedFromBaselineValue())
+      self.assertTrue(cv.isNamespaceValueEquivalentToBaselineValue())
       num_rows = cv._column.numCells()
       new_value = [10*n for n in range(num_rows)]
       namespace[cv._column.getName()] = new_value
       cv.setIterationStartValue()
-      self.assertTrue(cv.isChangedFromBaselineValue())
+      self.assertFalse(cv.isNamespaceValueEquivalentToBaselineValue())
       cv.setColumnValue()
       cv._baseline_value = cv.getColumnValue()
-      self.assertFalse(cv.isChangedFromBaselineValue())
+      self.assertTrue(cv.isNamespaceValueEquivalentToBaselineValue())
 
-  def testIsChangedFromIterationStartValue(self):
+  def testIsNamespaceValueEquivalentToIterationStartValue(self):
     namespace = self.table.getNamespace()
     for cv in self.column_variables:
       cv.setIterationStartValue()
-      self.assertFalse(cv.isChangedFromIterationStartValue())
+      self.assertTrue(cv.isNamespaceValueEquivalentToIterationStartValue())
       num_rows = cv._column.numCells()
       new_value = [10*n for n in range(num_rows)]
       namespace[cv._column.getName()] = new_value
-      self.assertTrue(cv.isChangedFromIterationStartValue())
+      self.assertFalse(cv.isNamespaceValueEquivalentToIterationStartValue())
       cv.setIterationStartValue()
-      self.assertFalse(cv.isChangedFromIterationStartValue())
+      self.assertTrue(cv.isNamespaceValueEquivalentToIterationStartValue())
       
     
 

@@ -78,7 +78,7 @@ from scisheets.core import api as api
 """ % API_OBJECT
     executer = ProgramExecuter("ProgramRunner._createAPIObject", program, 
         namespace)
-    return executer.checkSyntaxAndExecute()
+    return executer.execute()
 
   def execute(self, create_API_object=False):
     """
@@ -98,7 +98,7 @@ from scisheets.core import api as api
         return error
     # Check syntax here because there may be an uncorrected
     # syntax error in a column
-    msg = executer.checkSyntaxAndExecute(adjust_linenumber=-4)
+    msg = executer.execute()
     # Update the table columns
     namespace = self._table.getNamespace()
     if API_OBJECT in namespace:
