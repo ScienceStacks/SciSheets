@@ -174,26 +174,34 @@ class BlockExecutionController(object):
     """
     num_formula_columns = len(self._table.getFormulaColumns())
     outcome = ""
-    is_not_evaluate = not self._table.getIsEvaluateFormulas()
-    is_not_except= self._exception is None
-    is_equiv = self._isEquivalentValues()
-    is_not_first = not self._is_first
-    is_large = self._iterations >= num_formula_columns
-    if is_not_evaluate:
-      outcome = "True - not isEvaluateFormulas"
-      done = True
-    elif is_not_except and is_equiv and is_not_first:
-      outcome = "True - not exception & equivalent values"
-      done = True
-    elif is_large:
-      outcome = "True - iterations >= num_formula_columns"
-      done = True
-    else:
-      outcome = "False"
+    done = None
+    is_first = self._is_first
+    if is_first:
+      self._is_first = False
       done = False
-    self._is_first = False
+      is_not_evaluate = None
+      is_not_except= None
+      is_equiv = None
+      is_large = None
+    else:
+      is_not_evaluate = not self._table.getIsEvaluateFormulas()
+      is_not_except= self._exception is None
+      is_equiv = self._isEquivalentValues()
+      is_large = self._iterations >= num_formula_columns
+      if is_not_evaluate:
+        outcome = "True - not isEvaluateFormulas"
+        done = True
+      elif is_not_except and is_equiv:
+        outcome = "True - not exception & equivalent values"
+        done = True
+      elif is_large:
+        outcome = "True - iterations >= num_formula_columns"
+        done = True
+      else:
+        outcome = "False"
+        done = False
     details = "%s: %s %s %s %s %s" % (outcome, is_not_evaluate,
-        is_not_except, is_equiv, is_not_first, is_large)
+        is_not_except, is_equiv, is_first, is_large)
     self._log("isTerminateLoop", details)
     return done
     

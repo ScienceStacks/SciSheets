@@ -1,5 +1,6 @@
 """Provides logging in a CSV format."""
 
+import numpy as np
 import time
 
 
@@ -33,7 +34,7 @@ class Logger(object):
     """
     Writes a log entry
     """
-    last_elapsed = 1000*(time.time() - self._last_time)
+    last_elapsed = np.round(1000*(time.time() - self._last_time), 1)
     self._cumtime += last_elapsed
     line = '%f, %f, "%s/%s", "%s"' % (
                                self._cumtime,
