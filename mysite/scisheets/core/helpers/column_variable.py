@@ -33,6 +33,9 @@ class ColumnVariable(object):
   def getNamespaceValue(self):
     return self._column.getTable().getNamespace()[self._column.getName()]
 
+  def getColumn(self):
+    return self._column
+
   def getColumnValue(self):
     return self._column.getCells()
 

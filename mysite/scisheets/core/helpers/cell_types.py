@@ -52,7 +52,7 @@ class XInt(XType):
     """
     if cls.isBaseType(val):
       return True
-    if isinstance(val, str):
+    if isStr(val):
       return isinstance(int(val), int)
     if isinstance(val, float):
       return int(val) == val
@@ -106,7 +106,7 @@ class XFloat(XType):
     """
     if cls.isBaseType (val):
       return True
-    if isinstance(val, str):
+    if isStr(val):
       return isinstance(float(val), float)
 
   @classmethod
@@ -330,7 +330,7 @@ def isEquivalentData(val1, val2):
   except Warning:
     import pdb; pdb.set_trace()
     pass
-  if isinstance(val1, collections.Iterable):
+  if isinstance(val1, collections.Iterable) and not isStr(val1):
     try:
       pruned_val1 = pruneNulls(val1)
       pruned_val2 = pruneNulls(val2)
@@ -344,7 +344,20 @@ def isEquivalentData(val1, val2):
         return False
     except TypeError as err:
       return False
-  elif isFloat(val1):
-    return isEquivalentFloats(val1, val2)
+  elif isinstance(val2, collections.Iterable) and not isStr(val2):
+      return False
   else:
-    return val1 == val2
+    if isFloat(val1) and  isEquivalentFloats(val1, val2):
+      return True
+    try:
+      if val1 == val2:
+        return True
+    except:
+      pass
+    values = coerceData([val1, val2])
+    coerced_val1 = values[0]
+    coerced_val2 = values[1]
+    if isFloat(coerced_val1):
+      return isEquivalentFloats(coerced_val1, coerced_val2)
+    else:
+      return coerced_val1 == coerced_val2

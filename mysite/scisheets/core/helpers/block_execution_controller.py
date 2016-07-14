@@ -157,15 +157,24 @@ class BlockExecutionController(object):
     """
     self._log("endAnIteration", "iterations=%d" % self._iterations)
 
+  def endProgram(self, details=""):
+    """
+    End of a loop iteration
+    """
+    self._log("endProgram", details)
+
   def _isEquivalentValues(self):
     """
     Checks if not namespace variable has changed since the start of the iteration.
-    :return bool: True if no change
+    :return bool, cv/None: True if no change; cv of first ColumnVariable that failed
     """
     for cv in self._api.getColumnVariables():
       if not cv.isNamespaceValueEquivalentToIterationStartValue():
-        return False
-    return True
+        if cv.getColumn().getName() == 'GeoGroups':
+          import pdb; pdb.set_trace()
+          pass
+        return False, cv
+    return True, None
 
   def isTerminateLoop(self):
     """
@@ -183,10 +192,11 @@ class BlockExecutionController(object):
       is_not_except= None
       is_equiv = None
       is_large = None
+      cv_bad = None
     else:
       is_not_evaluate = not self._table.getIsEvaluateFormulas()
       is_not_except= self._exception is None
-      is_equiv = self._isEquivalentValues()
+      is_equiv, cv_bad = self._isEquivalentValues()
       is_large = self._iterations >= num_formula_columns
       if is_not_evaluate:
         outcome = "True - not isEvaluateFormulas"
@@ -200,8 +210,13 @@ class BlockExecutionController(object):
       else:
         outcome = "False"
         done = False
-    details = "%s: %s %s %s %s %s" % (outcome, is_not_evaluate,
-        is_not_except, is_equiv, is_first, is_large)
+    details = "%s: not_evaluate: %s; not_except: %s;"  \
+        % (outcome, is_not_evaluate, is_not_except)
+    cv_msg = str(is_equiv)
+    if cv_bad is not None:
+        cv_msg = "%s,col=%s" % (is_equiv, cv_bad.getColumn().getName())
+    details = "%s equiv: %s; first: %s; large: %s."  \
+        % (details, cv_msg, is_first, is_large)
     self._log("isTerminateLoop", details)
     return done
     

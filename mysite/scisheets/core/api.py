@@ -78,7 +78,9 @@ class API(object):
     return self._column_variables
 
   def updateColumnFromColumnVariables(self):
-    [cv.setColumnValue() for cv in self._column_variables]
+    for cv in self._column_variables:
+      if not cv.isNamespaceValueEquivalentToBaselineValue():
+        cv.setColumnValue()
 
   def addColumnsToTableFromDataframe(self, 
                                      dataframe, 

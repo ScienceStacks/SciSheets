@@ -15,10 +15,17 @@ class TestUtil(unittest.TestCase):
 
   def testIsFloat(self):
     self.assertTrue(cell_types.isFloat(4.1))
+    self.assertTrue(cell_types.isFloat(u'4.1'))
     self.assertFalse(cell_types.isFloat(4.0))
     self.assertTrue(cell_types.isFloat(np.nan))
     self.assertFalse(cell_types.isFloat('an'))
     self.assertFalse(cell_types.isFloat(1))
+
+  def testIsStr(self):
+    self.assertTrue(cell_types.isStr('a'))
+    self.assertTrue(cell_types.isStr(u'a'))
+    self.assertTrue(cell_types.isStr(u'1'))
+    self.assertFalse(cell_types.isStr(1))
 
   def testIsFloats(self):
     self.assertTrue(cell_types.isFloats(4.1))
@@ -143,6 +150,13 @@ class TestUtil(unittest.TestCase):
                           np.array([ 0.027]),
                           np.array([ 0.027]), np.array([ 0.027])])
     self.assertFalse(cell_types.isEquivalentData(array, array2))
+
+  def testIsEquivalentMismatchedData(self):
+    values1 = ExtendedArray([[0.0], [1.0], [2.0], [3.0], None, None])
+    values2 = [[0.0], [1.0], [2.0], [3.0]]
+    values3 = [[u'0'], [u'1'], [u'2'], [u'3']]
+    self.assertTrue(cell_types.isEquivalentData(values1, values3))
+    self.assertTrue(cell_types.isEquivalentData(values1, values2))
 
 
 if __name__ == '__main__':

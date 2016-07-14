@@ -104,4 +104,6 @@ from scisheets.core import api as api
     if API_OBJECT in namespace:
       api_object = namespace[API_OBJECT]
       api_object.updateColumnFromColumnVariables()
+      api_object.controller.endProgram(
+          details="After updateColumnFromColumnVariables")
     return msg
