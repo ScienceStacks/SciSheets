@@ -13,11 +13,11 @@ def createTruthTable(s, column_names, only_boolean=False):
                             in the truth table
   Usage example:
     S.createTruthTable(['A', 'B'])
-    A = S.getColumnValues('A')  # Trinary object
-    B = S.getColumnValues('B')  # Trinary object
+    A = S.getColumnValue('A')  # Trinary object
+    B = S.getColumnValue('B')  # Trinary object
     C = A & B | -B
     S.createColumn('C')
-    S.setColumnValues('C', C)  # Assign the column value
+    S.setColumnValue('C', C)  # Assign the column value
   """
   columns = []
   for name in column_names:

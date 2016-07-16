@@ -158,6 +158,23 @@ class TestUtil(unittest.TestCase):
     self.assertTrue(cell_types.isEquivalentData(values1, values3))
     self.assertTrue(cell_types.isEquivalentData(values1, values2))
 
+  def testIsEquivalentMismatchedData(self):
+
+    values1 = ExtendedArray([ 0.04123,  0.00729,  0.03847,  0.01675,  0.01031,  0.01563,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
+            np.nan,      np.nan,      np.nan,      np.nan])
+    values2 = [0.04123, 0.00729, 0.03847, 0.01675, 0.01031, 0.01563, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
+    self.assertTrue(cell_types.isEquivalentData(values1, values2))
+
+
 
 if __name__ == '__main__':
   unittest.main()

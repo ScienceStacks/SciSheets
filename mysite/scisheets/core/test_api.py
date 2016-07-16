@@ -31,14 +31,14 @@ class TestAPI(unittest.TestCase):
     ht.setupTableInitialization(self)
 
   def testGetColumnValues(self):
-    values = self.api.getColumnValues(COLUMN1)
+    values = self.api.getColumnValue(COLUMN1)
     self.assertTrue(all(values == COLUMN1_VALUES))
 
   def testSetColumnValues(self):
     new_column1_values = list(COLUMN1_VALUES)
     new_column1_values.extend(range(5))
-    self.api.setColumnValues(COLUMN1, new_column1_values)
-    values = self.api.getColumnValues(COLUMN1)
+    self.api.setColumnValue(COLUMN1, new_column1_values)
+    values = self.api.getColumnValue(COLUMN1)
     self.assertTrue(all(values == np.array(new_column1_values)))
 
   def testColumnVisibility(self):
@@ -61,6 +61,19 @@ class TestAPI(unittest.TestCase):
     table.addColumn(new_column)
     self.api.setColumnVariables()
     self.assertTrue(new_column_name in table.getNamespace())
+
+  def testSetColumnVariablesWithColnmsOption(self):
+    table = self.api.getTable()
+    self.api.setColumnVariables()
+    old_cv_dict = {cv.getName(): cv 
+        for cv in self.api.getColumnVariables()}
+    self.api.setColumnVariables(colnms=[COLUMN1])
+    cv_names = [cv.getName() for cv in self.api.getColumnVariables()]
+    self.assertTrue(COLUMN1 in cv_names)
+    for cv_name in cv_names:
+      if cv_name != COLUMN1:
+        self.assertEqual(old_cv_dict[cv_name], 
+            self.api.getColumnVariable(cv_name))
     
 
 # pylint: disable=W0212,C0111,R0904

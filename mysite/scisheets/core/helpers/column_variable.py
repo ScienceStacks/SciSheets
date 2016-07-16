@@ -31,10 +31,15 @@ class ColumnVariable(object):
     self._iteration_start_value = self.getNamespaceValue()
  
   def getNamespaceValue(self):
+    if self._column.getTable() is None:
+      import pdb; pdb.set_trace()
     return self._column.getTable().getNamespace()[self._column.getName()]
 
   def getColumn(self):
     return self._column
+
+  def getName(self):
+    return self._column.getName()
 
   def getColumnValue(self):
     return self._column.getCells()

@@ -369,7 +369,7 @@ if __name__ == '__main__':
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
-      statement = "%s = %s.getColumnValues('%s')" %   \
+      statement = "%s = %s.getColumnValue('%s')" %   \
           (name, full_object, name)
       sa.add(statement)
     return sa.get()
@@ -400,7 +400,7 @@ if __name__ == '__main__':
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
       name = column.getName()
-      statement = "%s.setColumnValues('%s', %s)" % (API_OBJECT, name, name)
+      statement = "%s.setColumnValue('%s', %s)" % (API_OBJECT, name, name)
       sa.add(statement)
     return sa.get()
 

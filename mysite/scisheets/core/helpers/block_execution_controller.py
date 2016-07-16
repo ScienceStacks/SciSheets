@@ -170,9 +170,6 @@ class BlockExecutionController(object):
     """
     for cv in self._api.getColumnVariables():
       if not cv.isNamespaceValueEquivalentToIterationStartValue():
-        if cv.getColumn().getName() == 'GeoGroups':
-          import pdb; pdb.set_trace()
-          pass
         return False, cv
     return True, None
 

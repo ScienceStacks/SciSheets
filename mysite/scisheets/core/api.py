@@ -55,32 +55,60 @@ class API(object):
     self.setColumnVariables()
     self.controller = BlockExecutionController(self, 
         is_logging=self._is_logging)
-    self.setTableInColumns()
 
-  def setTableInColumns(self):
-    if self._table is None:
-      return   
-    for column in self._table.getColumns():
-      if column.getTable() is None:
-        column.setTable(self._table)
+  def _dbgCheckColumnVariables(self):
+    for cv in self._column_variables:
+      if cv._column._owning_table is None:
+        import pdb; pdb.set_trace()
 
-  def setColumnVariables(self, names=None):
+  def setColumnVariables(self, colnms=None):
     """
     Creates ColumnVariables for each column in the table
+    :param list-of-str colnms: If not None, then only set
+                               the named ColumnVariables
     """
-    if self._table is not None:
-      columns = self._table.getColumns()
-      self._column_variables = [ColumnVariable(c) for c in columns]
-    else:
+    # No Table
+    if self._table is None:
       self._column_variables = []
+      return
+    # Table present
+    cv_dict = {}
+    for column in  self._table.getColumns():
+      name = column.getName()
+      cv = self.getColumnVariable(name)
+      cv_dict[name] = cv
+    if colnms is None:
+      colnms = [c.getName() for c in self._table.getColumns()]
+    for colnm in colnms:
+      column = self._table.columnFromName(colnm)
+      if column is None:
+        import pdb; pdb.set_trace()
+      if column._owning_table is None:
+        import pdb; pdb.set_trace()
+      cv_dict[colnm] = ColumnVariable(column)
+    self._column_variables = cv_dict.values()
+    self._dbgCheckColumnVariables()
+  
+  def getColumnVariable(self, colnm):
+    for cv in self._column_variables:
+      if cv.getColumn().getName() == colnm:
+        return cv
+    return None
 
   def getColumnVariables(self):
     return self._column_variables
 
-  def updateColumnFromColumnVariables(self):
+  def updateColumnFromColumnVariables(self, colnms=None):
+    """
+    Updates the column variables that have changed.
+    :param list-of-str colnms:
+    """
+    if colnms is None:
+      colnms = [cv.getName() for cv in self._column_variables]
     for cv in self._column_variables:
-      if not cv.isNamespaceValueEquivalentToBaselineValue():
-        cv.setColumnValue()
+      if cv.getName() in colnms:
+        if not cv.isNamespaceValueEquivalentToBaselineValue():
+          cv.setColumnValue()
 
   def addColumnsToTableFromDataframe(self, 
                                      dataframe, 
@@ -171,7 +199,7 @@ class API(object):
     """
     return [c.getName() for c in self._table.getColumns()]
 
-  def _getColumnValues(self, column_name):
+  def _getColumnValue(self, column_name):
     """
     :param str column_name: name of the column
     :return: iterable of object
@@ -180,7 +208,7 @@ class API(object):
     column = self.getColumn(column_name)
     return api_util.coerceValuesForColumn(column, column.getCells())
 
-  def getColumnValues(self, column_name):
+  def getColumnValue(self, column_name):
     """
     :param str column_name: name of the column
     :return: iterable of object
@@ -213,7 +241,7 @@ class API(object):
     else:
       self._table.hideColumns(columns)
 
-  def setColumnValues(self, column_name, values):
+  def setColumnValue(self, column_name, values):
     """
     :param str column_name: name of the column
     :param iterable-of-object values:
@@ -327,9 +355,9 @@ class APIFormulas(API):
       name = column.getName()
       if not name in excludes:
         if name in namespace:
-          self.setColumnValues(name, namespace[name])
+          self.setColumnValue(name, namespace[name])
         else:
-          namespace[name] = self._getColumnValues(name)
+          namespace[name] = self._getColumnValue(name)
 
 class APIPlugin(APIFormulas):
   """

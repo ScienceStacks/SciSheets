@@ -63,10 +63,10 @@ class TestTabularize(unittest.TestCase):
     tabularize(api, 'Groups', 1, 'MeanCt',
         new_category_colnm='BioRuns',
         values_colnm_prefix='Gene_')
-    BioRuns = api.getColumnValues('BioRuns')
-    Gene_I = api.getColumnValues('Gene_I')
-    Gene_R1 = api.getColumnValues('Gene_R1')
-    Gene_R2 = api.getColumnValues('Gene_R2')
+    BioRuns = api.getColumnValue('BioRuns')
+    Gene_I = api.getColumnValue('Gene_I')
+    Gene_R1 = api.getColumnValue('Gene_R1')
+    Gene_R2 = api.getColumnValue('Gene_R2')
 
 
 if __name__ == '__main__':

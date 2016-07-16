@@ -63,11 +63,13 @@ def tabularize(s,
   Creates the column variables corresponding to the new columns.
   """
   # Initializations
-  s.updateColumnFromColumnVariables()
+  colnms = [new_category_colnm, values_colnm]
+  s.updateColumnFromColumnVariables(colnms=colnms)
+  updated_colnms = list(colnms)
   if new_category_colnm is None:
     new_category_colnm = "New%s" % category_colnm
-  raw_category_elements = s.getColumnValues(category_colnm)
-  raw_values = s.getColumnValues(values_colnm)
+  raw_category_elements = s.getColumnValue(category_colnm)
+  raw_values = s.getColumnValue(values_colnm)
   pairs = zip(raw_category_elements, raw_values)
   category_elements = []
   values = []
@@ -93,8 +95,10 @@ def tabularize(s,
   for sfx in colnm_suffixes:
     name = "%s%s" % (values_colnm_prefix, str(sfx))
     s.createColumn(name)
-    s.setColumnValues(name, col_dict[sfx])
+    s.setColumnValue(name, col_dict[sfx])
+    updated_colnms.append(name)
   s.createColumn(new_category_colnm)
-  s.setColumnValues(new_category_colnm, 
+  s.setColumnValue(new_category_colnm, 
                     col_dict[new_category_colnm])
-  s.setColumnVariables()
+  updated_colnms.append(new_category_colnm)
+  s.setColumnVariables(colnms=updated_colnms)

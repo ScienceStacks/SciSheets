@@ -139,9 +139,11 @@ class TestProgramGenerator(unittest.TestCase):
     Function that returns assignment statements
     :param function function:
     """
-    stg = "ColumnValues("
+    stg = "ColumnValue("
     statements = function()
     expected = self.table.numColumns()
+    if expected != statements.count(stg):
+      import pdb; pdb.set_trace()
     self.assertEqual(expected, statements.count(stg))
     statements = function(excludes=['row'])
     expected = self.table.numColumns() - 1
