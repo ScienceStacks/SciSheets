@@ -5,6 +5,7 @@ Get the group names and their values
 from scisheets.core.helpers.prune_nulls import pruneNulls
 from scisheets.core.helpers import cell_types
 import collections
+import numpy as np
 import pandas as pd
 
 def groupBy(category_values, grouping_values):
@@ -30,8 +31,11 @@ def groupBy(category_values, grouping_values):
       df[idx] = pruneNulls(category_values)
       groupby_list.append(df[idx])
     required_length = len(df['0'])
+    pruned_data = pruneNulls(grouping_values)
+    while len(pruned_data) < required_length:
+      pruned_data.append(np.nan)
     # May need to have the same length?
-    df[idx_data] = pruneNulls(grouping_values)
+    df[idx_data] = pruned_data
     groupby = df[idx_data].groupby(groupby_list)
     groups = [g[0] for g in groupby]
     grouped_values = [list(g[1]) for g in groupby]
