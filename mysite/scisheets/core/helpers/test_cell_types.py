@@ -159,7 +159,6 @@ class TestUtil(unittest.TestCase):
     self.assertTrue(cell_types.isEquivalentData(values1, values2))
 
   def testIsEquivalentMismatchedData(self):
-
     values1 = ExtendedArray([ 0.04123,  0.00729,  0.03847,  0.01675,  0.01031,  0.01563,
             np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
             np.nan,      np.nan,      np.nan,      np.nan,      np.nan,      np.nan,
@@ -174,7 +173,19 @@ class TestUtil(unittest.TestCase):
     values2 = [0.04123, 0.00729, 0.03847, 0.01675, 0.01031, 0.01563, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
     self.assertTrue(cell_types.isEquivalentData(values1, values2))
 
+  def testIsEquivalentNestedNan(self):
+    values1 = ExtendedArray([np.array([ 1.]), np.array([ 0.183,  0.966,  0.966]), np.array([ np.nan]),  \
+       np.array([ np.nan]), np.array([ np.nan]), None, None])
+    values2 = np.array([np.array([ 1.]), np.array([ 0.183,  0.966,  0.966]), np.array([ np.nan]),  \
+       np.array([ np.nan])])
+    self.assertTrue(cell_types.isEquivalentData(values1, values2))
+
+  def testIsEquivalentUnicode(self):
+    values1 = ExtendedArray([  0.,   1.,   2.,   3.,
+        np.nan,  np.nan,  np.nan])
+    values2 = [u'0.0', u'1.0', u'2.0', u'3.0', None]
+    self.assertTrue(cell_types.isEquivalentData(values1, values2))
 
 
-if __name__ == '__main__':
+if  __name__ == '__main__':
   unittest.main()

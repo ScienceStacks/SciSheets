@@ -282,6 +282,15 @@ def coerceData(data):
       return [x_type.coerce(d) for d in data]
   return list(data)
 
+def isIterable(val):
+  """
+  Verfies that the value truly is iterable
+  :return bool: True if iterable
+  """
+  if isStr(val):
+    return False
+  return isinstance(val, collections.Iterable)
+
 def isStr(val):
   """
   :param object val:
@@ -307,15 +316,6 @@ def makeIterable(val):
   else:
     return [val]
 
-def isIterable(val):
-  """
-  Verfies that the value truly is iterable
-  :return bool: True if iterable
-  """
-  if isStr(val):
-    return False
-  return isinstance(val, collections.Iterable)
-
 def isEquivalentData(val1, val2):
   """
   Determines if two objects are equivalent. Recursively
@@ -330,7 +330,7 @@ def isEquivalentData(val1, val2):
   except Warning:
     import pdb; pdb.set_trace()
     pass
-  if isinstance(val1, collections.Iterable) and not isStr(val1):
+  if isIterable(val1):
     try:
       pruned_val1 = pruneNulls(val1)
       pruned_val2 = pruneNulls(val2)

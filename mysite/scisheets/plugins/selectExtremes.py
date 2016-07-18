@@ -17,6 +17,9 @@ def selectExtremes(values, max_std, min_size=1):
   def dfm(mean, value):
     return abs(mean-value)
 
+  if len(values) < 2:
+    filter = [False for x in values]
+    return filter
   cur_std = np.std(values, ddof=1)
   length = len(values)
   initial_select = [False for n in range(length)]
@@ -24,9 +27,11 @@ def selectExtremes(values, max_std, min_size=1):
   iterations = 0
   while iterations < length-min_size:
     new_values = [x for (b, x) in paired_list if not b]
+    if len(new_values) < 2:
+      break
     if np.std(new_values) <= max_std:
       break
-    # Eliminate the next largest value
+  # Eliminate the next largest value
     mean = np.mean(new_values)
     max_idx = 0   
     for idx in range(length):
