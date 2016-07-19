@@ -8,6 +8,7 @@
 #  make Makefile yui
 # To re-acquire the source files used
 #  make Makefile acquire
+# Notes: Need to update yuiapi manually
 
 B=$(shell echo $(HOME))
 CDIR=$(shell pwd)
