@@ -471,7 +471,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     names = [c.getName() for c in self.getColumns()]
     bool_test = all([name != proposed_name for name in names])
     if bool_test:
-      column.rename(proposed_name)
+      column.setName(proposed_name)
     return bool_test
 
   def renameRow(self, row_index, proposed_name):

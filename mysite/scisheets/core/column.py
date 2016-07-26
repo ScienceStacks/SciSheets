@@ -197,12 +197,6 @@ class Column(object):
     """
     return pruneNulls(self._cells)
 
-  def rename(self, new_name):
-    """
-    Renames the column
-    """
-    self.setName(new_name)
-
   # ToDo: Test
   def replaceCells(self, new_data):
     """

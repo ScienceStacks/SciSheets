@@ -38,9 +38,15 @@ class TestTree(unittest.TestCase):
     self.assertEqual(len(self.root._children), 2)
     self.assertEqual(self.root._children[1], newer_tree)
 
+  def testAddChildComplex(self):
+    self._createComplexTree()
+    self.tree3.addChild(self.tree2)
+    self.assertTrue(self.tree2 in self.tree3.getChildren())
+    self.assertTrue(self.tree4 in self.tree2.getChildren())
+
   def testRemoveChildSimple(self):
     new_tree = self._AddChild(NAME2)
-    new_tree.removeMember()
+    new_tree.removeTree()
     self.assertIsNone(new_tree._parent)
     self.assertEqual(len(self.root._children), 0)
 
@@ -48,7 +54,7 @@ class TestTree(unittest.TestCase):
     new_tree = self._AddChild(NAME2)
     self._AddChild(NAME3)
     self.assertEqual(len(self.root._children), 2)
-    new_tree.removeMember()
+    new_tree.removeTree()
     self.assertIsNone(new_tree._parent)
     self.assertEqual(len(self.root._children), 1)
 
@@ -97,9 +103,9 @@ class TestTree(unittest.TestCase):
 
   def testFindName(self):
     self._createComplexTree()
-    trees = self.tree2.findName(NAME3, is_from_root=True)
+    trees = self.tree2.findChildrenWithName(NAME3, is_from_root=True)
     self.assertEqual(trees, [self.tree3])
-    trees = self.tree2.findName(NAME3, is_from_root=False)
+    trees = self.tree2.findChildrenWithName(NAME3, is_from_root=False)
     self.assertEqual(trees, [])
   
 
@@ -109,6 +115,13 @@ class TestTree(unittest.TestCase):
     self.assertEqual(leaves, [self.tree3, self.tree4])
     leaves = self.tree2.getLeaves(is_from_root=False)
     self.assertEqual(leaves, [self.tree4])
+
+  def testToString(self):
+    self._createComplexTree()
+    print_string = self.root.toString()
+    self.assertTrue("%s->%s" % (NAME, NAME3) in print_string)
+    self.assertTrue("%s->%s" % (NAME, NAME2) in print_string)
+    self.assertTrue("%s->%s" % (NAME2, NAME4) in print_string)
     
 
 
