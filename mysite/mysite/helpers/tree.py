@@ -31,6 +31,9 @@ class Tree(Node):
   The root is a Tree that has no parent.
   """
 
+  is_always_leaf = False
+
+
   def __init__(self, name):
     super(Tree, self).__init__(name)
     self._parent = None
@@ -49,8 +52,10 @@ class Tree(Node):
     Adds a tree as a child to this tree.
     Handles moving a subtree from an existing part of the tree.
     :param Tree tree:
-    :raises ValueError:
+    :raises ValueError, RuntimeError:
     """
+    if self.isAlwaysLeaf():
+      raise RuntimeError("Cannot add child to leaf %s" % self.getName())
     if child in self._children:
       raise ValueError("Duplicate addChild")
     self._children.append(child)
@@ -143,6 +148,9 @@ class Tree(Node):
       return self
     else:
       return self.getParent().getRoot()
+
+  def isAlwaysLeaf(self):
+    return self.__class__.is_always_leaf
 
   def removeTree(self):
     """

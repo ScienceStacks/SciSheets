@@ -134,6 +134,10 @@ class TestTree(unittest.TestCase):
     self.assertTrue("%s->%s" % (NAME, NAME2) in print_string)
     self.assertTrue("%s->%s" % (NAME2, NAME4) in print_string)
 
+  def testIsAlwaysLeaf(self):
+    self._createComplexTree()
+    self.assertFalse(self.tree2.isAlwaysLeaf())
+
 
 class TestPositionTree(unittest.TestCase):
   
