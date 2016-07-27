@@ -40,7 +40,7 @@ class Tree(Node):
     """
     :return bool: True if no duplicate names
     """
-    node_names = [n.getName() for n in self.getDescendents(is_recursive=True, 
+    node_names = [n.getName() for n in self.getChildren(is_recursive=True, 
         is_from_root=True)]
     return len(node_names) == len(set(node_names))
 
@@ -54,6 +54,7 @@ class Tree(Node):
     if child in self._children:
       raise ValueError("Duplicate addChild")
     self._children.append(child)
+    child.setParent(self)
     self.validate()
 
   def findChildrenWithName(self, name, 
@@ -66,7 +67,7 @@ class Tree(Node):
     :param bool is_recursive: examine all descendents
     :return list-of-Tree:
     """
-    nodes = self.getDescendents(is_from_root=is_from_root, 
+    nodes = self.getChildren(is_from_root=is_from_root, 
         is_recursive=is_recursive)
     return [n for n in nodes if n.getName() == name]
 
@@ -85,22 +86,8 @@ class Tree(Node):
       cur = cur.getParent()
     path.reverse()
     return path
-    
 
-  def getParent(self):
-    return self._parent
-
-  def getRoot(self):
-    """
-    Returns the root of the trees
-    :return Tree:
-    """
-    if self._parent is None:
-      return self
-    else:
-      return self._parent.getRoot()
-
-  def getDescendents(self, is_from_root=False, is_recursive=False):
+  def getChildren(self, is_from_root=False, is_recursive=False):
     """
     Returns nodes in depth first order.
     :param bool is_from_root: start with the root
@@ -122,17 +109,40 @@ class Tree(Node):
           raise RuntimeError("Tree contains a loop")
         active_list.remove(cur)
         result.append(cur)
-        [active_list.insert(0, c) for c in cur.getChildren()]
+        [active_list.insert(0, c) for c in cur._children]
     return result
+
+  def getChildrenNames(self, is_from_root=False, is_recursive=False):
+    """
+    Returns names in depth first order.
+    :param bool is_from_root: start with the root
+    :param bool is_recursive: proceed recursively
+    :return list-of-tree:
+    """
+    return [n.getName() for n in self.getChildren(  \
+        is_from_root=is_from_root, is_recursive=is_recursive)]
     
   def getLeaves(self, is_from_root=False):
     """
     :param bool is_from_root: start with the root
     :return list-of-Tree: nodes without children
     """
-    nodes = self.getDescendents(is_from_root=is_from_root,
+    nodes = self.getChildren(is_from_root=is_from_root,
                                 is_recursive=True)  
     return [n for n in nodes if len(n.getChildren()) == 0]
+    
+  def getParent(self):
+    return self._parent
+
+  def getRoot(self):
+    """
+    Returns the root of the trees
+    :return Tree:
+    """
+    if self.getParent() is None:
+      return self
+    else:
+      return self.getParent().getRoot()
 
   def removeTree(self):
     """
@@ -140,8 +150,11 @@ class Tree(Node):
     """
     parent = self.getParent()
     if parent is not None:
-      parent._children.remove(tree)
-    self._parent = None
+      parent._children.remove(self)
+    self.setParent(None)
+
+  def setParent(self, tree):
+    self._parent = tree
 
   def toString(self, is_from_root=True):
     """
@@ -149,11 +162,11 @@ class Tree(Node):
     :param bool is_from_root: start with the root
     """
     result = ""
-    for member in self.getDescendents(is_from_root=is_from_root, 
+    for tree in self.getChildren(is_from_root=is_from_root, 
         is_recursive=True):
-      if member.getParent() is not None:
+      if tree.getParent() is not None:
         result += "%s->%s\n"  \
-            % (member.getParent().getName(), member.getName())
+            % (tree.getParent().getName(), tree.getName())
     return result
   
   def validate(self):
@@ -164,22 +177,18 @@ class PositionTree(Tree):
 
   """Manages relationships between children."""
 
-  def addChild(self, tree, index=None):
+  def addChild(self, position_tree, position=None):
     """
     Adds a Tree as a child to the current tree.
     Handles moving a subtree from an existing part of the tree.
-    :param Tree tree:
-    :param int index: where to index in list of children
-    :raises ValueError: invalid value for index
+    :param PositionTree position_tree:
+    :param int position: where to position in list of children
     """
-    if index is None:
-      index = len(self._children)
-    if index > len(self._children):
-      raise ValueError("Position %d > %d, number of children" %
-          (index, len(self._children)))
-    self._removeTree()
-    self._children.insert(index, tree)
-    tree._parent = self
+    if position is None:
+      position = len(self._children)
+    position_tree.removeTree()
+    self._children.insert(position, position_tree)
+    position_tree.setParent(self)
     self.validate()
 
   def getChildAtPosition(self, position):
@@ -187,6 +196,8 @@ class PositionTree(Tree):
     :param int position:
     :return PositionTree:
     """
+    if position > len(self._children) - 1:
+      raise ValueError("Position %d does not exist" % position)
     return self._children[position]
 
   def getPositionOfChild(self, child):
@@ -220,10 +231,9 @@ class PositionTree(Tree):
     :return str:
     """
     result = ""
-    for tree in self.getDescendents(is_from_root=is_from_root,
+    for tree in self.getChildren(is_from_root=is_from_root,
         is_recursive=True):
-      children = tree.getDescendents(is_from_root=False,
-          is_recursive=False):
+      children = tree.getChildren()
       if children is not None:
         result += "%s\n" % tree.getName()
         pos = 0
