@@ -33,7 +33,7 @@ class TestColumn(unittest.TestCase):
   def testConstructor(self):
     column = cl.Column(COLUMN_NAME)
     self.assertEqual(column._name, COLUMN_NAME)
-    self.assertIsNone(column._owning_table)
+    self.assertIsNone(column._parent)
     self.assertIsNone(column._formula_statement.getFormula())
 
   def testAddCellsFloat(self):
@@ -78,7 +78,7 @@ class TestColumn(unittest.TestCase):
     self.assertEqual(self.column._data_class, 
         column_copy.getDataClass())
     self.assertEqual(self.column._asis, column_copy.getAsis())
-    self.assertIsNone(column_copy._owning_table)
+    self.assertIsNone(column_copy._parent)
 
   def testDeleteCells(self):
     valid_index = 0
@@ -120,7 +120,7 @@ class TestColumn(unittest.TestCase):
 
   def testSetTable(self):
     self.column.setTable(TABLE)
-    self.assertEqual(self.column._owning_table, TABLE)
+    self.assertEqual(self.column._parent, TABLE)
 
   def testUpdateCell(self):
     valid_index = 0
@@ -185,6 +185,10 @@ class TestColumn(unittest.TestCase):
     self.column.addCells(new_values, replace=True)
     self.assertEqual(self.column.prunedCells(), 
         new_values)
+
+  def testCopy(self):
+    new_column = self.column.copy()
+    self.assertTrue(self.column.isEquivalent(new_column))
     
 
 

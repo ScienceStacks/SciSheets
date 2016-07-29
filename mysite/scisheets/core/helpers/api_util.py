@@ -45,10 +45,10 @@ def getTableFromFile(file_path, verify=True):
     error = e
     import pdb; pdb.set_trace()
   fh.close()
-  table.migrate()  # Handle case of older objects
-  if verify and table.getFilepath() != file_path:
+  new_table = table.migrate()  # Handle case of older objects
+  if verify and new_table.getFilepath() != file_path:
     raise ValueError("File path is incorrect or missing.")
-  return table
+  return new_table
 
 def writeTableToFile(table):
   """

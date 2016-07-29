@@ -38,6 +38,9 @@ class ColumnContainer(object):
         return  column
     return None
 
+  def copy(self, instance=None):
+    return instance.setName(self.getName())
+
   def getCell(self, row_index, column_index):
     """
     :return: the numpy array of the cells in the column

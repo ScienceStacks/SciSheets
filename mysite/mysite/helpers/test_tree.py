@@ -138,6 +138,10 @@ class TestTree(unittest.TestCase):
     self._createComplexTree()
     self.assertFalse(self.tree2.isAlwaysLeaf())
 
+  def testCopy(self):
+    new_tree = self.root.copy()
+    self.assertTrue(self.root.isEquivalent(new_tree))
+
 
 class TestPositionTree(unittest.TestCase):
   

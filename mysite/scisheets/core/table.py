@@ -292,11 +292,14 @@ class Table(ColumnContainer):
     self.renameRow(last_index, proposed_name)  # put the row in the right place
     self._validateTable()
 
-  def copy(self):
+  def copy(self, table=None):
     """
     Returns a copy of this object
+    :param Table table:
     """
-    new_table = Table(self._name)
+    if table is None:
+      table = Table("x")
+    table.setName(self.getName())
     for column in self.getDataColumns():
       new_column = column.copy()
       new_table.addColumn(new_column)
@@ -407,7 +410,16 @@ class Table(ColumnContainer):
         column.setFormula(formula)
     if not "_is_evaluate_formulas" in dir(self):
       self._is_evaluate_formulas = True
+    # Copy the colunns to ensure that the context is updated
+    for column in self.getColumns():
+      index = self.indexFromColumn(column)
+      if index != NAME_COLUMN_IDX:
+        new_column = column.copy()
+        self.deleteColumn(column)
+        self.insertColumn(new_column, index)
     super(Table, self).migrate()
+    new_table = self.copy()
+    return new_table
 
   def moveRow(self, index1, index2):
     """

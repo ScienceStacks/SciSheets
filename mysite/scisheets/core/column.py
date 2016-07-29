@@ -6,6 +6,7 @@
 import errors as er
 import numpy as np
 from helpers.formula_statement import FormulaStatement
+from mysite.helpers.tree import Tree
 from helpers.extended_array import ExtendedArray
 from helpers.prune_nulls import pruneNulls
 import helpers.cell_types as cell_types
@@ -13,7 +14,7 @@ import helpers.api_util as api_util
 import collections
 
 
-class Column(object):
+class Column(Tree):
   """
   Representation of a column in a table. A column is a ctonainer
   of cells.
@@ -28,11 +29,11 @@ class Column(object):
     :param DataClass data_class: Class for data
     :param bool asis: opaque data if True
     """
+    super(Column, self).__init__(name)
     self.setName(name)
     self.setAsis(asis)
     self._cells = []
     self._formula_statement = FormulaStatement(None, self.getName())
-    self._owning_table = None
     self._data_class = data_class
 
   @staticmethod
@@ -64,16 +65,19 @@ class Column(object):
       full_data_list.extend(new_data_list)
     self._setDatavalues(full_data_list)
 
-  def copy(self):
+  def copy(self, instance=None):
     """
     Returns a copy of this object
+    :param Column column:
     """
-    new_column = Column(self._name)
-    new_column.setFormula(self._formula_statement.getFormula())
-    new_column.addCells(self._cells)
-    new_column.setAsis(self._asis)
-    new_column.setDataClass(self._data_class)
-    return new_column
+    if instance is None:
+      instance = Column("x")
+    column = super(Column, self).copy(instance=instance)
+    column.setFormula(self._formula_statement.getFormula())
+    column.addCells(self._cells)
+    column.setAsis(self._asis)
+    column.setDataClass(self._data_class)
+    return column
 
   def deleteCells(self, indicies):
     """
@@ -137,12 +141,6 @@ class Column(object):
     Returns the formula as a python statement
     """
     return self._formula_statement.getStatement()
-
-  def getName(self):
-    """
-    Returns the name of the column
-    """
-    return self._name
 
   def insertCell(self, val, index=None):
     """
@@ -252,7 +250,7 @@ class Column(object):
     """
     stripped_name = Column.cleanName(name)
     if Column.isPermittedName(stripped_name) is None:
-      self._name = stripped_name
+      super(Column, self).setName(stripped_name)
     else:
       raise er.InternalError("%s is an invalid name" % name)
 
@@ -260,10 +258,10 @@ class Column(object):
     """
     Sets the table being used for this column
     """
-    self._owning_table = table
+    self.setParent(table)
 
   def getTable(self):
-    return self._owning_table
+    return self.getParent()
 
   @staticmethod
   def isPermittedName(name):

@@ -13,14 +13,34 @@ class Node(object):
   def __init__(self, name):
     self._name = name
 
+  def copy(self, instance=None):
+    """
+    :param Node instance:
+    :return Node:
+    """
+    if instance is None:
+      instance = Node("x")
+    instance.setName(self.getName())
+    return instance
+
   def getName(self):
     return self._name
+
+  def isEquivalent(self, node):
+    """
+    Determines if the node has the same data.
+    :return bool: True if equivalent
+    """
+    return self.getName() == node.getName()
 
   def setName(self, name):
     """
     :param str name:
     """
     self._name = name
+
+  def migrate(self):
+    return self
 
 
 class Tree(Node):
@@ -61,6 +81,18 @@ class Tree(Node):
     self._children.append(child)
     child.setParent(self)
     self.validate()
+
+  def copy(self, instance=None):
+    """
+    :param Tree instance:
+    :return Tree:
+    """
+    if instance is None:
+      instance = Tree("x")
+    instance = super(Tree, self).copy(instance=instance)
+    instance._children = self.getChildren()
+    instance.setParent(self.getParent())
+    return instance
 
   def findChildrenWithName(self, name, 
       is_from_root=False, is_recursive=False):
@@ -152,6 +184,20 @@ class Tree(Node):
   def isAlwaysLeaf(self):
     return self.__class__.is_always_leaf
 
+  def isEquivalent(self, tree):
+    """
+    :return bool: True if equivalent
+    """
+    is_equivalent = super(Tree, self).isEquivalent(tree)
+    is_equivalent = is_equivalent and  \
+        self.getParent() == tree.getParent()
+    set1 = set([t.getName()  \
+        for t in self.getChildren(is_recursive=True)]) 
+    set2 = set([t.getName()  \
+        for t in tree.getChildren(is_recursive=True)]) 
+    is_equivalent = is_equivalent and set1 == set2
+    return is_equivalent
+
   def removeTree(self):
     """
     Removes the current tree from its parent structure.
@@ -199,6 +245,15 @@ class PositionTree(Tree):
     position_tree.setParent(self)
     self.validate()
 
+  def copy(self, instance=None):
+    """
+    :param PositionTree instance:
+    :return PositionTree:
+    """
+    if instance is None:
+      instance = PositionTree("x")
+    return super(PositionTree, self).copy(instance=instance)
+
   def getChildAtPosition(self, position):
     """
     :param int position:
@@ -217,6 +272,18 @@ class PositionTree(Tree):
       return self._children.index(child)
     except ValueError:
       return None
+
+  def isEquivalent(self, position_tree):
+    """
+    :param PositionTree position_tree:
+    """
+    is_equivalent = super(PositionTree, self).isEquivalent(position_tree)
+    lst1 = [t.getName()  \
+        for t in self.getChildren(is_recursive==True)]
+    lst2 = [t.getName()  \
+        for t in tree.getChildren(is_recursive==True)]
+    is_equivalent = is_equivalent and lst1 == lst2
+    
 
   def moveChildToPosition(self, child, position):
     """
