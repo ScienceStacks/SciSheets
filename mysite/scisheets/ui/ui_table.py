@@ -38,6 +38,17 @@ class UITable(Table):
       response = {'data': str(new_error), 'success': False}
     return response
 
+  def copy(self, instance=None):
+    """
+    Returns a copy of this object
+    :param UITable instance:
+    """
+    if instance is None:
+      instance = UITable("x")
+    instance = super(UITable, self).copy(instance=instance)
+    instance._hidden_columns = self.getHiddenColumns()
+    return instance
+
   def unhideAllColumns(self):
     """
     Unmarks columns as as hidden.
@@ -336,6 +347,8 @@ class UITable(Table):
       instance = UITable("x")
     if not '_hidden_columns' in dir(instance):
       instance._hidden_columns = []
+    else:
+      instance._hidden_columns = self.getHiddenColumns()
     return super(UITable, self).migrate(instance=instance)
 
   @staticmethod

@@ -48,8 +48,8 @@ class Table(ColumnContainer):
     super(Table, self).__init__(name)
     self._namespace = {}  # Namespace for formula evaluation
     self._createNameColumn()
-    self._prologue = self.fromulaStatementFromFile(PROLOGUE_FILEPATH)
-    self._epilogue = self.fromulaStatementFromFile(EPILOGUE_FILEPATH)
+    self._prologue = self.formulaStatementFromFile(PROLOGUE_FILEPATH)
+    self._epilogue = self.formulaStatementFromFile(EPILOGUE_FILEPATH)
     self._is_evaluate_formulas = True
 
 
@@ -88,7 +88,7 @@ class Table(ColumnContainer):
         names.append(Table._rowNameFromIndex(row_num))
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
-  def fromulaStatementFromFile(self, filepath):
+  def formulaStatementFromFile(self, filepath):
     """
     Reads the file contents and creates the FormulaStatement object.
     :param str filepath: path to file to read
@@ -309,6 +309,9 @@ class Table(ColumnContainer):
       instance = Table("x")
     super(Table, self).copy(instance=instance)
     instance.setName(self.getName())
+    instance.setPrologue(self.getPrologue().getFormula())
+    instance.setEpilogue(self.getEpilogue().getFormula())
+    instance.setIsEvaluateFormulas(self.getIsEvaluateFormulas())
     for column in self.getColumns():
       new_column = column.copy()
       instance.addColumn(new_column)
@@ -414,9 +417,9 @@ class Table(ColumnContainer):
     if not '_namespace' in dir(self):
       self._namespace = {}
     if not '_prologue' in dir(self):
-      self._prologue = self.fromulaStatementFromFile(PROLOGUE_FILEPATH)
+      self._prologue = self.formulaStatementFromFile(PROLOGUE_FILEPATH)
     if not '_epilogue' in dir(self):
-      self._epilogue = self.fromulaStatementFromFile(EPILOGUE_FILEPATH)
+      self._epilogue = self.formulaStatementFromFile(EPILOGUE_FILEPATH)
     for column in self._columns:
       formula = column.getFormula()
       if formula is not None:
@@ -437,8 +440,6 @@ class Table(ColumnContainer):
       else:
         self._versioned_file = None
     new_table = self.copy(instance=new_table)
-    if new_table is None:
-      import pdb; pdb.set_trace()
     return new_table
 
   def moveRow(self, index1, index2):

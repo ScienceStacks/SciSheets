@@ -110,6 +110,15 @@ class DTTable(UITable):
   def __init__(self, name):
     super(DTTable, self).__init__(name)
 
+  def copy(self, instance=None):
+    """
+    Returns a copy of this object
+    :param DTTable instance:
+    """
+    if instance is None:
+      instance = DTTable("x")
+    return super(UITable, self).copy(instance=instance)
+
   @staticmethod
   def _formatStringForJS(in_string):
     """
