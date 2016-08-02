@@ -350,7 +350,7 @@ Rp121
 (dp122
 g53
 Nsg54
-S'DUMMY_TABLE'
+S'x'
 p123
 sg56
 I00
@@ -378,5 +378,6 @@ sg58
 S'# Epilogue\n'
 p129
 sbsg54
-g123
+S'DUMMY_TABLE'
+p130
 sb.

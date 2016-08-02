@@ -162,7 +162,7 @@ class TestAPIFormulas(unittest.TestCase):
     for name in names:
       self.assertTrue(name in column_names)
       column = table.columnFromName(name)
-      self.assertIsNotNone(column._owning_table)
+      self.assertIsNotNone(column.getTable())
 
   def _testAddFromDataframe(self, prefix="", names=None):
     df = self._createDataframe(prefix=prefix)

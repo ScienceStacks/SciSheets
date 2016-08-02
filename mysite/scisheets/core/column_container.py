@@ -39,7 +39,11 @@ class ColumnContainer(object):
     return None
 
   def copy(self, instance=None):
-    return instance.setName(self.getName())
+    if instance is None:
+      instance = ColumnContainer("x")
+    instance.setName(self.getName())
+    instance.setVersionedFile(self.getVersionedFile())
+    return instance
 
   def getCell(self, row_index, column_index):
     """
@@ -102,14 +106,7 @@ class ColumnContainer(object):
     """
     Handles older objects that lack some properties
     """
-    if not '_versioned_file' in dir(self):
-      if '_filepath' in dir(self):
-        self._versioned_file = VersionedFile(self._filepath,
-            settings.SCISHEETS_USER_TBLDIR_BACKUP,
-            settings.SCISHEETS_MAX_TABLE_VERSIONS)
-      else:
-        self._versioned_file = None
-    pass
+    import pdb; pdb.set_trace()
 
   def moveColumn(self, column, new_idx):
     """
@@ -136,6 +133,9 @@ class ColumnContainer(object):
     """
     index = self._columns.index(column)
     del self._columns[index]
+
+  def setColumns(self, columns):
+    self._columns = columns
 
   def setVersionedFile(self, versioned_file):
     self._versioned_file = versioned_file

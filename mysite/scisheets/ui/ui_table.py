@@ -328,13 +328,15 @@ class UITable(Table):
     response = self._createResponse(error)
     return response
 
-  def migrate(self):
+  def migrate(self, instance=None):
     """
     Handles older objects that lack some properties
     """
-    if not '_hidden_columns' in dir(self):
-      self._hidden_columns = []
-    super(UITable, self).migrate()
+    if instance is None:
+      instance = UITable("x")
+    if not '_hidden_columns' in dir(instance):
+      instance._hidden_columns = []
+    return super(UITable, self).migrate(instance=instance)
 
   @staticmethod
   def _addEscapesToQuotes(iter_str):

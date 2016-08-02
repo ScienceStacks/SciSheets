@@ -2,7 +2,9 @@
   Implements the table class for SciSheets.
 '''
 
+from mysite import settings
 from mysite.helpers.data_capture import DataCapture
+from mysite.helpers.versioned_file import VersionedFile
 from helpers.formula_statement import FormulaStatement
 from column import Column
 from column_container import ColumnContainer
@@ -218,6 +220,12 @@ class Table(ColumnContainer):
         msg = "In Table %s, invalid row name at index %d: %s" % \
                 (self.getName(), nrow, actual_row_name)
         raise er.InternalError(msg)
+    # Verify that the columns have the corrent table
+    for column in self.getColumns():
+      if not column.getTable() == self:
+        raise er.InternalError("Column %s in Table %s does not have correct parent"  \
+             % (column.getName(), self.getName()))
+ 
 
   def addCells(self, column, cells, replace=False):
     """
@@ -292,18 +300,19 @@ class Table(ColumnContainer):
     self.renameRow(last_index, proposed_name)  # put the row in the right place
     self._validateTable()
 
-  def copy(self, table=None):
+  def copy(self, instance=None):
     """
     Returns a copy of this object
-    :param Table table:
+    :param Table instance:
     """
-    if table is None:
-      table = Table("x")
-    table.setName(self.getName())
-    for column in self.getDataColumns():
+    if instance is None:
+      instance = Table("x")
+    super(Table, self).copy(instance=instance)
+    instance.setName(self.getName())
+    for column in self.getColumns():
       new_column = column.copy()
-      new_table.addColumn(new_column)
-    return new_table
+      instance.addColumn(new_column)
+    return instance
 
   def deleteColumn(self, column):
     """
@@ -394,10 +403,14 @@ class Table(ColumnContainer):
         column.insertCell(None, idx)
     self._updateNameColumn()
 
-  def migrate(self):
+  def migrate(self, instance=None):
     """
     Handles older objects that lack some properties
     """
+    if instance is None:
+      new_table = Table("x")
+    else:
+      new_table = instance
     if not '_namespace' in dir(self):
       self._namespace = {}
     if not '_prologue' in dir(self):
@@ -413,12 +426,19 @@ class Table(ColumnContainer):
     # Copy the colunns to ensure that the context is updated
     for column in self.getColumns():
       index = self.indexFromColumn(column)
-      if index != NAME_COLUMN_IDX:
-        new_column = column.copy()
-        self.deleteColumn(column)
-        self.insertColumn(new_column, index)
-    super(Table, self).migrate()
-    new_table = self.copy()
+      new_column = column.migrate()
+      self.deleteColumn(column)
+      self.insertColumn(new_column, index)
+    if not '_versioned_file' in dir(self):
+      if '_filepath' in dir(self):
+        self._versioned_file = VersionedFile(self._filepath,
+            settings.SCISHEETS_USER_TBLDIR_BACKUP,
+            settings.SCISHEETS_MAX_TABLE_VERSIONS)
+      else:
+        self._versioned_file = None
+    new_table = self.copy(instance=new_table)
+    if new_table is None:
+      import pdb; pdb.set_trace()
     return new_table
 
   def moveRow(self, index1, index2):

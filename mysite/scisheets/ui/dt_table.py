@@ -172,8 +172,10 @@ class DTTable(UITable):
     html = get_template('scitable.html').render(ctx_dict)
     return html
 
-  def migrate(self):
+  def migrate(self, instance=None):
     """
     Handles older objects that lack some properties.
     """
-    super(DTTable, self).migrate()
+    if instance is None:
+      instance = DTTable("x")
+    return super(DTTable, self).migrate(instance=instance)

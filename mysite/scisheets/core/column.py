@@ -20,6 +20,9 @@ class Column(Tree):
   of cells.
   """
 
+  is_always_leaf = True  # Cannot add/modify children
+
+
   def __init__(self, 
                name, 
                data_class=api_util.DATACLASS_ARRAY,
@@ -183,6 +186,25 @@ class Column(Tree):
     """
     return cell_types.isFloats(self.getCells())
 
+  def migrate(self):
+    """
+    Returns a copy of this object that is migrated
+    :return Column:
+    """
+    column = Column(self._name)
+    column.setFormula(self._formula_statement.getFormula())
+    column.addCells(self._cells)
+    column.setAsis(self._asis)
+    column.setDataClass(self._data_class)
+    if '_owning_table' in dir(self):
+      parent = self._owning_table
+    elif '_parent' in dir(self):
+      parent = self._parent
+    else:
+      raise RuntimeError("Object has no parent attribute")
+    column.setParent(parent)
+    return column
+
   def numCells(self):
     """
     Returns the number of cells in the column
@@ -261,6 +283,8 @@ class Column(Tree):
     self.setParent(table)
 
   def getTable(self):
+    if '_parent' not in dir(self):
+      import pdb; pdb.set_trace()
     return self.getParent()
 
   @staticmethod

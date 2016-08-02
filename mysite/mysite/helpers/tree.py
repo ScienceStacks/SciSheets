@@ -23,6 +23,12 @@ class Node(object):
     instance.setName(self.getName())
     return instance
 
+  def getAllNodes(self):
+    nodes = self.getChildren(is_from_root=True,
+                             is_recursive=True)
+    nodes.insert(0, self.getRoot())
+    return nodes
+
   def getName(self):
     return self._name
 
@@ -63,8 +69,7 @@ class Tree(Node):
     """
     :return bool: True if no duplicate names
     """
-    node_names = [n.getName() for n in self.getChildren(is_recursive=True, 
-        is_from_root=True)]
+    node_names = self.getAllNodes()
     return len(node_names) == len(set(node_names))
 
   def addChild(self, child):
@@ -126,7 +131,7 @@ class Tree(Node):
 
   def getChildren(self, is_from_root=False, is_recursive=False):
     """
-    Returns nodes in depth first order.
+    Returns descendent nodes in depth first order.
     :param bool is_from_root: start with the root
     :param bool is_recursive: proceed recursively
     :return list-of-tree:
@@ -138,7 +143,7 @@ class Tree(Node):
     if not is_recursive:
       result = start_node._children
     else:
-      active_list = [start_node]
+      active_list = list(start_node._children)
       result = []
       while len(active_list) > 0:
         cur = active_list[0]
@@ -166,6 +171,8 @@ class Tree(Node):
     """
     nodes = self.getChildren(is_from_root=is_from_root,
                                 is_recursive=True)  
+    if not self in nodes:
+      nodes.insert(0, self)
     return [n for n in nodes if len(n.getChildren()) == 0]
     
   def getParent(self):
@@ -191,10 +198,8 @@ class Tree(Node):
     is_equivalent = super(Tree, self).isEquivalent(tree)
     is_equivalent = is_equivalent and  \
         self.getParent() == tree.getParent()
-    set1 = set([t.getName()  \
-        for t in self.getChildren(is_recursive=True)]) 
-    set2 = set([t.getName()  \
-        for t in tree.getChildren(is_recursive=True)]) 
+    set1 = set([t.getName() for t in self.getAllNodes()])
+    set2 = set([t.getName() for t in tree.getAllNodes()])
     is_equivalent = is_equivalent and set1 == set2
     return is_equivalent
 
@@ -216,8 +221,8 @@ class Tree(Node):
     :param bool is_from_root: start with the root
     """
     result = ""
-    for tree in self.getChildren(is_from_root=is_from_root, 
-        is_recursive=True):
+    nodes = self.getAllNodes()
+    for tree in nodes:
       if tree.getParent() is not None:
         result += "%s->%s\n"  \
             % (tree.getParent().getName(), tree.getName())
@@ -278,10 +283,8 @@ class PositionTree(Tree):
     :param PositionTree position_tree:
     """
     is_equivalent = super(PositionTree, self).isEquivalent(position_tree)
-    lst1 = [t.getName()  \
-        for t in self.getChildren(is_recursive==True)]
-    lst2 = [t.getName()  \
-        for t in tree.getChildren(is_recursive==True)]
+    lst1 = [t.getName() for t in self.getAllNodes()]
+    lst2 = [t.getName() for t in tree.getAllNodes()]
     is_equivalent = is_equivalent and lst1 == lst2
     
 
@@ -306,10 +309,9 @@ class PositionTree(Tree):
     :return str:
     """
     result = ""
-    for tree in self.getChildren(is_from_root=is_from_root,
-        is_recursive=True):
+    for tree in self.getAllNodes():
       children = tree.getChildren()
-      if children is not None:
+      if len(children) > 0:
         result += "%s\n" % tree.getName()
         pos = 0
         for node in children:

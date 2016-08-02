@@ -1,12 +1,19 @@
 '''Tests for table'''
 
+from mysite import settings
+import helpers.cell_types as cell_types
 import table as tb
 import column as cl
 import errors as er
 import helpers_test as ht
 import numpy as np
+import os
 import pandas as pd
 import unittest
+
+
+TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
+    "test_table_1")
 
 
 #############################
@@ -282,6 +289,12 @@ class TestTable(unittest.TestCase):
     self.assertEqual(len(table.getFormulaColumns()), 2)
     column2.setFormula(None)
     self.assertEqual(len(table.getFormulaColumns()), 1)
+
+  def testMigrate(self):
+    helper_table = tb.Table("dummy")
+    table = helper_table.getCapture(TEST_TABLE_1)
+    new_table = table.migrate()
+    self.assertIsNotNone(new_table)
       
 
 if __name__ == '__main__':

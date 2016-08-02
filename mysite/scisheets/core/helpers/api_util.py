@@ -40,14 +40,17 @@ def getTableFromFile(file_path, verify=True):
   error = None
   fh = open(file_path, "rb")
   try:
-    table = pickle.load(fh)  # BUG - fails here
+    table = pickle.load(fh)
   except Exception as e:
     error = e
     import pdb; pdb.set_trace()
   fh.close()
   new_table = table.migrate()  # Handle case of older objects
   if verify and new_table.getFilepath() != file_path:
+    import pdb; pdb.set_trace()
     raise ValueError("File path is incorrect or missing.")
+  if new_table is None:
+    import pdb; pdb.set_trace()
   return new_table
 
 def writeTableToFile(table):
