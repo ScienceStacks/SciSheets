@@ -19,7 +19,7 @@ class Node(object):
     :return Node:
     """
     if instance is None:
-      instance = Node("x")
+      instance = Node(self.getName())
     instance.setName(self.getName())
     return instance
 
@@ -45,8 +45,15 @@ class Node(object):
     """
     self._name = name
 
-  def migrate(self):
-    return self
+  def migrate(self, instance=None):
+    """
+    :param Tree instance:
+    :return Tree:
+    """
+    if instance is None:
+      instance = Tree(self.getName())
+    instance = self.copy(instance=instance)
+    return instance
 
 
 class Tree(Node):
@@ -92,9 +99,12 @@ class Tree(Node):
     :param Tree instance:
     :return Tree:
     """
+    # Create an instance if none is provided
     if instance is None:
-      instance = Tree("x")
+      instance = Tree(self.getName())
+    # Copy properties from inherited classes
     instance = super(Tree, self).copy(instance=instance)
+    # Set properties for this class
     instance._children = self.getChildren()
     instance.setParent(self.getParent())
     return instance
@@ -256,7 +266,7 @@ class PositionTree(Tree):
     :return PositionTree:
     """
     if instance is None:
-      instance = PositionTree("x")
+      instance = PositionTree(self.getName())
     return super(PositionTree, self).copy(instance=instance)
 
   def getChildAtPosition(self, position):

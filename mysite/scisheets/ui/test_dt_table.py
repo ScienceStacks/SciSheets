@@ -4,8 +4,9 @@ Tests for YUI DataTable renderings.
 
 from mysite import settings
 from mysite.helpers.versioned_file import VersionedFile
-from ..core.helpers.api_util import getTableFromFile
-from ..core.helpers_test import TEST_DIR
+from scisheets.core.helpers.api_util  \
+    import getTableFromFile, writeTableToFile
+from scisheets.core.helpers_test import TEST_DIR
 import dt_table as dt
 from django.test import TestCase  # Provides mocks
 import ast
@@ -24,6 +25,8 @@ NCOL = 4
 NROW = 3
 TABLE_NAME = "MY TABLE"
 CUR_DIR = os.path.dirname(__file__)
+TESTFILE2 = "testcase_2.pcl"
+TESTFILE3 = "testcase_3.pcl"
 
 
 # Ensure that tested module is accessible in debugger
@@ -71,7 +74,7 @@ class TestAuxFunctions(TestCase):
        self.assertTrue(test(result_list))
 
 
-class TestUITable(TestCase):
+class TestDTTable(TestCase):
 
   def setUp(self):
     self.table = dt.DTTable.createRandomTable(TABLE_NAME,
@@ -87,11 +90,24 @@ class TestUITable(TestCase):
 
   def testRenderingListData(self):
     # set up the test table
-    table_filepath = os.path.join(TEST_DIR, "testcase_2.pcl")
+    table_filepath = os.path.join(TEST_DIR, TESTFILE2)
     table = getTableFromFile(table_filepath, verify=False)
     versioned_file = VersionedFile(table_filepath, TEST_DIR, 0)
     table.setVersionedFile(versioned_file)
     html = table.render()
+
+  def testMigrate(self):
+    columns = self.table.getColumns()
+    table_filepath = os.path.join(TEST_DIR, TESTFILE3)
+    versioned_file = VersionedFile(table_filepath, TEST_DIR, 0)
+    self.table.setVersionedFile(versioned_file)
+    for column in columns:
+      self.table.hideColumns([column])
+      writeTableToFile(self.table)
+      new_table = getTableFromFile(table_filepath)
+      self.assertTrue(self.table.isEquivalent(new_table))
+      self.table.unhideColumns(hidden_columns)
+
 
 if __name__ == '__main__':
     unittest.man()

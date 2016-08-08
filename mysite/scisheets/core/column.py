@@ -70,17 +70,21 @@ class Column(Tree):
 
   def copy(self, instance=None):
     """
-    Returns a copy of this object
     :param Column column:
+    :returns Column: copy of this object
     """
+    # Create an object if one is not provided
     if instance is None:
-      instance = Column("x")
-    column = super(Column, self).copy(instance=instance)
-    column.setFormula(self._formula_statement.getFormula())
-    column.addCells(self._cells)
-    column.setAsis(self._asis)
-    column.setDataClass(self._data_class)
-    return column
+      instance = Column(self.getName())
+    # Copy properties from inherited classes
+    instance = super(Column, self).copy(instance=instance)
+    # Set properties specific to this class
+    instance.setFormula(self._formula_statement.getFormula())
+    instance.addCells(self._cells)
+    instance.setAsis(self._asis)
+    instance.setDataClass(self._data_class)
+    instance.setParent(self.getParent())
+    return instance
 
   def deleteCells(self, indicies):
     """
@@ -145,6 +149,12 @@ class Column(Tree):
     """
     return self._formula_statement.getStatement()
 
+  def getFormulaStatementObject(self):
+    """
+    Returns the FormulaStatement object
+    """
+    return self._formula_statement
+
   def insertCell(self, val, index=None):
     """
     :param val: value to insert
@@ -163,7 +173,7 @@ class Column(Tree):
     :param Column column:
     :return bool:
     """
-    if not self.getFormula() == column.getFormula():
+    if not self.getFormulaStatementObject().isEquivalent(column.getFormulaStatementObject()):
       return False
     if not self.getAsis() == column.getAsis():
       return False
@@ -186,24 +196,24 @@ class Column(Tree):
     """
     return cell_types.isFloats(self.getCells())
 
-  def migrate(self):
+  def migrate(self, instance=None):
     """
     Returns a copy of this object that is migrated
+    :param Column instance: instance to migrate to
     :return Column:
     """
-    column = Column(self._name)
-    column.setFormula(self._formula_statement.getFormula())
-    column.addCells(self._cells)
-    column.setAsis(self._asis)
-    column.setDataClass(self._data_class)
+    # Fix the current object
     if '_owning_table' in dir(self):
-      parent = self._owning_table
-    elif '_parent' in dir(self):
-      parent = self._parent
-    else:
-      raise RuntimeError("Object has no parent attribute")
-    column.setParent(parent)
-    return column
+      self._parent = self._owning_table
+    if not '_children' in dir(self):
+      self._children = []
+    # Create an object if none is provided
+    if instance is None:
+      instance = Column(self._name)
+    # Do migration for all inherited classes
+    instance = super(Column, self).migrate(instance=instance)
+    # Copy the properties of this class
+    return self.copy(instance=instance)
 
   def numCells(self):
     """

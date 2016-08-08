@@ -38,14 +38,31 @@ class UITable(Table):
       response = {'data': str(new_error), 'success': False}
     return response
 
+  def isEquivalent(self, other):
+    """
+    :return bool: True if equivalent
+    """
+    if not super(UITable, self).isEquivalent(other):
+      return False
+    if not len(self.getHiddenColumns()) == len(other.getHiddenColumns()):
+      return False
+    for column in self.getHiddenColumns():
+      tests = [column.isEquivalent(c) for c in other.getHiddenColumns()]
+      if not any(tests):
+        return False
+    return True
+
   def copy(self, instance=None):
     """
     Returns a copy of this object
     :param UITable instance:
     """
+    # Create an object if one is not provided
     if instance is None:
-      instance = UITable("x")
+      instance = UITable(self.getName())
+    # Copy properties from inherited classes
     instance = super(UITable, self).copy(instance=instance)
+    # Set properties specific to this class
     instance._hidden_columns = self.getHiddenColumns()
     return instance
 
@@ -343,13 +360,16 @@ class UITable(Table):
     """
     Handles older objects that lack some properties
     """
+    # Fix the current object
+    if not '_hidden_columns' in dir(self):
+      self._hidden_columns = []
+    # Create a new object if required
     if instance is None:
-      instance = UITable("x")
-    if not '_hidden_columns' in dir(instance):
-      instance._hidden_columns = []
-    else:
-      instance._hidden_columns = self.getHiddenColumns()
-    return super(UITable, self).migrate(instance=instance)
+      instance = UITable(self.getName())
+    # Do migration for all inherited classes
+    instance = super(UITable, self).migrate(instance=instance)
+    # Copy the properties of this class
+    return self.copy(instance=instance)
 
   @staticmethod
   def _addEscapesToQuotes(iter_str):

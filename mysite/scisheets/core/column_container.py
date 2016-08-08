@@ -39,10 +39,17 @@ class ColumnContainer(object):
     return None
 
   def copy(self, instance=None):
+    """
+    :param ColumnContainer instance:
+    :returns ColumnContainer: copy of this object
+    """
+    # Create an object if one is not provided
     if instance is None:
-      instance = ColumnContainer("x")
-    instance.setName(self.getName())
+      instance = ColumnContainer(self.getName())
+    # Set properties specific to this class
     instance.setVersionedFile(self.getVersionedFile())
+    instance._children = self.getColumns()
+    instance.setName(self.getName())
     return instance
 
   def getCell(self, row_index, column_index):
@@ -102,11 +109,14 @@ class ColumnContainer(object):
       idx = len(self._columns)
     self._columns.insert(idx, column)
 
-  def migrate(self):
+  def migrate(self, instance=None):
     """
     Handles older objects that lack some properties
     """
-    import pdb; pdb.set_trace()
+    if instance is None:
+      import pdb; pdb.set_trace()
+    # Copy properties for this class
+    return self.copy(instance=instance)
 
   def moveColumn(self, column, new_idx):
     """

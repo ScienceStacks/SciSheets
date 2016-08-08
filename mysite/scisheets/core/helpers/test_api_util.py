@@ -4,6 +4,7 @@ files in core.
  '''
 
 from scisheets.core import helpers_test as ht
+from scisheets.core.helpers_test import TEST_DIR
 from scisheets.core.table import Table
 import api_util as api_util
 from extended_array import ExtendedArray
@@ -14,6 +15,7 @@ import unittest
 ARRAY_INT = np.array(range(4))
 ARRAY_INT_LONG = np.array(range(5))
 ARRAY_FLOAT = np.array([0.01*x for x in range(4)])
+TESTFILE2 = "testcase_2.pcl"
 
 
 #############################
@@ -44,7 +46,15 @@ class TestAPIUtil(unittest.TestCase):
     self.assertTrue(os.path.exists(path))
     new_table = api_util.getTableFromFile(path)
     self.assertEqual(table.getName(), new_table.getName())
+    for column in new_table.getColumns():
+      self.assertTrue('_children' in dir(column))
     os.remove(path)
+
+  def testGetTableFromFile(self):
+    path = os.path.join(TEST_DIR, TESTFILE2)
+    new_table = api_util.getTableFromFile(path, verify=False)
+    for column in new_table.getColumns():
+      self.assertTrue('_children' in dir(column))
 
 
 if __name__ == '__main__':

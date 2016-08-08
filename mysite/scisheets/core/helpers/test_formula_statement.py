@@ -84,6 +84,11 @@ s.go()
     self.assertIsNone(fs.do())
     self.assertEqual(fs.getStatement().count("="), 0)
     self.assertFalse(fs.isExpression())
+
+  def testIsEquivalent(self):
+    formula_statement = FormulaStatement(VALID_FORMULA, COLUMN_NAME)
+    self.assertTrue(self.fs.isEquivalent(formula_statement))
+    self.assertFalse(self.fs.isEquivalent(self.invalid_fs))
     
 
 if  __name__ == '__main__':

@@ -115,9 +115,16 @@ class DTTable(UITable):
     Returns a copy of this object
     :param DTTable instance:
     """
+    # Create an object if one is not provided
     if instance is None:
-      instance = DTTable("x")
-    return super(UITable, self).copy(instance=instance)
+      instance = DTTable(self.getName())
+    # Copy properties from inherited classes
+    instance = super(UITable, self).copy(instance=instance)
+    # Set properties from this class
+    return instance
+
+  def isEquivalent(self, other):
+    return super(DTTable, self).isEquivalent(other)
 
   @staticmethod
   def _formatStringForJS(in_string):
@@ -185,6 +192,12 @@ class DTTable(UITable):
     """
     Handles older objects that lack some properties.
     """
+    # Fix the current object
+    pass
+    # Create an object if none exists
     if instance is None:
-      instance = DTTable("x")
-    return super(DTTable, self).migrate(instance=instance)
+      instance = DTTable(self.getName())
+    # Do migrations for inherited classes
+    instance = super(DTTable, self).migrate(instance=instance)
+    # Copy the properties of this class
+    return self.copy(instance=instance)

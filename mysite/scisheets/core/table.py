@@ -20,6 +20,8 @@ NAME_COLUMN_IDX = 0
 CUR_DIR = os.path.dirname(__file__)
 PROLOGUE_FILEPATH = os.path.join(CUR_DIR, "table.prologue")
 EPILOGUE_FILEPATH = os.path.join(CUR_DIR,"table.epilogue")
+PROLOGUE_NAME = "Prologue"
+EPILOGUE_NAME = "Epilogue"
 
 
 class Row(dict):
@@ -48,8 +50,10 @@ class Table(ColumnContainer):
     super(Table, self).__init__(name)
     self._namespace = {}  # Namespace for formula evaluation
     self._createNameColumn()
-    self._prologue = self.formulaStatementFromFile(PROLOGUE_FILEPATH)
-    self._epilogue = self.formulaStatementFromFile(EPILOGUE_FILEPATH)
+    self._prologue = self._formulaStatementFromFile(PROLOGUE_FILEPATH,
+        PROLOGUE_NAME)
+    self._epilogue = self._formulaStatementFromFile(EPILOGUE_FILEPATH,
+        EPILOGUE_NAME)
     self._is_evaluate_formulas = True
 
 
@@ -88,16 +92,17 @@ class Table(ColumnContainer):
         names.append(Table._rowNameFromIndex(row_num))
       self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
 
-  def formulaStatementFromFile(self, filepath):
+  def _formulaStatementFromFile(self, filepath, name):
     """
     Reads the file contents and creates the FormulaStatement object.
     :param str filepath: path to file to read
+    :param str name: name of the formula
     :returns str: file contents
     """
     with open(filepath, 'r') as f:
       lines = f.readlines()
     statements = ''.join(lines)
-    return FormulaStatement(statements, self._name)
+    return FormulaStatement(statements, name)
 
   # Data columns are those that have user data. The "row" column is excluded.
   def getDataColumns(self):
@@ -113,6 +118,9 @@ class Table(ColumnContainer):
     return [c.getCells() for c in self._columns]
 
   def getEpilogue(self):
+    """
+    :return FormulaStatement:
+    """
     return self._epilogue
 
   def getFormulaColumns(self):
@@ -143,6 +151,9 @@ class Table(ColumnContainer):
     return self._namespace
 
   def getPrologue(self):
+    """
+    :return FormulaStatement:
+    """
     return self._prologue
 
   # TODO: Verify the index
@@ -305,10 +316,12 @@ class Table(ColumnContainer):
     Returns a copy of this object
     :param Table instance:
     """
+    # Create an object if none provided
     if instance is None:
-      instance = Table("x")
+      instance = Table(self.getName())
+    # Copy everything required from inherited classes
     super(Table, self).copy(instance=instance)
-    instance.setName(self.getName())
+    # Set properties specific to this class
     instance.setPrologue(self.getPrologue().getFormula())
     instance.setEpilogue(self.getEpilogue().getFormula())
     instance.setIsEvaluateFormulas(self.getIsEvaluateFormulas())
@@ -374,9 +387,11 @@ class Table(ColumnContainer):
     """
     if not isinstance(table, Table):
       return False
-    if self.getName() != table.getName():
-      return False
-    if self.numColumns() != table.numColumns():
+    is_same_properties = (self.getName() == table.getName()) and  \
+        (self.numColumns() == table.numColumns()) and  \
+        self.getPrologue().isEquivalent(table.getPrologue()) and  \
+        self.getEpilogue().isEquivalent(table.getEpilogue())
+    if not is_same_properties:
       return False
     for column in self._columns:
       other_column = table.columnFromName(column.getName())
@@ -409,29 +424,22 @@ class Table(ColumnContainer):
   def migrate(self, instance=None):
     """
     Handles older objects that lack some properties
+    :param Table instance:
+    :returns Table (or subclass of Table):
     """
-    if instance is None:
-      new_table = Table("x")
-    else:
-      new_table = instance
+    # Fix the current object
     if not '_namespace' in dir(self):
       self._namespace = {}
     if not '_prologue' in dir(self):
-      self._prologue = self.formulaStatementFromFile(PROLOGUE_FILEPATH)
+      self._prologue =  \
+          self._formulaStatementFromFile(PROLOGUE_FILEPATH,
+                                         PROLOGUE_NAME)
     if not '_epilogue' in dir(self):
-      self._epilogue = self.formulaStatementFromFile(EPILOGUE_FILEPATH)
-    for column in self._columns:
-      formula = column.getFormula()
-      if formula is not None:
-        column.setFormula(formula)
+      self._epilogue =  \
+          self._formulaStatementFromFile(EPILOGUE_FILEPATH,
+                                         EPILOGUE_NAME)
     if not "_is_evaluate_formulas" in dir(self):
       self._is_evaluate_formulas = True
-    # Copy the colunns to ensure that the context is updated
-    for column in self.getColumns():
-      index = self.indexFromColumn(column)
-      new_column = column.migrate()
-      self.deleteColumn(column)
-      self.insertColumn(new_column, index)
     if not '_versioned_file' in dir(self):
       if '_filepath' in dir(self):
         self._versioned_file = VersionedFile(self._filepath,
@@ -439,8 +447,19 @@ class Table(ColumnContainer):
             settings.SCISHEETS_MAX_TABLE_VERSIONS)
       else:
         self._versioned_file = None
-    new_table = self.copy(instance=new_table)
-    return new_table
+    # Copy the colunns to ensure that the class structures are updated
+    for column in self.getColumns():
+      index = self.indexFromColumn(column)
+      new_column = column.migrate()
+      self.deleteColumn(column)
+      self.insertColumn(new_column, index)
+    # Create an object if none is provided
+    if instance is None:
+      new_table = Table(self.getName())
+    # Do migration for all inherited classes
+    instance = super(Table, self).migrate(instance=instance)
+    # Copy the properties of this class
+    return self.copy(instance=instance)
 
   def moveRow(self, index1, index2):
     """
@@ -467,6 +486,19 @@ class Table(ColumnContainer):
     :returns list-of-str changed_columns:
     :raises ValueError: column name is unknown
     """
+    def changeFormula(formula_statement):
+      """
+      Changes the formula by replacing occurrences of
+      cur_colnm with new_colnm
+      :param FormulaStatement formula_satement:
+      :returns str/None: new formula or None
+      """
+      formula = formula_statement.getFormula()
+      if cur_colnm in formula:
+        return formula.replace(cur_colnm, new_colnm)
+      else:
+        return None
+
     column = self.columnFromName(cur_colnm)
     if column is None:
       raise ValueError("Column %s does not exist." % cur_colnm)
@@ -474,12 +506,22 @@ class Table(ColumnContainer):
     columns = self.getColumns()
     changed_columns = []
     try:
+      # Do the Columns
       for col in self.getFormulaColumns():
-        formula = col.getFormula()
-        if cur_colnm in formula:
-          new_formula = formula.replace(cur_colnm, new_colnm)
+        new_formula = changeFormula(col.getFormulaStatementObject())
+        if new_formula is not None:
           col.setFormula(new_formula)
           changed_columns.append(col.getName())
+      # Handle Prologue
+      new_formula = changeFormula(self.getPrologue())
+      if new_formula is not None:
+        self.setPrologue(new_formula)
+        changed_columns.append(PROLOGUE_NAME)
+      # Handle Epilogue
+      new_formula = changeFormula(self.getEpilogue())
+      if new_formula is not None:
+        self.setEpilogue(new_formula)
+        changed_columns.append(PROLOGUE_NAME)
     except Exception as err:
       msg = '''Changing column name from %s to %s.
 Encountered error %s.
@@ -540,12 +582,18 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
   def setIsEvaluateFormulas(self, setting):
     self._is_evaluate_formulas = setting
 
-  def setEpilogue(self, epilogue):
-    self._epilogue = FormulaStatement(epilogue, self.getName())
+  def setEpilogue(self, epilogue_formula):
+    """
+    :param str epilogue_formula: New value for the Epilogue formula
+    """
+    self._epilogue = FormulaStatement(epilogue_formula, EPILOGUE_NAME)
     return self._epilogue.do()
 
-  def setPrologue(self, prologue):
-    self._prologue = FormulaStatement(prologue, self.getName())
+  def setPrologue(self, prologue_formula):
+    """
+    :param str prologue_formula: New value for the Prologue formula
+    """
+    self._prologue = FormulaStatement(prologue_formula, PROLOGUE_NAME)
     return self._prologue.do()
 
   def trimRows(self):
