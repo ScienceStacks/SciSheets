@@ -378,23 +378,24 @@ class Table(ColumnContainer):
         return True
     return False
 
-  def isEquivalent(self, table):
+  def isEquivalent(self, other_table):
     """
     Checks that the tables have the same values of their properties,
     excluding the VersionedFile.
-    :param Table table:
+    :param Table other_table:
     :returns bool:
     """
-    if not isinstance(table, Table):
+    import pdb; pdb.set_trace()
+    if not isinstance(other_table, Table):
       return False
-    is_same_properties = (self.getName() == table.getName()) and  \
-        (self.numColumns() == table.numColumns()) and  \
-        self.getPrologue().isEquivalent(table.getPrologue()) and  \
-        self.getEpilogue().isEquivalent(table.getEpilogue())
+    is_same_properties = (self.getName() == other_table.getName()) and  \
+        (self.numColumns() == other_table.numColumns()) and  \
+        self.getPrologue().isEquivalent(other_table.getPrologue()) and  \
+        self.getEpilogue().isEquivalent(other_table.getEpilogue())
     if not is_same_properties:
       return False
     for column in self._columns:
-      other_column = table.columnFromName(column.getName())
+      other_column = other_table.columnFromName(column.getName())
       if other_column is None:
         return False
       if not column.isEquivalent(other_column):
@@ -455,7 +456,7 @@ class Table(ColumnContainer):
       self.insertColumn(new_column, index)
     # Create an object if none is provided
     if instance is None:
-      new_table = Table(self.getName())
+      instance = Table(self.getName())
     # Do migration for all inherited classes
     instance = super(Table, self).migrate(instance=instance)
     # Copy the properties of this class

@@ -106,4 +106,5 @@ from scisheets.core import api as api
       api_object.updateColumnFromColumnVariables()
       api_object.controller.endProgram(
           details="After updateColumnFromColumnVariables")
+    self._table.setNamespace({})  # Clear the namespace
     return msg

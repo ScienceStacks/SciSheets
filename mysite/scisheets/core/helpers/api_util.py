@@ -91,7 +91,10 @@ def copyTableToFile(table, filename, directory):
     directory = table.getVersionedFile().getDirectory()
     new_versioned_file = VersionedFile(filepath, directory, max_versions)
     new_table.setVersionedFile(new_versioned_file)
-  pickle.dump(new_table, open(filepath, "wb"))
+  try:
+    pickle.dump(new_table, open(filepath, "wb"))
+  except Exception as e:
+    import pdb; pdb.set_trace()
   return filepath
 
 # TODO: Add test
