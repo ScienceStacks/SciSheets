@@ -56,7 +56,10 @@ class TestFunctions(unittest.TestCase):
     obj2 = TestObject(5)
     json_str = sd.serialize([obj1, obj2])
     [new_obj1, new_obj2] = sd.deserialize(json_str)
-    import pdb; pdb.set_trace()
+    self.assertEqual(obj2.a_list, new_obj2.a_list)
+    json_str = sd.serialize(obj2)
+    new_obj2 = sd.deserialize(json_str)
+    self.assertEqual(obj2.a_list, new_obj2.a_list)
  
 
 if  __name__ == '__main__':
