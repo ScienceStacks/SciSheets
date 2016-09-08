@@ -189,6 +189,20 @@ class TestColumn(unittest.TestCase):
   def testCopy(self):
     new_column = self.column.copy()
     self.assertTrue(self.column.isEquivalent(new_column))
+
+  def testGetSerializationDict(self):
+    serialization_dict = self.column.getSerializationDict()
+    self.assertTrue(len(serialization_dict.keys()) > 0)
+    for key in serialization_dict.keys():
+      if key in ['_formula']:
+        continue
+      self.assertTrue(key in self.column.__dict__.keys())
+
+  def testDeserialize(self):
+    serialization_dict = self.column.getSerializationDict()
+    column = cl.Column.deserialize(serialization_dict)
+    column.setParent(self.column.getParent())
+    self.assertTrue(column.isEquivalent(self.column))
     
 
 

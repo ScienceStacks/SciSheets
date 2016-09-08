@@ -39,6 +39,38 @@ class Column(Tree):
     self._formula_statement = FormulaStatement(None, self.getName())
     self._data_class = data_class
 
+  def getSerializationDict(self):
+    """
+    Method required to serialize this class.
+    :return dict:
+    Notes:
+    1. Does not save self._parent (in Tree). This is set by fixups
+       done in deserialize().
+    """
+    if self.getDataClass().cls != ExtendedArray:
+      raise ValueError("Only serialize ExtendedArray")
+    serialization_dict = {
+        "_name": self.getName(),
+        "_asis": self.getAsis(),
+        "_cells": self.getCells(),
+        "_formula": self.getFormula(),
+        }
+    return serialization_dict
+
+  @classmethod
+  def deserialize(cls, serialization_dict):
+    """
+    Creates a column object and does fixups.
+    :param dict serialization_dict: created by getSerializationDict
+    :return Column:
+    """
+    column = Column(serialization_dict["_name"])
+    column.setAsis(serialization_dict["_asis"])
+    column.addCells(serialization_dict["_cells"], replace=True)
+    column.setFormula(serialization_dict["_formula"])
+    column.setDataClass(api_util.DATACLASS_ARRAY)
+    return column
+
   @staticmethod
   def _adjustValue(value):
     """
@@ -79,10 +111,10 @@ class Column(Tree):
     # Copy properties from inherited classes
     instance = super(Column, self).copy(instance=instance)
     # Set properties specific to this class
-    instance.setFormula(self._formula_statement.getFormula())
-    instance.addCells(self._cells)
-    instance.setAsis(self._asis)
-    instance.setDataClass(self._data_class)
+    instance.setFormula(self.getFormula())
+    instance.addCells(self.getCells())
+    instance.setAsis(self.getAsis())
+    instance.setDataClass(self.getDataClass())
     instance.setParent(self.getParent())
     return instance
 

@@ -1,8 +1,14 @@
 '''Tests for serialization and deserialization'''
 
+from scisheets.core.helpers_test import createColumn
 import serialize_deserialize as sd
 import json
 import unittest
+
+# Constants
+COLUMN_NAME = "DUMMY"
+LIST = [2.1, 3.0]
+VALID_FORMULA = "a + b*math.cos(x)"
 
 
 #########################
@@ -60,6 +66,14 @@ class TestFunctions(unittest.TestCase):
     json_str = sd.serialize(obj2)
     new_obj2 = sd.deserialize(json_str)
     self.assertEqual(obj2.a_list, new_obj2.a_list)
+
+  def testForColumn(self):
+    self.column = createColumn(COLUMN_NAME, data=LIST, table=None,
+        formula=VALID_FORMULA)
+    json_str = sd.serialize(self.column)
+    new_column = sd.deserialize(json_str)
+    self.assertTrue(self.column.isEquivalent(new_column))
+
  
 
 if  __name__ == '__main__':

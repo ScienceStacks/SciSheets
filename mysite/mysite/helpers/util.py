@@ -40,3 +40,22 @@ def randomWord(size=5):
   for n in range(size):
     word += random.choice(string.letters)
   return word
+
+# TODO: Add tests
+def stringToClass(cls_str):
+  """
+  Converts the string representation of a class to a class object.
+  :param str cls_str: string representation of a class
+  :return type class:
+  """
+  import_stg1 = cls_str.split(" ")[1]
+  import_stg2 = import_stg1.replace("'", "")
+  import_stg3 = import_stg2.replace(">", "")
+  import_parse = import_stg3.split(".")
+  cls = import_parse[-1]
+  import_path = '.'.join(import_parse[:-1])
+  import_statement = "from %s import %s" % (import_path, cls)
+  exec(import_statement)
+  assign_statement = "this_class = %s" % cls
+  exec(assign_statement)
+  return this_class

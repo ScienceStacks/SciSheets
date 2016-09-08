@@ -11,6 +11,7 @@ For a SciSheet object to be supported, it must implement the following methods:
 """
 from scisheets.core.column import Column
 from scisheets.core.table import Table
+from mysite.helpers.util import stringToClass
 import json
 
 
@@ -44,22 +45,6 @@ def serialize(instance):
 
 class SciSheetsJSONDecoder(json.JSONDecoder):
 
-  def stringToClass(self, obj_dict):
-    """
-    """
-    class_string = obj_dict[CLASS_VARIABLE]
-    import_stg1 = class_string.split(" ")[1]
-    import_stg2 = import_stg1.replace("'", "")
-    import_stg3 = import_stg2.replace(">", "")
-    import_parse = import_stg3.split(".")
-    cls = import_parse[-1]
-    import_path = '.'.join(import_parse[:-1])
-    import_statement = "from %s import %s" % (import_path, cls)
-    exec(import_statement)
-    assign_statement = "this_class = %s" % cls
-    exec(assign_statement)
-    return this_class
-
   def decode(self, json_string):
     """
     json_string is string that you give to json.loads method
@@ -77,7 +62,7 @@ class SciSheetsJSONDecoder(json.JSONDecoder):
     for obj in obj_list:
       if isinstance(obj, dict):
         if CLASS_VARIABLE in obj.keys():
-          cls = self.stringToClass(obj)
+          cls = stringToClass(obj[CLASS_VARIABLE])
           results.append(cls.deserialize(obj))
         else:
           results.append(obj)
