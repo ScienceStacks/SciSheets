@@ -1,9 +1,11 @@
 *.pyc
+json/
 mysite/db.sqlite3
 mysite/test_db.sqlite3
 openpyxl
 *.csv
 .*.swp
+.*.swo
 *.ods
 *#
 *_generated.*
