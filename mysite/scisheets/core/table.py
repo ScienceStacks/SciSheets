@@ -56,6 +56,42 @@ class Table(ColumnContainer):
         EPILOGUE_NAME)
     self._is_evaluate_formulas = True
 
+  def getSerializationDict(self):
+    """
+    :return dict: dictionary encoding the Table object and its columns
+    """
+    # HANDLE INHERIANCE IN UITABLE, DTTABLE
+    serialization_dict = {
+        "_name": self.getName(),
+        "_prologue_formula": self.getPrologue().getFormula(),
+        "_epilogue_formula": self.getEpilogue().getFormula(),
+        "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
+        }
+    _columns = []
+    for column in self.getColumns():
+      _columns.append(column.getSerializationDict())
+    serialization_dict.update({"_columns": _columns})
+    return serialization_dict
+
+  @classmethod
+  def deserialize(cls, serialization_dict, instance=None):
+    """
+    Deserializes a table object and does fix ups.
+    :param dict serialization_dict: container of parameters for deserialization
+    :return Table:
+    """
+    if instance is None:
+      table = Table(serialization_dict["_name"])
+    # Call inherited classes if any have a deserialize method
+    table.setPrologue(serialization_dict["_prologue_formula"])
+    table.setPrologue(serialization_dict["_epilogue_formula"])
+    table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])
+    column_dicts = serialization_dict["_column"]
+    for column_dict in column_dicts:
+      new_column = Column.deserialize(column_dict)
+      table.addColumn(new_column)
+    return table
+
 
   # The following methods are used in debugging
 
