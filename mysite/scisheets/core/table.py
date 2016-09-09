@@ -3,6 +3,7 @@
 '''
 
 from mysite import settings
+import mysite.helpers.util as ut
 from mysite.helpers.data_capture import DataCapture
 from mysite.helpers.versioned_file import VersionedFile
 from helpers.formula_statement import FormulaStatement
@@ -56,21 +57,24 @@ class Table(ColumnContainer):
         EPILOGUE_NAME)
     self._is_evaluate_formulas = True
 
-  def getSerializationDict(self):
+  def getSerializationDict(self, class_variable):
     """
+    :param str class_variable: key to use for the class name
     :return dict: dictionary encoding the Table object and its columns
     """
-    # HANDLE INHERIANCE IN UITABLE, DTTABLE
-    serialization_dict = {
+    serialization_dict = {}
+    serialization_dict[class_variable] = str(self.__class__)
+    more_dict = {
         "_name": self.getName(),
         "_prologue_formula": self.getPrologue().getFormula(),
         "_epilogue_formula": self.getEpilogue().getFormula(),
         "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
         }
+    serialization_dict.update(more_dict)
     _columns = []
     for column in self.getColumns():
-      _columns.append(column.getSerializationDict())
-    serialization_dict.update({"_columns": _columns})
+      _columns.append(column.getSerializationDict(class_variable))
+    serialization_dict["_columns"] = _columns
     return serialization_dict
 
   @classmethod
@@ -82,11 +86,10 @@ class Table(ColumnContainer):
     """
     if instance is None:
       table = Table(serialization_dict["_name"])
-    # Call inherited classes if any have a deserialize method
     table.setPrologue(serialization_dict["_prologue_formula"])
-    table.setPrologue(serialization_dict["_epilogue_formula"])
+    table.setEpilogue(serialization_dict["_epilogue_formula"])
     table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])
-    column_dicts = serialization_dict["_column"]
+    column_dicts = serialization_dict["_columns"]
     for column_dict in column_dicts:
       new_column = Column.deserialize(column_dict)
       table.addColumn(new_column)
@@ -421,20 +424,28 @@ class Table(ColumnContainer):
     :param Table other_table:
     :returns bool:
     """
-    import pdb; pdb.set_trace()
+    local_debug = False  # Breaks on specifc reasons for non-equiv
     if not isinstance(other_table, Table):
+      if local_debug:
+        import pdb; pdb.set_trace()
       return False
     is_same_properties = (self.getName() == other_table.getName()) and  \
         (self.numColumns() == other_table.numColumns()) and  \
-        self.getPrologue().isEquivalent(other_table.getPrologue()) and  \
-        self.getEpilogue().isEquivalent(other_table.getEpilogue())
+        (self.getPrologue().isEquivalent(other_table.getPrologue())) and  \
+        (self.getEpilogue().isEquivalent(other_table.getEpilogue()))
     if not is_same_properties:
+      if local_debug:
+        import pdb; pdb.set_trace()
       return False
     for column in self._columns:
       other_column = other_table.columnFromName(column.getName())
       if other_column is None:
+        if local_debug:
+          import pdb; pdb.set_trace()
         return False
       if not column.isEquivalent(other_column):
+        if local_debug:
+          import pdb; pdb.set_trace()
         return False
     return True
    

@@ -39,9 +39,10 @@ class Column(Tree):
     self._formula_statement = FormulaStatement(None, self.getName())
     self._data_class = data_class
 
-  def getSerializationDict(self):
+  def getSerializationDict(self, class_variable):
     """
     Method required to serialize this class.
+    :param str class_variable: key to use for class name
     :return dict:
     Notes:
     1. Does not save self._parent (in Tree). This is set by fixups
@@ -50,6 +51,7 @@ class Column(Tree):
     if self.getDataClass().cls != ExtendedArray:
       raise ValueError("Only serialize ExtendedArray")
     serialization_dict = {
+        class_variable: str(self.__class__),
         "_name": self.getName(),
         "_asis": self.getAsis(),
         "_cells": self.getCells(),

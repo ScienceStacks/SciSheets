@@ -7,6 +7,7 @@ from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
 from scisheets.core.helpers.cell_types import getType
 from mysite import settings as st
+from mysite.helpers import util as ut
 import collections
 import numpy as np
 import os
@@ -22,6 +23,38 @@ class UITable(Table):
   def __init__(self, name):
     self._hidden_columns = []
     super(UITable, self).__init__(name)
+
+  def getSerializationDict(self, class_variable):
+    """
+    :param str class_variable: key to use for the class name
+    :return dict: dictionary encoding the object
+    """
+    if ut.isMethodInSuper(self, 'getSerializationDict'):
+      serialization_dict =   \
+          super(UITable, self).getSerializationDict(class_variable)
+    else:
+      serialization_dict = {}
+    serialization_dict[class_variable] = str(self.__class__)
+    column_names = [c.getName() for c in self.getHiddenColumns()]
+    serialization_dict['_hidden_columns'] = column_names
+    return serialization_dict
+
+  @classmethod
+  def deserialize(cls, serialization_dict, instance=None):
+    """
+    Deserializes an UITable object and does fix ups.
+    :param dict serialization_dict: container of parameters for deserialization
+    :return UITable:
+    """
+    if instance is None:
+      ui_table = UITable(serialization_dict["_name"])
+    if ut.isMethodInSuper(cls, 'deserialize'):
+      super(UITable, self).deserialize(serialization_dict,
+          instance=ui_table)
+    hidden_columns = [self.columnFromName(n) for n in  \
+                      serialization_dict["_hidden_columns"]]
+    ui_table.hideColumns(hidden_columns)
+    return ui_table
 
   def _createResponse(self, error):
     # Returns a response of the desired type

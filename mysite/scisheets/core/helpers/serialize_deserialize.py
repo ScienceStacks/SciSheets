@@ -27,10 +27,8 @@ class SciSheetssEncoder(json.JSONEncoder):
     """
     if ((not isinstance(o, type))  
        and 'getSerializationDict' in dir(o)):
-      encode_dict = {CLASS_VARIABLE: str(o.__class__)}
-      new_dict = o.getSerializationDict()
-      encode_dict.update(new_dict)
-      return encode_dict
+      serialization_dict = o.getSerializationDict(CLASS_VARIABLE)
+      return serialization_dict
     elif '__dict__' in dir(o):
       return o.__dict__
     else:

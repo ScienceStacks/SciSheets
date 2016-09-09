@@ -17,6 +17,7 @@ LIST_STR = ["aa bb", "cc"]
 TABLE = 'DUMMY'
 VALID_FORMULA = "a + b*math.cos(x)"
 INVALID_FORMULA = "a + b*math.cos(x"
+CLASS_STRING = 'CLASS_STRING'
 
 
 # pylint: disable=W0212
@@ -191,20 +192,19 @@ class TestColumn(unittest.TestCase):
     self.assertTrue(self.column.isEquivalent(new_column))
 
   def testGetSerializationDict(self):
-    serialization_dict = self.column.getSerializationDict()
+    serialization_dict = self.column.getSerializationDict(CLASS_STRING)
     self.assertTrue(len(serialization_dict.keys()) > 0)
     for key in serialization_dict.keys():
-      if key in ['_formula']:
+      if key in ['_formula', CLASS_STRING]:
         continue
       self.assertTrue(key in self.column.__dict__.keys())
 
   def testDeserialize(self):
-    serialization_dict = self.column.getSerializationDict()
+    serialization_dict = self.column.getSerializationDict(CLASS_STRING)
     column = cl.Column.deserialize(serialization_dict)
     column.setParent(self.column.getParent())
     self.assertTrue(column.isEquivalent(self.column))
     
-
 
 if __name__ == '__main__':
   unittest.main()

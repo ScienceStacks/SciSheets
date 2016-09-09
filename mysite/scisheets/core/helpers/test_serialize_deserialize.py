@@ -1,6 +1,7 @@
 '''Tests for serialization and deserialization'''
 
-from scisheets.core.helpers_test import createColumn
+from scisheets.core.helpers_test import createColumn,  \
+    setupTableInitialization
 import serialize_deserialize as sd
 import json
 import unittest
@@ -18,8 +19,10 @@ class TestObject(object):
     self.testing = 'Hello'
     self.a_list = range(size)
 
-  def getSerializationDict(self):
-    return {'testing': self.testing, 
+  def getSerializationDict(self, class_str):
+    return {
+        class_str: str(self.__class__),
+        'testing': self.testing, 
         'range_length': len(self.a_list)}
 
   @classmethod
@@ -73,6 +76,13 @@ class TestFunctions(unittest.TestCase):
     json_str = sd.serialize(self.column)
     new_column = sd.deserialize(json_str)
     self.assertTrue(self.column.isEquivalent(new_column))
+
+  def testForTable(self):
+    setupTableInitialization(self)
+    json_str = sd.serialize(self.table)
+    import pdb; pdb.set_trace()
+    new_table = sd.deserialize(json_str)
+    self.assertTrue(self.table.isEquivalent(new_table))
 
  
 

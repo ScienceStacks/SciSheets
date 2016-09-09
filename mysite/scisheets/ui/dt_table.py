@@ -110,6 +110,33 @@ class DTTable(UITable):
   def __init__(self, name):
     super(DTTable, self).__init__(name)
 
+  def getSerializationDict(self, class_variable):
+    """
+    :param str class_variable: key to use for the class name
+    :return dict: dictionary encoding the object
+    """
+    if ut.isMethodInSuper(self, 'getSerializationDict'):
+      serialization_dict =   \
+          super(DTTable, self).getSerializationDict(class_variable)
+    else:
+      serialization_dict = {}
+    serialization_dict[class_variable] = str(self.__class__)
+    return serialization_dict
+
+  @classmethod
+  def deserialize(cls, serialization_dict, instance=None):
+    """
+    Deserializes an UITable object and does fix ups.
+    :param dict serialization_dict: container of parameters for deserialization
+    :return UITable:
+    """
+    if instance is None:
+      dt_table = DTTable(serialization_dict["_name"])
+    if ut.isMethodInSuper(cls, 'deserialize'):
+      super(UITable, self).deserialize(serialization_dict,
+          instance=dt_table)
+    return dt_table
+
   def copy(self, instance=None):
     """
     Returns a copy of this object

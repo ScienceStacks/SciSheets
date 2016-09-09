@@ -14,6 +14,7 @@ import unittest
 
 TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_table_1")
+CLASS_STRING = 'CLASS_STRING'
 
 
 #############################
@@ -296,6 +297,25 @@ class TestTable(unittest.TestCase):
     table = helper_table.getCapture(TEST_TABLE_1)
     new_table = table.migrate()
     self.assertIsNotNone(new_table)
+
+  def testGetSerializationDict(self):
+    serialization_dict = self.table.getSerializationDict(CLASS_STRING)
+    self.assertTrue(CLASS_STRING in serialization_dict.keys())
+    columns = serialization_dict['_columns']
+    is_presents = [CLASS_STRING in c.keys() for c in columns]
+    self.assertTrue(all(is_presents))
+    excludes = ['_prologue_formula', 
+                '_epilogue_formula', 
+                CLASS_STRING,
+               ]
+    for key in serialization_dict.keys():
+      if not key in excludes:
+        self.assertTrue(key in self.table.__dict__.keys())
+
+  def testDeserialize(self):
+    serialization_dict = self.table.getSerializationDict(CLASS_STRING)
+    table = tb.Table.deserialize(serialization_dict)
+    self.assertTrue(table.isEquivalent(self.table))
       
 
 if __name__ == '__main__':

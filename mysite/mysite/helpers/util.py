@@ -59,3 +59,17 @@ def stringToClass(cls_str):
   assign_statement = "this_class = %s" % cls
   exec(assign_statement)
   return this_class
+
+def isMethodInSuper(instance, method_name):
+  """
+  Checks if a method exists in the inherited classes
+  :param object instance:
+  :param str method_name:
+  :return bool:
+  """
+  cls = instance.__class__
+  try:
+    super_cls = super(cls, instance).__thisclass__
+  except:
+    super_cls = super(cls, instance)
+  return 'getSerializationDict' in dir(super_cls)
