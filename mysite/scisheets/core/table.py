@@ -86,6 +86,8 @@ class Table(ColumnContainer):
     """
     if instance is None:
       table = Table(serialization_dict["_name"])
+    else:
+      table = instance
     table.setPrologue(serialization_dict["_prologue_formula"])
     table.setEpilogue(serialization_dict["_epilogue_formula"])
     table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])

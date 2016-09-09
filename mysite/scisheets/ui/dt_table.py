@@ -115,11 +115,8 @@ class DTTable(UITable):
     :param str class_variable: key to use for the class name
     :return dict: dictionary encoding the object
     """
-    if ut.isMethodInSuper(self, 'getSerializationDict'):
-      serialization_dict =   \
-          super(DTTable, self).getSerializationDict(class_variable)
-    else:
-      serialization_dict = {}
+    serialization_dict =   \
+        super(DTTable, self).getSerializationDict(class_variable)
     serialization_dict[class_variable] = str(self.__class__)
     return serialization_dict
 
@@ -132,9 +129,8 @@ class DTTable(UITable):
     """
     if instance is None:
       dt_table = DTTable(serialization_dict["_name"])
-    if ut.isMethodInSuper(cls, 'deserialize'):
-      super(UITable, self).deserialize(serialization_dict,
-          instance=dt_table)
+    super(UITable, cls).deserialize(serialization_dict,
+        instance=dt_table)
     return dt_table
 
   def copy(self, instance=None):

@@ -7,7 +7,6 @@ from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
 from scisheets.core.helpers.cell_types import getType
 from mysite import settings as st
-from mysite.helpers import util as ut
 import collections
 import numpy as np
 import os
@@ -29,11 +28,8 @@ class UITable(Table):
     :param str class_variable: key to use for the class name
     :return dict: dictionary encoding the object
     """
-    if ut.isMethodInSuper(self, 'getSerializationDict'):
-      serialization_dict =   \
-          super(UITable, self).getSerializationDict(class_variable)
-    else:
-      serialization_dict = {}
+    serialization_dict =   \
+        super(UITable, self).getSerializationDict(class_variable)
     serialization_dict[class_variable] = str(self.__class__)
     column_names = [c.getName() for c in self.getHiddenColumns()]
     serialization_dict['_hidden_columns'] = column_names
@@ -48,9 +44,8 @@ class UITable(Table):
     """
     if instance is None:
       ui_table = UITable(serialization_dict["_name"])
-    if ut.isMethodInSuper(cls, 'deserialize'):
-      super(UITable, self).deserialize(serialization_dict,
-          instance=ui_table)
+    super(UITable, self).deserialize(serialization_dict,
+        instance=ui_table)
     hidden_columns = [self.columnFromName(n) for n in  \
                       serialization_dict["_hidden_columns"]]
     ui_table.hideColumns(hidden_columns)

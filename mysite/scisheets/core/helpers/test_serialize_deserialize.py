@@ -80,7 +80,6 @@ class TestFunctions(unittest.TestCase):
   def testForTable(self):
     setupTableInitialization(self)
     json_str = sd.serialize(self.table)
-    import pdb; pdb.set_trace()
     new_table = sd.deserialize(json_str)
     self.assertTrue(self.table.isEquivalent(new_table))
 

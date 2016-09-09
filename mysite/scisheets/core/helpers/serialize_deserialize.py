@@ -17,7 +17,7 @@ import json
 
 CLASS_VARIABLE = 'SciSheets_Class'
 
-class SciSheetssEncoder(json.JSONEncoder):
+class SciSheetsEncoder(json.JSONEncoder):
   """
   Extends the standard encoder to handle SciSheet objects
   """
@@ -38,8 +38,9 @@ def serialize(instance):
   """
   Wrapper for serializing SciSheets objects
   """
-  return SciSheetssEncoder().encode(instance)
-
+  return json.dumps(instance, cls=SciSheetsEncoder,
+      sort_keys=True,
+      indent=2, separators=(',', ': '))
 
 class SciSheetsJSONDecoder(json.JSONDecoder):
 
