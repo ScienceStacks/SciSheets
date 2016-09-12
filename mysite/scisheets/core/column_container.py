@@ -2,7 +2,6 @@
   Implements the ColumnContainer.
 '''
 
-from mysite.helpers.versioned_file import VersionedFile
 from mysite import settings as settings
 from column import Column
 import errors as er

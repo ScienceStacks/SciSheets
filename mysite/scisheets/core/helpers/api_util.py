@@ -1,6 +1,9 @@
 '''Evaluates formulas in a Table.'''
 
 from mysite.helpers.versioned_file import VersionedFile
+from serialize_deserialize import serialize, deserialize
+import mysite.settings as settings
+import mysite.helpers.util as ut
 import cell_types
 import collections
 from extended_array import ExtendedArray
@@ -40,12 +43,18 @@ def getTableFromFile(file_path, verify=True):
   error = None
   fh = open(file_path, "rb")
   try:
-    table = pickle.load(fh)
+    if ut.getFileExtension(file_path) = 'pcl':
+      table = pickle.load(fh)
+    else:
+      fh = open(file_path, "r")
+      json_str = fh.read()
+      fh.close()
+      table = deserialize(json_str)
   except Exception as e:
     error = e
     import pdb; pdb.set_trace()
   fh.close()
-  new_table = table.migrate()  # Handle case of older objects
+  #new_table = table.migrate()  # Handle case of older objects
   if verify and new_table.getFilepath() != file_path:
     import pdb; pdb.set_trace()
     raise ValueError("File path is incorrect or missing.")
@@ -58,11 +67,22 @@ def writeTableToFile(table):
   Get the table from the file
   :param Table table:
   """
-  # The namespace cannot be preserved in pickle since it
-  # contains module objects
-  table.setNamespace({})
-  pickle.dump(table, open(table.getFilepath(), "wb"))
-    
+  #table.setNamespace({})  # Not sure this is still needed
+  ext = ut.getFileExtension(table.getFilepath())
+  if ext != settings.SCISHEETS_EXT:
+    new_filepath = changeFileExtension(table.getFilepath(),
+                                       settings.SCISHEETS_EXT)
+    versioned_file = VersionedFile(
+        new_filepath,
+        settings.SCISHEETS_USER_TBLDIR_BACKUP,
+        settings.SCISHEETS_MAX_TABLE_VERSIONS)
+    table.setVersionedFile(versioned_file)
+  _serializeTable(table)
+
+def _serializeTable(table):
+  fh = open(table.getFilepath, "wb")
+  fh.write(serialize(table))
+  fh.close()
 
 def getTableCopyFilepath(filename, directory):
   """
@@ -70,7 +90,7 @@ def getTableCopyFilepath(filename, directory):
   :param str filename: name of the file for the table w/o extension
   :return str filepath: path to the table file
   """
-  full_filename = "%s.pcl" % filename
+  full_filename = "%s.%s" % (filename, settings.SCISHEETS_EXT)
   return os.path.join(directory, full_filename)
 
 def copyTableToFile(table, filename, directory):
@@ -92,7 +112,8 @@ def copyTableToFile(table, filename, directory):
     new_versioned_file = VersionedFile(filepath, directory, max_versions)
     new_table.setVersionedFile(new_versioned_file)
   try:
-    pickle.dump(new_table, open(filepath, "wb"))
+    _serializeTable(table)
+    # pickle.dump(new_table, open(filepath, "wb"))
   except Exception as e:
     import pdb; pdb.set_trace()
   return filepath
