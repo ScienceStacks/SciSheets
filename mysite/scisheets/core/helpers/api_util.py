@@ -5,30 +5,12 @@ from serialize_deserialize import serialize, deserialize
 import mysite.settings as settings
 import mysite.helpers.util as ut
 import cell_types
-import collections
-from extended_array import ExtendedArray
 from prune_nulls import pruneNulls
+
+import collections
 import numpy as np
 import os
 import pickle
-
-
-################### Classes ############################
-# Used to define a DataClass
-# cls is the data type that can be tested in isinstance
-# cons is a function that constructs an instance of cls
-#   taking as an argument a list
-# Usage: data_class = DataClass(cls=ExtendedArray,
-#                               cons=(lambda(x: ExtendedArray(x))))
-# Note: Classes must have a public property name that is the
-#       name of the column
-DataClass = collections.namedtuple('DataClass', 'cls cons')
-
-########### CONSTANTS ################
-def makeArray(aList):
-  return ExtendedArray(values=aList)
-DATACLASS_ARRAY = DataClass(cls=ExtendedArray,
-    cons=makeArray)
 
 
 ################### Functions #########################
@@ -41,19 +23,17 @@ def getTableFromFile(file_path, verify=True):
   :raises ValueError: Checks that the file path is set
   """
   error = None
-  fh = open(file_path, "rb")
-  try:
-    if ut.getFileExtension(file_path) = 'pcl':
-      table = pickle.load(fh)
-    else:
-      fh = open(file_path, "r")
-      json_str = fh.read()
-      fh.close()
-      table = deserialize(json_str)
-  except Exception as e:
-    error = e
-    import pdb; pdb.set_trace()
-  fh.close()
+  with open(file_path, "rb") as fh:
+    try:
+      if ut.getFileExtension(file_path).lower() == 'pcl':
+        new_table = pickle.load(fh)
+        new_table = deserialize(serialize(table))
+      else:
+        json_str = fh.read()
+        new_table = deserialize(json_str)
+    except Exception as e:
+      error = e
+      import pdb; pdb.set_trace()
   #new_table = table.migrate()  # Handle case of older objects
   if verify and new_table.getFilepath() != file_path:
     import pdb; pdb.set_trace()
@@ -70,19 +50,14 @@ def writeTableToFile(table):
   #table.setNamespace({})  # Not sure this is still needed
   ext = ut.getFileExtension(table.getFilepath())
   if ext != settings.SCISHEETS_EXT:
-    new_filepath = changeFileExtension(table.getFilepath(),
+    new_filepath = ut.changeFileExtension(table.getFilepath(),
                                        settings.SCISHEETS_EXT)
-    versioned_file = VersionedFile(
-        new_filepath,
-        settings.SCISHEETS_USER_TBLDIR_BACKUP,
-        settings.SCISHEETS_MAX_TABLE_VERSIONS)
-    table.setVersionedFile(versioned_file)
+    table.setFilepath(new_filepath)
   _serializeTable(table)
 
 def _serializeTable(table):
-  fh = open(table.getFilepath, "wb")
-  fh.write(serialize(table))
-  fh.close()
+  with open(table.getFilepath(), "wb") as fh:
+    fh.write(serialize(table))
 
 def getTableCopyFilepath(filename, directory):
   """
@@ -112,7 +87,7 @@ def copyTableToFile(table, filename, directory):
     new_versioned_file = VersionedFile(filepath, directory, max_versions)
     new_table.setVersionedFile(new_versioned_file)
   try:
-    _serializeTable(table)
+    _serializeTable(new_table)
     # pickle.dump(new_table, open(filepath, "wb"))
   except Exception as e:
     import pdb; pdb.set_trace()

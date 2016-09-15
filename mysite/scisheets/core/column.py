@@ -10,7 +10,6 @@ from mysite.helpers.tree import Tree
 from helpers.extended_array import ExtendedArray
 from helpers.prune_nulls import pruneNulls
 import helpers.cell_types as cell_types
-import helpers.api_util as api_util
 import collections
 
 
@@ -25,7 +24,7 @@ class Column(Tree):
 
   def __init__(self, 
                name, 
-               data_class=api_util.DATACLASS_ARRAY,
+               data_class=cell_types.DATACLASS_ARRAY,
                asis=False):
     """
     :param str name: Name of column
@@ -70,7 +69,7 @@ class Column(Tree):
     column.setAsis(serialization_dict["_asis"])
     column.addCells(serialization_dict["_cells"], replace=True)
     column.setFormula(serialization_dict["_formula"])
-    column.setDataClass(api_util.DATACLASS_ARRAY)
+    column.setDataClass(cell_types.DATACLASS_ARRAY)
     return column
 
   @staticmethod

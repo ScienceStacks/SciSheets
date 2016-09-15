@@ -1,5 +1,6 @@
 '''Utilities used in core scitable code.'''
 
+from extended_array import ExtendedArray
 from prune_nulls import pruneNulls
 import collections
 import math
@@ -7,6 +8,23 @@ import numpy as np
 import warnings
 
 THRESHOLD = 0.000001  # Threshold for value comparisons
+
+################### Classes ############################
+# Used to define a DataClass
+# cls is the data type that can be tested in isinstance
+# cons is a function that constructs an instance of cls
+#   taking as an argument a list
+# Usage: data_class = DataClass(cls=ExtendedArray,
+#                               cons=(lambda(x: ExtendedArray(x))))
+# Note: Classes must have a public property name that is the
+#       name of the column
+DataClass = collections.namedtuple('DataClass', 'cls cons')
+
+########### CONSTANTS ################
+def makeArray(aList):
+  return ExtendedArray(values=aList)
+DATACLASS_ARRAY = DataClass(cls=ExtendedArray,
+    cons=makeArray)
 
 
 ################ Internal Classes ################

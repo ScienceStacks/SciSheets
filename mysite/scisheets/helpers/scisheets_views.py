@@ -183,10 +183,7 @@ def saveTable(request, table):
   else:
     is_changed_filepath = False
   if is_changed_filepath:
-    versioned_file = VersionedFile(full_filepath,
-        settings.SCISHEETS_USER_TBLDIR_BACKUP,
-        settings.SCISHEETS_MAX_TABLE_VERSIONS)
-    table.setVersionedFile(versioned_file)
+    table.setFilepath(full_filepath)
   writeTableToFile(table)
 
 

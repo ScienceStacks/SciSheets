@@ -69,6 +69,7 @@ class Table(ColumnContainer):
         "_prologue_formula": self.getPrologue().getFormula(),
         "_epilogue_formula": self.getEpilogue().getFormula(),
         "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
+        "_filepath": self.getFilepath(),
         }
     serialization_dict.update(more_dict)
     _columns = []
@@ -88,6 +89,7 @@ class Table(ColumnContainer):
       table = Table(serialization_dict["_name"])
     else:
       table = instance
+    table.setFilepath(serialization_dict["_filepath"])
     table.setPrologue(serialization_dict["_prologue_formula"])
     table.setEpilogue(serialization_dict["_epilogue_formula"])
     table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])

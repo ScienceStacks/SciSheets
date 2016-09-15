@@ -4,8 +4,9 @@ files in core.
  '''
 
 from scisheets.core import helpers_test as ht
+import mysite.settings as settings
+from mysite.helpers.util import stripFileExtension
 from scisheets.core.helpers_test import TEST_DIR
-from scisheets.core.table import Table
 import api_util as api_util
 from extended_array import ExtendedArray
 import numpy as np
@@ -15,7 +16,8 @@ import unittest
 ARRAY_INT = np.array(range(4))
 ARRAY_INT_LONG = np.array(range(5))
 ARRAY_FLOAT = np.array([0.01*x for x in range(4)])
-TESTFILE2 = "testcase_2.pcl"
+
+TESTFILE = "test_api_util.%s" % settings.SCISHEETS_EXT
 
 
 #############################
@@ -23,6 +25,9 @@ TESTFILE2 = "testcase_2.pcl"
 #############################
 # pylint: disable=W0212,C0111,R0904
 class TestAPIUtil(unittest.TestCase):
+
+  def setUp(self):
+    ht.setupTableInitialization(self)
 
   def testCompareIterables(self):
     float_list = ARRAY_FLOAT.tolist()
@@ -42,19 +47,20 @@ class TestAPIUtil(unittest.TestCase):
                                             filename,
                                             ht.TEST_DIR)   
     path = os.path.join(ht.TEST_DIR, ht.TEST_FILENAME)
-    self.assertEqual(new_filepath, path)
-    self.assertTrue(os.path.exists(path))
-    new_table = api_util.getTableFromFile(path)
-    self.assertEqual(table.getName(), new_table.getName())
-    for column in new_table.getColumns():
-      self.assertTrue('_children' in dir(column))
-    os.remove(path)
+    self.assertEqual(stripFileExtension(new_filepath), 
+        stripFileExtension(path))
+    self.assertTrue(os.path.exists(new_filepath))
+    new_table = api_util.getTableFromFile(new_filepath, verify=False)
+    self.assertTrue(table.isEquivalent(new_table))
+    os.remove(new_filepath)
 
-  def testGetTableFromFile(self):
-    path = os.path.join(TEST_DIR, TESTFILE2)
-    new_table = api_util.getTableFromFile(path, verify=False)
-    for column in new_table.getColumns():
-      self.assertTrue('_children' in dir(column))
+  def testWriteTableToFileAndGetTableFromFile(self):
+    path = os.path.join(TEST_DIR, TESTFILE)
+    self.table.setFilepath(path)
+    api_util.writeTableToFile(self.table)
+    new_table = api_util.getTableFromFile(path)
+    self.assertTrue(self.table.isEquivalent(new_table))
+
 
 
 if __name__ == '__main__':

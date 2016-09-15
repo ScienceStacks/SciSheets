@@ -3,6 +3,7 @@
 '''
 
 from mysite import settings as settings
+from mysite.helpers.versioned_file import VersionedFile
 from column import Column
 import errors as er
 import column as cl
@@ -145,6 +146,16 @@ class ColumnContainer(object):
 
   def setColumns(self, columns):
     self._columns = columns
+
+  def setFilepath(self, filepath):
+    """
+    :param str filepath:
+    """
+    versioned_file = VersionedFile(
+        filepath,
+        settings.SCISHEETS_USER_TBLDIR_BACKUP,
+        settings.SCISHEETS_MAX_TABLE_VERSIONS)
+    self.setVersionedFile(versioned_file)
 
   def setVersionedFile(self, versioned_file):
     self._versioned_file = versioned_file
