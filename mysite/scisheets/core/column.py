@@ -35,6 +35,27 @@ class Column(object):
     self._owning_table = None
     self._data_class = data_class
 
+  def getSerializationDict(self, class_variable):
+    """
+    Method required to serialize this class.
+    :param str class_variable: key to use for class name
+    :return dict:
+    Notes:
+    1. Does not save self._parent (in Tree). This is set by fixups
+       done in deserialize().
+    """
+    if (self.getDataClass().cls != ExtendedArray) and \
+       (self.getDataClass().cls != np.ndarray):
+      raise ValueError("Only serialize ExtendedArray")
+    serialization_dict = {
+        class_variable: str(self.__class__),
+        "_name": self.getName(),
+        "_asis": self.getAsis(),
+        "_cells": self.getCells(),
+        "_formula": self.getFormula(),
+        }
+    return serialization_dict
+
   @staticmethod
   def _adjustValue(value):
     """
