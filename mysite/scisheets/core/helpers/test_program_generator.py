@@ -1,9 +1,10 @@
 '''Tests for program_generator'''
 
 import program_generator as pg
-from ..helpers_test import createTable,  \
+import mysite.settings as settings
+from scisheets.core.helpers_test import createTable,  \
     stdoutIO, TableFileHelper, TEST_DIR
-from ...core import column as cl
+from scisheets.core import column as cl
 from api_util import writeTableToFile
 import os
 import numpy as np
@@ -200,7 +201,8 @@ class TestProgramGenerator(unittest.TestCase):
     function_name = "this_test"
     statements = self.generator._makeAPIPluginInitializationStatements(
         function_name)
-    self.assertTrue("%s.pcl" % function_name in statements)
+    statement_stg = "%s.%s" % (function_name, settings.SCISHEETS_EXT)
+    self.assertTrue(statement_stg in statements)
     self.assertTrue("initialize()" in statements)
     self.assertIsNone(_compile(statements))
 

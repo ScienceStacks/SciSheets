@@ -1,8 +1,18 @@
 """Extend numpy array with meta data."""
 
-import cell_types
 import numpy as np
 import collections
+
+def makeIterable(val):
+  """
+  Ensures that val is an iterable
+  :param object val:
+  :return collections.Iterable:
+  """
+  if isinstance(val, collections.Iterable):
+    return val
+  else:
+    return [val]
 
 class ExtendedArray(np.ndarray):
 
@@ -20,7 +30,7 @@ class ExtendedArray(np.ndarray):
     ):
     if values is None:
       values = []
-    values = cell_types.makeIterable(values)
+    values = makeIterable(values)
     self = np.asarray(values).view(cls)
     self.name               = name
     self.tree               = tree

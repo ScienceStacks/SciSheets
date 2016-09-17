@@ -22,15 +22,17 @@ def getTableFromFile(file_path, verify=True):
   :return Table:
   :raises ValueError: Checks that the file path is set
   """
-  error = None
-  with open(file_path, "rb") as fh:
+  json_str = ""
+  new_table = None
+  if ut.getFileExtension(file_path).lower() == 'pcl':
+    adj_filepath = ut.changeFileExtension(file_path,
+        settings.SCISHEETS_EXT)
+  else:
+    adj_filepath = file_path
+  with open(adj_filepath, "rb") as fh:
     try:
-      if ut.getFileExtension(file_path).lower() == 'pcl':
-        new_table = pickle.load(fh)
-        new_table = deserialize(serialize(table))
-      else:
-        json_str = fh.read()
-        new_table = deserialize(json_str)
+      json_str = fh.read()
+      new_table = deserialize(json_str)
     except Exception as e:
       error = e
       import pdb; pdb.set_trace()
