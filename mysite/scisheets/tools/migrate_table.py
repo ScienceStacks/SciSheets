@@ -25,9 +25,11 @@ def migrate(path):
 class DoMigration(unittest.TestCase):
 
   def testRun(self):
+    file_list = ["testcase_1.pcl"]
     dir = "/home/ubuntu/SciSheets/mysite/scisheets/core/test_dir"
-    path = os.path.join(dir, "testcase_2.pcl")
-    migrate(path)
+    for ff in file_list:
+      path = os.path.join(dir, ff)
+      migrate(path)
   
 
 if __name__ == '__main__':
