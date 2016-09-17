@@ -23,6 +23,18 @@ class UITable(Table):
     self._hidden_columns = []
     super(UITable, self).__init__(name)
 
+  def getSerializationDict(self, class_variable):
+    """
+    :param str class_variable: key to use for the class name
+    :return dict: dictionary encoding the object
+    """
+    serialization_dict =   \
+        super(UITable, self).getSerializationDict(class_variable)
+    serialization_dict[class_variable] = str(self.__class__)
+    column_names = [c.getName() for c in self.getHiddenColumns()]
+    serialization_dict['_hidden_columns'] = column_names
+    return serialization_dict
+
   def _createResponse(self, error):
     # Returns a response of the desired type
     # Input: error - result of processing a command

@@ -66,6 +66,27 @@ class Table(ColumnContainer):
   def getCapture(self, filename):
     dc = DataCapture(filename)
     return dc.getData()
+
+  def getSerializationDict(self, class_variable):
+    """
+    :param str class_variable: key to use for the class name
+    :return dict: dictionary encoding the Table object and its columns
+    """
+    serialization_dict = {}
+    serialization_dict[class_variable] = str(self.__class__)
+    more_dict = {
+        "_name": self.getName(),
+        "_prologue_formula": self.getPrologue().getFormula(),
+        "_epilogue_formula": self.getEpilogue().getFormula(),
+        "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
+        "_filepath": self.getFilepath(),
+        }
+    serialization_dict.update(more_dict)
+    _columns = []
+    for column in self.getColumns():
+      _columns.append(column.getSerializationDict(class_variable))
+    serialization_dict["_columns"] = _columns
+    return serialization_dict
  
   def getIsEvaluateFormulas(self):
     return self._is_evaluate_formulas

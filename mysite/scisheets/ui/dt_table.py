@@ -110,6 +110,16 @@ class DTTable(UITable):
   def __init__(self, name):
     super(DTTable, self).__init__(name)
 
+  def getSerializationDict(self, class_variable):
+    """
+    :param str class_variable: key to use for the class name
+    :return dict: dictionary encoding the object
+    """
+    serialization_dict =   \
+        super(DTTable, self).getSerializationDict(class_variable)
+    serialization_dict[class_variable] = str(self.__class__)
+    return serialization_dict
+
   @staticmethod
   def _formatStringForJS(in_string):
     """
