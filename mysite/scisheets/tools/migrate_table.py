@@ -4,7 +4,7 @@ an SCI.
 """
 
 from scisheets.core.helpers.api_util import getTableFromFile
-#from scisheets.core.helpers.serialize_deserialize import serialize
+from scisheets.core.helpers.serialize_deserialize import serialize
 import os
 import unittest
 
@@ -16,7 +16,7 @@ def migrate(path):
   ext = path[-3:]
   if ext.lower() != 'pcl':
     raise ValueError("%s is not a pcl file" % path)
-  table = getTableFromFile(path)
+  table = getTableFromFile(path, verify=False)
   json_str = serialize(table)
   new_path = "%s.sci" % path[:-4]
   with open(new_path, "wb") as fh:

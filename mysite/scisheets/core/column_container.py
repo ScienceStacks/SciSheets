@@ -134,6 +134,16 @@ class ColumnContainer(object):
     index = self._columns.index(column)
     del self._columns[index]
 
+  def setFilepath(self, filepath):
+    """
+    :param str filepath:
+    """
+    versioned_file = VersionedFile(
+        filepath,
+        settings.SCISHEETS_USER_TBLDIR_BACKUP,
+        settings.SCISHEETS_MAX_TABLE_VERSIONS)
+    self.setVersionedFile(versioned_file)
+
   def setVersionedFile(self, versioned_file):
     self._versioned_file = versioned_file
 
