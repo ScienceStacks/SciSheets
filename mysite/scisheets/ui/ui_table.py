@@ -31,8 +31,11 @@ class UITable(Table):
     serialization_dict =   \
         super(UITable, self).getSerializationDict(class_variable)
     serialization_dict[class_variable] = str(self.__class__)
-    column_names = [c.getName() for c in self.getHiddenColumns()]
-    serialization_dict['_hidden_columns'] = column_names
+    if "_hidden_columns" in self.__dict__:
+      column_names = [c.getName() for c in self.getHiddenColumns()]
+      serialization_dict['_hidden_columns'] = column_names
+    else:
+      serialization_dict['_hidden_columns'] = []
     return serialization_dict
 
   def _createResponse(self, error):

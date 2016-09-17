@@ -38,17 +38,28 @@ def getTableFromFile(file_path, verify=True):
   :raises ValueError: Checks that the file path is set
   """
   error = None
-  fh = open(file_path, "rb")
-  try:
+  with open(file_path, "rb") as fh:
     table = pickle.load(fh)  # BUG - fails here
-  except Exception as e:
-    error = e
-    import pdb; pdb.set_trace()
-  fh.close()
   table.migrate()  # Handle case of older objects
   if verify and table.getFilepath() != file_path:
     raise ValueError("File path is incorrect or missing.")
   return table
+
+def readObjectFromFile(filepath, verify=False):
+  """
+  Get the object from the file
+  :param str filepath: full path to file
+  :param bool verify: checks the file path if the
+      object has a getFilepath method
+  :return object:
+  :raises ValueError: Checks that the file path is set
+  """
+  with open(filepath, "rb") as fh:
+    new_object = pickle.load(fh)
+  if 'getFilepath' in dir(new_object):
+    if verify and table.getFilepath() != filepath:
+      raise ValueError("File path is incorrect or missing.")
+  return new_object
 
 def writeTableToFile(table):
   """

@@ -72,21 +72,33 @@ class Table(ColumnContainer):
     :param str class_variable: key to use for the class name
     :return dict: dictionary encoding the Table object and its columns
     """
-    serialization_dict = {}
-    serialization_dict[class_variable] = str(self.__class__)
-    more_dict = {
-        "_name": self.getName(),
-        "_prologue_formula": self.getPrologue().getFormula(),
-        "_epilogue_formula": self.getEpilogue().getFormula(),
-        "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
-        "_filepath": self.getFilepath(),
-        }
-    serialization_dict.update(more_dict)
+    def setValue(name, default_value, value_dict):
+      if name in self.__dict__:
+          value_dict[name] = self.__dict__[name]
+      else:
+          serial_dict[name] = default_value
+
+    serial_dict = {}
+    if '_prologue' in self.__dict__:
+        serial_dict["_prologue_formula"] = self.getPrologue().getFormula()
+    else:
+        serial_dict["_prologue_formula"] = ""
+    if '_epilogue' in self.__dict__:
+        serial_dict["_epilogue_formula"] = self.getPrologue().getFormula()
+    else:
+        serial_dict["_epilogue_formula"] = ""
+    serial_dict[class_variable] = str(self.__class__)
+    serial_dict["_name"] = self.getName()
+    setValue("_is_evaluate_formulas", True, serial_dict)
+    if '_versioned_file' in self.__dict__:
+      serial_dict["_filepath"] = self.getFilepath()
+    else:
+      serial_dict["_filepath"] = None
     _columns = []
     for column in self.getColumns():
       _columns.append(column.getSerializationDict(class_variable))
-    serialization_dict["_columns"] = _columns
-    return serialization_dict
+    serial_dict["_columns"] = _columns
+    return serial_dict
  
   def getIsEvaluateFormulas(self):
     return self._is_evaluate_formulas
