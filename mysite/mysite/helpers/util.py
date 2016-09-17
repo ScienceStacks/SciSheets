@@ -40,3 +40,41 @@ def randomWord(size=5):
   for n in range(size):
     word += random.choice(string.letters)
   return word
+
+def getFileExtension(filepath):
+  """
+  :param str filepath:
+  :return str: extension excluding the "."
+  """
+  extension = os.path.split(filepath)[-1]
+  split_filename = extension.split('.')
+  if len(split_filename) == 1:
+    ext = None
+  else:
+    ext = split_filename[-1]
+  return ext
+
+def stripFileExtension(filepath):
+  """
+  :param str filepath:
+  :return str:
+ filepath without the extension
+  """
+  split_filepath = list(os.path.split(filepath))
+  filename = split_filepath[-1]
+  split_filename = filename.split('.')
+  stripped_filename = split_filename[0]
+  split_filepath[-1] = stripped_filename
+  return "/".join(split_filepath)
+
+def changeFileExtension(filepath, extension):
+  """
+  :param str filepath:
+  :param str extension: without "."
+  :return str: filepath without the extension
+  """
+  stripped_filepath = stripFileExtension(filepath)
+  if extension is None:
+    return "%s" % stripped_filepath
+  else:
+    return "%s.%s" % (stripped_filepath, extension)
