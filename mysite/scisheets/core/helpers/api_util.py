@@ -44,6 +44,32 @@ def getTableFromFile(file_path, verify=True):
     import pdb; pdb.set_trace()
   return new_table
 
+def readObjectFromFile(filepath, verify=False):
+  """
+  Get the object from the file
+  :param str filepath: full path to file
+  :param bool verify: checks the file path if the
+      object has a getFilepath method
+  :return object:
+  :raises ValueError: Checks that the file path is set
+  Notes: Handles legacy of accessing PCL files
+  """
+  if ut.getFileExtension(filepath).lower() == 'pcl':
+    adj_filepath = ut.changeFileExtension(filepath,
+        settings.SCISHEETS_EXT)
+  else:
+    adj_filepath = filepath
+  with open(adj_filepath, "rb") as fh:
+    json_str = fh.read()
+    new_object = deserialize(json_str)
+  if 'getFilepath' in dir(new_object):
+    if verify and new_object.getFilepath() != adj_filepath:
+      if new_object.getFilepath() == filepath:
+        new_object.setFilepath(adj_filepath)
+      else:
+        raise ValueError("File path is incorrect or missing.")
+  return new_object
+
 def writeTableToFile(table):
   """
   Get the table from the file
@@ -56,6 +82,20 @@ def writeTableToFile(table):
                                        settings.SCISHEETS_EXT)
     table.setFilepath(new_filepath)
   _serializeTable(table)
+
+def writeObjectToFile(an_object, filepath=None):
+  """
+  Serializes and writes the object to the file
+  :param object an_object:
+  :param str filepath:
+  :raises ValueError: if cannot find a filepath
+  """
+  if 'getFilepath' in dir(an_object):
+    filepath = an_object.getFilepath()
+  if filepath is None:
+    raise ValueError("No way to find filepath")
+  with open(filepath, "wb") as fh:
+    fh.write(serialize(an_object))
 
 def _serializeTable(table):
   with open(table.getFilepath(), "wb") as fh:

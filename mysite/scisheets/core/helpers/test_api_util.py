@@ -61,6 +61,22 @@ class TestAPIUtil(unittest.TestCase):
     new_table = api_util.getTableFromFile(path)
     self.assertTrue(self.table.isEquivalent(new_table))
 
+  def testWriteTableToFileAndReadObjectFromFile(self):
+    path = os.path.join(TEST_DIR, TESTFILE)
+    api_util.writeObjectToFile(self.table, filepath=path)
+    new_table = api_util.readObjectFromFile(path)
+    self.assertTrue(self.table.isEquivalent(new_table))
+    #
+    self.table.setFilepath(path)
+    api_util.writeObjectToFile(self.table)
+    new_table = api_util.readObjectFromFile(path)
+    self.assertTrue(self.table.isEquivalent(new_table))
+    #
+    a_dict = {"a": range(5), "b": range(10)}
+    api_util.writeObjectToFile(a_dict, filepath=path)
+    new_a_dict = api_util.readObjectFromFile(path)
+    self.assertEqual(a_dict, new_a_dict)
+
 
 
 if __name__ == '__main__':
