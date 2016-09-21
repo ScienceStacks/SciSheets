@@ -7,8 +7,7 @@ import scisheets.views
 
 urlpatterns = [
     url(r'^deletetable/', scisheets.views.deletetable),
-    url(r'^hello/', scisheets.views.hello),
-    url(r'^letter/', scisheets.views.letter),
+    url(r'^hello/(?P<name>.+)/$', scisheets.views.hello),
     url(r'^maketable/', scisheets.views.maketable),
     url(r'^nested/', scisheets.views.nested),
     url(r'^plot/(?P<filename>.+)/$', scisheets.views.plot),

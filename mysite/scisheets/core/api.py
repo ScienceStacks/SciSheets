@@ -29,8 +29,8 @@ import pandas as pd
 import pickle
 
 ################### FUNCTIONS
-def getTableFromFile(file_path):
-  return api_util.getTableFromFile(file_path)
+def readTableFromFile(file_path):
+  return api_util.readObjectFromFile(file_path)
 
 
 ################### CLASSES
@@ -282,7 +282,7 @@ class API(object):
     return dataframe
 
   def updateTableFile(self):
-    api_util.writeTableToFile(self._table)
+    api_util.writeObjectToFile(self._table)
 
 
 class APIFormulas(API):
@@ -378,7 +378,7 @@ class APIPlugin(APIFormulas):
     Does initialization at the beginning of executing table
     code.
     """
-    table = api_util.getTableFromFile(self._table_filepath,
+    table = api_util.readObjectFromFile(self._table_filepath,
       verify=False)
     self.setTable(table)
     self.controller.setTable(self._table)

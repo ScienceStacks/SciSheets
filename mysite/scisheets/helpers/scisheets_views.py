@@ -3,8 +3,8 @@
 from django.http import HttpResponse
 from mysite.helpers.versioned_file import VersionedFile
 from scisheets.core.errors import InternalError
-from scisheets.core.helpers.api_util import getTableFromFile, \
-    writeTableToFile, getFileNameWithoutExtension
+from scisheets.core.helpers.api_util import readObjectFromFile, \
+    writeObjectToFile, getFileNameWithoutExtension
 from scisheets.ui.dt_table import DTTable
 import mysite.helpers.util as ut
 import mysite.settings as settings
@@ -92,11 +92,9 @@ def _createTableFilepath(file_name):
   Input: file_name - name of file without extension
   Output: file_path - full path for file
   """
-  suffix = ""
-  if file_name[-4:] != ".pcl":
-    suffix = ".pcl"
-  table_file = "%s%s" % (file_name, suffix)
-  return os.path.join(settings.SCISHEETS_USER_TBLDIR, table_file)
+  adj_filename = ut.changeFileExtension(file_name, 
+      settings.SCISHEETS_EXT)
+  return os.path.join(settings.SCISHEETS_USER_TBLDIR, adj_filename)
 
 def _setTableFilepath(request, 
                       table, 
@@ -123,7 +121,7 @@ def _setTableFilepath(request,
   request.session[TABLE_FILE_KEY] = table_filepath
   if table is None:
     import pdb; pdb.set_trace()
-  if table_filepath[-4:] != ".pcl":
+  if table_filepath[-3:] != settings.SCISHEETS_EXT:
     import pdb; pdb.set_trace()
   return table_filepath
 
@@ -146,7 +144,7 @@ def getTable(request):
   if table_file_path is None:
     return None
   else:
-    return getTableFromFile(table_file_path, verify=False)
+    return readObjectFromFile(table_file_path, verify=False)
 
 def _createRandomFileName():
   handle = tempfile.NamedTemporaryFile()
@@ -184,7 +182,7 @@ def saveTable(request, table):
     is_changed_filepath = False
   if is_changed_filepath:
     table.setFilepath(full_filepath)
-  writeTableToFile(table)
+  writeObjectToFile(table)
 
 
 # ******************** Command Processing *****************
@@ -229,7 +227,7 @@ def _makeNewTable(request):
   :return: ajax response
   """
   empty_table_file = _createTableFilepath(EMPTY_TABLE_FILE)
-  table = getTableFromFile(empty_table_file)
+  table = readObjectFromFile(empty_table_file)
   _setTableFilepath(request, table, 
       settings.SCISHEETS_DEFAULT_TABLEFILE,
       verify=False)
@@ -259,7 +257,7 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
     elif cmd_dict['command'] == "OpenTableFile":
       filename = cmd_dict['args'][0]
       table_filepath = _createTableFilepath(filename)
-      table = getTableFromFile(table_filepath, verify=False)
+      table = readObjectFromFile(table_filepath, verify=False)
       _setTableFilepath(request, table, cmd_dict['args'][0])
       command_result = _makeAjaxResponse("OK", True)
     elif cmd_dict['command'] == "SaveAs":
@@ -275,10 +273,11 @@ def _listTableFiles():
   """
   Output: returns response that contains the list of table files in data
   """
-  lensfx = len(".pcl")
+  suffix = ".%s" % settings.SCISHEETS_EXT
+  lensfx = len(suffix)
   file_list = [ff[:-lensfx] 
                for ff in os.listdir(settings.SCISHEETS_USER_TBLDIR)
-               if ff[-lensfx:] == '.pcl' and ff[0] != "_"]
+               if ff[-lensfx:] == suffix and ff[0] != "_"]
   file_list.sort()
   return _makeAjaxResponse(file_list, True)
 

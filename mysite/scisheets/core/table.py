@@ -89,7 +89,8 @@ class Table(ColumnContainer):
       table = Table(serialization_dict["_name"])
     else:
       table = instance
-    table.setFilepath(serialization_dict["_filepath"])
+    if serialization_dict["_filepath"] is not None:
+      table.setFilepath(serialization_dict["_filepath"])
     table.setPrologue(serialization_dict["_prologue_formula"])
     table.setEpilogue(serialization_dict["_epilogue_formula"])
     table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])

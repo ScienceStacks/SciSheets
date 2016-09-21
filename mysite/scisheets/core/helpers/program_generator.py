@@ -100,7 +100,7 @@ class ProgramGenerator(object):
     sa = StatementAccumulator()
     sa.add("from scisheets.core import api as api")
     statement = """
-_table = api.getTableFromFile('%s')
+_table = api.readObjectFromFile('%s')
 _table.setNamespace(globals())
 %s = api.APIFormulas(_table) 
 """ % (self._table.getFilepath(), API_OBJECT) 

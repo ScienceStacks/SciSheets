@@ -7,7 +7,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from ..core.table import Table
 from ..core.helpers_test import TableFileHelper, TEST_DIR,  \
     compareTableData
-from ..core.helpers.api_util import getTableFromFile, writeTableToFile
+from ..core.helpers.api_util import readObjectFromFile, writeObjectToFile
 import scisheets_views as sv
 import json
 import numpy as np
@@ -22,6 +22,7 @@ NCOL = 3
 NROW = 4
 BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
+IGNORE_TEST = False
 
 
 
@@ -134,6 +135,8 @@ class TestScisheetsViews(TestCase):
   ''' TESTS '''
      
   def testExtractDataFromRequest(self):
+    if IGNORE_TEST:
+       return
     url = self._createURL(values=[0, "one"])
     request = self._URL2Request(url)
     value = sv.extractDataFromRequest(request, "var0", convert=True)
@@ -153,6 +156,8 @@ class TestScisheetsViews(TestCase):
         self.assertEqual(result[DICT_NAMES[n]], test_values[n])
 
   def testCreateCommandDict(self):
+    if IGNORE_TEST:
+       return
     values = ["Update", "Column", "dummy",      2,
               4,           9999]
     self._testCreateCommandDict(AJAX_NAMES, values)  # All values are present
@@ -162,6 +167,8 @@ class TestScisheetsViews(TestCase):
       self._testCreateCommandDict(AJAX_NAMES, new_values)
   
   def testSaveAndGetTable(self):
+    if IGNORE_TEST:
+       return
     request = self._URL2Request(self._createURL(count=1))  # a request
     self._addSessionToRequest(request)
     self.assertEqual(sv.getTable(request), None)
@@ -172,11 +179,15 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(new_table.getName(), table.getName())
 
   def test(self):
+    if IGNORE_TEST:
+       return
     # Test creation of the initial random table
     response = self._createBaseTable()
     self._verifyResponse(response)
 
   def testCommandReload(self):
+    if IGNORE_TEST:
+       return
     self._createBaseTable()
     # Do the refresh
     refresh_url = self._createBaseURL()
@@ -227,24 +238,28 @@ class TestScisheetsViews(TestCase):
     return result
 
   def testCommandCellUpdate(self):
-    return
+    if IGNORE_TEST:
+       return
     ROW_INDEX = NROW - 1
     self._testCommandCellUpdate(ROW_INDEX, 9999)
     self._testCommandCellUpdate(ROW_INDEX, "aaa")
     self._testCommandCellUpdate(ROW_INDEX, "aaa bb")
 
   def testCommandCellUpdateWithColumnListData(self):
-    return
+    if IGNORE_TEST:
+       return
     ROW_INDEX = NROW - 1
     response = self._createBaseTable()
     table = self._getTableFromResponse(response)
     column_index = 1
     table.updateCell([1,2,3], ROW_INDEX, column_index)
-    writeTableToFile(table)
+    writeObjectToFile(table)
     self._testCommandCellUpdate(ROW_INDEX, 2, valid=False, 
         table=table, column_index=column_index)
 
   def testCommandCellUpdateWithValueAsList(self):
+    if IGNORE_TEST:
+       return
     ROW_INDEX = NROW - 1
     value = [1, 2]
     column_index = 1
@@ -255,7 +270,7 @@ class TestScisheetsViews(TestCase):
 
   def _getTableFromResponse(self, response):
     table_filepath = response.client.session[sv.TABLE_FILE_KEY]
-    return getTableFromFile(table_filepath)
+    return readObjectFromFile(table_filepath)
 
   def _testCommandColumnDelete(self, base_url):
     # Tests for command delete with a given base_url to consider the
@@ -278,6 +293,8 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(columns[0].numCells(), NROW)
 
   def testCommandColumnDelete(self):
+    if IGNORE_TEST:
+       return
     self._testCommandColumnDelete(BASE_URL)
 
   def _testCommandColumnRename(self, 
@@ -314,6 +331,8 @@ class TestScisheetsViews(TestCase):
       self.assertEqual(columns[COLUMN_INDEX].getName(), new_name)
 
   def testCommandColumnRename(self):
+    if IGNORE_TEST:
+       return
     new_name = 'row'  # duplicate name
     self._testCommandColumnRename(BASE_URL, new_name, False)
     NEW_NAME = "New_Column"
@@ -353,17 +372,23 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content["success"] == isValid)
 
   def testCommandColumnRefactorName(self):
+    if IGNORE_TEST:
+       return
     new_name = 'row'  # duplicate name
     self._testCommandColumnRename(BASE_URL, new_name, False)
     new_name = "New_Column"
     self._testCommandColumnRename(BASE_URL, new_name, True, command="Refactor")
 
   def testCommandColumnRefactorFormula(self):
+    if IGNORE_TEST:
+       return
     new_formula = "Col_0"
     refactor_name = "NewColumn"
     self._refactor(new_formula, refactor_name, True)
 
   def testCommandRowMove(self):
+    if IGNORE_TEST:
+       return
     # Tests row renaming by moving the first row
     # to the end of the table
     base_response = self._createBaseTable()
@@ -394,6 +419,8 @@ class TestScisheetsViews(TestCase):
       self.assertTrue(b)
 
   def testCommandRowDelete(self):
+    if IGNORE_TEST:
+       return
     ROW_IDX = 1
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
@@ -453,11 +480,15 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(b)  # New row should be 'None'
 
   def testCommandRowInsert(self):
+    if IGNORE_TEST:
+       return
     self._addRow("Insert", 0, 0)
     self._addRow("Insert", NROW - 1, NROW - 1)
     self._addRow("Insert", 2, 2)
 
   def testCommandRowAppend(self):
+    if IGNORE_TEST:
+       return
     self._addRow("Append", 0, 1)
     self._addRow("Append", NROW - 1, NROW)
     self._addRow("Append", 2, 3)
@@ -492,11 +523,15 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(b)
 
   def testCommandColumnInsert(self):
+    if IGNORE_TEST:
+       return
     self._addColumn("Insert", 1, 1)
     self._addColumn("Insert", 2, 2)
     self._addColumn("Insert", NCOL, NCOL)
 
   def testCommandColumnAppend(self):
+    if IGNORE_TEST:
+       return
     self._addColumn("Append", 1, 2)
     self._addColumn("Append", 2, 3)
     self._addColumn("Append", NCOL, NCOL+1)
@@ -538,6 +573,8 @@ class TestScisheetsViews(TestCase):
     return "Col_%d" % column_index
 
   def testCommandColumnMove(self):
+    if IGNORE_TEST:
+       return
     # The column names are "row", "Col_0", ...
     self._moveColumn(1, self._makeColumnName(NCOL-1))  # Make it the last column
 
@@ -576,6 +613,8 @@ class TestScisheetsViews(TestCase):
                                      excludes=[column_idx]))
 
   def testCommandColumnFormula(self):
+    if IGNORE_TEST:
+       return
     self._formulaColumn(NCOL - 1, "np.sin(2.3)", True)  # Valid formula
     self._formulaColumn(NCOL - 1, "np.sin(2.3", False)  # Invalid formula
 
@@ -602,6 +641,8 @@ class TestScisheetsViews(TestCase):
       self.assertFalse(content["success"])
 
   def testTableEvaluate(self):
+    if IGNORE_TEST:
+       return
     self._evaluateTable("np.sin(3.2)", True)  # Valid formula
     self._evaluateTable("range(1000)", True)  # Test large
     formula = "Col_2 = np.sin(np.array(range(10), dtype=float));B =  Col_1**3"
@@ -609,6 +650,8 @@ class TestScisheetsViews(TestCase):
     self._evaluateTable("np.sin(x)", False)  # Invalid formula
 
   def testTableExport(self):
+    if IGNORE_TEST:
+       return
     # Populate the table with a couple of formulas
     FORMULA = "range(10)"
     FUNC_NAME = "ss_export_test"
@@ -649,6 +692,8 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(new_table.numRows(), expected_number_rows)
 
   def testTableTrim(self):
+    if IGNORE_TEST:
+       return
     self._tableTrim(0, NROW+1)
     self._tableTrim(NROW, NROW)
 
@@ -678,10 +723,14 @@ class TestScisheetsViews(TestCase):
       self.assertEqual(new_table.getName(), old_name)
 
   def testTableRename(self):
+    if IGNORE_TEST:
+       return
     self._tableRename("valid_name", True)
     self._tableRename("invalid_name!", False)
 
   def testTableListTableFiles(self):
+    if IGNORE_TEST:
+       return
     filename = "dummy"
     helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     helper.create()
@@ -700,6 +749,8 @@ class TestScisheetsViews(TestCase):
     helper.destroy()
 
   def testTableOpenTableFiles(self):
+    if IGNORE_TEST:
+       return
     filename = "dummy"
     helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     helper.create()
@@ -732,6 +783,8 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content["success"])
 
   def testTableSave(self):
+    if IGNORE_TEST:
+       return
     filename = "dummy"
     _ = self._createBaseTable()
     helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
@@ -740,6 +793,8 @@ class TestScisheetsViews(TestCase):
     helper.destroy()
 
   def testTableDelete(self):
+    if IGNORE_TEST:
+       return
     filename = "dummy"
     helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     _ = self._createBaseTable()
@@ -758,6 +813,8 @@ class TestScisheetsViews(TestCase):
     #helper.destroy()
 
   def testTableNew(self):
+    if IGNORE_TEST:
+       return
     filename = st.SCISHEETS_DEFAULT_TABLEFILE
     _ = self._createBaseTable()
     ajax_cmd = self._ajaxCommandFactory()
@@ -772,6 +829,8 @@ class TestScisheetsViews(TestCase):
         st.SCISHEETS_DEFAULT_TABLEFILE))
 
   def testFormulaRowAddition(self):
+    if IGNORE_TEST:
+       return
     base_response = self._createBaseTable()
     # Change the formula
     ajax_cmd = self._ajaxCommandFactory()
@@ -813,6 +872,8 @@ class TestScisheetsViews(TestCase):
     return response
 
   def testTableWithLists(self):
+    if IGNORE_TEST:
+       return
     nrow = NROW + 1
     ncol = 4
     formula_columns = [3, 2]
@@ -840,6 +901,8 @@ for x in Col_2:
     self.assertEqual(val, 0.5)
 
   def testImportExcelToTable(self):
+    if IGNORE_TEST:
+       return
     filepath = os.path.join(TEST_DIR, 'RawData.xlsx')
     formula = "a = importExcelToTable(s, '%s')" % filepath
     base_response = self._createBaseTable()
@@ -897,10 +960,14 @@ for x in Col_2:
     self.assertTrue(compareTableData(old_table, undone_table))
 
   def testUndoTable(self):
+    if IGNORE_TEST:
+       return
     formula = "sin(4)"
     self._testUndoTable(formula)
 
   def testRedoTable(self):
+    if IGNORE_TEST:
+       return
     colidx = 1
     formula = "sin(4)"
     self._testUndoTable(formula)
@@ -929,6 +996,8 @@ for x in Col_2:
       self.assertEqual(content["success"], is_valid)
 
   def testPrologueEpilogue(self):
+    if IGNORE_TEST:
+       return
     self._setPrologueEpilogue("import pdb", True)
     self._setPrologueEpilogue("impor pdb", False)
 
