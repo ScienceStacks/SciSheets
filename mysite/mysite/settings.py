@@ -122,8 +122,9 @@ SCISHEETS_USER_TBLDIR_BACKUP = os.path.join(BASE_DIR,
 SCISHEETS_PLUGIN_PYDIR = os.path.join(BASE_DIR, 'scisheets/plugins')
 SCISHEETS_PLUGIN_PYPATH = 'scisheets.plugins'
 SCISHEETS_MAX_TABLE_VERSIONS = 5
-SCISHEETS_DEFAULT_TABLEFILE = os.path.join(SCISHEETS_USER_TBLDIR, 'scisheet_table.pcl')
+SCISHEETS_EXT = "sci"
+SCISHEETS_DEFAULT_TABLEFILE = os.path.join(SCISHEETS_USER_TBLDIR, 
+    "scisheet_table.%s" % SCISHEETS_EXT)
 SCISHEETS_TEST_DIR = os.path.join(BASE_DIR, 'scisheets/core/test_dir')
 SCISHEETS_FORMULA_EVALUATION_MAX_ITERATIONS = 40
 SCISHEETS_LOG = os.path.join(BASE_DIR, 'scisheets_log.csv')
-SCISHEETS_EXT = "sci"

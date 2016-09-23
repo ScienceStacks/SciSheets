@@ -4,10 +4,11 @@ from mysite import settings as st
 import mysite.helpers.util as ut
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
-from ..core.table import Table
-from ..core.helpers_test import TableFileHelper, TEST_DIR,  \
+from scisheets.core.table import Table
+from scisheets.core.helpers_test import TableFileHelper, TEST_DIR,  \
     compareTableData
-from ..core.helpers.api_util import readObjectFromFile, writeObjectToFile
+from scisheets.core.helpers.api_util import readObjectFromFile, writeObjectToFile
+import scisheets.core.helpers.cell_types as cell_types
 import scisheets_views as sv
 import json
 import numpy as np
@@ -22,7 +23,7 @@ NCOL = 3
 NROW = 4
 BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
-IGNORE_TEST = False
+IGNORE_TEST = True
 
 
 
@@ -199,8 +200,10 @@ class TestScisheetsViews(TestCase):
     if table is None:
       response = self._createBaseTable()
       table = self._getTableFromResponse(response)
-    if column_index is None:
+    if (column_index is None):
       column_index = self._findColumnWithType(table, val)
+      if column_index is None:  # Failed to find a column
+        import pdb; pdb.set_trace()
     # Do the cell update
     create_table_url = self._createBaseURL()
     ajax_cmd = self._ajaxCommandFactory()
@@ -225,21 +228,24 @@ class TestScisheetsViews(TestCase):
   def _findColumnWithType(self, table, val):
     # Inputs: table - table being analyzed
     #         val - value whose type is to be matched
-    # Returns the index of the column with the specified type or none
-    result = None
-    columns = table.getColumns()
-    numpy_type = np.array([val]).dtype
-    for index in range(1, table.numColumns()):
-      col = columns[index]
-      if numpy_type == col.getArrayType():
-        result = index
-      elif str(numpy_type)[0:2] == str(col.getArrayType())[0:2]:
-        result = index
-    return result
+    # Returns the index of the column with the specified type or None
+    # Assumes that the columns are either str or a number
+    def notIsStrs(vals):
+      return not cell_types.isStrs(vals)
+
+    if cell_types.isStr(val):
+      func = cell_types.isStrs
+    else:
+      func = notIsStrs
+    for column in table.getColumns():
+      if column.getName() == 'row':
+        continue
+      if func(column.getCells()):
+        return table.indexFromColumn(column)
 
   def testCommandCellUpdate(self):
-    if IGNORE_TEST:
-       return
+    #if IGNORE_TEST:
+    #   return
     ROW_INDEX = NROW - 1
     self._testCommandCellUpdate(ROW_INDEX, 9999)
     self._testCommandCellUpdate(ROW_INDEX, "aaa")
@@ -784,7 +790,7 @@ class TestScisheetsViews(TestCase):
 
   def testTableSave(self):
     if IGNORE_TEST:
-       return
+      return
     filename = "dummy"
     _ = self._createBaseTable()
     helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)

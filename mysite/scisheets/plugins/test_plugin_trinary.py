@@ -2,7 +2,7 @@
 
 # TODO: TEST THIS!
 
-from plugin_trinary import createTrinary, createTruthTable
+#from plugin_trinary import createTrinary, createTruthTable
 import unittest
 
 

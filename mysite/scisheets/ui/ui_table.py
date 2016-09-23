@@ -6,7 +6,7 @@ from scisheets.core.table import Table
 from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
 from scisheets.core.helpers.cell_types import getType
-from mysite import settings as st
+from mysite import settings as settings
 import collections
 import numpy as np
 import os
@@ -57,7 +57,7 @@ class UITable(Table):
     #                (may be None)
     # Output: response
     if error is None:
-      new_error = self.evaluate(user_directory=st.SCISHEETS_USER_PYDIR)
+      new_error = self.evaluate(user_directory=settings.SCISHEETS_USER_PYDIR)
     else:
       new_error = error
     if new_error is None:
@@ -223,11 +223,12 @@ class UITable(Table):
           error = self.export(function_name=function_name,
                               inputs=inputs,
                               outputs=outputs,
-                              user_directory=st.SCISHEETS_USER_PYDIR)
+                              user_directory=settings.SCISHEETS_USER_PYDIR)
       response = self._createResponse(error)
     elif command == "Open":
       file_name = cmd_dict['args'][0]
-      file_path = os.path.join(st.BASE_DIR, "%s.pcl" % file_name)
+      fullname = "%s.%s" % (file_name, settings.SCISHEETS_EXT)
+      file_path = os.path.join(settings.BASE_DIR, fullname)
       SET_CURRENT_FILE(file_path) # This is current in the session variable.
     elif command == "Prologue":
       prologue = cmd_dict['args'][0]
@@ -274,7 +275,8 @@ class UITable(Table):
     versioned = self.getVersionedFile()
     if command == "Update":
       versioned.checkpoint(id="%s/%s" % (target, command))
-      column = self.visibleColumnFromIndex(cmd_dict["column_index"])
+      idx = int(cmd_dict["column_index"])
+      column = self.visibleColumnFromIndex(idx)
       if column.getTypeForCells() == object:
         error = "Cannot update cells for the types in column %s"  \
            % column.getName()
@@ -335,7 +337,7 @@ class UITable(Table):
         cur_column = self.visibleColumnFromIndex(cmd_dict["column_index"])
         self.moveColumn(cur_column, new_column_index)
       except Exception:
-        error = "Column %s does not exist." % dest_column_name
+        error = "Column %s does not exists." % dest_column_name
     elif command == "Refactor":
       versioned.checkpoint(id="%s/%s" % (target, command))
       proposed_name = cmd_dict["args"][0]

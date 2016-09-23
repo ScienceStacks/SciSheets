@@ -92,9 +92,9 @@ def _createTableFilepath(file_name):
   Input: file_name - name of file without extension
   Output: file_path - full path for file
   """
-  adj_filename = ut.changeFileExtension(file_name, 
-      settings.SCISHEETS_EXT)
-  return os.path.join(settings.SCISHEETS_USER_TBLDIR, adj_filename)
+  path =  os.path.join(settings.SCISHEETS_USER_TBLDIR, file_name)
+  adj_path = ut.changeFileExtension(path, settings.SCISHEETS_EXT)
+  return adj_path
 
 def _setTableFilepath(request, 
                       table, 

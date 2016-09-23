@@ -30,11 +30,6 @@ class TestHelpers(TestCase):
       self.assertEqual(v, context[k], 
           "Value %s is not present for key %s" % (str(v), k))
 
-  def testLetter(self):
-    response = self.client.get('/letter/')
-    self.assertEqual(response.status_code, 200)
-    self._TestContext(response.context, {'person_name': 'John'})
-
   def testPlot(self):
     CLIENT_URL = '/plot/' + TEST_DATA_FILENAME + '/'
     response = self.client.get(CLIENT_URL)

@@ -316,12 +316,14 @@ def isStr(val):
   """
   return isinstance(val, str) or isinstance(val, unicode)
 
-def isStrArray(array):
+def isStrs(vals):
   """
-  :param np.array array:
+  :param iterable vals:
   :return bool:
   """
-  return str(array.dtype)[0:2] == '|S'
+  a_list = makeIterable(vals)
+  return all([isStr(x) for x in a_list])
+  #return str(array.dtype)[0:2] == '|S'
 
 def makeIterable(val):
   """
@@ -330,7 +332,8 @@ def makeIterable(val):
   :return collections.Iterable:
   """
   if isinstance(val, collections.Iterable):
-    return val
+    #return val
+    return [x for x in val]
   else:
     return [val]
 
