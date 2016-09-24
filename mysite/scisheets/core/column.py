@@ -229,25 +229,6 @@ class Column(Tree):
     """
     return cell_types.isFloats(self.getCells())
 
-  def migrate(self, instance=None):
-    """
-    Returns a copy of this object that is migrated
-    :param Column instance: instance to migrate to
-    :return Column:
-    """
-    # Fix the current object
-    if '_owning_table' in dir(self):
-      self._parent = self._owning_table
-    if not '_children' in dir(self):
-      self._children = []
-    # Create an object if none is provided
-    if instance is None:
-      instance = Column(self._name)
-    # Do migration for all inherited classes
-    instance = super(Column, self).migrate(instance=instance)
-    # Copy the properties of this class
-    return self.copy(instance=instance)
-
   def numCells(self):
     """
     Returns the number of cells in the column

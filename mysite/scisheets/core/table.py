@@ -430,8 +430,7 @@ class Table(ColumnContainer):
     :returns bool:
     """
     local_debug = False # Breaks on specifc reasons for non-equiv
-    if not isinstance(other_table, Table)  \
-        and not issubclass(Table, other_table.__class__):
+    if not isinstance(other_table, self.__class__):
       if local_debug:
         import pdb; pdb.set_trace()
       return False
@@ -474,46 +473,6 @@ class Table(ColumnContainer):
       else:
         column.insertCell(None, idx)
     self._updateNameColumn()
-
-  def migrate(self, instance=None):
-    """
-    Handles older objects that lack some properties
-    :param Table instance:
-    :returns Table (or subclass of Table):
-    """
-    # Fix the current object
-    if not '_namespace' in dir(self):
-      self._namespace = {}
-    if not '_prologue' in dir(self):
-      self._prologue =  \
-          self._formulaStatementFromFile(PROLOGUE_FILEPATH,
-                                         PROLOGUE_NAME)
-    if not '_epilogue' in dir(self):
-      self._epilogue =  \
-          self._formulaStatementFromFile(EPILOGUE_FILEPATH,
-                                         EPILOGUE_NAME)
-    if not "_is_evaluate_formulas" in dir(self):
-      self._is_evaluate_formulas = True
-    if not '_versioned_file' in dir(self):
-      if '_filepath' in dir(self):
-        self._versioned_file = VersionedFile(self._filepath,
-            settings.SCISHEETS_USER_TBLDIR_BACKUP,
-            settings.SCISHEETS_MAX_TABLE_VERSIONS)
-      else:
-        self._versioned_file = None
-    # Copy the colunns to ensure that the class structures are updated
-    for column in self.getColumns():
-      index = self.indexFromColumn(column)
-      new_column = column.migrate()
-      self.deleteColumn(column)
-      self.insertColumn(new_column, index)
-    # Create an object if none is provided
-    if instance is None:
-      instance = Table(self.getName())
-    # Do migration for all inherited classes
-    instance = super(Table, self).migrate(instance=instance)
-    # Copy the properties of this class
-    return self.copy(instance=instance)
 
   def moveRow(self, index1, index2):
     """

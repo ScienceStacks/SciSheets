@@ -386,21 +386,6 @@ class UITable(Table):
     response = self._createResponse(error)
     return response
 
-  def migrate(self, instance=None):
-    """
-    Handles older objects that lack some properties
-    """
-    # Fix the current object
-    if not '_hidden_columns' in dir(self):
-      self._hidden_columns = []
-    # Create a new object if required
-    if instance is None:
-      instance = UITable(self.getName())
-    # Do migration for all inherited classes
-    instance = super(UITable, self).migrate(instance=instance)
-    # Copy the properties of this class
-    return self.copy(instance=instance)
-
   @staticmethod
   def _addEscapesToQuotes(iter_str):
     # Puts in the \ escape character for quotes, ' & "

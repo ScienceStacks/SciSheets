@@ -109,15 +109,6 @@ class ColumnContainer(object):
       idx = len(self._columns)
     self._columns.insert(idx, column)
 
-  def migrate(self, instance=None):
-    """
-    Handles older objects that lack some properties
-    """
-    if instance is None:
-      import pdb; pdb.set_trace()
-    # Copy properties for this class
-    return self.copy(instance=instance)
-
   def moveColumn(self, column, new_idx):
     """
     Moves the column to the specified index

@@ -210,17 +210,3 @@ class DTTable(UITable):
                }
     html = get_template('scitable.html').render(ctx_dict)
     return html
-
-  def migrate(self, instance=None):
-    """
-    Handles older objects that lack some properties.
-    """
-    # Fix the current object
-    pass
-    # Create an object if none exists
-    if instance is None:
-      instance = DTTable(self.getName())
-    # Do migrations for inherited classes
-    instance = super(DTTable, self).migrate(instance=instance)
-    # Copy the properties of this class
-    return self.copy(instance=instance)

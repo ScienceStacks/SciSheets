@@ -4,6 +4,7 @@ Tests for YUI DataTable renderings.
 
 from mysite import settings
 from mysite.helpers.versioned_file import VersionedFile
+import scisheets.core.helpers.api_util as api_util
 from scisheets.core.helpers.api_util  \
     import readObjectFromFile, writeObjectToFile
 from scisheets.core.helpers_test import TEST_DIR
@@ -58,13 +59,13 @@ class TestAuxFunctions(TestCase):
     """
     Inputs to test cases are stored in pcl files.
     """
-    files = ["test_dt_table_1.pcl"]
+    files = ["test_dt_table_1.sci"]
     # Tests are functions that take result as an argument and return a bool
     tests = [ (lambda r: r[1]['Col_1'] == `0.5`)]
     iterations = range(len(files))
     for idx in iterations:
        path = os.path.join(CUR_DIR, files[idx])
-       inputs = pickle.load(open(path, "rb"))
+       inputs = api_util.readObjectFromFile(path)
        column_names = inputs[0]
        data = inputs[1]
        result = dt.makeJSON(column_names, data)
@@ -95,20 +96,6 @@ class TestDTTable(TestCase):
     versioned_file = VersionedFile(table_filepath, TEST_DIR, 0)
     table.setVersionedFile(versioned_file)
     html = table.render()
-
-  # TODO: Remove migrate
-  def testMigrate(self):
-    return
-    columns = self.table.getColumns()
-    table_filepath = os.path.join(TEST_DIR, TESTFILE3)
-    versioned_file = VersionedFile(table_filepath, TEST_DIR, 0)
-    self.table.setVersionedFile(versioned_file)
-    for column in columns:
-      self.table.hideColumns([column])
-      writeObjectToFile(self.table)
-      new_table = readObjectFromFile(table_filepath)
-      self.assertTrue(self.table.isEquivalent(new_table))
-      self.table.unhideColumns(hidden_columns)
 
 
 if __name__ == '__main__':
