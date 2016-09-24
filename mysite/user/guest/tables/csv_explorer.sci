@@ -47,7 +47,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "THDPA.csv",
+        "LL-DAP.csv",
         "nan",
         "nan",
         "nan",
@@ -61,10 +61,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.01,
-        0.05,
-        0.12,
+        0.02,
+        0.1,
         0.2,
+        0.25,
         0.5,
         1.0
       ],
@@ -75,12 +75,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.11,
-        0.19,
-        0.21,
-        0.22,
-        0.21,
-        0.24
+        0.5,
+        3.8,
+        4.0,
+        5.0,
+        6.2,
+        6.3
       ],
       "_formula": null,
       "_name": "V"
