@@ -50,20 +50,14 @@ class TestAPIUtil(unittest.TestCase):
     self.assertEqual(stripFileExtension(new_filepath), 
         stripFileExtension(path))
     self.assertTrue(os.path.exists(new_filepath))
-    new_table = api_util.getTableFromFile(new_filepath, verify=False)
+    new_table = api_util.readObjectFromFile(new_filepath, verify=False)
     self.assertTrue(table.isEquivalent(new_table))
     os.remove(new_filepath)
 
-  def testWriteTableToFileAndGetTableFromFile(self):
+  def testWriteObjectToFileAndReadObjectFromFile(self):
     path = os.path.join(TEST_DIR, TESTFILE)
     self.table.setFilepath(path)
-    api_util.writeTableToFile(self.table)
-    new_table = api_util.getTableFromFile(path)
-    self.assertTrue(self.table.isEquivalent(new_table))
-
-  def testWriteTableToFileAndReadObjectFromFile(self):
-    path = os.path.join(TEST_DIR, TESTFILE)
-    api_util.writeObjectToFile(self.table, filepath=path)
+    api_util.writeObjectToFile(self.table)
     new_table = api_util.readObjectFromFile(path)
     self.assertTrue(self.table.isEquivalent(new_table))
     #

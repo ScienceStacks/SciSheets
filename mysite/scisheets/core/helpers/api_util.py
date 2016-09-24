@@ -13,37 +13,6 @@ import os
 import pickle
 
 
-################### Functions #########################
-def getTableFromFile(file_path, verify=True):
-  """
-  Get the table from the file
-  :param str table_file: full path to table file
-  :param bool verify: checks the file path in the table
-  :return Table:
-  :raises ValueError: Checks that the file path is set
-  """
-  json_str = ""
-  new_table = None
-  if ut.getFileExtension(file_path).lower() == 'pcl':
-    adj_filepath = ut.changeFileExtension(file_path,
-        settings.SCISHEETS_EXT)
-  else:
-    adj_filepath = file_path
-  with open(adj_filepath, "rb") as fh:
-    try:
-      json_str = fh.read()
-      new_table = deserialize(json_str)
-    except Exception as e:
-      error = e
-      import pdb; pdb.set_trace()
-  #new_table = table.migrate()  # Handle case of older objects
-  if verify and new_table.getFilepath() != file_path:
-    import pdb; pdb.set_trace()
-    raise ValueError("File path is incorrect or missing.")
-  if new_table is None:
-    import pdb; pdb.set_trace()
-  return new_table
-
 def readObjectFromFile(filepath, verify=False):
   """
   Get the object from the file
@@ -69,19 +38,6 @@ def readObjectFromFile(filepath, verify=False):
       else:
         raise ValueError("File path is incorrect or missing.")
   return new_object
-
-def writeTableToFile(table):
-  """
-  Get the table from the file
-  :param Table table:
-  """
-  #table.setNamespace({})  # Not sure this is still needed
-  ext = ut.getFileExtension(table.getFilepath())
-  if ext != settings.SCISHEETS_EXT:
-    new_filepath = ut.changeFileExtension(table.getFilepath(),
-                                       settings.SCISHEETS_EXT)
-    table.setFilepath(new_filepath)
-  _serializeTable(table)
 
 def writeObjectToFile(an_object, filepath=None):
   """

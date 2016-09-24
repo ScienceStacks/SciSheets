@@ -57,7 +57,7 @@ class TestTableEvaluator(unittest.TestCase):
     self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)
     self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA,
                                                 formula=VALID_FORMULA)
-    api_util.writeTableToFile(self.table)
+    api_util.writeObjectToFile(self.table)
     self.evaluator = TableEvaluator(self.table)
 
   def _addColumn(self, name, cells=None, formula=None):

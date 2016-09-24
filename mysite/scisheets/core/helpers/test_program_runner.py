@@ -4,7 +4,7 @@ from ...core import column as cl
 from program_runner import ProgramRunner
 from ..helpers_test import createTable, stdoutIO, TableFileHelper, \
     TEST_DIR, augmentPythonPath
-from api_util import writeTableToFile
+from api_util import writeObjectToFile
 import numpy as np
 import os
 import shutil
@@ -109,7 +109,7 @@ class TestProgramRunner(unittest.TestCase):
                                   expected_lines=TEST_PROGRAM)
 
   def testExecuteWithAPIObject(self):
-    writeTableToFile(self.table)
+    writeObjectToFile(self.table)
     runner = ProgramRunner(TEST_PROGRAM, 
                            self.table,
                            user_directory=TEST_DIR,

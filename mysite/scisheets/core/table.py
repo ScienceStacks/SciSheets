@@ -429,8 +429,9 @@ class Table(ColumnContainer):
     :param Table other_table:
     :returns bool:
     """
-    local_debug = False  # Breaks on specifc reasons for non-equiv
-    if not isinstance(other_table, Table):
+    local_debug = False # Breaks on specifc reasons for non-equiv
+    if not isinstance(other_table, Table)  \
+        and not issubclass(Table, other_table.__class__):
       if local_debug:
         import pdb; pdb.set_trace()
       return False
