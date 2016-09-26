@@ -410,7 +410,8 @@ class Table(ColumnContainer):
     :return: error from table evaluation or None
     """
     evaluator = TableEvaluator(self)
-    return evaluator.evaluate(user_directory=user_directory)
+    error = evaluator.evaluate(user_directory=user_directory)
+    return error
 
   def isColumnPresent(self, column_name):
     """

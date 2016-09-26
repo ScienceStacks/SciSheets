@@ -10,6 +10,7 @@ For a SciSheet object to be supported, it must implement the following methods:
   
 """
 from mysite.helpers.util import stringToClass
+import collections
 import json
 
 
@@ -23,10 +24,13 @@ class SciSheetsEncoder(json.JSONEncoder):
     """
     :param object o: object to be serialized
     """
-    if ((not isinstance(o, type))  
-       and 'getSerializationDict' in dir(o)):
-      serialization_dict = o.getSerializationDict(CLASS_VARIABLE)
-      return serialization_dict
+    if not isinstance(o, type):  # Don't process type objects
+      if 'getSerializationDict' in dir(o):
+        serialization_dict = o.getSerializationDict(CLASS_VARIABLE)
+        return serialization_dict
+      # All iterables are serialized as lists
+      if isinstance(o, collections.Iterable):
+        return [x for x in o]
     elif '__dict__' in dir(o):
       return o.__dict__
     else:

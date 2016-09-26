@@ -3,6 +3,7 @@
 from scisheets.core.helpers_test import createColumn,  \
     setupTableInitialization
 import serialize_deserialize as sd
+import numpy as np
 import json
 import unittest
 
@@ -69,6 +70,15 @@ class TestFunctions(unittest.TestCase):
     json_str = sd.serialize(obj2)
     new_obj2 = sd.deserialize(json_str)
     self.assertEqual(obj2.a_list, new_obj2.a_list)
+
+  def testDeserializeWithHookForLists(self):
+    obj = [np.array(range(x)) for x in range(5)]
+    json_str = sd.serialize(obj)
+    new_obj = sd.deserialize(json_str)
+    self.assertEqual(len(obj), len(new_obj))
+    pairs = zip(obj, new_obj)
+    for o1, o2 in pairs:
+      self.assertEqual(o1.tolist(), o2)
 
   def testForColumn(self):
     self.column = createColumn(COLUMN_NAME, data=LIST, table=None,

@@ -327,7 +327,7 @@ def isStrs(vals):
 
 def makeIterable(val):
   """
-  Ensures that val is an iterable
+  Converts val to a list
   :param object val:
   :return collections.Iterable:
   """
