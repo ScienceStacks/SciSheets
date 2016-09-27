@@ -7,6 +7,8 @@ from mysite.helpers.versioned_file import VersionedFile
 import scisheets.core.helpers.api_util as api_util
 from scisheets.core.helpers.api_util  \
     import readObjectFromFile, writeObjectToFile
+from scisheets.core.helpers.serialize_deserialize import serialize,  \
+    deserialize
 from scisheets.core.helpers_test import TEST_DIR
 import dt_table as dt
 from django.test import TestCase  # Provides mocks
@@ -96,6 +98,11 @@ class TestDTTable(TestCase):
     versioned_file = VersionedFile(table_filepath, TEST_DIR, 0)
     table.setVersionedFile(versioned_file)
     html = table.render()
+
+  def testSerializeDeserialize(self):
+    json_str = serialize(self.table)
+    new_table = deserialize(json_str)
+    self.assertTrue(self.table.isEquivalent(new_table))
 
 
 if __name__ == '__main__':

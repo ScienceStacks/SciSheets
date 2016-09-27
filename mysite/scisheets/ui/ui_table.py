@@ -40,16 +40,16 @@ class UITable(Table):
     """
     Deserializes an UITable object and does fix ups.
     :param dict serialization_dict: container of parameters for deserialization
-    :return UITable:
+    :return UITable (or instance updated)
     """
     if instance is None:
-      ui_table = UITable(serialization_dict["_name"])
-    super(UITable, self).deserialize(serialization_dict,
-        instance=ui_table)
-    hidden_columns = [self.columnFromName(n) for n in  \
+      instance = UITable(serialization_dict["_name"])
+    super(UITable, cls).deserialize(serialization_dict,
+        instance=instance)
+    hidden_columns = [instance.columnFromName(n) for n in  \
                       serialization_dict["_hidden_columns"]]
-    ui_table.hideColumns(hidden_columns)
-    return ui_table
+    instance.hideColumns(hidden_columns)
+    return instance
 
   def _createResponse(self, error):
     # Returns a response of the desired type

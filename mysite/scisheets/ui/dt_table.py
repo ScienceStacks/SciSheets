@@ -129,7 +129,7 @@ class DTTable(UITable):
     """
     if instance is None:
       dt_table = DTTable(serialization_dict["_name"])
-    super(UITable, cls).deserialize(serialization_dict,
+    super(DTTable, cls).deserialize(serialization_dict,
         instance=dt_table)
     return dt_table
 
