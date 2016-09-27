@@ -757,7 +757,50 @@
           4,
           "R2",
           1
-        ]
+        ],
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "_formula": "sel = [e > min_eff for e in Eff]\npairs = zip(range(len(sel)), sel)\npTreatment = [Treatment[i] for i,b in pairs if b]\npRunType = [RunType[i] for i,b in pairs if b]\npBRpl = [BRpl[i] for i,b in pairs if b]\ngrouping_columns = [pTreatment, pRunType, pBRpl]\npCt = [Ct[i] for i,b in pairs if b]\npEff = [Eff[i] for i,b in pairs if b]\nGroups, groupedCt = groupBy(\n     grouping_columns, pCt)\nGroups, groupedEff = groupBy(\n     grouping_columns, pEff)\nGroups = [[g[0], g[1], g[2]] for g in Groups]\nGroupedCt = roundValues(groupedCt,2)\nGroupedEff = roundValues(groupedEff,2)",
       "_name": "Groups"
@@ -767,111 +810,154 @@
       "_asis": false,
       "_cells": [
         [
-          0.83999999999999997,
-          0.89000000000000001,
-          0.90000000000000002,
+          0.84,
+          0.89,
+          0.9,
           0.87
         ],
         [
-          0.82999999999999996,
-          0.82999999999999996,
-          0.84999999999999998
+          0.83,
+          0.83,
+          0.85
         ],
         [
-          0.81999999999999995,
-          0.84999999999999998,
-          0.81999999999999995
+          0.82,
+          0.85,
+          0.82
         ],
         [
-          0.93999999999999995,
-          0.82999999999999996,
-          0.83999999999999997
+          0.94,
+          0.83,
+          0.84
         ],
         [
-          0.80000000000000004,
-          0.83999999999999997,
-          0.79000000000000004
+          0.8,
+          0.84,
+          0.79
         ],
         [
-          0.82999999999999996,
-          0.80000000000000004,
-          0.82999999999999996
+          0.83,
+          0.8,
+          0.83
         ],
         [
-          0.92000000000000004,
-          0.97999999999999998,
-          0.90000000000000002
+          0.92,
+          0.98,
+          0.9
         ],
         [
-          0.90000000000000002,
-          0.82999999999999996,
-          0.83999999999999997
-        ],
-        [
-          0.87,
-          0.84999999999999998,
-          0.82999999999999996
-        ],
-        [
-          0.79000000000000004,
-          0.83999999999999997,
-          0.85999999999999999
-        ],
-        [
-          0.82999999999999996,
-          0.81999999999999995,
-          0.82999999999999996
-        ],
-        [
-          0.81000000000000005,
-          0.81999999999999995,
-          0.80000000000000004
-        ],
-        [
-          0.83999999999999997,
-          0.80000000000000004,
-          0.81000000000000005
-        ],
-        [
-          0.77000000000000002,
-          0.87,
-          0.81000000000000005
-        ],
-        [
-          0.78000000000000003,
-          0.77000000000000002,
-          0.79000000000000004
-        ],
-        [
-          0.84999999999999998,
-          0.84999999999999998,
-          0.83999999999999997
+          0.9,
+          0.83,
+          0.84
         ],
         [
           0.87,
-          0.90000000000000002,
-          0.85999999999999999
+          0.85,
+          0.83
         ],
         [
-          0.81999999999999995,
-          0.81999999999999995,
-          0.79000000000000004
+          0.79,
+          0.84,
+          0.86
         ],
         [
-          0.84999999999999998,
-          0.84999999999999998,
-          0.83999999999999997
+          0.83,
+          0.82,
+          0.83
+        ],
+        [
+          0.81,
+          0.82,
+          0.8
+        ],
+        [
+          0.84,
+          0.8,
+          0.81
+        ],
+        [
+          0.77,
+          0.87,
+          0.81
+        ],
+        [
+          0.78,
+          0.77,
+          0.79
+        ],
+        [
+          0.85,
+          0.85,
+          0.84
         ],
         [
           0.87,
-          0.90000000000000002,
-          0.85999999999999999
+          0.9,
+          0.86
         ],
         [
-          0.81999999999999995,
-          0.81999999999999995,
-          0.79000000000000004
-        ]
+          0.82,
+          0.82,
+          0.79
+        ],
+        [
+          0.85,
+          0.85,
+          0.84
+        ],
+        [
+          0.87,
+          0.9,
+          0.86
+        ],
+        [
+          0.82,
+          0.82,
+          0.79
+        ],
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "_formula": null,
       "_name": "GroupedEff"
@@ -882,110 +968,153 @@
       "_cells": [
         [
           23.0,
-          22.859999999999999,
-          22.800000000000001,
+          22.86,
+          22.8,
           23.0
         ],
         [
-          18.239999999999998,
-          18.219999999999999,
-          18.359999999999999
+          18.24,
+          18.22,
+          18.36
         ],
         [
-          19.719999999999999,
+          19.72,
           19.75,
-          20.010000000000002
+          20.01
         ],
         [
           26.68,
-          27.129999999999999,
-          27.210000000000001
+          27.13,
+          27.21
         ],
         [
-          26.760000000000002,
-          26.710000000000001,
-          26.190000000000001
+          26.76,
+          26.71,
+          26.19
         ],
         [
           29.98,
-          30.120000000000001,
+          30.12,
           29.41
         ],
         [
-          19.920000000000002,
-          19.850000000000001,
+          19.92,
+          19.85,
           20.0
         ],
         [
-          21.859999999999999,
+          21.86,
           22.09,
           21.84
         ],
         [
-          23.890000000000001,
-          23.539999999999999,
+          23.89,
+          23.54,
           24.27
         ],
         [
           22.18,
-          21.710000000000001,
+          21.71,
           21.75
         ],
         [
-          23.879999999999999,
-          23.420000000000002,
-          23.629999999999999
+          23.88,
+          23.42,
+          23.63
         ],
         [
           24.59,
-          24.609999999999999,
+          24.61,
           24.34
         ],
         [
-          29.949999999999999,
-          30.449999999999999,
-          29.879999999999999
+          29.95,
+          30.45,
+          29.88
         ],
         [
-          23.219999999999999,
-          23.800000000000001,
-          23.489999999999998
+          23.22,
+          23.8,
+          23.49
         ],
         [
-          26.370000000000001,
-          26.359999999999999,
-          26.170000000000002
+          26.37,
+          26.36,
+          26.17
         ],
         [
-          24.800000000000001,
-          24.969999999999999,
-          24.629999999999999
-        ],
-        [
-          18.91,
-          18.780000000000001,
-          18.800000000000001
-        ],
-        [
-          20.5,
-          20.469999999999999,
-          20.280000000000001
-        ],
-        [
-          24.800000000000001,
-          24.969999999999999,
-          24.629999999999999
+          24.8,
+          24.97,
+          24.63
         ],
         [
           18.91,
-          18.780000000000001,
-          18.800000000000001
+          18.78,
+          18.8
         ],
         [
           20.5,
-          20.469999999999999,
-          20.280000000000001
-        ]
+          20.47,
+          20.28
+        ],
+        [
+          24.8,
+          24.97,
+          24.63
+        ],
+        [
+          18.91,
+          18.78,
+          18.8
+        ],
+        [
+          20.5,
+          20.47,
+          20.28
+        ],
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "_formula": null,
       "_name": "GroupedCt"
@@ -996,110 +1125,153 @@
       "_cells": [
         [
           23.0,
-          22.899999999999999,
-          22.800000000000001,
+          22.9,
+          22.8,
           23.0
         ],
         [
-          18.199999999999999,
-          18.199999999999999,
-          18.399999999999999
+          18.2,
+          18.2,
+          18.4
         ],
         [
-          19.699999999999999,
-          19.800000000000001,
+          19.7,
+          19.8,
           20.0
         ],
         [
-          26.699999999999999,
-          27.100000000000001,
-          27.199999999999999
+          26.7,
+          27.1,
+          27.2
         ],
         [
-          26.800000000000001,
-          26.699999999999999,
-          26.199999999999999
+          26.8,
+          26.7,
+          26.2
         ],
         [
           30.0,
-          30.100000000000001,
-          29.399999999999999
+          30.1,
+          29.4
         ],
         [
-          19.899999999999999,
-          19.899999999999999,
+          19.9,
+          19.9,
           20.0
         ],
         [
-          21.899999999999999,
-          22.100000000000001,
-          21.800000000000001
+          21.9,
+          22.1,
+          21.8
         ],
         [
-          23.899999999999999,
+          23.9,
           23.5,
-          24.300000000000001
+          24.3
         ],
         [
-          22.199999999999999,
-          21.699999999999999,
-          21.800000000000001
+          22.2,
+          21.7,
+          21.8
         ],
         [
-          23.899999999999999,
-          23.399999999999999,
-          23.600000000000001
+          23.9,
+          23.4,
+          23.6
         ],
         [
-          24.600000000000001,
-          24.600000000000001,
-          24.300000000000001
+          24.6,
+          24.6,
+          24.3
         ],
         [
-          29.899999999999999,
-          30.399999999999999,
-          29.899999999999999
+          29.9,
+          30.4,
+          29.9
         ],
         [
-          23.199999999999999,
-          23.800000000000001,
+          23.2,
+          23.8,
           23.5
         ],
         [
-          26.399999999999999,
-          26.399999999999999,
-          26.199999999999999
+          26.4,
+          26.4,
+          26.2
         ],
         [
-          24.800000000000001,
+          24.8,
           25.0,
-          24.600000000000001
+          24.6
         ],
         [
-          18.899999999999999,
-          18.800000000000001,
-          18.800000000000001
+          18.9,
+          18.8,
+          18.8
         ],
         [
           20.5,
           20.5,
-          20.300000000000001
+          20.3
         ],
         [
-          24.800000000000001,
+          24.8,
           25.0,
-          24.600000000000001
+          24.6
         ],
         [
-          18.899999999999999,
-          18.800000000000001,
-          18.800000000000001
+          18.9,
+          18.8,
+          18.8
         ],
         [
           20.5,
           20.5,
-          20.300000000000001
-        ]
+          20.3
+        ],
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "_formula": "length = len(Groups)\nStdFilteredGroupedCt = roundValues([filterExtremes(g, max_std, 2) for g in pruneNulls(GroupedCt)])\n ",
       "_name": "StdFilteredGroupedCt"
@@ -1200,7 +1372,50 @@
         0.115,
         0.2,
         0.058,
-        0.115
+        0.115,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
       ],
       "_formula": null,
       "_name": "StdCt"
@@ -1210,30 +1425,33 @@
       "_asis": false,
       "_cells": [
         [
-          0.0,
-          1.0
+          0,
+          1
         ],
         [
-          1.0,
-          1.0
+          1,
+          1
         ],
         [
-          1.0,
-          2.0
+          1,
+          2
         ],
         [
-          1.0,
-          3.0
+          1,
+          3
         ],
         [
-          2.0,
-          1.0
+          2,
+          1
         ],
         [
-          3.0,
-          1.0
+          3,
+          1
         ],
-        null,
+        [
+          4,
+          1
+        ],
         null,
         null,
         null,
@@ -1305,7 +1523,7 @@
         29.8,
         30.1,
         24.8,
-        NaN,
+        24.8,
         NaN,
         NaN,
         NaN,
@@ -1377,7 +1595,7 @@
         23.9,
         23.5,
         18.8,
-        NaN,
+        18.8,
         NaN,
         NaN,
         NaN,
@@ -1449,7 +1667,7 @@
         24.5,
         26.3,
         20.4,
-        NaN,
+        20.4,
         NaN,
         NaN,
         NaN,
@@ -1521,7 +1739,7 @@
         0.01675,
         0.01031,
         0.01563,
-        NaN,
+        0.01563,
         NaN,
         NaN,
         NaN,
@@ -1593,7 +1811,7 @@
         0.02538,
         0.07179,
         0.04737,
-        NaN,
+        0.04737,
         NaN,
         NaN,
         NaN,
@@ -1665,7 +1883,7 @@
         0.021,
         0.027,
         0.027,
-        NaN,
+        0.027,
         NaN,
         NaN,
         NaN,
@@ -1731,10 +1949,86 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.0,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "_formula": "cat_vals = [br[0] for br in pruneNulls(BioRuns)]\nclean_geo = [x for x in GeoMean if x is not None]\nGeoGroups, groupedGeoMeans = groupBy(cat_vals, clean_geo)\nGroupedGeoMeans = roundValues(groupedGeoMeans, 3)",
+      "_name": "GeoGroups"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        [
+          0.069000000000000006
+        ],
+        [
+          0.014999999999999999,
+          0.069000000000000006,
+          0.021000000000000001
+        ],
+        [
+          0.027
+        ],
+        [
+          0.027
+        ],
+        [
+          0.027
+        ]
+      ],
+      "_formula": null,
+      "_name": "GroupedGeoMeans"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        [
+          1.0
+        ],
+        [
+          0.217,
+          1.0,
+          0.30399999999999999
+        ],
+        [
+          0.39100000000000001
+        ],
+        [
+          0.39100000000000001
+        ],
+        [
+          0.39100000000000001
+        ]
+      ],
+      "_formula": "ref = np.mean(GroupedGeoMeans[0])\nNrmlGeoGroupedMeans = [ [x/ref for x in g] for g in GroupedGeoMeans if g is not None]  \nNrmlGeoGroupedMeans = roundValues(NrmlGeoGroupedMeans, 3)",
+      "_name": "NrmlGeoGroupedMeans"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
         1.0,
-        2.0,
-        3.0,
+        0.507,
+        0.391,
+        0.391,
+        0.391
+      ],
+      "_formula": "[round(np.mean(g), 3) for g in NrmlGeoGroupedMeans]",
+      "_name": "MeanNrmlGeoGroups"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        0.248,
+        NaN,
+        NaN,
+        NaN,
         NaN,
         NaN,
         NaN,
@@ -1796,76 +2090,11 @@
         NaN,
         NaN
       ],
-      "_formula": "cat_vals = [br[0] for br in pruneNulls(BioRuns)]\nclean_geo = [x for x in GeoMean if x is not None]\nGeoGroups, groupedGeoMeans = groupBy(cat_vals, clean_geo)\nGroupedGeoMeans = roundValues(groupedGeoMeans, 3)",
-      "_name": "GeoGroups"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        [
-          0.069000000000000006
-        ],
-        [
-          0.014999999999999999,
-          0.069000000000000006,
-          0.021000000000000001
-        ],
-        [
-          0.027
-        ],
-        [
-          0.027
-        ]
-      ],
-      "_formula": null,
-      "_name": "GroupedGeoMeans"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        [
-          1.0
-        ],
-        [
-          0.217,
-          1.0,
-          0.30399999999999999
-        ],
-        [
-          0.39100000000000001
-        ],
-        [
-          0.39100000000000001
-        ]
-      ],
-      "_formula": "ref = np.mean(GroupedGeoMeans[0])\nNrmlGeoGroupedMeans = [ [x/ref for x in g] for g in GroupedGeoMeans if g is not None]  \nNrmlGeoGroupedMeans = roundValues(NrmlGeoGroupedMeans, 3)",
-      "_name": "NrmlGeoGroupedMeans"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        1.0,
-        0.507,
-        0.391,
-        0.391
-      ],
-      "_formula": "[round(np.mean(g), 3) for g in NrmlGeoGroupedMeans]",
-      "_name": "MeanNrmlGeoGroups"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        0.248
-      ],
       "_formula": "StdNrmlGeoGroups = []\nfor grp in NrmlGeoGroupedMeans:\n  if len(grp) > 1:\n    val = np.std(grp, ddof=1)/np.sqrt(len(grp))\n    val = round(val, 3)\n    StdNrmlGeoGroups.append(val)\n",
       "_name": "StdNrmlGeoGroups"
     }
   ],
-  "_epilogue_formula": "",
+  "_epilogue_formula": "# Epilogue\nif run:\n  worksheet = \"%s-O\" % gene\n  exportTableToExcel(s, xlsx_path, worksheet=worksheet, columns=['GeoGroups',  \n      'MeanNrmlGeoGroups', 'StdNrmlGeoGroups'])\n",
   "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/kristen_single_gene.sci",
   "_hidden_columns": [
     "Groups",
