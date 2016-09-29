@@ -47,7 +47,6 @@ class TestFunctions(unittest.TestCase):
     partial_filename = 'dummy'
     for ext in extensions:
       this_partial = ut.stripFileExtension("%s.%s" % (partial_filename, ext))
-      import pdb; pdb.set_trace()
       self.assertEqual(this_partial, partial_filename)
 
   def testChangeFileExtension(self):

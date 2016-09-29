@@ -28,8 +28,8 @@ NCOL = 4
 NROW = 3
 TABLE_NAME = "MY TABLE"
 CUR_DIR = os.path.dirname(__file__)
-TESTFILE2 = "testcase_2.sci"
-TESTFILE3 = "testcase_3.sci"
+TESTFILE2 = "testcase_2.scish"
+TESTFILE3 = "testcase_3.scish"
 
 
 # Ensure that tested module is accessible in debugger
@@ -61,7 +61,7 @@ class TestAuxFunctions(TestCase):
     """
     Inputs to test cases are stored in pcl files.
     """
-    files = ["test_dt_table_1.sci"]
+    files = ["test_dt_table_1.scish"]
     # Tests are functions that take result as an argument and return a bool
     tests = [ (lambda r: r[1]['Col_1'] == `0.5`)]
     iterations = range(len(files))

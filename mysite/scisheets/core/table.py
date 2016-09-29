@@ -64,12 +64,17 @@ class Table(ColumnContainer):
     """
     serialization_dict = {}
     serialization_dict[class_variable] = str(self.__class__)
+    if ut.getFileExtension(self.getFilepath()) == settings.SCISHEETS_EXT:
+      filepath = self.getFilepath()
+    else:
+      filepath = ut.changeFileExtension(self.getFilepath(), 
+          settings.SCISHEETS_EXT)
     more_dict = {
         "_name": self.getName(),
         "_prologue_formula": self.getPrologue().getFormula(),
         "_epilogue_formula": self.getEpilogue().getFormula(),
         "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
-        "_filepath": self.getFilepath(),
+        "_filepath": filepath,
         }
     serialization_dict.update(more_dict)
     _columns = []
