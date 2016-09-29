@@ -121,7 +121,7 @@ def _setTableFilepath(request,
   request.session[TABLE_FILE_KEY] = table_filepath
   if table is None:
     import pdb; pdb.set_trace()
-  if table_filepath[-3:] != settings.SCISHEETS_EXT:
+  if ut.getFileExtension(table_filepath) != settings.SCISHEETS_EXT:
     import pdb; pdb.set_trace()
   return table_filepath
 
@@ -273,11 +273,10 @@ def _listTableFiles():
   """
   Output: returns response that contains the list of table files in data
   """
-  suffix = ".%s" % settings.SCISHEETS_EXT
-  lensfx = len(suffix)
-  file_list = [ff[:-lensfx] 
+  file_list = [ut.stripFileExtension(ff)
                for ff in os.listdir(settings.SCISHEETS_USER_TBLDIR)
-               if ff[-lensfx:] == suffix and ff[0] != "_"]
+               if ut.getFileExtension(ff) == settings.SCISHEETS_EXT
+                  and ff[0] != "_"]
   file_list.sort()
   return _makeAjaxResponse(file_list, True)
 

@@ -149,7 +149,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "Gene1",
+        "Gene2",
         "True",
         "False",
         "False",
@@ -221,70 +221,70 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        4,
-        4,
-        4,
-        4,
-        4,
-        4,
-        4,
-        4,
-        4
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
       ],
       "_formula": null,
       "_name": "Treatment"
@@ -296,7 +296,6 @@
         "I",
         "I",
         "I",
-        "I",
         "R1",
         "R1",
         "R1",
@@ -348,15 +347,16 @@
         "R2",
         "R2",
         "R2",
-        "I",
-        "I",
-        "I",
-        "R1",
-        "R1",
-        "R1",
-        "R2",
-        "R2",
-        "R2"
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "_formula": null,
       "_name": "RunType"
@@ -365,70 +365,70 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        2,
-        2,
-        2,
-        3,
-        3,
-        3,
-        1,
-        1,
-        1,
-        2,
-        2,
-        2,
-        3,
-        3,
-        3,
-        1,
-        1,
-        1,
-        2,
-        2,
-        2,
-        3,
-        3,
-        3,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        2.0,
+        3.0,
+        3.0,
+        3.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        2.0,
+        3.0,
+        3.0,
+        3.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        2.0,
+        3.0,
+        3.0,
+        3.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
       ],
       "_formula": null,
       "_name": "BRpl"
@@ -440,7 +440,6 @@
         "a",
         "b",
         "c",
-        "d",
         "a",
         "b",
         "c",
@@ -492,15 +491,16 @@
         "a",
         "b",
         "c",
-        "a",
-        "b",
-        "c",
-        "a",
-        "b",
-        "c",
-        "a",
-        "b",
-        "c"
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "_formula": null,
       "_name": "TRpl"
@@ -509,25 +509,24 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.8371,
-        0.891,
-        0.8956,
-        0.8671,
+        0.919,
+        0.9106,
+        0.9129,
         0.8266,
         0.8343,
         0.8496,
         0.8157,
         0.8543,
         0.8208,
-        0.9399,
-        0.8296,
-        0.8361,
-        0.8039,
-        0.8399,
-        0.7935,
-        0.8264,
-        0.7974,
-        0.8252,
+        0.8453,
+        0.8426,
+        0.8524,
+        0.8658,
+        0.7809,
+        0.8512,
+        0.8442,
+        0.8357,
+        0.7658,
         0.9179,
         0.9783,
         0.8971,
@@ -546,33 +545,34 @@
         0.8138,
         0.8242,
         0.804,
-        0.8418,
-        0.7959,
-        0.8071,
+        0.8352,
+        0.7886,
+        0.8105,
         0.7701,
         0.8746,
         0.8139,
         0.7795,
         0.7676,
         0.7947,
-        0.8513,
-        0.8485,
-        0.8401,
+        0.876,
+        0.8597,
+        0.8873,
         0.8715,
         0.8977,
         0.856,
         0.8179,
         0.8173,
         0.7894,
-        0.8513,
-        0.8485,
-        0.8401,
-        0.8715,
-        0.8977,
-        0.856,
-        0.8179,
-        0.8173,
-        0.7894
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
       ],
       "_formula": null,
       "_name": "Eff"
@@ -581,25 +581,24 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        23.0,
-        22.86,
-        22.8,
-        23.0,
+        18.31,
+        18.29,
+        18.15,
         18.24,
         18.22,
         18.36,
         19.72,
         19.75,
         20.01,
-        26.68,
-        27.13,
-        27.21,
-        26.76,
-        26.71,
-        26.19,
-        29.98,
-        30.12,
-        29.41,
+        22.42,
+        22.5,
+        22.44,
+        21.92,
+        22.03,
+        21.94,
+        23.4,
+        23.47,
+        23.41,
         19.92,
         19.85,
         20.0,
@@ -618,33 +617,34 @@
         24.59,
         24.61,
         24.34,
-        29.95,
-        30.45,
-        29.88,
+        23.48,
+        23.31,
+        23.45,
         23.22,
         23.8,
         23.49,
         26.37,
         26.36,
         26.17,
-        24.8,
-        24.97,
-        24.63,
+        18.82,
+        18.97,
+        18.92,
         18.91,
         18.78,
         18.8,
         20.5,
         20.47,
         20.28,
-        24.8,
-        24.97,
-        24.63,
-        18.91,
-        18.78,
-        18.8,
-        20.5,
-        20.47,
-        20.28
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
       ],
       "_formula": null,
       "_name": "Ct"
@@ -654,153 +654,95 @@
       "_asis": false,
       "_cells": [
         [
-          0,
+          0.0,
           "I",
-          1
+          1.0
         ],
         [
-          0,
+          0.0,
           "R1",
-          1
+          1.0
         ],
         [
-          0,
+          0.0,
           "R2",
-          1
+          1.0
         ],
         [
-          1,
+          1.0,
           "I",
-          1
+          1.0
         ],
         [
-          1,
+          1.0,
           "I",
-          2
+          2.0
         ],
         [
-          1,
+          1.0,
           "I",
-          3
+          3.0
         ],
         [
-          1,
+          1.0,
           "R1",
-          1
+          1.0
         ],
         [
-          1,
+          1.0,
           "R1",
-          2
+          2.0
         ],
         [
-          1,
+          1.0,
           "R1",
-          3
+          3.0
         ],
         [
-          1,
+          1.0,
           "R2",
-          1
+          1.0
         ],
         [
-          1,
+          1.0,
           "R2",
-          2
+          2.0
         ],
         [
-          1,
+          1.0,
           "R2",
-          3
+          3.0
         ],
         [
-          2,
+          2.0,
           "I",
-          1
+          1.0
         ],
         [
-          2,
+          2.0,
           "R1",
-          1
+          1.0
         ],
         [
-          2,
+          2.0,
           "R2",
-          1
+          1.0
         ],
         [
-          3,
+          3.0,
           "I",
-          1
+          1.0
         ],
         [
-          3,
+          3.0,
           "R1",
-          1
+          1.0
         ],
         [
-          3,
+          3.0,
           "R2",
-          1
-        ],
-        [
-          4,
-          "I",
-          1
-        ],
-        [
-          4,
-          "R1",
-          1
-        ],
-        [
-          4,
-          "R2",
-          1
-        ],
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+          1.0
+        ]
       ],
       "_formula": "sel = [e > min_eff for e in Eff]\npairs = zip(range(len(sel)), sel)\npTreatment = [Treatment[i] for i,b in pairs if b]\npRunType = [RunType[i] for i,b in pairs if b]\npBRpl = [BRpl[i] for i,b in pairs if b]\ngrouping_columns = [pTreatment, pRunType, pBRpl]\npCt = [Ct[i] for i,b in pairs if b]\npEff = [Eff[i] for i,b in pairs if b]\nGroups, groupedCt = groupBy(\n     grouping_columns, pCt)\nGroups, groupedEff = groupBy(\n     grouping_columns, pEff)\nGroups = [[g[0], g[1], g[2]] for g in Groups]\nGroupedCt = roundValues(groupedCt,2)\nGroupedEff = roundValues(groupedEff,2)",
       "_name": "Groups"
@@ -810,10 +752,9 @@
       "_asis": false,
       "_cells": [
         [
-          0.84,
-          0.89,
-          0.9,
-          0.87
+          0.92,
+          0.91,
+          0.91
         ],
         [
           0.83,
@@ -826,19 +767,19 @@
           0.82
         ],
         [
-          0.94,
-          0.83,
-          0.84
-        ],
-        [
-          0.8,
+          0.85,
           0.84,
-          0.79
+          0.85
         ],
         [
-          0.83,
-          0.8,
-          0.83
+          0.87,
+          0.78,
+          0.85
+        ],
+        [
+          0.84,
+          0.84,
+          0.77
         ],
         [
           0.92,
@@ -872,7 +813,7 @@
         ],
         [
           0.84,
-          0.8,
+          0.79,
           0.81
         ],
         [
@@ -886,9 +827,9 @@
           0.79
         ],
         [
-          0.85,
-          0.85,
-          0.84
+          0.88,
+          0.86,
+          0.89
         ],
         [
           0.87,
@@ -899,65 +840,7 @@
           0.82,
           0.82,
           0.79
-        ],
-        [
-          0.85,
-          0.85,
-          0.84
-        ],
-        [
-          0.87,
-          0.9,
-          0.86
-        ],
-        [
-          0.82,
-          0.82,
-          0.79
-        ],
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        ]
       ],
       "_formula": null,
       "_name": "GroupedEff"
@@ -967,10 +850,9 @@
       "_asis": false,
       "_cells": [
         [
-          23.0,
-          22.86,
-          22.8,
-          23.0
+          18.31,
+          18.29,
+          18.15
         ],
         [
           18.24,
@@ -983,19 +865,19 @@
           20.01
         ],
         [
-          26.68,
-          27.13,
-          27.21
+          22.42,
+          22.5,
+          22.44
         ],
         [
-          26.76,
-          26.71,
-          26.19
+          21.92,
+          22.03,
+          21.94
         ],
         [
-          29.98,
-          30.12,
-          29.41
+          23.4,
+          23.47,
+          23.41
         ],
         [
           19.92,
@@ -1028,9 +910,9 @@
           24.34
         ],
         [
-          29.95,
-          30.45,
-          29.88
+          23.48,
+          23.31,
+          23.45
         ],
         [
           23.22,
@@ -1043,9 +925,9 @@
           26.17
         ],
         [
-          24.8,
-          24.97,
-          24.63
+          18.82,
+          18.97,
+          18.92
         ],
         [
           18.91,
@@ -1056,65 +938,7 @@
           20.5,
           20.47,
           20.28
-        ],
-        [
-          24.8,
-          24.97,
-          24.63
-        ],
-        [
-          18.91,
-          18.78,
-          18.8
-        ],
-        [
-          20.5,
-          20.47,
-          20.28
-        ],
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        ]
       ],
       "_formula": null,
       "_name": "GroupedCt"
@@ -1124,10 +948,9 @@
       "_asis": false,
       "_cells": [
         [
-          23.0,
-          22.9,
-          22.8,
-          23.0
+          18.3,
+          18.3,
+          18.1
         ],
         [
           18.2,
@@ -1140,19 +963,19 @@
           20.0
         ],
         [
-          26.7,
-          27.1,
-          27.2
+          22.4,
+          22.5,
+          22.4
         ],
         [
-          26.8,
-          26.7,
-          26.2
+          21.9,
+          22.0,
+          21.9
         ],
         [
-          30.0,
-          30.1,
-          29.4
+          23.4,
+          23.5,
+          23.4
         ],
         [
           19.9,
@@ -1185,9 +1008,9 @@
           24.3
         ],
         [
-          29.9,
-          30.4,
-          29.9
+          23.5,
+          23.3,
+          23.4
         ],
         [
           23.2,
@@ -1200,9 +1023,9 @@
           26.2
         ],
         [
-          24.8,
-          25.0,
-          24.6
+          18.8,
+          19.0,
+          18.9
         ],
         [
           18.9,
@@ -1213,65 +1036,7 @@
           20.5,
           20.5,
           20.3
-        ],
-        [
-          24.8,
-          25.0,
-          24.6
-        ],
-        [
-          18.9,
-          18.8,
-          18.8
-        ],
-        [
-          20.5,
-          20.5,
-          20.3
-        ],
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        ]
       ],
       "_formula": "length = len(Groups)\nStdFilteredGroupedCt = roundValues([filterExtremes(g, max_std, 2) for g in pruneNulls(GroupedCt)])\n ",
       "_name": "StdFilteredGroupedCt"
@@ -1280,27 +1045,27 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        22.9,
+        18.2,
         18.3,
         19.8,
-        27.0,
-        26.6,
-        29.8,
+        22.4,
+        21.9,
+        23.4,
         19.9,
         21.9,
         23.9,
         21.9,
         23.6,
         24.5,
-        30.1,
+        23.4,
         23.5,
         26.3,
-        24.8,
+        18.9,
         18.8,
         20.4,
-        24.8,
-        18.8,
-        20.4,
+        NaN,
+        NaN,
+        NaN,
         NaN,
         NaN,
         NaN,
@@ -1352,70 +1117,24 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.096,
+        0.115,
         0.115,
         0.153,
-        0.265,
-        0.321,
-        0.379,
+        0.058,
+        0.058,
+        0.058,
         0.058,
         0.153,
         0.4,
         0.265,
         0.252,
         0.173,
-        0.289,
+        0.1,
         0.3,
         0.115,
-        0.2,
+        0.1,
         0.058,
-        0.115,
-        0.2,
-        0.058,
-        0.115,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        0.115
       ],
       "_formula": null,
       "_name": "StdCt"
@@ -1517,13 +1236,13 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        22.9,
-        27.0,
-        26.6,
-        29.8,
-        30.1,
-        24.8,
-        24.8,
+        18.2,
+        22.4,
+        21.9,
+        23.4,
+        23.4,
+        18.9,
+        NaN,
         NaN,
         NaN,
         NaN,
@@ -1595,7 +1314,7 @@
         23.9,
         23.5,
         18.8,
-        18.8,
+        NaN,
         NaN,
         NaN,
         NaN,
@@ -1667,7 +1386,7 @@
         24.5,
         26.3,
         20.4,
-        20.4,
+        NaN,
         NaN,
         NaN,
         NaN,
@@ -1733,13 +1452,13 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.04123,
-        0.00729,
-        0.03847,
-        0.01675,
-        0.01031,
-        0.01563,
-        0.01563,
+        1.07177,
+        0.17678,
+        1.0,
+        1.41421,
+        1.07177,
+        0.93303,
+        NaN,
         NaN,
         NaN,
         NaN,
@@ -1805,13 +1524,13 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.11663,
-        0.02916,
-        0.125,
-        0.02538,
-        0.07179,
-        0.04737,
-        0.04737,
+        3.03143,
+        0.70711,
+        3.24901,
+        2.14355,
+        7.46426,
+        2.82843,
+        NaN,
         NaN,
         NaN,
         NaN,
@@ -1877,13 +1596,13 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.069,
-        0.015,
-        0.069,
-        0.021,
-        0.027,
-        0.027,
-        0.027,
+        1.802,
+        0.354,
+        1.803,
+        1.741,
+        2.828,
+        1.625,
+        NaN,
         NaN,
         NaN,
         NaN,
@@ -1949,87 +1668,11 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0,
-        1,
-        2,
-        3,
-        4
-      ],
-      "_formula": "cat_vals = [br[0] for br in pruneNulls(BioRuns)]\nclean_geo = [x for x in GeoMean if x is not None]\nGeoGroups, groupedGeoMeans = groupBy(cat_vals, clean_geo)\nGroupedGeoMeans = roundValues(groupedGeoMeans, 3)",
-      "_name": "GeoGroups"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        [
-          0.069000000000000006
-        ],
-        [
-          0.014999999999999999,
-          0.069000000000000006,
-          0.021000000000000001
-        ],
-        [
-          0.027
-        ],
-        [
-          0.027
-        ],
-        [
-          0.027
-        ]
-      ],
-      "_formula": null,
-      "_name": "GroupedGeoMeans"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        [
-          1.0
-        ],
-        [
-          0.217,
-          1.0,
-          0.30399999999999999
-        ],
-        [
-          0.39100000000000001
-        ],
-        [
-          0.39100000000000001
-        ],
-        [
-          0.39100000000000001
-        ]
-      ],
-      "_formula": "ref = np.mean(GroupedGeoMeans[0])\nNrmlGeoGroupedMeans = [ [x/ref for x in g] for g in GroupedGeoMeans if g is not None]  \nNrmlGeoGroupedMeans = roundValues(NrmlGeoGroupedMeans, 3)",
-      "_name": "NrmlGeoGroupedMeans"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
+        0.0,
         1.0,
-        0.507,
-        0.391,
-        0.391,
-        0.391
-      ],
-      "_formula": "[round(np.mean(g), 3) for g in NrmlGeoGroupedMeans]",
-      "_name": "MeanNrmlGeoGroups"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        0.248,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
+        2.0,
+        3.0,
+        4.0,
         NaN,
         NaN,
         NaN,
@@ -2089,6 +1732,78 @@
         NaN,
         NaN,
         NaN
+      ],
+      "_formula": "cat_vals = [br[0] for br in pruneNulls(BioRuns)]\nclean_geo = [x for x in GeoMean if x is not None]\nGeoGroups, groupedGeoMeans = groupBy(cat_vals, clean_geo)\nGroupedGeoMeans = roundValues(groupedGeoMeans, 3)",
+      "_name": "GeoGroups"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        [
+          1.802
+        ],
+        [
+          0.35399999999999998,
+          1.8029999999999999,
+          1.7410000000000001
+        ],
+        [
+          2.8279999999999998
+        ],
+        [
+          1.625
+        ],
+        [
+          NaN
+        ]
+      ],
+      "_formula": null,
+      "_name": "GroupedGeoMeans"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        [
+          1.0
+        ],
+        [
+          0.19600000000000001,
+          1.0009999999999999,
+          0.96599999999999997
+        ],
+        [
+          1.569
+        ],
+        [
+          0.90200000000000002
+        ],
+        [
+          NaN
+        ]
+      ],
+      "_formula": "ref = np.mean(GroupedGeoMeans[0])\nNrmlGeoGroupedMeans = [ [x/ref for x in g] for g in GroupedGeoMeans if g is not None]  \nNrmlGeoGroupedMeans = roundValues(NrmlGeoGroupedMeans, 3)",
+      "_name": "NrmlGeoGroupedMeans"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        1.0,
+        0.721,
+        1.569,
+        0.902,
+        NaN
+      ],
+      "_formula": "[round(np.mean(g), 3) for g in NrmlGeoGroupedMeans]",
+      "_name": "MeanNrmlGeoGroups"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        0.263
       ],
       "_formula": "StdNrmlGeoGroups = []\nfor grp in NrmlGeoGroupedMeans:\n  if len(grp) > 1:\n    val = np.std(grp, ddof=1)/np.sqrt(len(grp))\n    val = round(val, 3)\n    StdNrmlGeoGroups.append(val)\n",
       "_name": "StdNrmlGeoGroups"

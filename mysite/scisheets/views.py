@@ -15,7 +15,7 @@ import json
 # Request handlers
 #######################
 def hello(request, name):
-  return HttpResponse("Hello world %s" % name)
+  return HttpResponse("Hello world %s. Happy to see you." % name)
 
 def letter(request):
   return hv.letter(request)

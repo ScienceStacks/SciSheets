@@ -85,7 +85,10 @@ def stripFileExtension(filepath):
   split_filename = filename.split('.')
   stripped_filename = split_filename[0]
   split_filepath[-1] = stripped_filename
-  return "/".join(split_filepath)
+  fullpath = ""
+  for ele in split_filepath:
+    fullpath = os.path.join(fullpath, ele)
+  return fullpath
 
 def changeFileExtension(filepath, extension):
   """
