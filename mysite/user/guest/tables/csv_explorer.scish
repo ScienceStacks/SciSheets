@@ -47,7 +47,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "LL-DAP.csv",
+        "Glu.csv",
         "nan",
         "nan",
         "nan",
@@ -61,12 +61,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.02,
-        0.1,
         0.2,
-        0.25,
         0.5,
-        1.0
+        2.0,
+        5.0,
+        10.0,
+        NaN
       ],
       "_formula": null,
       "_name": "S"
@@ -75,19 +75,18 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.5,
-        3.8,
-        4.0,
-        5.0,
-        6.2,
-        6.3
+        0.02,
+        0.08,
+        0.11,
+        0.2,
+        0.3
       ],
       "_formula": null,
       "_name": "V"
     }
   ],
   "_epilogue_formula": "",
-  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/csv_explorer.sci",
+  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/csv_explorer.scish",
   "_hidden_columns": [],
   "_is_evaluate_formulas": true,
   "_name": "CSVExplorer",

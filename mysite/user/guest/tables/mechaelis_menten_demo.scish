@@ -129,7 +129,7 @@
     }
   ],
   "_epilogue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import\n",
-  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/mechaelis_menten_demo.sci",
+  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/mechaelis_menten_demo.scish",
   "_hidden_columns": [],
   "_is_evaluate_formulas": true,
   "_name": "MechaelisMenton",
