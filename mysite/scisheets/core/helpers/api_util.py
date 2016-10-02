@@ -28,7 +28,7 @@ def readObjectFromFile(filepath, verify=False):
         settings.SCISHEETS_EXT)
   else:
     adj_filepath = filepath
-  with open(adj_filepath, "rb") as fh:
+  with open(adj_filepath, "r") as fh:
     json_str = fh.read()
     new_object = deserialize(json_str)
   if 'getFilepath' in dir(new_object):
@@ -50,11 +50,11 @@ def writeObjectToFile(an_object, filepath=None):
     filepath = an_object.getFilepath()
   if filepath is None:
     raise ValueError("No way to find filepath")
-  with open(filepath, "wb") as fh:
+  with open(filepath, "w") as fh:
     fh.write(serialize(an_object))
 
 def _serializeTable(table):
-  with open(table.getFilepath(), "wb") as fh:
+  with open(table.getFilepath(), "w") as fh:
     fh.write(serialize(table))
 
 def getTableCopyFilepath(filename, directory):
@@ -86,7 +86,6 @@ def copyTableToFile(table, filename, directory):
     new_table.setVersionedFile(new_versioned_file)
   try:
     _serializeTable(new_table)
-    # pickle.dump(new_table, open(filepath, "wb"))
   except Exception as e:
     import pdb; pdb.set_trace()
   return filepath

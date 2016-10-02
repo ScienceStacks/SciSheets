@@ -78,7 +78,9 @@ from scisheets.core import api as api
 """ % API_OBJECT
     executer = ProgramExecuter("ProgramRunner._createAPIObject", program, 
         namespace)
-    return executer.execute()
+    result = executer.execute()
+    namespace[API_OBJECT] = executer.getNamespace()[API_OBJECT]
+    return result
 
   def execute(self, create_API_object=False):
     """
@@ -87,15 +89,15 @@ from scisheets.core import api as api
     Executes as a string if there is no filepath. Otherwise,
     executes from the filepath.
     """
-    self._table.setNamespace({})  # Initialize the namespace
-    executer = ProgramExecuter(self._program_filename,
-        self._program, self._table.getNamespace())
-    if not self._user_directory is None:
-      sys.path.append(self._user_directory)
+    #self._table.setNamespace({})  # LIKELY BUG
     if create_API_object:
       error = self._createAPIObject()
       if error is not None:
         return error
+    executer = ProgramExecuter(self._program_filename,
+        self._program, self._table.getNamespace())
+    if not self._user_directory is None:
+      sys.path.append(self._user_directory)
     # Check syntax here because there may be an uncorrected
     # syntax error in a column
     msg = executer.execute()
@@ -106,5 +108,5 @@ from scisheets.core import api as api
       api_object.updateColumnFromColumnVariables()
       api_object.controller.endProgram(
           details="After updateColumnFromColumnVariables")
-    self._table.setNamespace({})  # Clear the namespace
+    #self._table.setNamespace({})  # LIKELY BUG
     return msg

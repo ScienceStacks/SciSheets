@@ -24,8 +24,11 @@ class ProgramExecuter(object):
     """
     self._program_name = program_name
     self._program = program
-    self._namespace = namespace
+    self._namespace = self._calculateNamespace(namespace)
     self._controller = BlockExecutionController(None)
+
+  def getNamespace(self):
+    return self._namespace
 
   def _wrapProgram(self):
     """
@@ -34,7 +37,7 @@ class ProgramExecuter(object):
     :returns str: program wrapped in try/catch blocks
     :sideeffects: puts CONTROLLER object in the namespace
     """
-    self._namespace[CONTROLLER] = self._controller
+    self._namespace[CONTROLLER] =  self._controller
     sa = StatementAccumulator()
     sa.add("try:")
     sa.indent(1)
@@ -50,6 +53,15 @@ except Exception as exc:
     sa.add(statement)
     return sa.get()
 
+  def _calculateNamespace(self, namespace):
+    """
+    Handles non-str for keys.
+    :param dict namespace:
+    :return dict: adjusted namespace
+    """
+    adj_namespace = {str(n): namespace[n] for n in namespace.keys()}
+    return adj_namespace
+
   def execute(self):
     """
     Executes the program.
@@ -61,6 +73,7 @@ except Exception as exc:
     try:
       exec wrapped_program in self._namespace
     except Exception as exc:
+      import pdb; pdb.set_trace()
       if isinstance(exc, exceptions.SyntaxError):
         error = exc
     if error is not None:
