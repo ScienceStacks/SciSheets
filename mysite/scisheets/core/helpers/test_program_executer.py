@@ -22,6 +22,8 @@ b = range 10)  # Line 3
 c = [a*n for n in b]  # Line 4
 """
 
+IGNORE_TEST = False
+
 
 
 #############################
@@ -55,11 +57,15 @@ class TestProgramExecuter(unittest.TestCase):
     return msg
 
   def testGoodProgram(self):
+    if IGNORE_TEST:
+      return
     self._runProgram('GOOD', GOOD_PROGRAM, 0)
     result = self.namespace['c']
     self.assertTrue(result, EXPECTED_C)
 
   def testExceptions(self):
+    if IGNORE_TEST:
+      return
     self._runProgram('RUNTIME_ERROR', RUNTIME_ERROR_PROGRAM, 2)
     self._runProgram('COMPILE_ERROR', COMPILE_ERROR_PROGRAM, 3)
     
