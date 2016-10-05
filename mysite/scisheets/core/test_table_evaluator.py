@@ -1,7 +1,6 @@
 '''Tests for table_evaluator'''
 
 import os
-import subprocess
 import column as cl
 import numpy as np
 from os.path import join
@@ -9,7 +8,7 @@ import shutil
 from table_evaluator import TableEvaluator
 import helpers.api_util as api_util
 from helpers_test import createTable, stdoutIO, TableFileHelper, \
-    TEST_DIR, augmentPythonPath
+    TEST_DIR, augmentPythonPath, runProcess
 import unittest
 
 
@@ -19,10 +18,11 @@ COLUMN1 = "DUMMY1"
 COLUMN2 = "A"
 COLUMN3 = "DUMMY3"
 COLUMN4 = "DUMMY4"
-COLUMN5 = "B"
+COLUMNB = "B"
 COLUMNC = "C"
 COLUMN_VALID_FORMULA = "VALID_FORMULA"
 COLUMN_INVALID_FORMULA = "INVALID_FORMULA"
+COLUMN_USING_EXPORT = "E"
 TABLE_NAME = "DUMMY_TABLE"
 LIST = [2.0, 3.0]
 LIST2 = [3.0]
@@ -33,11 +33,12 @@ SECOND_VALID_FORMULA = "np.cos(C)"
 INVALID_FORMULA = "np.cun(A)" # Invalid function
 COLUMN1_CELLS = ["one", "two", "three"]
 COLUMN2_CELLS = [10.0, 20.0, 30.0]
-COLUMN5_CELLS = [100.0, 200.0, 300.0]
+COLUMNB_CELLS = [100.0, 200.0, 300.0]
 COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
 IMPORT_PATHS = ["", "scisheets.core"]
+FUNCTION_NAME = "myFunction"
 
-IGNORE_TEST = True
+IGNORE_TEST = False
 
 
 # Ensure current directory is in the path
@@ -56,7 +57,7 @@ class TestTableEvaluator(unittest.TestCase):
     self.table = createTable(TABLE_NAME)
     self._addColumn(COLUMN1, cells=COLUMN1_CELLS)
     self.column_a = self._addColumn(COLUMN2, cells=COLUMN2_CELLS)
-    self.column_b = self._addColumn(COLUMN5, cells=COLUMN5_CELLS)
+    self.column_b = self._addColumn(COLUMNB, cells=COLUMNB_CELLS)
     self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)
     self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA,
                                                 formula=VALID_FORMULA)
@@ -175,21 +176,28 @@ class TestTableEvaluator(unittest.TestCase):
     for val in self.column_valid_formula.getCells():
       self.assertIsNotNone(val)
 
+  def _createExport(self, function_name, no_outputs=2):
+    # Two formula columns
+    self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
+    self.table.evaluate(user_directory=TEST_DIR)
+    if no_outputs == 2:
+      outputs=[COLUMN_VALID_FORMULA, COLUMN2]
+    else:
+      outputs=[COLUMN_VALID_FORMULA]
+    self.table.export(function_name=function_name,
+                      inputs=[COLUMNC, COLUMNB],
+                      outputs=outputs,
+                      user_directory=TEST_DIR)
+
   def testExport(self):
     if IGNORE_TEST:
       return
     # Two formula columns
-    function_name = "my_test"
-    file_name = "%s.py" % function_name
+    self._createExport(FUNCTION_NAME)
+    file_name = "%s.py" % FUNCTION_NAME
     file_path = join(TEST_DIR, file_name)
-    test_file_name = "test_%s.py" % function_name
+    test_file_name = "test_%s.py" % FUNCTION_NAME
     test_file_path = join(TEST_DIR, test_file_name)
-    self.column_a.setFormula(SECOND_VALID_FORMULA)  # Make A a formula column
-    self.table.evaluate(user_directory=TEST_DIR)
-    self.table.export(function_name=function_name,
-                      inputs=[COLUMNC, COLUMN5],
-                      outputs=[COLUMN_VALID_FORMULA, COLUMN2],
-                      user_directory=TEST_DIR)
     try:
       with stdoutIO():
         execfile(file_path)
@@ -197,8 +205,27 @@ class TestTableEvaluator(unittest.TestCase):
     except IOError:
       success = False
     self.assertTrue(success)
-    subprocess.call(["python %s" % file_path])
-    subprocess.call(["python %s" % test_file_path])
+    # Run the program and its test. Will get an exception if these fail.
+    commands = """
+        cd $HOME/SciSheets/mysite; 
+        python manage.py test scisheets.core.test_dir.%s
+        """ % FUNCTION_NAME
+    out = runProcess(commands)
+    test_commands = """
+        cd $HOME/SciSheets/mysite; 
+        python manage.py test scisheets.core.test_dir.test_%s
+        """ % FUNCTION_NAME
+    test_out = runProcess(test_commands)
+
+  def testUsingExport(self):
+    self._createExport(FUNCTION_NAME, no_outputs=1)
+    # Create a column that uses this function
+    formula = "%s(%s, %s)" % (FUNCTION_NAME, COLUMNC, COLUMNB)
+    column_using_export = self._addColumn(COLUMN_USING_EXPORT,
+                                          formula=formula)
+    error = self.evaluator.evaluate(user_directory=TEST_DIR)
+    self.assertEqual(column_using_export.getCells(),
+                     self.column_valid_formula.getCells())
 
   @staticmethod
   def _countNonNone(aList):

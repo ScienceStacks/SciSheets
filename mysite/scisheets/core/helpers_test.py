@@ -10,6 +10,7 @@ import column as cl
 import contextlib
 import numpy as np
 import os
+import subprocess
 import StringIO
 import sys
 
@@ -168,6 +169,16 @@ def setupTableInitialization(o):
   column5.addCells(COLUMN5_CELLS)
   o.table.addColumn(column5)
 
+def runProcess(commands):
+  """
+  Runs the specified commands in a process.
+  :param str commands:
+  :return str: output from commands
+  """
+  process = subprocess.Popen(commands,
+      stdout=subprocess.PIPE, shell=True)
+  return process.communicate()[0].strip()
+
 
 class TableFileHelper(object):
   """
@@ -228,5 +239,3 @@ class TableFileHelper(object):
     if TableFileHelper.doesTableFileExist(self._table_filename,
         self._table_filedir):
       os.remove(self._full_path)
-
-

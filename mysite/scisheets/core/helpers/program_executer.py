@@ -24,7 +24,7 @@ class ProgramExecuter(object):
     """
     self._program_name = program_name
     self._program = program
-    self._namespace = namespace
+    self._namespace = namespace  # Keep this pointer
     self._controller = BlockExecutionController(None)
 
   def getNamespace(self):

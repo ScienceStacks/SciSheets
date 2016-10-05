@@ -89,7 +89,6 @@ from scisheets.core import api as api
     Executes as a string if there is no filepath. Otherwise,
     executes from the filepath.
     """
-    #self._table.setNamespace({})  # LIKELY BUG
     if create_API_object:
       error = self._createAPIObject()
       if error is not None:
@@ -102,11 +101,10 @@ from scisheets.core import api as api
     # syntax error in a column
     msg = executer.execute()
     # Update the table columns
-    namespace = self._table.getNamespace()
+    namespace = executer.getNamespace()
     if API_OBJECT in namespace:
       api_object = namespace[API_OBJECT]
       api_object.updateColumnFromColumnVariables()
       api_object.controller.endProgram(
           details="After updateColumnFromColumnVariables")
-    #self._table.setNamespace({})  # LIKELY BUG
     return msg
