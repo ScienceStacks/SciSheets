@@ -258,7 +258,7 @@ class TestProgramGenerator(unittest.TestCase):
     inputs = ["A", "B"]
     outputs = ["C"]
     def_stmt = "def %s(" % function_name
-    tags = ["import", "api.APIPlugin", def_stmt,  \
+    tags = [def_stmt, "import", "api.APIPlugin", \
         "numpy", "np.sin", "return"]
     program = self.generator.makeFunctionProgram(function_name,
                                                inputs,
@@ -270,7 +270,7 @@ class TestProgramGenerator(unittest.TestCase):
     inputs = ["A", "B"]
     output = "C"
     function_call = "%s = %s(" % (output, function_name)
-    tags = ["import", "class ", "api.APIPlugin", function_call, \
+    tags = ["import", "class ", "api.APIPlugin",  function_call,  \
         "self.assert"]
     program = self.generator.makeTestProgram(function_name,
                                            inputs,
