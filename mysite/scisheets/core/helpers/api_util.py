@@ -10,7 +10,6 @@ from prune_nulls import pruneNulls
 import collections
 import numpy as np
 import os
-import pickle
 
 
 def readObjectFromFile(filepath, verify=False):
@@ -21,7 +20,8 @@ def readObjectFromFile(filepath, verify=False):
       object has a getFilepath method
   :return object:
   :raises ValueError: Checks that the file path is set
-  Notes: Handles legacy of accessing PCL files
+  Notes: Handles legacy of accessing PCL files, which
+         is mostly in tests.
   """
   if ut.getFileExtension(filepath).lower() == 'pcl':
     adj_filepath = ut.changeFileExtension(filepath,

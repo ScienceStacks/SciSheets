@@ -1,14 +1,15 @@
 '''Tests for table_evaluator'''
 
+from table_evaluator import TableEvaluator
+import mysite.settings as settings
+import helpers.api_util as api_util
+from helpers_test import createTable, stdoutIO, TableFileHelper, \
+    TEST_DIR, augmentPythonPath, runProcess
 import os
 import column as cl
 import numpy as np
 from os.path import join
 import shutil
-from table_evaluator import TableEvaluator
-import helpers.api_util as api_util
-from helpers_test import createTable, stdoutIO, TableFileHelper, \
-    TEST_DIR, augmentPythonPath, runProcess
 import unittest
 
 
@@ -37,6 +38,8 @@ COLUMNB_CELLS = [100.0, 200.0, 300.0]
 COLUMNC_CELLS = [1000.0, 2000.0, 3000.0]
 IMPORT_PATHS = ["", "scisheets.core"]
 FUNCTION_NAME = "myFunction"
+FILE1 = "table_evaluator_test_1.scish"
+FILE2 = "table_evaluator_test_2.scish"
 
 IGNORE_TEST = False
 
@@ -212,9 +215,9 @@ class TestTableEvaluator(unittest.TestCase):
         """ % FUNCTION_NAME
     out = runProcess(commands)
     test_commands = """
-        cd $HOME/SciSheets/mysite; 
+        cd %s; 
         python manage.py test scisheets.core.test_dir.test_%s
-        """ % FUNCTION_NAME
+        """ % (settings.BASE_DIR, FUNCTION_NAME)
     test_out = runProcess(test_commands)
 
   def testUsingExport(self):
@@ -226,6 +229,47 @@ class TestTableEvaluator(unittest.TestCase):
     error = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertEqual(column_using_export.getCells(),
                      self.column_valid_formula.getCells())
+
+  def testRunningSheetWithExport(self):
+    """
+    Imports two sheets. The first is the Michaelis-Menten sheet. The second
+    is a sheet with S, V, V_MAX, K_M. This test:
+     1. Exports the first sheet
+     2. Changes the V_MAX formula in the second sheet to use the export
+     3. Evaluates the second sheet
+    """
+    def isEqualColumns(table1, table2, colnm):
+      """
+      Checks that the tables have the same value for the column name
+      :param Table table1:
+      :param Table table2:
+      :param str colnm:
+      """
+      value1 = table1.columnFromName(colnm).getCells()[0]
+      value2 = table2.columnFromName(colnm).getCells()[0]
+      self.assertEqual(value1, value2)
+
+    function_name = "MM"
+    # Read the tables
+    table1 = api_util.readObjectFromFile(join(TEST_DIR, FILE1))
+    table2 = api_util.readObjectFromFile(join(TEST_DIR, FILE1))
+    # Set V_MAX in the second table to a dummy value
+    column_v_max_second = table2.columnFromName("V_MAX")
+    column_v_max_second.setFormula("range(10)")
+    evaluator = TableEvaluator(table2)
+    evaluator.evaluate(user_directory=TEST_DIR)
+    # Use the exported first table for the values of V_MAX, K_M
+    table1.export(function_name=function_name,
+                      inputs=["S", "V"],
+                      outputs=["V_MAX", "K_M"],
+                      user_directory=TEST_DIR)
+    formula = "V_MAX, K_M = %s(S, V)" % function_name
+    column_v_max_second.setFormula(formula)
+    evaluator = TableEvaluator(table2)
+    evaluator.evaluate(user_directory=TEST_DIR)
+    isEqualColumns(table1, table2, "V_MAX")
+    isEqualColumns(table1, table2, "K_M")
+    
 
   @staticmethod
   def _countNonNone(aList):
