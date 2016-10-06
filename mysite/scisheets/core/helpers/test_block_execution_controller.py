@@ -3,7 +3,7 @@
 from block_execution_controller import BlockExecutionController
 from scisheets.core import api as api
 from mysite import settings
-from scisheets.core.helpers.api_util import getTableFromFile
+from scisheets.core.helpers.api_util import readObjectFromFile
 import os
 import unittest
 
@@ -24,7 +24,7 @@ BLOCK_NAME = "INV_S"
 class TestBlockExecutionController(unittest.TestCase):
   
   def setUp(self):
-    self.table = getTableFromFile(TEST_TABLE_FILE, verify=False)
+    self.table = readObjectFromFile(TEST_TABLE_FILE, verify=False)
     self.api = api.APIFormulas(self.table)
 
   def testConstructor(self):

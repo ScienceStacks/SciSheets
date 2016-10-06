@@ -29,8 +29,8 @@ import pandas as pd
 import pickle
 
 ################### FUNCTIONS
-def getTableFromFile(file_path):
-  return api_util.getTableFromFile(file_path)
+def readTableFromFile(file_path):
+  return api_util.readObjectFromFile(file_path)
 
 
 ################### CLASSES
@@ -58,7 +58,7 @@ class API(object):
 
   def _dbgCheckColumnVariables(self):
     for cv in self._column_variables:
-      if cv._column._owning_table is None:
+      if cv._column.getTable() is None:
         import pdb; pdb.set_trace()
 
   def setColumnVariables(self, colnms=None):
@@ -83,7 +83,7 @@ class API(object):
       column = self._table.columnFromName(colnm)
       if column is None:
         import pdb; pdb.set_trace()
-      if column._owning_table is None:
+      if column.getTable() is None:
         import pdb; pdb.set_trace()
       cv_dict[colnm] = ColumnVariable(column)
     self._column_variables = cv_dict.values()
@@ -139,7 +139,7 @@ class API(object):
         self._table.addColumn(column, index=index)
         index += 1
       column.addCells(dataframe[name], replace=True)
-      if column._owning_table is None:
+      if column.getTable() is None:
         import pdb; pdb.set_trace()
         pass
     self.setColumnVariables()
@@ -282,7 +282,7 @@ class API(object):
     return dataframe
 
   def updateTableFile(self):
-    api_util.writeTableToFile(self._table)
+    api_util.writeObjectToFile(self._table)
 
 
 class APIFormulas(API):
@@ -378,7 +378,7 @@ class APIPlugin(APIFormulas):
     Does initialization at the beginning of executing table
     code.
     """
-    table = api_util.getTableFromFile(self._table_filepath,
+    table = api_util.readObjectFromFile(self._table_filepath,
       verify=False)
     self.setTable(table)
     self.controller.setTable(self._table)

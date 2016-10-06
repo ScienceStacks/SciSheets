@@ -6,34 +6,71 @@
 import errors as er
 import numpy as np
 from helpers.formula_statement import FormulaStatement
+from mysite.helpers.tree import Tree
 from helpers.extended_array import ExtendedArray
 from helpers.prune_nulls import pruneNulls
 import helpers.cell_types as cell_types
-import helpers.api_util as api_util
 import collections
 
 
-class Column(object):
+class Column(Tree):
   """
   Representation of a column in a table. A column is a ctonainer
   of cells.
   """
 
+  is_always_leaf = True  # Cannot add/modify children
+
+
   def __init__(self, 
                name, 
-               data_class=api_util.DATACLASS_ARRAY,
+               data_class=cell_types.DATACLASS_ARRAY,
                asis=False):
     """
     :param str name: Name of column
     :param DataClass data_class: Class for data
     :param bool asis: opaque data if True
     """
+    super(Column, self).__init__(name)
     self.setName(name)
     self.setAsis(asis)
     self._cells = []
     self._formula_statement = FormulaStatement(None, self.getName())
-    self._owning_table = None
     self._data_class = data_class
+
+  def getSerializationDict(self, class_variable):
+    """
+    Method required to serialize this class.
+    :param str class_variable: key to use for class name
+    :return dict:
+    Notes:
+    1. Does not save self._parent (in Tree). This is set by fixups
+       done in deserialize().
+    """
+    if self.getDataClass().cls != ExtendedArray:
+      raise ValueError("Only serialize ExtendedArray")
+    serialization_dict = {
+        class_variable: str(self.__class__),
+        "_name": self.getName(),
+        "_asis": self.getAsis(),
+        "_cells": self.getCells(),
+        "_formula": self.getFormula(),
+        }
+    return serialization_dict
+
+  @classmethod
+  def deserialize(cls, serialization_dict):
+    """
+    Creates a column object and does fixups.
+    :param dict serialization_dict: created by getSerializationDict
+    :return Column:
+    """
+    column = Column(serialization_dict["_name"])
+    column.setAsis(serialization_dict["_asis"])
+    column.addCells(serialization_dict["_cells"], replace=True)
+    column.setFormula(serialization_dict["_formula"])
+    column.setDataClass(cell_types.DATACLASS_ARRAY)
+    return column
 
   @staticmethod
   def _adjustValue(value):
@@ -64,16 +101,23 @@ class Column(object):
       full_data_list.extend(new_data_list)
     self._setDatavalues(full_data_list)
 
-  def copy(self):
+  def copy(self, instance=None):
     """
-    Returns a copy of this object
+    :param Column column:
+    :returns Column: copy of this object
     """
-    new_column = Column(self._name)
-    new_column.setFormula(self._formula_statement.getFormula())
-    new_column.addCells(self._cells)
-    new_column.setAsis(self._asis)
-    new_column.setDataClass(self._data_class)
-    return new_column
+    # Create an object if one is not provided
+    if instance is None:
+      instance = Column(self.getName())
+    # Copy properties from inherited classes
+    instance = super(Column, self).copy(instance=instance)
+    # Set properties specific to this class
+    instance.setFormula(self.getFormula())
+    instance.addCells(self.getCells())
+    instance.setAsis(self.getAsis())
+    instance.setDataClass(self.getDataClass())
+    instance.setParent(self.getParent())
+    return instance
 
   def deleteCells(self, indicies):
     """
@@ -138,11 +182,11 @@ class Column(object):
     """
     return self._formula_statement.getStatement()
 
-  def getName(self):
+  def getFormulaStatementObject(self):
     """
-    Returns the name of the column
+    Returns the FormulaStatement object
     """
-    return self._name
+    return self._formula_statement
 
   def insertCell(self, val, index=None):
     """
@@ -162,7 +206,7 @@ class Column(object):
     :param Column column:
     :return bool:
     """
-    if not self.getFormula() == column.getFormula():
+    if not self.getFormulaStatementObject().isEquivalent(column.getFormulaStatementObject()):
       return False
     if not self.getAsis() == column.getAsis():
       return False
@@ -196,12 +240,6 @@ class Column(object):
     Returns cells in the column, excluding ending Nulls
     """
     return pruneNulls(self._cells)
-
-  def rename(self, new_name):
-    """
-    Renames the column
-    """
-    self.setName(new_name)
 
   # ToDo: Test
   def replaceCells(self, new_data):
@@ -258,7 +296,7 @@ class Column(object):
     """
     stripped_name = Column.cleanName(name)
     if Column.isPermittedName(stripped_name) is None:
-      self._name = stripped_name
+      super(Column, self).setName(stripped_name)
     else:
       raise er.InternalError("%s is an invalid name" % name)
 
@@ -266,10 +304,12 @@ class Column(object):
     """
     Sets the table being used for this column
     """
-    self._owning_table = table
+    self.setParent(table)
 
   def getTable(self):
-    return self._owning_table
+    if '_parent' not in dir(self):
+      import pdb; pdb.set_trace()
+    return self.getParent()
 
   @staticmethod
   def isPermittedName(name):
@@ -284,7 +324,6 @@ class Column(object):
       _ = compile(statement, "string", "exec")
       error = None
     except SyntaxError as err:
-      import pdb; pdb.set_trace()
       error = "%s produced the error: %s" % (name, str(err))
     return error
 

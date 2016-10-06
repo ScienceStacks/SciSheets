@@ -24,8 +24,11 @@ class ProgramExecuter(object):
     """
     self._program_name = program_name
     self._program = program
-    self._namespace = namespace
+    self._namespace = namespace  # Keep this pointer
     self._controller = BlockExecutionController(None)
+
+  def getNamespace(self):
+    return self._namespace
 
   def _wrapProgram(self):
     """
@@ -34,7 +37,7 @@ class ProgramExecuter(object):
     :returns str: program wrapped in try/catch blocks
     :sideeffects: puts CONTROLLER object in the namespace
     """
-    self._namespace[CONTROLLER] = self._controller
+    self._namespace[CONTROLLER] =  self._controller
     sa = StatementAccumulator()
     sa.add("try:")
     sa.indent(1)

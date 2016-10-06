@@ -4,7 +4,9 @@ files in core.
  '''
 
 from scisheets.core import helpers_test as ht
-from scisheets.core.table import Table
+import mysite.settings as settings
+from mysite.helpers.util import stripFileExtension
+from scisheets.core.helpers_test import TEST_DIR
 import api_util as api_util
 from extended_array import ExtendedArray
 import numpy as np
@@ -15,12 +17,17 @@ ARRAY_INT = np.array(range(4))
 ARRAY_INT_LONG = np.array(range(5))
 ARRAY_FLOAT = np.array([0.01*x for x in range(4)])
 
+TESTFILE = "test_api_util.%s" % settings.SCISHEETS_EXT
+
 
 #############################
 # Tests
 #############################
 # pylint: disable=W0212,C0111,R0904
 class TestAPIUtil(unittest.TestCase):
+
+  def setUp(self):
+    ht.setupTableInitialization(self)
 
   def testCompareIterables(self):
     float_list = ARRAY_FLOAT.tolist()
@@ -40,11 +47,30 @@ class TestAPIUtil(unittest.TestCase):
                                             filename,
                                             ht.TEST_DIR)   
     path = os.path.join(ht.TEST_DIR, ht.TEST_FILENAME)
-    self.assertEqual(new_filepath, path)
-    self.assertTrue(os.path.exists(path))
-    new_table = api_util.getTableFromFile(path)
-    self.assertEqual(table.getName(), new_table.getName())
-    os.remove(path)
+    self.assertEqual(stripFileExtension(new_filepath), 
+        stripFileExtension(path))
+    self.assertTrue(os.path.exists(new_filepath))
+    new_table = api_util.readObjectFromFile(new_filepath, verify=False)
+    self.assertTrue(table.isEquivalent(new_table))
+    os.remove(new_filepath)
+
+  def testWriteObjectToFileAndReadObjectFromFile(self):
+    path = os.path.join(TEST_DIR, TESTFILE)
+    self.table.setFilepath(path)
+    api_util.writeObjectToFile(self.table)
+    new_table = api_util.readObjectFromFile(path)
+    self.assertTrue(self.table.isEquivalent(new_table))
+    #
+    self.table.setFilepath(path)
+    api_util.writeObjectToFile(self.table)
+    new_table = api_util.readObjectFromFile(path)
+    self.assertTrue(self.table.isEquivalent(new_table))
+    #
+    a_dict = {"a": range(5), "b": range(10)}
+    api_util.writeObjectToFile(a_dict, filepath=path)
+    new_a_dict = api_util.readObjectFromFile(path)
+    self.assertEqual(a_dict, new_a_dict)
+
 
 
 if __name__ == '__main__':

@@ -2,7 +2,6 @@
 
 from param import param
 from scisheets.core import api as api
-from scisheets.core.helpers.trinary import Trinary
 from scisheets.core import helpers_test as ht
 import unittest
 

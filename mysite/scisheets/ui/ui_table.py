@@ -6,7 +6,7 @@ from scisheets.core.table import Table
 from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
 from scisheets.core.helpers.cell_types import getType
-from mysite import settings as st
+from mysite import settings as settings
 import collections
 import numpy as np
 import os
@@ -23,13 +23,41 @@ class UITable(Table):
     self._hidden_columns = []
     super(UITable, self).__init__(name)
 
+  def getSerializationDict(self, class_variable):
+    """
+    :param str class_variable: key to use for the class name
+    :return dict: dictionary encoding the object
+    """
+    serialization_dict =   \
+        super(UITable, self).getSerializationDict(class_variable)
+    serialization_dict[class_variable] = str(self.__class__)
+    column_names = [c.getName() for c in self.getHiddenColumns()]
+    serialization_dict['_hidden_columns'] = column_names
+    return serialization_dict
+
+  @classmethod
+  def deserialize(cls, serialization_dict, instance=None):
+    """
+    Deserializes an UITable object and does fix ups.
+    :param dict serialization_dict: container of parameters for deserialization
+    :return UITable (or instance updated)
+    """
+    if instance is None:
+      instance = UITable(serialization_dict["_name"])
+    super(UITable, cls).deserialize(serialization_dict,
+        instance=instance)
+    hidden_columns = [instance.columnFromName(n) for n in  \
+                      serialization_dict["_hidden_columns"]]
+    instance.hideColumns(hidden_columns)
+    return instance
+
   def _createResponse(self, error):
     # Returns a response of the desired type
     # Input: error - result of processing a command
     #                (may be None)
     # Output: response
     if error is None:
-      new_error = self.evaluate(user_directory=st.SCISHEETS_USER_PYDIR)
+      new_error = self.evaluate(user_directory=settings.SCISHEETS_USER_PYDIR)
     else:
       new_error = error
     if new_error is None:
@@ -37,6 +65,34 @@ class UITable(Table):
     else:
       response = {'data': str(new_error), 'success': False}
     return response
+
+  def isEquivalent(self, other):
+    """
+    :return bool: True if equivalent
+    """
+    if not super(UITable, self).isEquivalent(other):
+      return False
+    if not len(self.getHiddenColumns()) == len(other.getHiddenColumns()):
+      return False
+    for column in self.getHiddenColumns():
+      tests = [column.isEquivalent(c) for c in other.getHiddenColumns()]
+      if not any(tests):
+        return False
+    return True
+
+  def copy(self, instance=None):
+    """
+    Returns a copy of this object
+    :param UITable instance:
+    """
+    # Create an object if one is not provided
+    if instance is None:
+      instance = UITable(self.getName())
+    # Copy properties from inherited classes
+    instance = super(UITable, self).copy(instance=instance)
+    # Set properties specific to this class
+    instance._hidden_columns = self.getHiddenColumns()
+    return instance
 
   def unhideAllColumns(self):
     """
@@ -167,11 +223,12 @@ class UITable(Table):
           error = self.export(function_name=function_name,
                               inputs=inputs,
                               outputs=outputs,
-                              user_directory=st.SCISHEETS_USER_PYDIR)
+                              user_directory=settings.SCISHEETS_USER_PYDIR)
       response = self._createResponse(error)
     elif command == "Open":
       file_name = cmd_dict['args'][0]
-      file_path = os.path.join(st.BASE_DIR, "%s.pcl" % file_name)
+      fullname = "%s.%s" % (file_name, settings.SCISHEETS_EXT)
+      file_path = os.path.join(settings.BASE_DIR, fullname)
       SET_CURRENT_FILE(file_path) # This is current in the session variable.
     elif command == "Prologue":
       prologue = cmd_dict['args'][0]
@@ -218,7 +275,8 @@ class UITable(Table):
     versioned = self.getVersionedFile()
     if command == "Update":
       versioned.checkpoint(id="%s/%s" % (target, command))
-      column = self.visibleColumnFromIndex(cmd_dict["column_index"])
+      idx = int(cmd_dict["column_index"])
+      column = self.visibleColumnFromIndex(idx)
       if column.getTypeForCells() == object:
         error = "Cannot update cells for the types in column %s"  \
            % column.getName()
@@ -279,7 +337,7 @@ class UITable(Table):
         cur_column = self.visibleColumnFromIndex(cmd_dict["column_index"])
         self.moveColumn(cur_column, new_column_index)
       except Exception:
-        error = "Column %s does not exist." % dest_column_name
+        error = "Column %s does not exists." % dest_column_name
     elif command == "Refactor":
       versioned.checkpoint(id="%s/%s" % (target, command))
       proposed_name = cmd_dict["args"][0]
@@ -327,14 +385,6 @@ class UITable(Table):
       raise NotYetImplemented(msg)
     response = self._createResponse(error)
     return response
-
-  def migrate(self):
-    """
-    Handles older objects that lack some properties
-    """
-    if not '_hidden_columns' in dir(self):
-      self._hidden_columns = []
-    super(UITable, self).migrate()
 
   @staticmethod
   def _addEscapesToQuotes(iter_str):

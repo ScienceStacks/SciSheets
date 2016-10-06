@@ -1,12 +1,20 @@
 '''Tests for table'''
 
+from mysite import settings
+import helpers.cell_types as cell_types
 import table as tb
 import column as cl
 import errors as er
 import helpers_test as ht
 import numpy as np
+import os
 import pandas as pd
 import unittest
+
+
+TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
+    "test_table_1")
+CLASS_STRING = 'CLASS_STRING'
 
 
 #############################
@@ -235,15 +243,16 @@ class TestTable(unittest.TestCase):
     self.assertEqual(num_rows+1, self.table.numRows())
 
   def testRefactorColumn(self):
-    table = ht.createTable("test", column_name=[ht.COLUMN1, ht.COLUMN2])
+    table = ht.createTable("test", 
+        column_name=[ht.COLUMN1, ht.COLUMN2, ht.COLUMN3])
     column1 = table.columnFromName(ht.COLUMN1)
     formula1 = "range(5)"
     column1.setFormula(formula1)
     column2 = table.columnFromName(ht.COLUMN2)
-    formula2 = "[2*x for x in %s]" % ht.COLUMN1
+    formula2 = "%s = [5*x for x in %s]" % (ht.COLUMN2, ht.COLUMN1)
     column2.setFormula(formula2)
     table.evaluate(user_directory=ht.TEST_DIR)
-    expected_values = [2*x for x in range(5)]
+    expected_values = [5*x for x in range(5)]
     actual_values = [x for x in column2.getCells()]
     self.assertTrue(expected_values == actual_values)
     table.refactorColumn(ht.COLUMN1, ht.COLUMN3)
@@ -282,6 +291,26 @@ class TestTable(unittest.TestCase):
     self.assertEqual(len(table.getFormulaColumns()), 2)
     column2.setFormula(None)
     self.assertEqual(len(table.getFormulaColumns()), 1)
+
+  def testGetSerializationDict(self):
+    serialization_dict = self.table.getSerializationDict(CLASS_STRING)
+    self.assertTrue(CLASS_STRING in serialization_dict.keys())
+    columns = serialization_dict['_columns']
+    is_presents = [CLASS_STRING in c.keys() for c in columns]
+    self.assertTrue(all(is_presents))
+    excludes = ['_prologue_formula', 
+                '_epilogue_formula', 
+                '_filepath', 
+                CLASS_STRING,
+               ]
+    for key in serialization_dict.keys():
+      if not key in excludes:
+        self.assertTrue(key in self.table.__dict__.keys(), "%s"% key)
+
+  def testDeserialize(self):
+    serialization_dict = self.table.getSerializationDict(CLASS_STRING)
+    table = tb.Table.deserialize(serialization_dict)
+    self.assertTrue(table.isEquivalent(self.table))
       
 
 if __name__ == '__main__':

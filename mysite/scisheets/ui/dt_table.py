@@ -110,6 +110,45 @@ class DTTable(UITable):
   def __init__(self, name):
     super(DTTable, self).__init__(name)
 
+  def getSerializationDict(self, class_variable):
+    """
+    :param str class_variable: key to use for the class name
+    :return dict: dictionary encoding the object
+    """
+    serialization_dict =   \
+        super(DTTable, self).getSerializationDict(class_variable)
+    serialization_dict[class_variable] = str(self.__class__)
+    return serialization_dict
+
+  @classmethod
+  def deserialize(cls, serialization_dict, instance=None):
+    """
+    Deserializes an UITable object and does fix ups.
+    :param dict serialization_dict: container of parameters for deserialization
+    :return UITable:
+    """
+    if instance is None:
+      dt_table = DTTable(serialization_dict["_name"])
+    super(DTTable, cls).deserialize(serialization_dict,
+        instance=dt_table)
+    return dt_table
+
+  def copy(self, instance=None):
+    """
+    Returns a copy of this object
+    :param DTTable instance:
+    """
+    # Create an object if one is not provided
+    if instance is None:
+      instance = DTTable(self.getName())
+    # Copy properties from inherited classes
+    instance = super(UITable, self).copy(instance=instance)
+    # Set properties from this class
+    return instance
+
+  def isEquivalent(self, other):
+    return super(DTTable, self).isEquivalent(other)
+
   @staticmethod
   def _formatStringForJS(in_string):
     """
@@ -171,9 +210,3 @@ class DTTable(UITable):
                }
     html = get_template('scitable.html').render(ctx_dict)
     return html
-
-  def migrate(self):
-    """
-    Handles older objects that lack some properties.
-    """
-    super(DTTable, self).migrate()

@@ -186,6 +186,13 @@ class TestUtil(unittest.TestCase):
     values2 = [u'0.0', u'1.0', u'2.0', u'3.0', None]
     self.assertTrue(cell_types.isEquivalentData(values1, values2))
 
+  def testIsStrs(self):
+    vals = ['a', 'b']
+    self.assertTrue(cell_types.isStrs(vals))
+    vals = [1, 'b']
+    vals = np.array(['a', 'b'])
+    self.assertTrue(cell_types.isStrs(vals))
+
 
 if  __name__ == '__main__':
   unittest.main()

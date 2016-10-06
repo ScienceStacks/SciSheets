@@ -1,6 +1,8 @@
 '''Tests for UITable.'''
 
 from mysite import settings
+from scisheets.core.helpers.serialize_deserialize import serialize,  \
+    deserialize
 from dt_table import DTTable
 import ui_table as ui
 from django.test import TestCase  # Provides mocks
@@ -123,6 +125,11 @@ class TestUITable(TestCase):
       self.assertEqual(self.table.getHiddenColumns(), [column])
       self.table.unhideColumns(column)
       self.assertEqual(len(self.table._hidden_columns) , 0)
+
+  def testSerializeDeserialize(self):
+    json_str = serialize(self.table)
+    new_table = deserialize(json_str)
+    self.assertTrue(self.table.isEquivalent(new_table))
     
 
 if __name__ == '__main__':

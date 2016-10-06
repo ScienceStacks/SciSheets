@@ -2,8 +2,8 @@
   Implements the ColumnContainer.
 '''
 
-from mysite.helpers.versioned_file import VersionedFile
 from mysite import settings as settings
+from mysite.helpers.versioned_file import VersionedFile
 from column import Column
 import errors as er
 import column as cl
@@ -37,6 +37,20 @@ class ColumnContainer(object):
       if  column.getName() == name:
         return  column
     return None
+
+  def copy(self, instance=None):
+    """
+    :param ColumnContainer instance:
+    :returns ColumnContainer: copy of this object
+    """
+    # Create an object if one is not provided
+    if instance is None:
+      instance = ColumnContainer(self.getName())
+    # Set properties specific to this class
+    instance.setVersionedFile(self.getVersionedFile())
+    instance._children = self.getColumns()
+    instance.setName(self.getName())
+    return instance
 
   def getCell(self, row_index, column_index):
     """
@@ -95,19 +109,6 @@ class ColumnContainer(object):
       idx = len(self._columns)
     self._columns.insert(idx, column)
 
-  def migrate(self):
-    """
-    Handles older objects that lack some properties
-    """
-    if not '_versioned_file' in dir(self):
-      if '_filepath' in dir(self):
-        self._versioned_file = VersionedFile(self._filepath,
-            settings.SCISHEETS_USER_TBLDIR_BACKUP,
-            settings.SCISHEETS_MAX_TABLE_VERSIONS)
-      else:
-        self._versioned_file = None
-    pass
-
   def moveColumn(self, column, new_idx):
     """
     Moves the column to the specified index
@@ -133,6 +134,19 @@ class ColumnContainer(object):
     """
     index = self._columns.index(column)
     del self._columns[index]
+
+  def setColumns(self, columns):
+    self._columns = columns
+
+  def setFilepath(self, filepath):
+    """
+    :param str filepath:
+    """
+    versioned_file = VersionedFile(
+        filepath,
+        settings.SCISHEETS_USER_TBLDIR_BACKUP,
+        settings.SCISHEETS_MAX_TABLE_VERSIONS)
+    self.setVersionedFile(versioned_file)
 
   def setVersionedFile(self, versioned_file):
     self._versioned_file = versioned_file

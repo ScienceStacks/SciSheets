@@ -1,0 +1,94 @@
+{
+  "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+  "_columns": [
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": true,
+      "_cells": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "_formula": null,
+      "_name": "row"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        "..",
+        "",
+        "nan",
+        "nan",
+        null,
+        null
+      ],
+      "_formula": null,
+      "_name": "Path"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        "test.csv",
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "_formula": null,
+      "_name": "CSVFiles"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        "test.csv",
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "_formula": null,
+      "_name": "InputFile"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        0.2,
+        0.5,
+        2.0,
+        5.0,
+        10.0,
+        NaN
+      ],
+      "_formula": null,
+      "_name": "S"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        0.02,
+        0.08,
+        0.11,
+        0.2,
+        0.3
+      ],
+      "_formula": null,
+      "_name": "V"
+    }
+  ],
+  "_epilogue_formula": "",
+  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/csv_explorer.scish",
+  "_hidden_columns": [],
+  "_is_evaluate_formulas": true,
+  "_name": "CSVExplorer",
+  "_prologue_formula": "# Prologue\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join, exists\n\npath = Path[0]\nCSVFiles = [f for f in listdir(path) if f[-4:] == '.csv']\nCSVFiles.sort()\n\nnames = s.getColumnNames()\npath = param(s, 'Path')\n# Delete old columns\nfor name in names:\n  if not name in ['row', 'InputFile', 'CSVFiles', 'Path']:\n    s.deleteColumn(name)\n# Get the file to process\n# Check for a missing file\nif len(InputFile) > 0:\n  this_file = str(InputFile[0]).strip()\n  InputFile = [this_file]\ndone = False\nif len(this_file.strip()) > 0:\n    if not this_file in CSVFiles:\n      InputFile = [this_file, \"***File not in list.\"]\n      done = True\nelse:\n  InputFile = [\"\"]\n  done = True\nif not done:\n  fullpath = join(path, this_file)\n  if not exists(fullpath):\n      InputFile = [fullpath, \"***Path doesn't exist\"]\n  else:\n    try:\n      new_columns = importCSV(s, fullpath)\n    except Exception as err:\n      InputFile = [fullpath, \"***Bad CSV format: %s\" % str(err)]"
+}

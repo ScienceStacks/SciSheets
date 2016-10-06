@@ -10,6 +10,7 @@ do
   echo ""
   echo "** $f **"
   dt.sh ${f}
+  #read -p "Press [Enter] to continue ..."
 done
 }
 

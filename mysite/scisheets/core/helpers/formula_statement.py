@@ -71,6 +71,19 @@ class FormulaStatement(object):
     self.do()
     return self._isExpression
 
+  def isEquivalent(self, other):
+    """
+    Tests if another formula statement has the same formula
+    :param object other:
+    :returns bool:
+    """
+    if not isinstance(other, FormulaStatement):
+      return False
+    result = other.getFormula() == self.getFormula()
+    if ('_name' in dir(self)) and ('_name' in dir(other)):
+      result = result and other._name == self._name
+    return result
+
   def getFormula(self):
     return self._formula
 

@@ -3,6 +3,7 @@
 from column_variable import ColumnVariable
 from scisheets.core import helpers_test as ht
 from scisheets.core.column import Column
+from is_null import isNull
 import os
 import unittest
 
@@ -38,10 +39,18 @@ class TestColumnVariable(unittest.TestCase):
       self.assertEqual(cv.getColumnValue(), cv._column.getCells())
 
   def testGetNamespaceValue(self):
+    def isNulls(array):
+      return all([isNull(x) for x in array.tolist()])
+
     namespace = self.table.getNamespace()
     for cv in self.column_variables:
-      self.assertTrue(cv.getNamespaceValue().tolist() == 
-          namespace[cv._column.getName()].tolist())
+      if not ( isNulls(cv.getNamespaceValue()) and  \
+               isNulls(namespace[cv._column.getName()])):
+        if (cv.getNamespaceValue().tolist() != 
+            namespace[cv._column.getName()].tolist()):
+            import pdb; pdb.set_trace()
+        self.assertTrue(cv.getNamespaceValue().tolist() == 
+            namespace[cv._column.getName()].tolist())
 
   def testSetColumnValue(self):
     namespace = self.table.getNamespace()

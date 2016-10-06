@@ -1,65 +1,61 @@
 '''Evaluates formulas in a Table.'''
 
 from mysite.helpers.versioned_file import VersionedFile
+from serialize_deserialize import serialize, deserialize
+import mysite.settings as settings
+import mysite.helpers.util as ut
 import cell_types
-import collections
-from extended_array import ExtendedArray
 from prune_nulls import pruneNulls
+
+import collections
 import numpy as np
 import os
-import pickle
 
 
-################### Classes ############################
-# Used to define a DataClass
-# cls is the data type that can be tested in isinstance
-# cons is a function that constructs an instance of cls
-#   taking as an argument a list
-# Usage: data_class = DataClass(cls=ExtendedArray,
-#                               cons=(lambda(x: ExtendedArray(x))))
-# Note: Classes must have a public property name that is the
-#       name of the column
-DataClass = collections.namedtuple('DataClass', 'cls cons')
-
-########### CONSTANTS ################
-def makeArray(aList):
-  return ExtendedArray(values=aList)
-DATACLASS_ARRAY = DataClass(cls=ExtendedArray,
-    cons=makeArray)
-
-
-################### Functions #########################
-def getTableFromFile(file_path, verify=True):
+def readObjectFromFile(filepath, verify=False):
   """
-  Get the table from the file
-  :param str table_file: full path to table file
-  :param bool verify: checks the file path in the table
-  :return Table:
+  Get the object from the file
+  :param str filepath: full path to file
+  :param bool verify: checks the file path if the
+      object has a getFilepath method
+  :return object:
   :raises ValueError: Checks that the file path is set
+  Notes: Handles legacy of accessing PCL files, which
+         is mostly in tests.
   """
-  error = None
-  fh = open(file_path, "rb")
-  try:
-    table = pickle.load(fh)  # BUG - fails here
-  except Exception as e:
-    error = e
-    import pdb; pdb.set_trace()
-  fh.close()
-  table.migrate()  # Handle case of older objects
-  if verify and table.getFilepath() != file_path:
-    raise ValueError("File path is incorrect or missing.")
-  return table
+  if ut.getFileExtension(filepath).lower() == 'pcl':
+    adj_filepath = ut.changeFileExtension(filepath,
+        settings.SCISHEETS_EXT)
+  else:
+    adj_filepath = filepath
+  with open(adj_filepath, "r") as fh:
+    json_str = fh.read()
+    new_object = deserialize(json_str)
+  if 'getFilepath' in dir(new_object):
+    if verify and new_object.getFilepath() != adj_filepath:
+      if new_object.getFilepath() == filepath:
+        new_object.setFilepath(adj_filepath)
+      else:
+        raise ValueError("File path is incorrect or missing.")
+  return new_object
 
-def writeTableToFile(table):
+def writeObjectToFile(an_object, filepath=None):
   """
-  Get the table from the file
-  :param Table table:
+  Serializes and writes the object to the file
+  :param object an_object:
+  :param str filepath:
+  :raises ValueError: if cannot find a filepath
   """
-  # The namespace cannot be preserved in pickle since it
-  # contains module objects
-  table.setNamespace({})
-  pickle.dump(table, open(table.getFilepath(), "wb"))
-    
+  if 'getFilepath' in dir(an_object):
+    filepath = an_object.getFilepath()
+  if filepath is None:
+    raise ValueError("No way to find filepath")
+  with open(filepath, "w") as fh:
+    fh.write(serialize(an_object))
+
+def _serializeTable(table):
+  with open(table.getFilepath(), "w") as fh:
+    fh.write(serialize(table))
 
 def getTableCopyFilepath(filename, directory):
   """
@@ -67,7 +63,7 @@ def getTableCopyFilepath(filename, directory):
   :param str filename: name of the file for the table w/o extension
   :return str filepath: path to the table file
   """
-  full_filename = "%s.pcl" % filename
+  full_filename = "%s.%s" % (filename, settings.SCISHEETS_EXT)
   return os.path.join(directory, full_filename)
 
 def copyTableToFile(table, filename, directory):
@@ -88,7 +84,10 @@ def copyTableToFile(table, filename, directory):
     directory = table.getVersionedFile().getDirectory()
     new_versioned_file = VersionedFile(filepath, directory, max_versions)
     new_table.setVersionedFile(new_versioned_file)
-  pickle.dump(new_table, open(filepath, "wb"))
+  try:
+    _serializeTable(new_table)
+  except Exception as e:
+    import pdb; pdb.set_trace()
   return filepath
 
 # TODO: Add test

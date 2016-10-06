@@ -5,18 +5,19 @@
 from mysite.helpers.versioned_file import VersionedFile
 from mysite import settings
 from scisheets.ui.dt_table import DTTable
+from scisheets.core.helpers import api_util
 import column as cl
 import contextlib
 import numpy as np
 import os
-import pickle
+import subprocess
 import StringIO
 import sys
 
 
 TEST_DIR = settings.SCISHEETS_TEST_DIR
 TEST_TABLE = "TEST_TABLE"
-TEST_FILENAME = "%s.pcl" % TEST_TABLE
+TEST_FILENAME = "%s.%s" % (TEST_TABLE, settings.SCISHEETS_EXT)
 TABLE_FILEPATH = os.path.join(TEST_DIR, TEST_FILENAME)
 MAX_VERSIONS = 3
 
@@ -103,7 +104,7 @@ def createTable(name, column_name=None):
     factor += 1
     column.addCells(values, replace=True)
     table.addColumn(column)
-  pickle.dump(table, open(TABLE_FILEPATH, "wb"))
+  api_util.writeObjectToFile(table, TABLE_FILEPATH)
   return table
 
 def compareTableData(table1, table2, excludes=None):
@@ -168,6 +169,16 @@ def setupTableInitialization(o):
   column5.addCells(COLUMN5_CELLS)
   o.table.addColumn(column5)
 
+def runProcess(commands):
+  """
+  Runs the specified commands in a process.
+  :param str commands:
+  :return str: output from commands
+  """
+  process = subprocess.Popen(commands,
+      stdout=subprocess.PIPE, shell=True)
+  return process.communicate()[0].strip()
+
 
 class TableFileHelper(object):
   """
@@ -184,15 +195,14 @@ class TableFileHelper(object):
     return os.path.exists(filepath)
 
   @classmethod
-  def doesTableFileExist(cls, table_filename, filedir, suffix="pcl"):
+  def doesTableFileExist(cls, table_filename, filedir):
     """
     Checks if the table file exists
     :param table_filename: table file name without extension
     :param table_filedir: directory for the table file
-    :param suffix: suffix for filename
     :return: boolean
     """
-    full_filename = "%s.%s" % (table_filename, suffix)
+    full_filename = "%s.%s" % (table_filename, settings.SCISHEETS_EXT)
     full_path = os.path.join(filedir, full_filename)
     return TableFileHelper.doesFilepathExist(full_path)
 
@@ -205,7 +215,7 @@ class TableFileHelper(object):
     self._table_filename = table_filename
     self._table_filedir = table_filedir
     self._full_path = os.path.join(table_filedir,
-        "%s.pcl" % self._table_filename)
+        "%s.%s" % (self._table_filename, settings.SCISHEETS_EXT))
     self._table_name = table_name
     if self._table_name is None:
       self._table_name = table_filename
@@ -215,15 +225,12 @@ class TableFileHelper(object):
     Creates Table file and the table
     """
     if os.path.exists(self._full_path):
-      fh = open(self._full_path, "rb")
-      self.table = pickle.load(fh)
-      fh.close()
+      self.table = api_util.readObjectFromFile(self._full_path)
+      self.table.setFilepath(self._full_path)  # Set before write
     else:
       self.table = DTTable(self._table_name)
-      pickle.dump(self.table, open(self._full_path, "wb"))
-    versioned_file = VersionedFile(TABLE_FILEPATH, 
-        TEST_DIR, MAX_VERSIONS)
-    self.table.setVersionedFile(versioned_file)
+      self.table.setFilepath(self._full_path)  # Set before write
+      api_util.writeObjectToFile(self.table) 
 
   def destroy(self):
     """
@@ -232,5 +239,3 @@ class TableFileHelper(object):
     if TableFileHelper.doesTableFileExist(self._table_filename,
         self._table_filedir):
       os.remove(self._full_path)
-
-

@@ -4,8 +4,12 @@ Tests for YUI DataTable renderings.
 
 from mysite import settings
 from mysite.helpers.versioned_file import VersionedFile
-from ..core.helpers.api_util import getTableFromFile
-from ..core.helpers_test import TEST_DIR
+import scisheets.core.helpers.api_util as api_util
+from scisheets.core.helpers.api_util  \
+    import readObjectFromFile, writeObjectToFile
+from scisheets.core.helpers.serialize_deserialize import serialize,  \
+    deserialize
+from scisheets.core.helpers_test import TEST_DIR
 import dt_table as dt
 from django.test import TestCase  # Provides mocks
 import ast
@@ -24,6 +28,8 @@ NCOL = 4
 NROW = 3
 TABLE_NAME = "MY TABLE"
 CUR_DIR = os.path.dirname(__file__)
+TESTFILE2 = "testcase_2.scish"
+TESTFILE3 = "testcase_3.scish"
 
 
 # Ensure that tested module is accessible in debugger
@@ -55,13 +61,13 @@ class TestAuxFunctions(TestCase):
     """
     Inputs to test cases are stored in pcl files.
     """
-    files = ["test_dt_table_1.pcl"]
+    files = ["test_dt_table_1.scish"]
     # Tests are functions that take result as an argument and return a bool
     tests = [ (lambda r: r[1]['Col_1'] == `0.5`)]
     iterations = range(len(files))
     for idx in iterations:
        path = os.path.join(CUR_DIR, files[idx])
-       inputs = pickle.load(open(path, "rb"))
+       inputs = api_util.readObjectFromFile(path)
        column_names = inputs[0]
        data = inputs[1]
        result = dt.makeJSON(column_names, data)
@@ -71,7 +77,7 @@ class TestAuxFunctions(TestCase):
        self.assertTrue(test(result_list))
 
 
-class TestUITable(TestCase):
+class TestDTTable(TestCase):
 
   def setUp(self):
     self.table = dt.DTTable.createRandomTable(TABLE_NAME,
@@ -87,11 +93,17 @@ class TestUITable(TestCase):
 
   def testRenderingListData(self):
     # set up the test table
-    table_filepath = os.path.join(TEST_DIR, "testcase_2.pcl")
-    table = getTableFromFile(table_filepath, verify=False)
+    table_filepath = os.path.join(TEST_DIR, TESTFILE2)
+    table = readObjectFromFile(table_filepath, verify=False)
     versioned_file = VersionedFile(table_filepath, TEST_DIR, 0)
     table.setVersionedFile(versioned_file)
     html = table.render()
+
+  def testSerializeDeserialize(self):
+    json_str = serialize(self.table)
+    new_table = deserialize(json_str)
+    self.assertTrue(self.table.isEquivalent(new_table))
+
 
 if __name__ == '__main__':
     unittest.man()

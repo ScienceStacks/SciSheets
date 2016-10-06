@@ -1,10 +1,11 @@
 '''Tests for program_generator'''
 
 import program_generator as pg
-from ..helpers_test import createTable,  \
+import mysite.settings as settings
+from scisheets.core.helpers_test import createTable,  \
     stdoutIO, TableFileHelper, TEST_DIR
-from ...core import column as cl
-from api_util import writeTableToFile
+from scisheets.core import column as cl
+from api_util import writeObjectToFile
 import os
 import numpy as np
 import shutil
@@ -91,7 +92,7 @@ class TestProgramGenerator(unittest.TestCase):
     self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)
     self.column_valid_formula = self._addColumn(COLUMN_VALID_FORMULA,
                                                 formula=VALID_FORMULA)
-    writeTableToFile(self.table)
+    writeObjectToFile(self.table)
     self.generator = pg.ProgramGenerator(self.table, TEST_DIR)
 
   def _addColumn(self, name, cells=None, formula=None):
@@ -186,7 +187,7 @@ class TestProgramGenerator(unittest.TestCase):
     self.column_a = self._addColumn(COLUMN2, cells=COLUMN2_CELLS)
     self.column_b = self._addColumn(COLUMN5, cells=COLUMN5_CELLS)
     self.column_c = self._addColumn(COLUMNC, cells=COLUMNC_CELLS)
-    writeTableToFile(self.table)
+    writeObjectToFile(self.table)
     self.generator = pg.ProgramGenerator(self.table, TEST_DIR)
     # Test Prologue and Epilogue
     statements = self.generator._makePrologue()
@@ -200,7 +201,8 @@ class TestProgramGenerator(unittest.TestCase):
     function_name = "this_test"
     statements = self.generator._makeAPIPluginInitializationStatements(
         function_name)
-    self.assertTrue("%s.pcl" % function_name in statements)
+    statement_stg = "%s.%s" % (function_name, settings.SCISHEETS_EXT)
+    self.assertTrue(statement_stg in statements)
     self.assertTrue("initialize()" in statements)
     self.assertIsNone(_compile(statements))
 
@@ -256,7 +258,7 @@ class TestProgramGenerator(unittest.TestCase):
     inputs = ["A", "B"]
     outputs = ["C"]
     def_stmt = "def %s(" % function_name
-    tags = ["import", "api.APIPlugin", def_stmt,  \
+    tags = [def_stmt, "import", "api.APIPlugin", \
         "numpy", "np.sin", "return"]
     program = self.generator.makeFunctionProgram(function_name,
                                                inputs,
@@ -268,7 +270,7 @@ class TestProgramGenerator(unittest.TestCase):
     inputs = ["A", "B"]
     output = "C"
     function_call = "%s = %s(" % (output, function_name)
-    tags = ["import", "class ", "api.APIPlugin", function_call, \
+    tags = ["import", "class ", "api.APIPlugin",  function_call,  \
         "self.assert"]
     program = self.generator.makeTestProgram(function_name,
                                            inputs,

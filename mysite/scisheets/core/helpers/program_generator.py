@@ -100,7 +100,7 @@ class ProgramGenerator(object):
     sa = StatementAccumulator()
     sa.add("from scisheets.core import api as api")
     statement = """
-_table = api.getTableFromFile('%s')
+_table = api.readTableFromFile('%s')
 _table.setNamespace(globals())
 %s = api.APIFormulas(_table) 
 """ % (self._table.getFilepath(), API_OBJECT) 
@@ -159,7 +159,7 @@ if %s.controller.getException() is not None:
 
   def makeExportScriptProgram(self):
     """
-    Creates an exported python script.
+	    Creates an exported python script.
     :return str program: Program as a string
     """
     sa = StatementAccumulator()
@@ -204,11 +204,12 @@ if %s.controller.getException() is not None:
 
     ''' % self._table.getName()
     sa.add(statement)
-    sa.add(self._makeAPIPluginInitializationStatements(function_name))
     sa.add("")
-    # Make the function definition
+    # Make the function definition. This must enclose the prologue
+    # and epilogue
     sa.add(_makeFunctionStatement(function_name, inputs))
     sa.indent(1)
+    sa.add(self._makeAPIPluginInitializationStatements(function_name))
     excludes = list(inputs)
     excludes.extend(outputs)
     sa.add(self._makePrologue(excludes=excludes))

@@ -2,7 +2,6 @@
 
 from trinary import Trinary
 import unittest
-import cell_types
 
 
 #############################
