@@ -324,7 +324,6 @@ class Column(Tree):
       _ = compile(statement, "string", "exec")
       error = None
     except SyntaxError as err:
-      import pdb; pdb.set_trace()
       error = "%s produced the error: %s" % (name, str(err))
     return error
 
