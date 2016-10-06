@@ -19,7 +19,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "..",
+        ".",
         "",
         "nan",
         "nan",
@@ -33,10 +33,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "test.csv",
-        null,
-        null,
-        null,
+        "Glu.csv",
+        "LL-DAP.csv",
+        "THDPA.csv",
+        "scisheets_log.csv",
         null,
         null
       ],
@@ -47,7 +47,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "test.csv",
+        "Glu.csv",
         null,
         null,
         null,
