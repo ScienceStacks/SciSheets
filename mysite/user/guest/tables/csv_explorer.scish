@@ -19,7 +19,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "..",
+        ".",
         "",
         "nan",
         "nan",
@@ -47,12 +47,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "Glu.csv",
-        "nan",
-        "nan",
-        "nan",
-        "nan",
-        "nan"
+        "test.csv",
+        "***File not in list.",
+        null,
+        null,
+        null,
+        null
       ],
       "_formula": null,
       "_name": "InputFile"
@@ -63,5 +63,5 @@
   "_hidden_columns": [],
   "_is_evaluate_formulas": true,
   "_name": "CSVExplorer",
-  "_prologue_formula": "# Prologue\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\n\npath = Path[0]\nCSVFiles = [f for f in listdir(path) if f[-4:] == '.csv']\nCSVFiles.sort()\n\nnames = s.getColumnNames()\npath = param(s, 'Path')\n# Delete old columns\nfor name in names:\n  if not name in ['row', 'InputFile', 'CSVFiles', 'Path']:\n    s.deleteColumn(name)\n# Get the file to process\n# Check for a missing file\nif len(InputFile) == 0:\n  if not this_file in CSVFiles:\n    InputFile = [\"***File not found\"]\nelse:\n  this_file = InputFile[0]\n  full_file = join(path, this_file)\n  new_columns = importCSV(s, full_file)"
+  "_prologue_formula": "# Prologue\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join, exists\n\npath = Path[0]\nCSVFiles = [f for f in listdir(path) if f[-4:] == '.csv']\nCSVFiles.sort()\n\nnames = s.getColumnNames()\npath = param(s, 'Path')\n# Delete old columns\nfor name in names:\n  if not name in ['row', 'InputFile', 'CSVFiles', 'Path']:\n    s.deleteColumn(name)\n# Get the file to process\n# Check for a missing file\nif len(InputFile) > 0:\n  this_file = str(InputFile[0])\n  InputFile = [this_file]\ndone = False\nif len(this_file.strip()) > 0:\n    if not this_file in CSVFiles:\n      InputFile = [this_file, \"***File not in list.\"]\n      done = True\nif not done:\n  fullpath = join(path, this_file)\n  if not exists(fullpath):\n      InputFile = [fullpath, \"***Path doesn't exist\"]\n  else:\n    try:\n      new_columns = importCSV(s, fullpath)\n    except Exception as err:\n      InputFile = [fullpath, \"***Bad CSV format: %s\" % str(err)]"
 }
