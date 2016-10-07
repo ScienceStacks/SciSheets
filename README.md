@@ -21,11 +21,11 @@ scalability;
 
 SciSheets is a new spreadsheet system that is addressing these shortcomings.
 The SciSheet vision is to deliver the scalability, readability, and reuse provided by programming without
-sacrificing the conceptually simple approach to calculations provided by spreadsheets.
+sacrificing the conceptual simplicity of doing calculations in a spreadsheet.
 Key features of SciSheets include: 
-- formulas that are Python expressions or scripts to improve expressiveness and access to complex computations in Python packages;
+- formulas that are Python expressions or scripts to improve expressiveness and provide access to complex computations in Python packages;
 - exporting spreadsheets as standalone Python programs to improve scalability and 
-enable reuse of spreadsheet calculations in other spreadsheets and programs; and
+enable reuse of spreadsheet calculations in other spreadsheets and in programs; and
 - hierarchical tables and cells that may have multiple values to handle complex data such as n-to-m relationships.
 
 SciSheets is a web application that is accessed from a web browser. So, no program installation is required to use SciSheets. A beta release of SciSheets is planned for the end of 2016. Currently, SciSheets is at an alpha level that is suitable for evaluation purposes. Please contact jlheller@uw.edu if you are interested in doing such an evaluation.
