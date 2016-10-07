@@ -20,7 +20,7 @@ scalability;
 (or specially coded macros).
 
 SciSheets is a new spreadsheet system that is addressing these shortcomings.
-The SciSheet philosophy is to deliver the scalability, readability, and reuse provided by programming without
+The SciSheet vision is to deliver the scalability, readability, and reuse provided by programming without
 sacrificing the conceptually simple approach to calculations provided by spreadsheets.
 Key features of SciSheets include: 
 - formulas that are Python expressions or scripts to improve expressiveness and access to complex computations in Python packages;
