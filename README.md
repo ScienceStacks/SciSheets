@@ -6,18 +6,19 @@ Spreadsheets are widely used by scientists to do data analysis. There are severa
 However, today's spreadsheet systems have many shortcomings.
 In particular, spreadsheets suffer from:
 - poor scalability because executing formulas within the spreadsheet system has high overhead; 
-- great difficulty with reuse because there is no concept of encasulation (and even different
+- great difficulty with reuse because there is no concept of encapsulation (and even different
 length data are problematic);
 - great difficulty with transitioning from a spreadsheet to a program to facilitate integration into software systems and improve
 scalability;
 - limited ability to handle complex data because there is no concept of structured data;
 - poor readability because formulas must be expressions (not scripts) and any cell may have a formula; and
-- limited ability to express calculations because formulas are limited to using a few hundred or so functions provided by the spreadsheet system.
+- limited ability to express calculations because formulas are limited to using a few hundred or so functions provided by the spreadsheet system
+(or specially coded macros).
 
-SciSheets addresses these shortcomings with several features. 
-SciSheets provides:
+SciSheets addresses these shortcomings with several features: 
 - formulas that are Python expressions or scripts to improve expressiveness and access to complex computations in Python packages;
-- export spreadsheets as standalone Python programs thereby providing scalability and reuse of calculations in formulas and software; and
+- exporting spreadsheets as standalone Python programs to improve scalability and 
+enable reuse of spreadsheet calculations in other spreadsheets and programs; and
 - hierarhical tables and cells that may have multiple values to handle complex data such as n-to-m relationships.
 
 SciSheets is a web application that is accessed from a web browser. So, no program installation is required to use SciSheets. A beta release of SciSheets is planned for the end of 2016. Currently, SciSheets is at an alpha level that is suitable for evaluation purposes. Please contact jlheller@uw.edu if you are interested in doing such an evaluation.
