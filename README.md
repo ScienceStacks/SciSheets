@@ -1,11 +1,9 @@
 # SciSheets
-SciSheets is a project that is re-thinking the use of spreadsheets for scientists.
-
-Spreadsheets are the most widely used computational environment on the planet. 
-And so it is unsurprising that
-spreadsheets are widely used by scientists. 
-A central appeal is that spreadsheets provide a conceptually simple way to do calculations that avoids the 
+Digital spreadsheets
+are the "killer app" that ushered in the PC revolution.
+Spreadsheets provide a conceptually simple way to do calculations that avoids the 
 mental burdens of programming, especially considerations of control flow, data dependencies, and data structures.
+Spreadsheets are likely the most popular computational environment on the planet.
 
 However, today's spreadsheet systems have many shortcomings.
 In particular, spreadsheets suffer from:
@@ -19,9 +17,10 @@ scalability;
 - limited ability to express calculations because formulas are limited to using a few hundred or so functions provided by the spreadsheet system
 (or specially coded macros).
 
-SciSheets is a new spreadsheet system that is addressing these shortcomings.
-The SciSheet vision is to deliver the scalability, readability, and reuse provided by programming without
-sacrificing the conceptual simplicity of doing calculations in a spreadsheet.
+The vision of the SciSheets Project
+is to deliver the power of programming with the simplicity of spreadsheets.
+At present, many of the SciSheets use cases are motivated by computational challenges encountered by
+researchers in the biological and chemical sciences.
 Key features of SciSheets include: 
 - formulas that are Python expressions or scripts to improve expressiveness and provide access to complex computations in Python packages;
 - exporting spreadsheets as standalone Python programs to improve scalability and 
