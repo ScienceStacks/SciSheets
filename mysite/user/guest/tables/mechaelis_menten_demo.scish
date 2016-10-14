@@ -49,12 +49,12 @@
       "_cells": [
         100.0,
         20.0,
-        8.33,
+        8.333333333333334,
         5.0,
         2.0,
         1.0
       ],
-      "_formula": "INV_S = 1/S\nINV_S = roundValues(INV_S,2)",
+      "_formula": "1/S",
       "_name": "INV_S"
     },
     {
@@ -68,35 +68,25 @@
         4.76,
         4.17
       ],
-      "_formula": "roundValues(1/V,2)",
+      "_formula": "np.round(1/V,2)",
       "_name": "INV_V"
     },
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        4.358,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        4.358
       ],
-      "_formula": "roundValues(intercept(INV_S,INV_V),3)",
+      "_formula": "import scipy.stats as ss\nSLOPE, INTERCEPT, _, _, _ = ss.linregress(INV_S, INV_V)\nSLOPE = np.round(SLOPE, 3)\nINTERCEPT = np.round(INTERCEPT, 3)",
       "_name": "INTERCEPT"
     },
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.047,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        0.047
       ],
-      "_formula": "roundValues(slope(INV_S, INV_V),3)",
+      "_formula": null,
       "_name": "SLOPE"
     },
     {
@@ -110,7 +100,7 @@
         NaN,
         NaN
       ],
-      "_formula": "roundValues(1/INTERCEPT,3)",
+      "_formula": "np.round(1/INTERCEPT,3)",
       "_name": "V_MAX"
     },
     {
@@ -124,7 +114,7 @@
         NaN,
         NaN
       ],
-      "_formula": "roundValues(SLOPE*V_MAX,3)",
+      "_formula": "np.round(SLOPE*V_MAX,3)",
       "_name": "K_M"
     }
   ],
@@ -132,6 +122,6 @@
   "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/mechaelis_menten_demo.scish",
   "_hidden_columns": [],
   "_is_evaluate_formulas": true,
-  "_name": "MechaelisMenton",
+  "_name": "MechaelisMenten",
   "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import\n"
 }

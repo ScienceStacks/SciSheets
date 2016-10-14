@@ -121,7 +121,7 @@ SCISHEETS_USER_TBLDIR_BACKUP = os.path.join(BASE_DIR,
     'user/guest/tables/backup')
 SCISHEETS_PLUGIN_PYDIR = os.path.join(BASE_DIR, 'scisheets/plugins')
 SCISHEETS_PLUGIN_PYPATH = 'scisheets.plugins'
-SCISHEETS_MAX_TABLE_VERSIONS = 5
+SCISHEETS_MAX_TABLE_VERSIONS = 10
 SCISHEETS_EXT = "scish"
 SCISHEETS_DEFAULT_TABLEFILE = os.path.join(SCISHEETS_USER_TBLDIR, 
     "scisheet_table.%s" % SCISHEETS_EXT)
