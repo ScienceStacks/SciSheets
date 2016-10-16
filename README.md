@@ -34,7 +34,8 @@ A beta release of SciSheets is planned for the beginning of 2017.
 Currently, SciSheets is at an alpha level that is suitable for evaluation purposes. 
 Please contact jlheller@uw.edu if you are interested in doing such an evaluation.
 
-More details can be found in the [SciSheets summary] (https://docs.google.com/document/d/1dOgMzlOWAx5SGB8ev_E02jO79eewbPZ25m37SrK7IAo/edit#heading=h.lmbccclro00t).
+More details can be found in the [SciSheets summary] (https://docs.google.com/document/d/1dOgMzlOWAx5SGB8ev_E02jO79eewbPZ25m37SrK7IAo/edit#heading=h.lmbccclro00t)
+and the [YouTube video on SciSheets] (https://www.youtube.com/watch?v=N9QQK5n72ZM).
 
 The following is for interested developers. SciSheets makes use of a related project, BaseStack, that provides an easy way to install web applications in VMs.
 
