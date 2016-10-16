@@ -1,7 +1,8 @@
 # SciSheets
 Digital spreadsheets
 are the "killer app" that ushered in the PC revolution.
-Spreadsheets provide a conceptually simple way to do calculations that avoids the 
+This is largely because
+spreadsheets provide a conceptually simple way to do calculations that avoids the 
 mental burdens of programming, especially considerations of control flow, data dependencies, and data structures.
 Spreadsheets are likely the most popular computational environment on the planet.
 
@@ -27,7 +28,11 @@ Key features of SciSheets include:
 enable reuse of spreadsheet calculations in other spreadsheets and in programs; and
 - hierarchical tables and cells that may have multiple values to handle complex data such as n-to-m relationships.
 
-SciSheets is a web application that is accessed from a web browser. So, no program installation is required to use SciSheets. A beta release of SciSheets is planned for the end of 2016. Currently, SciSheets is at an alpha level that is suitable for evaluation purposes. Please contact jlheller@uw.edu if you are interested in doing such an evaluation.
+SciSheets is a web application that is accessed from a web browser. 
+So, no program installation is required to use SciSheets. 
+A beta release of SciSheets is planned for the beginning of 2017. 
+Currently, SciSheets is at an alpha level that is suitable for evaluation purposes. 
+Please contact jlheller@uw.edu if you are interested in doing such an evaluation.
 
 More details can be found in the [SciSheets summary] (https://docs.google.com/document/d/1dOgMzlOWAx5SGB8ev_E02jO79eewbPZ25m37SrK7IAo/edit#heading=h.lmbccclro00t).
 
