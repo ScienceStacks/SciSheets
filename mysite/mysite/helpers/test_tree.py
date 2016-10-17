@@ -217,6 +217,13 @@ class TestPositionTree(unittest.TestCase):
     with self.assertRaises(ValueError):
       _ = self.root.getChildAtPosition(2)
 
+  def testGetPosition(self):
+    if IGNORE_TEST:
+      return
+    expected_position = self.root.getPositionOfChild(self.tree2)
+    self.assertEqual(expected_position, self.tree2.getPosition())
+    self.assertIsNone(self.root.getPosition())
+
   def testGetPositionOfChild(self):
     if IGNORE_TEST:
       return

@@ -6,14 +6,14 @@
 import errors as er
 import numpy as np
 from helpers.formula_statement import FormulaStatement
-from mysite.helpers.tree import Tree
+from mysite.helpers.tree import PositionTree
 from helpers.extended_array import ExtendedArray
 from helpers.prune_nulls import pruneNulls
 import helpers.cell_types as cell_types
 import collections
 
 
-class Column(Tree):
+class Column(PositionTree):
   """
   Representation of a column in a table. A column is a ctonainer
   of cells.

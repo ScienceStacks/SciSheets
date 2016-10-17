@@ -278,10 +278,19 @@ class PositionTree(Tree):
       raise ValueError("Position %d does not exist" % position)
     return self._children[position]
 
+  def getPosition(self):
+    """
+    Finds the position of this node w.r.t. its parent
+    :return int/None:
+    """
+    if self.getParent() is None:
+      return None
+    return self.getParent().getPositionOfChild(self)
+
   def getPositionOfChild(self, child):
     """
     :param PositionTree child:
-    :return PositionTree/None:
+    :return int/None:
     """
     try:
       return self._children.index(child)
