@@ -58,13 +58,13 @@ class TestColumnContainer(unittest.TestCase):
     index = 1
     new_column = cl.Column(new_column_name)
     self.table.insertColumn(new_column, index)
-    self.assertEqual(self.table._columns[index].getName(),
+    self.assertEqual(self.table.getColumns()[index].getName(),
         new_column_name)
     newer_column_name = "NEWER_COLUMN"
     newer_column = cl.Column(newer_column_name)
-    index = len(self.table._columns)
+    index = len(self.table.getColumns())
     self.table.insertColumn(newer_column)
-    self.assertEqual(self.table._columns[index].getName(),
+    self.assertEqual(self.table.getColumns()[index].getName(),
         newer_column_name)
 
   def testMoveColumn1(self):
@@ -72,7 +72,7 @@ class TestColumnContainer(unittest.TestCase):
     dest_idx = 0
     column2 = self.table.columnFromName(COLUMN2)
     self.table.moveColumn(column2, dest_idx)
-    self.assertEqual(self.table._columns[dest_idx+1].getName(), COLUMN2)
+    self.assertEqual(self.table.getColumns()[dest_idx+1].getName(), COLUMN2)
 
   def testNumColumns(self):
     self.assertEqual(self.table.numColumns(), 4)

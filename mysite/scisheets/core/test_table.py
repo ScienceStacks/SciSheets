@@ -29,8 +29,8 @@ class TestTable(unittest.TestCase):
   def testConstructor(self):
     table = tb.Table(ht.TABLE_NAME)
     self.assertEqual(table._name, ht.TABLE_NAME)
-    self.assertEqual(len(table._columns), 1)
-    self.assertEqual(table._columns[0].getName(), "row")
+    self.assertEqual(len(table.getColumns()), 1)
+    self.assertEqual(table.getColumns()[0].getName(), "row")
     self.assertTrue('import' in table._prologue.getFormula())
 
   def testAdjustColumnLength(self):
@@ -55,8 +55,8 @@ class TestTable(unittest.TestCase):
       self.assertIsNone(column.getCells()[1])
 
   def testUpdateNameColumn(self):
-    self.assertEqual(self.table._columns[0].numCells(),
-                     self.table._columns[1].numCells())
+    self.assertEqual(self.table.getColumns()[0].numCells(),
+                     self.table.getColumns()[1].numCells())
 
   def testAddColumn(self):
     table = ht.createTable(ht.TABLE_NAME)
@@ -65,7 +65,7 @@ class TestTable(unittest.TestCase):
     column.addCells(ht.COLUMN1_CELLS)
     table.addColumn(column)
     # Add a column with the same name
-    self.assertEqual(table._columns[1], column)
+    self.assertEqual(table.getColumns()[1], column)
     error = table.addColumn(column)
     self.assertIsNotNone(error)
     table = ht.createTable(ht.TABLE_NAME)

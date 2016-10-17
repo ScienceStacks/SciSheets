@@ -105,7 +105,7 @@ class UITable(Table):
     Columns may be deleted at a lower level
     """
     self._hidden_columns = [c for c in self._hidden_columns  \
-                            if c in self._columns]
+                            if c in self.getColumns()]
 
   def hideColumns(self, columns):
     """
@@ -135,7 +135,7 @@ class UITable(Table):
     """
     :return list-of-Columns:
     """
-    vis_columns = [c for c in self._columns  \
+    vis_columns = [c for c in self.getColumns()  \
                    if not c in self._hidden_columns]
     return vis_columns
 

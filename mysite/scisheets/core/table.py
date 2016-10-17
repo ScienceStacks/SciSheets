@@ -109,10 +109,10 @@ class Table(ColumnContainer):
   # The following methods are used in debugging
 
   def d(self):
-    return [(c.getName(), c.getCells()) for c in self._columns]
+    return [(c.getName(), c.getCells()) for c in self.getColumns()]
 
   def f(self):
-    return [(c.getName(), c.getFormula()) for c in self._columns]
+    return [(c.getName(), c.getFormula()) for c in self.getColumns()]
 
   def setCapture(self, filename, data):
     dc = DataCapture(filename)
@@ -132,14 +132,14 @@ class Table(ColumnContainer):
     Changes the cells in the name column to be consecutive ints.
     """
     names = []
-    if len(self._columns) > 1:
-      num_cells = self._columns[NAME_COLUMN_IDX + 1].numCells()
+    if len(self.getColumns()) > 1:
+      num_cells = self.getColumns()[NAME_COLUMN_IDX + 1].numCells()
     else:
-      num_cells = self._columns[NAME_COLUMN_IDX].numCells()
-    if len(self._columns) > 1:
+      num_cells = self.getColumns()[NAME_COLUMN_IDX].numCells()
+    if len(self.getColumns()) > 1:
       for row_num in range(num_cells):
         names.append(Table._rowNameFromIndex(row_num))
-      self._columns[NAME_COLUMN_IDX].addCells(names, replace=True)
+      self.getColumns()[NAME_COLUMN_IDX].addCells(names, replace=True)
 
   def _formulaStatementFromFile(self, filepath, name):
     """
@@ -158,13 +158,13 @@ class Table(ColumnContainer):
     """
     Returns the columns other than the name column
     """
-    return self._columns[NAME_COLUMN_IDX + 1:]
+    return self.getColumns()[NAME_COLUMN_IDX + 1:]
 
   def getData(self):
     """
     Returns the data values in an array ordered by column index
     """
-    return [c.getCells() for c in self._columns]
+    return [c.getCells() for c in self.getColumns()]
 
   def getEpilogue(self):
     """
@@ -176,7 +176,7 @@ class Table(ColumnContainer):
     """
     :return list-of-Column:
     """
-    result = [c for c in self._columns if c.getFormula() is not None]
+    result = [c for c in self.getColumns() if c.getFormula() is not None]
     return result
 
   def getRow(self, index=None):
@@ -186,7 +186,7 @@ class Table(ColumnContainer):
     :return: Row object
     """
     row = Row()
-    for column in self._columns:
+    for column in self.getColumns():
       if index is None:
         if column.isFloats():
           row[column.getName()] = np.nan  # pylint: disable=E1101
@@ -236,7 +236,7 @@ class Table(ColumnContainer):
     """
     none_array = np.array([None])
     num_rows = self.numRows()
-    for column in self._columns:
+    for column in self.getColumns():
       adj_rows = num_rows - column.numCells()
       if adj_rows > 0:
         if column.isFloats():
@@ -250,23 +250,23 @@ class Table(ColumnContainer):
     Checks that the table is internally consistent
     Verify that there is at least one column
     """
-    if len(self._columns) < 1:
+    if len(self.getColumns()) < 1:
       raise er.InternalError("Table %s has no columns." % self._name)
     # Verify that all columns have the same number of cells
     num_rows = len(self.columnFromName(NAME_COLUMN_STR).getCells())
-    for column in self._columns:
+    for column in self.getColumns():
       if  column.numCells() != num_rows:
         import pdb; pdb.set_trace()
         msg = "In Table %s, Column %s differs in its number of rows." \
             % (self.getName(), column.getName())
         raise er.InternalError(msg)
     # Verify that the first Column is the Name Column
-    if self._columns[0].getName() != NAME_COLUMN_STR:
+    if self.getColumns()[0].getName() != NAME_COLUMN_STR:
       msg = "In Table %s, first column is not 'row' column" % self.getName()
       raise er.InternalError(msg)
     # Verify that names are unique
     names = []
-    for col in self._columns:
+    for col in self.getColumns():
       names.append(col.getName())
     if len(names) != len(set(names)):
       raise er.DuplicateColumnName("Duplicate names in Table %s"
@@ -274,7 +274,7 @@ class Table(ColumnContainer):
     # Verify the sequence of row names
     for nrow in range(self.numRows()):
       expected_row_name = Table._rowNameFromIndex(nrow)
-      actual_row_name = self._columns[NAME_COLUMN_IDX].getCells()[nrow]
+      actual_row_name = self.getColumns()[NAME_COLUMN_IDX].getCells()[nrow]
       if actual_row_name != expected_row_name:
         import pdb; pdb.set_trace()
         msg = "In Table %s, invalid row name at index %d: %s" % \
@@ -310,7 +310,7 @@ class Table(ColumnContainer):
     """
     error = None
     # Check for problems with this column
-    is_ok = all([c.getName() != column.getName() for c in self._columns])
+    is_ok = all([c.getName() != column.getName() for c in self.getColumns()])
     if not is_ok:
       error = "**%s is a duplicate name" % column.getName()
       return error
@@ -319,7 +319,7 @@ class Table(ColumnContainer):
       if error is not None:
         return error
     if index is None:
-      index = len(self._columns)
+      index = len(self.getColumns())
     # Handle the different cases of adding a column
     # Case 1: NameColumn
     if self.numColumns() == 0:
@@ -350,7 +350,7 @@ class Table(ColumnContainer):
     else:
       proposed_name = Table._rowNameFromIndex(ext_index)
     # Assign values to the cells in the Row
-    for column in self._columns:
+    for column in self.getColumns():
       cur_name = column.getName()
       if cur_name in row:
         column.insertCell(row[cur_name])
@@ -394,7 +394,7 @@ class Table(ColumnContainer):
     """
     indicies.sort()
     indicies.reverse()
-    for column in self._columns:
+    for column in self.getColumns():
       column.deleteCells(indicies)
     self._updateNameColumn()
 
@@ -423,7 +423,7 @@ class Table(ColumnContainer):
     :param str column_name:
     :return bool: True if column is present
     """
-    for column in self._columns:
+    for column in self.getColumns():
       if column.getName() == column_name:
         return True
     return False
@@ -448,7 +448,7 @@ class Table(ColumnContainer):
       if local_debug:
         import pdb; pdb.set_trace()
       return False
-    for column in self._columns:
+    for column in self.getColumns():
       other_column = other_table.columnFromName(column.getName())
       if other_column is None:
         if local_debug:
@@ -472,7 +472,7 @@ class Table(ColumnContainer):
     if idx is None:
       idx = self.numRows()
     for ncol in range(self.numColumns()):
-      column = self._columns[ncol]
+      column = self.getColumns()[ncol]
       name = column.getName()
       if name in row.keys():
         column.insertCell(row[name], idx)
@@ -493,7 +493,7 @@ class Table(ColumnContainer):
     """
     Returns the number of rows in the table
     """
-    return max([c.numCells() for c in self._columns])
+    return max([c.numCells() for c in self.getColumns()])
 
   # TODO: Should check for exceptions and revert to a 
   #       previous version of the table if encounter an error
@@ -586,7 +586,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     new_names = Table._rowNamesFromSize(len(names))
     name_column.replaceCells(new_names)
     # Update the order of values in each column
-    for column in self._columns:
+    for column in self.getColumns():
       try:
         if column.getName() != NAME_COLUMN_STR:
           data = column.getCells()
@@ -670,7 +670,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
     for ncol in range(self.numColumns()):
-      column = self._columns[ncol]
+      column = self.getColumns()[ncol]
       name = column.getName()
       if name in row.keys():
         if name != NAME_COLUMN_STR:
