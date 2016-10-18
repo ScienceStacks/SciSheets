@@ -18,18 +18,17 @@ class ColumnContainer(PositionTree):
   '''
 
   def __init__(self, name):
+    super(ColumnContainer, self).__init__(name)
     self._name = name
     self._children = []
     self._versioned_file = None
 
-  # TODO: test for no child at position
   def columnFromIndex(self, index):
     """
     :return: column object at the index
     """
     return self.getChildAtPosition(index)
 
-  # TODO: New method
   def _createFullName(self, child):
     """
     Creates a full path name from the root in dotted form.
@@ -39,23 +38,21 @@ class ColumnContainer(PositionTree):
     path = child.findPathFromRoot()
     return ".".join(path)
 
-  # TODO: New method
   def _relativeNameToFullName(self, name, is_relative=True):
     """
     Converts a name relative to the current node to a full name.
-    :param str relative_name:
+    :param str is_relative:
     :param bool is_relative: is a relative name
     :return str: full name
     """
     if not is_relative:
       return name
     current_node_name = self._createFullName(self)
-    return ".".join[current_node_name, relative_name]
+    return ".".join([current_node_name, name])
 
-  # TODO: New method
   def childFromName(self, name, is_relative=True):
     """
-    Finds a column with the specified name or None.
+    Finds a child with the specified name or None.
     Note that Columns must be leaves in the Tree.
     :param name: name of the column
     :param bool is_relative: name is relative to the current name
@@ -64,13 +61,13 @@ class ColumnContainer(PositionTree):
     """
     full_name = self._relativeNameToFullName(name, 
         is_relative=is_relative)
-    for child in self.getLeaves():
+    for child in self.getChildren(is_recursive=True):
       full_child_name = self._createFullName(child)
       if full_name == full_child_name:
         return child
+    import pdb; pdb.set_trace()
     return None
         
-  # TODO: New method
   def columnFromName(self, name, is_relative=True):
     """
     Finds a column with the specified name or None.
@@ -78,7 +75,7 @@ class ColumnContainer(PositionTree):
     :param name: name of the column
     :return: column - column object or None if not found
     """
-    leaf = childFromName(name, is_relative=is_relative)
+    leaf = self.childFromName(name, is_relative=is_relative)
     if isinstance(leaf, Column):
       return leaf
 
@@ -96,26 +93,23 @@ class ColumnContainer(PositionTree):
     instance.setName(self.getName())
     return instance
 
-  # TODO: test for no child at position
   def getCell(self, row_index, column_index):
     """
     :return: the numpy array of the cells in the column
     """
-    child = getChildAtPosition(column_index)
+    child = self.getChildAtPosition(column_index)
     if isinstance(child, Column):
       return child.getCells()[row_index]
     else:
       raise ValueError("Position %d in %s is not a Column" %
           (column_index, self.getName()))
 
-  # TODO: Test for Table as leaf
   def getColumnNames(self):
     """
     :return list-of-str:
     """
     return [c.getName() for c in self.getLeaves()]
 
-  # TODO: Test for Table as leaf
   def getColumns(self):
     """
     :return: list with the column objects in sequence
@@ -159,13 +153,21 @@ class ColumnContainer(PositionTree):
     """
     self.addChild(column, position=index)
 
+  def moveChild(self, child, new_idx):
+    """
+    Moves the child to after the specified index
+    :param PositionTree: what's to be moved
+    :param new_idx: new index for column
+    """
+    self.moveChildToPosition(child, new_idx+1)
+
   def moveColumn(self, column, new_idx):
     """
-    Moves the column to the specified index
+    Moves the column to after the specified index
     :param column: column to move
     :param new_idx: new index for column
     """
-    self.moveChildToPosition(column, new_idx)
+    self.moveChildToPosition(column, new_idx+1)
 
   def numColumns(self):
     """

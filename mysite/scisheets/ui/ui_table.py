@@ -20,8 +20,8 @@ class UITable(Table):
   """
 
   def __init__(self, name):
-    self._hidden_columns = []
     super(UITable, self).__init__(name)
+    self._hidden_columns = []
 
   def getSerializationDict(self, class_variable):
     """

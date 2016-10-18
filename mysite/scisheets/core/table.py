@@ -10,6 +10,7 @@ from helpers.formula_statement import FormulaStatement
 from column import Column
 from column_container import ColumnContainer
 from table_evaluator import TableEvaluator
+from helpers.serialize_deserialize import deserialize
 import errors as er
 import column as cl
 import numpy as np
@@ -77,10 +78,10 @@ class Table(ColumnContainer):
         "_filepath": filepath,
         }
     serialization_dict.update(more_dict)
-    _columns = []
-    for column in self.getColumns():
-      _columns.append(column.getSerializationDict(class_variable))
-    serialization_dict["_columns"] = _columns
+    _children = []
+    for child in self.getChildren():
+      _children.append(child.getSerializationDict(class_variable))
+    serialization_dict["_children"] = _children
     return serialization_dict
 
   @classmethod
@@ -99,10 +100,12 @@ class Table(ColumnContainer):
     table.setPrologue(serialization_dict["_prologue_formula"])
     table.setEpilogue(serialization_dict["_epilogue_formula"])
     table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])
-    column_dicts = serialization_dict["_columns"]
-    for column_dict in column_dicts:
-      new_column = Column.deserialize(column_dict)
-      table.addColumn(new_column)
+    child_dicts = serialization_dict["_children"]
+    for child_dict in child_dicts:
+      # Does child_dict need to be json_str?
+      import pdb; pdb.set_trace()
+      new_child = deserialize(child_dict)
+      table.addChild(new_child)
     return table
 
 
