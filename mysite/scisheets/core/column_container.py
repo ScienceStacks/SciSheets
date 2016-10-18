@@ -4,12 +4,13 @@
 
 from mysite import settings as settings
 from mysite.helpers.versioned_file import VersionedFile
+from mysite.helpers.tree import PositionTree
 from column import Column
 import errors as er
 import column as cl
 
 
-class ColumnContainer(object):
+class ColumnContainer(PositionTree):
   '''
   A ColumnContainer can add and delete columns.
   It has no concept of Rows.
@@ -18,25 +19,68 @@ class ColumnContainer(object):
 
   def __init__(self, name):
     self._name = name
-    self._columns = []  # array of column objects in table sequence
+    self._children = []
     self._versioned_file = None
 
+  # TODO: test for no child at position
   def columnFromIndex(self, index):
     """
     :return: column object at the index
     """
-    return self._columns[index]
+    return self.getChildAtPosition(index)
 
-  def columnFromName(self, name):
+  # TODO: New method
+  def _createFullName(self, child):
     """
-    Finds a column with the specified name or None
+    Creates a full path name from the root in dotted form.
+    :param PositionTree child:
+    :return str:
+    """
+    path = child.findPathFromRoot()
+    return ".".join(path)
+
+  # TODO: New method
+  def _relativeNameToFullName(self, name, is_relative=True):
+    """
+    Converts a name relative to the current node to a full name.
+    :param str relative_name:
+    :param bool is_relative: is a relative name
+    :return str: full name
+    """
+    if not is_relative:
+      return name
+    current_node_name = self._createFullName(self)
+    return ".".join[current_node_name, relative_name]
+
+  # TODO: New method
+  def childFromName(self, name, is_relative=True):
+    """
+    Finds a column with the specified name or None.
+    Note that Columns must be leaves in the Tree.
+    :param name: name of the column
+    :param bool is_relative: name is relative to the current name
+       (as opposed to a full name)
+    :return list-of-PositionTree:
+    """
+    full_name = self._relativeNameToFullName(name, 
+        is_relative=is_relative)
+    for child in self.getLeaves():
+      full_child_name = self._createFullName(child)
+      if full_name == full_child_name:
+        return child
+    return None
+        
+  # TODO: New method
+  def columnFromName(self, name, is_relative=True):
+    """
+    Finds a column with the specified name or None.
+    Note that Columns must be leaves in the Tree.
     :param name: name of the column
     :return: column - column object or None if not found
     """
-    for  column in self._columns:
-      if  column.getName() == name:
-        return  column
-    return None
+    leaf = childFromName(name, is_relative=is_relative)
+    if isinstance(leaf, Column):
+      return leaf
 
   def copy(self, instance=None):
     """
@@ -52,23 +96,31 @@ class ColumnContainer(object):
     instance.setName(self.getName())
     return instance
 
+  # TODO: test for no child at position
   def getCell(self, row_index, column_index):
     """
     :return: the numpy array of the cells in the column
     """
-    return self._columns[column_index].getCells()[row_index]
+    child = getChildAtPosition(column_index)
+    if isinstance(child, Column):
+      return child.getCells()[row_index]
+    else:
+      raise ValueError("Position %d in %s is not a Column" %
+          (column_index, self.getName()))
 
+  # TODO: Test for Table as leaf
   def getColumnNames(self):
     """
     :return list-of-str:
     """
-    return [c.getName() for c in self._columns]
+    return [c.getName() for c in self.getLeaves()]
 
+  # TODO: Test for Table as leaf
   def getColumns(self):
     """
     :return: list with the column objects in sequence
     """
-    return self._columns
+    return [c for c in self.getLeaves() if isinstance(c, Column)]
 
   def getFilepath(self):
     """
@@ -93,10 +145,11 @@ class ColumnContainer(object):
 
   def indexFromColumn(self, column):
     """
-    Finds the index of the specified column
+    Finds the index of the specified column if it is a child
     :param column: column object
+    :return int or None:
     """
-    return self._columns.index(column)
+    return self.getPositionOfChild(column)
 
   def insertColumn(self, column, index=None):
     """
@@ -104,10 +157,7 @@ class ColumnContainer(object):
     :param column: object
     :param index: column index
     """
-    idx = index
-    if idx is None:
-      idx = len(self._columns)
-    self._columns.insert(idx, column)
+    self.addChild(column, position=index)
 
   def moveColumn(self, column, new_idx):
     """
@@ -115,28 +165,28 @@ class ColumnContainer(object):
     :param column: column to move
     :param new_idx: new index for column
     """
-    cur_idx = self.indexFromColumn(column)
-    ins_idx = new_idx + 1
-    if cur_idx < new_idx:
-      ins_idx -= 1
-    del self._columns[cur_idx]
-    self._columns.insert(ins_idx, column)
+    self.moveChildToPosition(column, new_idx)
 
   def numColumns(self):
     """
     Returns the number of columns in the table
     """
-    return len(self._columns)
+    return len(self.getColumns())
+
+  def removeChild(self, child):
+    """
+    Removes the chld object from the table
+    """
+    child.removeTree()
 
   def removeColumn(self, column):
     """
     Removes the column object from the table
     """
-    index = self._columns.index(column)
-    del self._columns[index]
+    self.removeChild(column)
 
   def setColumns(self, columns):
-    self._columns = columns
+    [self.addChild(c) for c in columns]
 
   def setFilepath(self, filepath):
     """
