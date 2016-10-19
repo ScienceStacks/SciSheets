@@ -5,15 +5,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": true,
       "_cells": [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9"
+        "1"
       ],
       "_formula": null,
       "_name": "row"
@@ -22,92 +14,16 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        83,
-        4,
-        8,
-        2,
-        4,
-        42,
-        94,
-        66,
-        54
+        "empty table"
       ],
       "_formula": null,
       "_name": "Col_0"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        91,
-        83,
-        1,
-        45,
-        59,
-        28,
-        44,
-        22,
-        46
-      ],
-      "_formula": null,
-      "_name": "Col_1"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        "Lmzts",
-        "CIhgl",
-        "adiQy",
-        "PQIih",
-        "TaaME",
-        "lSMML",
-        "BVKzn",
-        "DJPmu",
-        "QSptK"
-      ],
-      "_formula": null,
-      "_name": "Col_2"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        "uubCV",
-        "ZwENK",
-        "kZuxl",
-        "gPzaS",
-        "FLCgq",
-        "CJFPH",
-        "sKcTq",
-        "pPjXk",
-        "ffHtC"
-      ],
-      "_formula": null,
-      "_name": "Col_3"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        20,
-        74,
-        74,
-        22,
-        62,
-        58,
-        29,
-        27,
-        1
-      ],
-      "_formula": null,
-      "_name": "Col_4"
     }
   ],
-  "_epilogue_formula": "# Epilogue\n",
+  "_epilogue_formula": "",
   "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/scisheet_table.scish",
   "_hidden_columns": [],
   "_is_evaluate_formulas": true,
-  "_name": "Demo",
-  "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+  "_name": "EmptyTable",
+  "_prologue_formula": ""
 }
