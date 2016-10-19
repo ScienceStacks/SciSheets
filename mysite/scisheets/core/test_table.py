@@ -1,6 +1,7 @@
 '''Tests for table'''
 
 from mysite import settings
+from helpers.serialize_deserialize import CLASS_VARIABLE
 import helpers.cell_types as cell_types
 import table as tb
 import column as cl
@@ -14,7 +15,8 @@ import unittest
 
 TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_table_1")
-CLASS_STRING = 'CLASS_STRING'
+
+IGNORE_TEST = False
 
 
 #############################
@@ -27,6 +29,8 @@ class TestTable(unittest.TestCase):
     ht.setupTableInitialization(self)
 
   def testConstructor(self):
+    if IGNORE_TEST:
+      return
     table = tb.Table(ht.TABLE_NAME)
     self.assertEqual(table._name, ht.TABLE_NAME)
     self.assertEqual(len(table.getColumns()), 1)
@@ -34,6 +38,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue('import' in table._prologue.getFormula())
 
   def testAdjustColumnLength(self):
+    if IGNORE_TEST:
+      return
     table = ht.createTable(ht.TABLE_NAME)
     column = cl.Column(ht.COLUMN)
     column.addCells(ht.COLUMN1_CELLS)
@@ -55,10 +61,14 @@ class TestTable(unittest.TestCase):
       self.assertIsNone(column.getCells()[1])
 
   def testUpdateNameColumn(self):
+    if IGNORE_TEST:
+      return
     self.assertEqual(self.table.getColumns()[0].numCells(),
                      self.table.getColumns()[1].numCells())
 
   def testAddColumn(self):
+    if IGNORE_TEST:
+      return
     table = ht.createTable(ht.TABLE_NAME)
     # Add an empty column
     column = cl.Column(ht.COLUMN)
@@ -76,6 +86,8 @@ class TestTable(unittest.TestCase):
     self.assertEqual(column.numCells(), table.numRows())
 
   def testGetRow(self):
+    if IGNORE_TEST:
+      return
     row = self.table.getRow()
     is_correct = row.has_key(ht.COLUMN1) and row.has_key(ht.COLUMN2)
     self.assertTrue(is_correct)
@@ -88,6 +100,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue(is_correct)
 
   def testAddRow1(self):
+    if IGNORE_TEST:
+      return
     column = self.table.columnFromName(ht.COLUMN2)
     self.assertEqual(np.array(column.getCells()).dtype,
         np.float64)  # pylint: disable=E1101
@@ -99,6 +113,8 @@ class TestTable(unittest.TestCase):
         np.float64) # pylint: disable=E1101
 
   def testAddRow2(self):
+    if IGNORE_TEST:
+      return
     expected_rows = self.table.numRows() + 1
     row = self.table.getRow()
     row[ht.COLUMN1] = "four"
@@ -117,36 +133,50 @@ class TestTable(unittest.TestCase):
     self.assertEqual(cells[0], row[ht.COLUMN1])
 
   def testCopy(self):
+    if IGNORE_TEST:
+      return
     new_table = self.table.copy()
     self.assertEqual(self.table.numRows(), new_table.numRows())
     self.assertEqual(self.table.numColumns(), new_table.numColumns())
     self.assertTrue(new_table.isEquivalent(self.table))
 
   def testDeleteColumn(self):
+    if IGNORE_TEST:
+      return
     num_col = self.table.numColumns()
     column = self.table.columnFromName(ht.COLUMN2)
     self.table.deleteColumn(column)
     self.assertEqual(num_col-1, self.table.numColumns())
 
   def testDeleteRows(self):
+    if IGNORE_TEST:
+      return
     rows = [0, 2]
     expected_rows = self.table.numRows() - len(rows)
     self.table.deleteRows(rows)
     self.assertEqual(self.table.numRows(), expected_rows)
 
   def testGetColumns(self):
+    if IGNORE_TEST:
+      return
     columns = self.table.getColumns()
     self.assertEqual(len(columns), self.table.numColumns())
     for column in columns:
       self.assertTrue(isinstance(column, cl.Column))
 
   def testNumColumns(self):
+    if IGNORE_TEST:
+      return
     self.assertEqual(self.table.numColumns(), 4)
 
   def testNumRows(self):
+    if IGNORE_TEST:
+      return
     self.assertEqual(self.table.numRows(), len(ht.COLUMN2_CELLS))
 
   def testInsertRow(self):
+    if IGNORE_TEST:
+      return
     row = self.table.getRow()  # Get an empty row
     row[ht.COLUMN1] = "four"
     row[ht.COLUMN2] = 50
@@ -161,6 +191,8 @@ class TestTable(unittest.TestCase):
     self.assertEqual(columns[2].getCells()[index], 50)
 
   def testMoveRow(self):
+    if IGNORE_TEST:
+      return
     cur_row = self.table.getRow(1)
     self.table.moveRow(1, 2)
     new_row = self.table.getRow(2)
@@ -169,6 +201,8 @@ class TestTable(unittest.TestCase):
         self.assertEqual(cur_row[k], new_row[k])
 
   def testUpdateCell(self):
+    if IGNORE_TEST:
+      return
     new_value = "onee"
     row_index = 0
     self.table.updateCell("onee", row_index, ht.COLUMN2_INDEX)
@@ -177,6 +211,8 @@ class TestTable(unittest.TestCase):
         new_value)
 
   def testUpdateRow(self):
+    if IGNORE_TEST:
+      return
     # Simple update
     rowidx = 1
     row = tb.Row()
@@ -197,6 +233,8 @@ class TestTable(unittest.TestCase):
     self.assertEqual(new_row[ht.COLUMN2], row[ht.COLUMN2])
 
   def testRowNamesFromSize(self):
+    if IGNORE_TEST:
+      return
     size = 5
     row_names = tb.Table._rowNamesFromSize(size)
     self.assertEqual(len(row_names), size)
@@ -204,6 +242,8 @@ class TestTable(unittest.TestCase):
       self.assertEqual(row_names[idx], tb.Table._rowNameFromIndex(idx))
 
   def testRenameRow(self):
+    if IGNORE_TEST:
+      return
     table = self.table
     row_idx = 0
     columns = table.getColumns()
@@ -223,6 +263,8 @@ class TestTable(unittest.TestCase):
       self.assertTrue(is_equal)
 
   def testRenameColumn(self):
+    if IGNORE_TEST:
+      return
     column = self.table.columnFromName(ht.COLUMN1)
     is_equal = self.table.renameColumn(column, ht.COLUMN1)
     self.assertFalse(is_equal)
@@ -231,6 +273,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue(is_equal)
 
   def testTrimRows(self):
+    if IGNORE_TEST:
+      return
     num_rows = self.table.numRows()
     self.table.trimRows()
     self.assertEqual(num_rows, self.table.numRows())
@@ -243,6 +287,8 @@ class TestTable(unittest.TestCase):
     self.assertEqual(num_rows+1, self.table.numRows())
 
   def testRefactorColumn(self):
+    if IGNORE_TEST:
+      return
     table = ht.createTable("test", 
         column_name=[ht.COLUMN1, ht.COLUMN2, ht.COLUMN3])
     column1 = table.columnFromName(ht.COLUMN1)
@@ -264,6 +310,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue(expected_values == actual_values)
 
   def testIsEquivalent(self):
+    if IGNORE_TEST:
+      return
     new_table = self.table.copy()
     self.assertTrue(self.table.isEquivalent(new_table))
     column = new_table.columnFromIndex(1)
@@ -279,6 +327,8 @@ class TestTable(unittest.TestCase):
     self.assertFalse(self.table.isEquivalent(new_table))
 
   def testGetColumnFormula(self):
+    if IGNORE_TEST:
+      return
     table = ht.createTable("test", column_name=[ht.COLUMN1, ht.COLUMN2])
     column1 = table.columnFromName(ht.COLUMN1)
     self.assertEqual(len(table.getFormulaColumns()), 0)
@@ -293,22 +343,27 @@ class TestTable(unittest.TestCase):
     self.assertEqual(len(table.getFormulaColumns()), 1)
 
   def testGetSerializationDict(self):
-    serialization_dict = self.table.getSerializationDict(CLASS_STRING)
-    self.assertTrue(CLASS_STRING in serialization_dict.keys())
-    columns = serialization_dict['_columns']
-    is_presents = [CLASS_STRING in c.keys() for c in columns]
+    if IGNORE_TEST:
+      return
+    serialization_dict = self.table.getSerializationDict(CLASS_VARIABLE)
+    self.assertTrue(CLASS_VARIABLE in serialization_dict.keys())
+    children = serialization_dict['_children']
+    is_presents = [CLASS_VARIABLE in c.keys() for c in children]
     self.assertTrue(all(is_presents))
     excludes = ['_prologue_formula', 
                 '_epilogue_formula', 
                 '_filepath', 
-                CLASS_STRING,
+                CLASS_VARIABLE,
                ]
     for key in serialization_dict.keys():
       if not key in excludes:
         self.assertTrue(key in self.table.__dict__.keys(), "%s"% key)
 
+  # TODO: Add test where there is a child that is a Table
   def testDeserialize(self):
-    serialization_dict = self.table.getSerializationDict(CLASS_STRING)
+    if IGNORE_TEST:
+      return
+    serialization_dict = self.table.getSerializationDict(CLASS_VARIABLE)
     table = tb.Table.deserialize(serialization_dict)
     self.assertTrue(table.isEquivalent(self.table))
       

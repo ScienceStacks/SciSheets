@@ -17,6 +17,8 @@ TRUTH_COLUMNS = ['A', 'B']
 COLUMN1_VALUES = range(10)
 TEST_FILE1 = "test_api_1"
 
+IGNORE_TEST = False
+
 #############################
 # Tests
 #############################
@@ -31,10 +33,14 @@ class TestAPI(unittest.TestCase):
     ht.setupTableInitialization(self)
 
   def testGetColumnValues(self):
+    if IGNORE_TEST:
+      return
     values = self.api.getColumnValue(COLUMN1)
     self.assertTrue(all(values == COLUMN1_VALUES))
 
   def testSetColumnValues(self):
+    if IGNORE_TEST:
+      return
     new_column1_values = list(COLUMN1_VALUES)
     new_column1_values.extend(range(5))
     self.api.setColumnValue(COLUMN1, new_column1_values)
@@ -42,6 +48,8 @@ class TestAPI(unittest.TestCase):
     self.assertTrue(all(values == np.array(new_column1_values)))
 
   def testColumnVisibility(self):
+    if IGNORE_TEST:
+      return
     names = ['row']
     column = self.api._table.columnFromName(names[0])
     self.assertEqual(len(self.api._table._hidden_columns), 0)
@@ -52,6 +60,8 @@ class TestAPI(unittest.TestCase):
     self.assertEqual(len(self.api._table._hidden_columns), 0)
 
   def testSetColumnVariables(self):
+    if IGNORE_TEST:
+      return
     table = self.api.getTable()
     self.api.setColumnVariables()
     for column in table.getColumns():
@@ -63,6 +73,8 @@ class TestAPI(unittest.TestCase):
     self.assertTrue(new_column_name in table.getNamespace())
 
   def testSetColumnVariablesWithColnmsOption(self):
+    if IGNORE_TEST:
+      return
     table = self.api.getTable()
     self.api.setColumnVariables()
     old_cv_dict = {cv.getName(): cv 
@@ -85,6 +97,8 @@ class TestAPIFormulas(unittest.TestCase):
     ht.setupTableInitialization(self)
 
   def testGetValidatedColumn(self):
+    if IGNORE_TEST:
+      return
     column = self.api.getColumn(COLUMN1)
     self.assertEqual(column.getName(), COLUMN1)
 
@@ -93,10 +107,14 @@ class TestAPIFormulas(unittest.TestCase):
     return self.api.getColumn(COLUMN2)
 
   def testCreateColumn(self):
+    if IGNORE_TEST:
+      return
     column = self._createColumn()
     self.assertEqual(column.getName(), COLUMN2)
 
   def testDeleteColumn(self):
+    if IGNORE_TEST:
+     return
     _ = self._createColumn()
     self.api.deleteColumn(COLUMN2)
     is_absent = all([c.getName() != COLUMN2  \
@@ -142,6 +160,8 @@ class TestAPIFormulas(unittest.TestCase):
       self.assertTrue(b)
 
   def testCreateFromDataframe(self):
+    if IGNORE_TEST:
+      return
     df = self._createDataframe()
     table = self.api.dataframeToTable("NewTable", df)
     num = len(df.columns)
@@ -152,6 +172,8 @@ class TestAPIFormulas(unittest.TestCase):
       self.assertTrue(b)
 
   def testAddColumnsToDataframeMissingTable(self):
+    if IGNORE_TEST:
+      return
     try:
       table = self.api.getTable()
       df, names = table.getCapture(TEST_FILE1)
@@ -178,6 +200,8 @@ class TestAPIFormulas(unittest.TestCase):
     self._TableEqualDataframe(self.api._table, df, names=names)
 
   def testAddFromDataframe(self):
+    if IGNORE_TEST:
+      return
     self._testAddFromDataframe()  # Name conflicts
     self._testAddFromDataframe(names=['DUMMY1_COLUMN'])
     self._testAddFromDataframe(prefix="D")  # No name conflicts
@@ -192,6 +216,8 @@ class TestAPIFormulas(unittest.TestCase):
       self.assertTrue(list(df[name]) == list(expected_df[name]))
 
   def testToDataframe(self):
+    if IGNORE_TEST:
+      return
     self.api._table = self.table
     self._testToDataframe()
     self._testToDataframe(names=['DUMMY1_COLUMN'])

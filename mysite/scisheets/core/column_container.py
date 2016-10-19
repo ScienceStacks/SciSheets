@@ -65,7 +65,6 @@ class ColumnContainer(PositionTree):
       full_child_name = self._createFullName(child)
       if full_name == full_child_name:
         return child
-    import pdb; pdb.set_trace()
     return None
         
   def columnFromName(self, name, is_relative=True):

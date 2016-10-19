@@ -13,6 +13,7 @@ from table_evaluator import TableEvaluator
 from helpers.serialize_deserialize import deserialize
 import errors as er
 import column as cl
+import json
 import numpy as np
 import os
 import pandas as pd
@@ -80,7 +81,8 @@ class Table(ColumnContainer):
     serialization_dict.update(more_dict)
     _children = []
     for child in self.getChildren():
-      _children.append(child.getSerializationDict(class_variable))
+      if child.getName() != NAME_COLUMN_STR:
+        _children.append(child.getSerializationDict(class_variable))
     serialization_dict["_children"] = _children
     return serialization_dict
 
@@ -100,12 +102,16 @@ class Table(ColumnContainer):
     table.setPrologue(serialization_dict["_prologue_formula"])
     table.setEpilogue(serialization_dict["_epilogue_formula"])
     table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])
-    child_dicts = serialization_dict["_children"]
+    if "_children" in serialization_dict.keys():
+      child_dicts = serialization_dict["_children"]
+    elif "_columns" in serialization_dict.keys():
+      child_dicts = serialization_dict["_columns"]
+    else:
+      raise ValueError("Cannot find children for %s" % table.getName())
     for child_dict in child_dicts:
-      # Does child_dict need to be json_str?
-      import pdb; pdb.set_trace()
-      new_child = deserialize(child_dict)
+      new_child = deserialize(json.dumps(child_dict))
       table.addChild(new_child)
+    table.adjustColumnLength()
     return table
 
 
@@ -387,8 +393,8 @@ class Table(ColumnContainer):
     Deletes a column from the table.
     :param column: column obj to delete
     """
-    column.setTable(None)
     self.removeColumn(column)
+    column.setTable(None)
 
   def deleteRows(self, indicies):
     """
@@ -438,7 +444,7 @@ class Table(ColumnContainer):
     :param Table other_table:
     :returns bool:
     """
-    local_debug = False # Breaks on specifc reasons for non-equiv
+    local_debug = False  # Breaks on specifc reasons for non-equiv
     if not isinstance(other_table, self.__class__):
       if local_debug:
         import pdb; pdb.set_trace()
@@ -451,13 +457,13 @@ class Table(ColumnContainer):
       if local_debug:
         import pdb; pdb.set_trace()
       return False
-    for column in self.getColumns():
-      other_column = other_table.columnFromName(column.getName())
-      if other_column is None:
+    for child in self.getChildren():
+      other_child = other_table.childFromName(child.getName())
+      if other_child is None:
         if local_debug:
           import pdb; pdb.set_trace()
         return False
-      if not column.isEquivalent(other_column):
+      if not child.isEquivalent(other_child):
         if local_debug:
           import pdb; pdb.set_trace()
         return False
