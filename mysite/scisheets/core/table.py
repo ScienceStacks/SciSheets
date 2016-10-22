@@ -380,15 +380,15 @@ class Table(ColumnContainer):
     # Create an object if none provided
     if instance is None:
       instance = Table(self.getName())
+    name_column = instance.columnFromName(NAME_COLUMN_STR)
+    instance.deleteColumn(name_column)  # Avoid duplicate
     # Copy everything required from inherited classes
     super(Table, self).copy(instance=instance)
     # Set properties specific to this class
     instance.setPrologue(self.getPrologue().getFormula())
     instance.setEpilogue(self.getEpilogue().getFormula())
     instance.setIsEvaluateFormulas(self.getIsEvaluateFormulas())
-    for column in self.getColumns():
-      new_column = column.copy()
-      instance.addColumn(new_column)
+    self.adjustColumnLength()
     return instance
 
   def deleteColumn(self, column):

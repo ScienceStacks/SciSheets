@@ -320,7 +320,6 @@ class TestTable(unittest.TestCase):
     cell = column.getCell(0)
     new_cell = "New%s" % str(cell)
     column.updateCell(new_cell, 0)
-    import pdb; pdb.set_trace()
     self.assertFalse(self.table.isEquivalent(new_table))
     this_column.updateCell(new_cell, 0)
     self.assertTrue(self.table.isEquivalent(new_table))

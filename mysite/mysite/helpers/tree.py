@@ -95,7 +95,8 @@ class Tree(Node):
     # Copy properties from inherited classes
     instance = super(Tree, self).copy(instance=instance)
     # Set properties for this class
-    instance._children = self.getChildren()
+    for child in self.getChildren():
+      instance.addChild(child.copy())
     instance.setParent(self.getParent())
     return instance
 
@@ -245,13 +246,11 @@ class PositionTree(Tree):
   def addChild(self, position_tree, position=None):
     """
     Adds a Tree as a child to the current tree.
-    Handles moving a subtree from an existing part of the tree.
     :param PositionTree position_tree:
     :param int position: where to position in list of children
     """
     if position is None:
       position = len(self._children)
-    position_tree.removeTree()
     self._children.insert(position, position_tree)
     position_tree.setParent(self)
     self.validate()

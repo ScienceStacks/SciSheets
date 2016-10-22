@@ -116,8 +116,6 @@ class Column(PositionTree):
     instance.addCells(list(self.getCells()))
     instance.setAsis(self.getAsis())
     instance.setDataClass(self.getDataClass())
-    instance.setParent(self.getParent())
-    import pdb; pdb.set_trace()
     return instance
 
   def deleteCells(self, indicies):

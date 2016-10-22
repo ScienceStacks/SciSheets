@@ -100,9 +100,9 @@ class ColumnContainer(PositionTree):
     # Create an object if one is not provided
     if instance is None:
       instance = ColumnContainer(self.getName())
+    super(ColumnContainer, self).copy(instance=instance)
     # Set properties specific to this class
     instance.setVersionedFile(self.getVersionedFile())
-    instance._children = self.getColumns()
     instance.setName(self.getName())
     return instance
 
