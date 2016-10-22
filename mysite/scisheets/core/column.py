@@ -113,10 +113,11 @@ class Column(PositionTree):
     instance = super(Column, self).copy(instance=instance)
     # Set properties specific to this class
     instance.setFormula(self.getFormula())
-    instance.addCells(self.getCells())
+    instance.addCells(list(self.getCells()))
     instance.setAsis(self.getAsis())
     instance.setDataClass(self.getDataClass())
     instance.setParent(self.getParent())
+    import pdb; pdb.set_trace()
     return instance
 
   def deleteCells(self, indicies):

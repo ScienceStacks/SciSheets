@@ -16,7 +16,7 @@ import unittest
 TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_table_1")
 
-IGNORE_TEST = False
+IGNORE_TEST = True
 
 
 #############################
@@ -310,8 +310,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue(expected_values == actual_values)
 
   def testIsEquivalent(self):
-    if IGNORE_TEST:
-      return
+    #if IGNORE_TEST:
+    # return
     new_table = self.table.copy()
     self.assertTrue(self.table.isEquivalent(new_table))
     column = new_table.columnFromIndex(1)
@@ -320,6 +320,7 @@ class TestTable(unittest.TestCase):
     cell = column.getCell(0)
     new_cell = "New%s" % str(cell)
     column.updateCell(new_cell, 0)
+    import pdb; pdb.set_trace()
     self.assertFalse(self.table.isEquivalent(new_table))
     this_column.updateCell(new_cell, 0)
     self.assertTrue(self.table.isEquivalent(new_table))

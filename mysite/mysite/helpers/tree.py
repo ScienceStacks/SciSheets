@@ -45,16 +45,6 @@ class Node(object):
     """
     self._name = name
 
-  def migrate(self, instance=None):
-    """
-    :param Tree instance:
-    :return Tree:
-    """
-    if instance is None:
-      instance = Tree(self.getName())
-    instance = self.copy(instance=instance)
-    return instance
-
 
 class Tree(Node):
 
@@ -212,6 +202,12 @@ class Tree(Node):
     set2 = set([t.getName() for t in tree.getAllNodes()])
     is_equivalent = is_equivalent and set1 == set2
     return is_equivalent
+
+  def isRoot(self):
+    """
+    :return bool: True if root
+    """
+    return self._parent is None
 
   def removeTree(self):
     """

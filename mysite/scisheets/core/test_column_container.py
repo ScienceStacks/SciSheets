@@ -61,31 +61,30 @@ class TestColumnContainer(unittest.TestCase):
     with self.assertRaises(ValueError):
       self.table.columnFromIndex(index)
 
-  def testCreateFullName(self):
+  def testCreateGlobalName(self):
     if IGNORE_TEST:
       return
-    full_name = self.table._createFullName(self.column5)
-    expected_name = ".".join([self.table.getName(), self.column5.getName()])
-    self.assertEqual(full_name, expected_name)
-    full_name = self.table._createFullName(self.subtable_column)
-    expected_name = ".".join([self.table.getName(), SUBTABLE, 
-        self.subtable_column.getName()])
-    self.assertEqual(full_name, expected_name)
+    global_name = self.table._createGlobalName(self.column5)
+    expected_name = self.column5.getName()
+    self.assertEqual(global_name, expected_name)
+    global_name = self.table._createGlobalName(self.subtable_column)
+    expected_name = ".".join([SUBTABLE, self.subtable_column.getName()])
+    self.assertEqual(global_name, expected_name)
 
-  def testRelativeNameToFullName(self):
+  def testRelativeNameToGlobalName(self):
     if IGNORE_TEST:
       return
-    full_name = self.table._relativeNameToFullName(COLUMN5, is_relative=True)
-    expected_name = ".".join([self.table.getName(), self.column5.getName()])
-    self.assertEqual(full_name, expected_name)
-    full_name = self.table._relativeNameToFullName(full_name, is_relative=False)
-    expected_name = ".".join([self.table.getName(), self.column5.getName()])
+    global_name = self.table._relativeNameToGlobalName(COLUMN5, is_relative=True)
+    expected_name = self.column5.getName()
+    self.assertEqual(global_name, expected_name)
+    global_name = self.table._relativeNameToGlobalName(global_name, is_relative=False)
+    expected_name = self.column5.getName()
 
   def testChildFromName(self):
     if IGNORE_TEST:
       return
-    full_name = self.table._createFullName(self.subtable_column)
-    column = self.table.childFromName(full_name, is_relative=False)
+    global_name = self.table._createGlobalName(self.subtable_column)
+    column = self.table.childFromName(global_name, is_relative=False)
     self.assertTrue(column.isEquivalent(self.subtable_column))
     subtable = self.table.childFromName(SUBTABLE, is_relative=True)
     self.assertTrue(subtable.isEquivalent(self.subtable))
@@ -95,8 +94,8 @@ class TestColumnContainer(unittest.TestCase):
   def testColumnFromName(self):
     if IGNORE_TEST:
       return
-    full_name = self.table._createFullName(self.subtable_column)
-    column = self.table.columnFromName(full_name, is_relative=False)
+    global_name = self.table._createGlobalName(self.subtable_column)
+    column = self.table.columnFromName(global_name, is_relative=False)
     self.assertTrue(column.isEquivalent(self.subtable_column))
     column = self.table.columnFromName(COLUMN5, is_relative=True)
     self.assertTrue(column.isEquivalent(self.column5))

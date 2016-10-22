@@ -1,5 +1,6 @@
 '''
-  Implements the ColumnContainer.
+  Implements the ColumnContainer. A ColumnContainer is a PositionTree that has nodes that are
+  either Columns or ColumnContainers.
 '''
 
 from mysite import settings as settings
@@ -13,8 +14,10 @@ import column as cl
 class ColumnContainer(PositionTree):
   '''
   A ColumnContainer can add and delete columns.
-  It has no concept of Rows.
-  It treats columns as independent objects.
+  It has no concept of Rows. A ColumnContainer knows about column names, which are paths
+  from the root. A name is either relative to a ColumnContainer or 
+  a global name that specifies a path from the root ColumnContainer.
+  The root ColumnContainer has a VersionedFile that is backing store.
   '''
 
   def __init__(self, name):
@@ -29,26 +32,37 @@ class ColumnContainer(PositionTree):
     """
     return self.getChildAtPosition(index)
 
-  def _createFullName(self, child):
+  def _createGlobalName(self, child):
     """
-    Creates a full path name from the root in dotted form.
+    Creates a global name
     :param PositionTree child:
     :return str:
     """
     path = child.findPathFromRoot()
-    return ".".join(path)
+    del path[0]
+    if len(path) > 1:
+      result = ".".join(path)
+    elif len(path) == 1:
+      result = path[0]
+    else:
+      result = ""  # Root container
+    return result
 
-  def _relativeNameToFullName(self, name, is_relative=True):
+  def _relativeNameToGlobalName(self, name, is_relative=True):
     """
-    Converts a name relative to the current node to a full name.
+    Converts a name relative to the current node to an absolute name. 
     :param str is_relative:
     :param bool is_relative: is a relative name
-    :return str: full name
+    :return str: global name
     """
     if not is_relative:
       return name
-    current_node_name = self._createFullName(self)
-    return ".".join([current_node_name, name])
+    current_node_name = self._createGlobalName(self)
+    if len(current_node_name) > 0:
+      result = ".".join([current_node_name, name])
+    else:
+      result = name
+    return result
 
   def childFromName(self, name, is_relative=True):
     """
@@ -56,14 +70,14 @@ class ColumnContainer(PositionTree):
     Note that Columns must be leaves in the Tree.
     :param name: name of the column
     :param bool is_relative: name is relative to the current name
-       (as opposed to a full name)
+       (as opposed to a global name)
     :return list-of-PositionTree:
     """
-    full_name = self._relativeNameToFullName(name, 
+    global_name = self._relativeNameToGlobalName(name, 
         is_relative=is_relative)
     for child in self.getChildren(is_recursive=True):
-      full_child_name = self._createFullName(child)
-      if full_name == full_child_name:
+      global_child_name = self._createGlobalName(child)
+      if global_name == global_child_name:
         return child
     return None
         
@@ -200,6 +214,8 @@ class ColumnContainer(PositionTree):
     self.setVersionedFile(versioned_file)
 
   def setVersionedFile(self, versioned_file):
+    if not self.isRoot():
+      raise RuntimeError("Should not set VersionedFile for non-root.")
     self._versioned_file = versioned_file
 
   def setName(self, name):

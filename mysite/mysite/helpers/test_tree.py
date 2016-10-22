@@ -256,6 +256,13 @@ class TestPositionTree(unittest.TestCase):
     result = self.root.toString()
     self.assertTrue("2: ->NAME5" in result)
     self.assertEqual(result.count('->'), 4)
+
+  def testIsRoot(self):
+    self.assertTrue(self.root.isRoot())
+    new_tree = Tree("DUMMY_TREE")
+    self.root.addChild(new_tree)
+    self.assertFalse(new_tree.isRoot())
+    self.assertTrue(self.root.isRoot())
     
 
 if __name__ == '__main__':
