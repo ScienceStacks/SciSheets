@@ -136,19 +136,21 @@ class Table(ColumnContainer):
   
   # Internal and other methods
 
-  def _updateNameColumn(self):
+  # TODO: Tests with multiple levels of subtable
+  def _updateNameColumn(self, nrows_table=None):
     """
     Changes the cells in the name column to be consecutive ints.
+    :paam int nrows_table: Number of rows in the table
     """
+    if nrows_table is None:
+      nrows_table = self.numRows()
     names = []
-    if len(self.getColumns()) > 1:
-      num_cells = self.getColumns()[NAME_COLUMN_IDX + 1].numCells()
-    else:
-      num_cells = self.getColumns()[NAME_COLUMN_IDX].numCells()
-    if len(self.getColumns()) > 1:
-      for row_num in range(num_cells):
-        names.append(Table._rowNameFromIndex(row_num))
-      self.getColumns()[NAME_COLUMN_IDX].addCells(names, replace=True)
+    for row_num in range(nrows_table):
+      names.append(Table._rowNameFromIndex(row_num))
+    for table in self.getNonLeaves(is_from_root=True):
+      if isinstance(table, Table):
+        name_column = table.columnFromName(NAME_COLUMN_STR)
+        name_column.addCells(names, replace=True)
 
   def _formulaStatementFromFile(self, filepath, name):
     """
@@ -252,7 +254,7 @@ class Table(ColumnContainer):
           column.addCells(np.repeat(np.nan, adj_rows))  # pylint:disable=E1101
         else:
           column.addCells(np.repeat(none_array, adj_rows))
-    self._updateNameColumn()
+    self._updateNameColumn(nrows_table=num_rows)
 
   def _validateTable(self):
     """
@@ -265,7 +267,7 @@ class Table(ColumnContainer):
     name_column = self.columnFromName(NAME_COLUMN_STR)
     if name_column is None:
       import pdb; pdb.set_trace()
-    num_rows = len(name_column.getCells())
+    num_rows = self.numRows()
     for column in self.getColumns():
       if  column.numCells() != num_rows:
         import pdb; pdb.set_trace()
@@ -273,14 +275,11 @@ class Table(ColumnContainer):
             % (self.getName(), column.getName())
         raise er.InternalError(msg)
     # Verify that the first Column is the Name Column
-    if self.getColumns()[0].getName() != NAME_COLUMN_STR:
+    if self.getChildAtPosition(0).getName() != NAME_COLUMN_STR:
       msg = "In Table %s, first column is not 'row' column" % self.getName()
       raise er.InternalError(msg)
     # Verify that names are unique
-    names = []
-    for col in self.getColumns():
-      names.append(col.getName())
-    if len(names) != len(set(names)):
+    if not self.validateTree():
       raise er.DuplicateColumnName("Duplicate names in Table %s"
           % self.getName())
     # Verify the sequence of row names
@@ -292,11 +291,6 @@ class Table(ColumnContainer):
         msg = "In Table %s, invalid row name at index %d: %s" % \
                 (self.getName(), nrow, actual_row_name)
         raise er.InternalError(msg)
-    # Verify that the columns have the corrent table
-    for column in self.getColumns():
-      if not column.getTable() == self:
-        raise er.InternalError("Column %s in Table %s does not have correct parent"  \
-             % (column.getName(), self.getName()))
  
 
   def addCells(self, column, cells, replace=False):
@@ -587,13 +581,16 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     :param row_index: index of the row to change
     :param proposed_name: string of a number
     """
-    name_column = self.getColumns()[NAME_COLUMN_IDX]
+    name_column = self.columnFromName(NAME_COLUMN_STR)
     names = name_column.getCells()
     try:
       names[row_index] = str(proposed_name)
     except:
       import pdb; pdb.set_trace()
-    float_names = [float(x) for x in names]
+    try:
+      float_names = [float(x) for x in names]
+    except:
+      import pdb; pdb.set_trace()
     sel_index = np.argsort(float_names)
     new_names = Table._rowNamesFromSize(len(names))
     name_column.replaceCells(new_names)

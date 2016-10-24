@@ -14,9 +14,12 @@ import column as cl
 class ColumnContainer(PositionTree):
   '''
   A ColumnContainer can add and delete columns.
-  It has no concept of Rows. A ColumnContainer knows about column names, which are paths
+  It has no concept of Rows. 
+  A ColumnContainer knows about column names, which are paths
   from the root. A name is either relative to a ColumnContainer or 
   a global name that specifies a path from the root ColumnContainer.
+  The name does not include the name of the root table and so
+  the global name for the root table is ''.
   The root ColumnContainer has a VersionedFile that is backing store.
   '''
 
@@ -32,7 +35,7 @@ class ColumnContainer(PositionTree):
     """
     return self.getChildAtPosition(index)
 
-  def _createGlobalName(self, child):
+  def createGlobalName(self, child):
     """
     Creates a global name
     :param PositionTree child:
@@ -57,7 +60,7 @@ class ColumnContainer(PositionTree):
     """
     if not is_relative:
       return name
-    current_node_name = self._createGlobalName(self)
+    current_node_name = self.createGlobalName(self)
     if len(current_node_name) > 0:
       result = ".".join([current_node_name, name])
     else:
@@ -76,7 +79,7 @@ class ColumnContainer(PositionTree):
     global_name = self._relativeNameToGlobalName(name, 
         is_relative=is_relative)
     for child in self.getChildren(is_recursive=True):
-      global_child_name = self._createGlobalName(child)
+      global_child_name = self.createGlobalName(child)
       if global_name == global_child_name:
         return child
     return None
@@ -102,7 +105,8 @@ class ColumnContainer(PositionTree):
       instance = ColumnContainer(self.getName())
     super(ColumnContainer, self).copy(instance=instance)
     # Set properties specific to this class
-    instance.setVersionedFile(self.getVersionedFile())
+    if self.getVersionedFile() is not None:
+      instance.setVersionedFile(self.getVersionedFile())
     instance.setName(self.getName())
     return instance
 
@@ -121,7 +125,8 @@ class ColumnContainer(PositionTree):
     """
     :return list-of-str:
     """
-    return [c.getName() for c in self.getLeaves()]
+    return [c.getName() for c in self.getLeaves()  \
+            if isintance(c, Column)]
 
   def getColumns(self):
     """

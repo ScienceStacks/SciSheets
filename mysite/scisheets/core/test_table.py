@@ -114,7 +114,7 @@ class TestTable(unittest.TestCase):
 
   def testAddRow2(self):
     if IGNORE_TEST:
-      return
+     return
     expected_rows = self.table.numRows() + 1
     row = self.table.getRow()
     row[ht.COLUMN1] = "four"
@@ -134,11 +134,12 @@ class TestTable(unittest.TestCase):
 
   def testCopy(self):
     if IGNORE_TEST:
-      return
+     return
     new_table = self.table.copy()
     self.assertEqual(self.table.numRows(), new_table.numRows())
     self.assertEqual(self.table.numColumns(), new_table.numColumns())
     self.assertTrue(new_table.isEquivalent(self.table))
+    
 
   def testDeleteColumn(self):
     if IGNORE_TEST:
@@ -167,7 +168,7 @@ class TestTable(unittest.TestCase):
   def testNumColumns(self):
     if IGNORE_TEST:
       return
-    self.assertEqual(self.table.numColumns(), 4)
+    self.assertEqual(self.table.numColumns(), self.num_columns)
 
   def testNumRows(self):
     if IGNORE_TEST:
@@ -273,8 +274,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue(is_equal)
 
   def testTrimRows(self):
-    if IGNORE_TEST:
-      return
+    #if IGNORE_TEST:
+    # return
     num_rows = self.table.numRows()
     self.table.trimRows()
     self.assertEqual(num_rows, self.table.numRows())
@@ -310,8 +311,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue(expected_values == actual_values)
 
   def testIsEquivalent(self):
-    #if IGNORE_TEST:
-    # return
+    if IGNORE_TEST:
+     return
     new_table = self.table.copy()
     self.assertTrue(self.table.isEquivalent(new_table))
     column = new_table.columnFromIndex(1)

@@ -66,7 +66,8 @@ class Tree(Node):
     """
     :return bool: True if no duplicate names
     """
-    node_names = self.getAllNodes()
+    node_names = [".".join(c.findPathFromRoot())   \
+                  for c in self.getAllNodes()]
     return len(node_names) == len(set(node_names))
 
   def addChild(self, child):
@@ -82,7 +83,7 @@ class Tree(Node):
       raise ValueError("Duplicate addChild")
     self._children.append(child)
     child.setParent(self)
-    self.validate()
+    self.validateTree()
 
   def copy(self, instance=None):
     """
@@ -164,17 +165,35 @@ class Tree(Node):
     """
     return [n.getName() for n in self.getChildren(  \
         is_from_root=is_from_root, is_recursive=is_recursive)]
-    
-  def getLeaves(self, is_from_root=False):
+
+  def getAllNodes(self, is_from_root=False):
     """
     :param bool is_from_root: start with the root
-    :return list-of-Tree: nodes without children
+    :return list-of-Tree:
     """
     nodes = self.getChildren(is_from_root=is_from_root,
                                 is_recursive=True)  
     if not self in nodes:
       nodes.insert(0, self)
-    return [n for n in nodes if len(n.getChildren()) == 0]
+    return nodes
+
+  # TODO: Test with multiple levels of nodes
+  def getLeaves(self, is_from_root=False):
+    """
+    :param bool is_from_root: start with the root
+    :return list-of-Tree: nodes without children
+    """
+    return [n for n in self.getAllNodes(is_from_root=is_from_root)  \
+            if len(n.getChildren()) == 0]
+    
+  # TODO: Test with multiple levels of nodes
+  def getNonLeaves(self, is_from_root=False):
+    """
+    :param bool is_from_root: start with the root
+    :return list-of-Tree: nodes without children
+    """
+    return [n for n in self.getAllNodes(is_from_root=is_from_root)  \
+            if len(n.getChildren()) != 0]
     
   def getParent(self):
     return self._parent
@@ -235,7 +254,7 @@ class Tree(Node):
             % (tree.getParent().getName(), tree.getName())
     return result
   
-  def validate(self):
+  def validateTree(self):
     return self._checkForDuplicateNames()
 
 
@@ -253,7 +272,7 @@ class PositionTree(Tree):
       position = len(self._children)
     self._children.insert(position, position_tree)
     position_tree.setParent(self)
-    self.validate()
+    self.validateTree()
 
   def copy(self, instance=None):
     """
@@ -314,7 +333,7 @@ class PositionTree(Tree):
           % (child.getName(), self.getName()))
     self._children.remove(child)
     self._children.insert(position, child)
-    self.validate()
+    self.validateTree()
 
   def toString(self, is_from_root=False):
     """

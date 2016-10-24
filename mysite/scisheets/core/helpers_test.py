@@ -30,6 +30,7 @@ COLUMN4 = "DUMMY4_COLUMN"
 COLUMN5 = "DUMMY5_COLUMN"
 COLUMN2_INDEX = 1
 TABLE_NAME = "DUMMY_TABLE"
+SUBTABLE_NAME = "DUMMY_SUBTABLE"
 LIST = [2.0, 3.0]
 LIST2 = [3.0]
 TABLE = 'DUMMY'
@@ -82,10 +83,11 @@ def createColumn(name, data=np.array([]), table=None, formula=None):
   aColumn.setFormula(formula)
   return aColumn
 
-def createTable(name, column_name=None):
+def createTable(name, column_name=None, is_subtable=False):
   """
   :param str name: str table name
   :param str or list column_name: column(s) to create
+  :param bool is_subtable: true if table is a subtable
   :return: Table object
   """
   if column_name is None:
@@ -95,8 +97,6 @@ def createTable(name, column_name=None):
   else:
     colnms = [column_name]
   table = DTTable(name)
-  versioned_file = VersionedFile(TABLE_FILEPATH, TEST_DIR, MAX_VERSIONS)
-  table.setVersionedFile(versioned_file)
   factor = 1
   for colnm in colnms:
     column = cl.Column(colnm)
@@ -104,7 +104,10 @@ def createTable(name, column_name=None):
     factor += 1
     column.addCells(values, replace=True)
     table.addColumn(column)
-  api_util.writeObjectToFile(table, TABLE_FILEPATH)
+  if not is_subtable:
+    versioned_file = VersionedFile(TABLE_FILEPATH, TEST_DIR, MAX_VERSIONS)
+    table.setVersionedFile(versioned_file)
+    api_util.writeObjectToFile(table, TABLE_FILEPATH)
   return table
 
 def compareTableData(table1, table2, excludes=None):
@@ -159,15 +162,26 @@ def setupTableInitialization(o):
   Adds a table to the unittest object.
   """
   o.table = createTable(TABLE_NAME)
+  num = 1  # Number of columns in o.table
   column1 = cl.Column(COLUMN1)
   column1.addCells(COLUMN1_CELLS)
   o.table.addColumn(column1)
+  num += 1
   column2 = cl.Column(COLUMN2)
   column2.addCells(COLUMN2_CELLS)
   o.table.addColumn(column2)
+  num += 1
   column5 = cl.Column(COLUMN5)
   column5.addCells(COLUMN5_CELLS)
   o.table.addColumn(column5)
+  num += 1
+  subtable = createTable(SUBTABLE_NAME, is_subtable=True)
+  column1 = cl.Column(COLUMN1)
+  column1.addCells(COLUMN1_CELLS)
+  subtable.addColumn(column1)
+  o.table.addChild(subtable)
+  num += 2  # 'row' in SUBTALBE + column1
+  o.num_columns = num
 
 def runProcess(commands):
   """
