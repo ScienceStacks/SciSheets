@@ -84,15 +84,14 @@ class NamedTree(PositionTree):
   def isEquivalent(self, other):
     return super(NamedTree, self).isEquivalent(other)
 
-  def getName(self, is_global_name=False, is_node_name=False):
+  # TODO: Callers need to set is_relative_name
+  def getName(self, is_global_name=True):
     """
     :param bool is_global_name: request a global name
-    :param bool is_node_name: return the name of the node
-    :return: the table name
-    Note: only one of is_global_name and is_node_name 
-    can be true
+                                if false, node name
+    :return str:
     """
-    if is_node_name:
+    if not is_global_name:
       return super(NamedTree, self).getName()
     parent = self.getParent()
     if parent is None:
@@ -100,10 +99,7 @@ class NamedTree(PositionTree):
     else:
       child = self
       node_name = super(NamedTree, child).getName()
-      if is_global_name:
-        name = parent.globalName(node_name, is_relative=True)
-      else:
-        name = node_name
+      name = parent.globalName(node_name, is_relative=True)
     return name
 
   def setName(self, name):

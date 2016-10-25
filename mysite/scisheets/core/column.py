@@ -50,7 +50,7 @@ class Column(NamedTree):
       raise ValueError("Only serialize ExtendedArray")
     serialization_dict = {
         class_variable: str(self.__class__),
-        "_name": self.getName(is_node_name=True),
+        "_name": self.getName(is_global_name=False),
         "_asis": self.getAsis(),
         "_cells": self.getCells(),
         "_formula": self.getFormula(),
@@ -107,7 +107,7 @@ class Column(NamedTree):
     """
     # Create an object if one is not provided
     if instance is None:
-      instance = Column(self.getName(is_node_name=True))
+      instance = Column(self.getName(is_global_name=False))
     # Copy properties from inherited classes
     instance = super(Column, self).copy(instance=instance)
     # Set properties specific to this class
