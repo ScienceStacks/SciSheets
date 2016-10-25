@@ -20,7 +20,7 @@ class Node(object):
     """
     if instance is None:
       instance = Node(self.getName())
-    instance.setName(self.getName())
+    instance.setName(self.getName(is_node_name=True))
     return instance
 
   def getAllNodes(self):
@@ -211,16 +211,20 @@ class Tree(Node):
   def isAlwaysLeaf(self):
     return self.__class__.is_always_leaf
 
-  def isEquivalent(self, tree):
+  def isEquivalent(self, other):
     """
     :return bool: True if equivalent
     """
-    is_equivalent = super(Tree, self).isEquivalent(tree)
+    is_equivalent = super(Tree, self).isEquivalent(other)
     is_equivalent = is_equivalent and  \
-        self.getParent() == tree.getParent()
-    set1 = set([t.getName() for t in self.getAllNodes()])
-    set2 = set([t.getName() for t in tree.getAllNodes()])
+        self.getParent() == other.getParent()
+    set1 = set([t.getName() for t in self.getChildren()])
+    set2 = set([t.getName() for t in other.getChildren()])
     is_equivalent = is_equivalent and set1 == set2
+    if is_equivalent:
+      pairs = zip(self.getChildren(), other.getChildren())
+      is_equivalent = is_equivalent and  \
+          all([c1.isEquivalent(c2) for c1, c2 in pairs])
     return is_equivalent
 
   def isRoot(self):
@@ -311,14 +315,14 @@ class PositionTree(Tree):
     except ValueError:
       return None
 
-  def isEquivalent(self, position_tree):
+  def isEquivalent(self, other):
     """
     :param PositionTree position_tree:
     """
-    is_equivalent = super(PositionTree, self).isEquivalent(position_tree)
+    is_equivalent = super(PositionTree, self).isEquivalent(other)
     lst1 = [t.getName() for t in self.getAllNodes()]
-    lst2 = [t.getName() for t in tree.getAllNodes()]
-    is_equivalent = is_equivalent and lst1 == lst2
+    lst2 = [t.getName() for t in other.getAllNodes()]
+    return is_equivalent and lst1 == lst2
     
 
   def moveChildToPosition(self, child, position):

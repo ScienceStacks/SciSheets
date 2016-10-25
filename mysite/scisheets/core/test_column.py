@@ -1,9 +1,9 @@
 '''Tests for column'''
 
 import column as cl
+from mysite.helpers.named_tree import NamedTree
 from table import Table
 import unittest
-import errors as er
 import numpy as np
 from helpers_test import createColumn, compareValues
 from helpers.extended_array import ExtendedArray
@@ -19,6 +19,8 @@ VALID_FORMULA = "a + b*math.cos(x)"
 INVALID_FORMULA = "a + b*math.cos(x"
 CLASS_STRING = 'CLASS_STRING'
 
+IGNORE_TEST = False
+
 
 # pylint: disable=W0212
 # pylint: disable=C0111
@@ -32,12 +34,16 @@ class TestColumn(unittest.TestCase):
         table=None, formula=VALID_FORMULA)
 
   def testConstructor(self):
+    if IGNORE_TEST:
+      return
     column = cl.Column(COLUMN_NAME)
     self.assertEqual(column._name, COLUMN_NAME)
     self.assertIsNone(column._parent)
     self.assertIsNone(column._formula_statement.getFormula())
 
   def testAddCellsFloat(self):
+    if IGNORE_TEST:
+      return
     single_float = 1.1
     list_float = [2.0, 3.0]
     test_array = np.array(list_float)
@@ -54,6 +60,8 @@ class TestColumn(unittest.TestCase):
     self.assertTrue(compareValues(column._cells, test_array))
 
   def testAddCellsStr(self):
+    if IGNORE_TEST:
+      return
     single_str = "cccc ccc"
     new_list_str = ["aa", "bbb bb"]
     test_array = np.array(new_list_str)
@@ -68,6 +76,8 @@ class TestColumn(unittest.TestCase):
     self.assertTrue(compareValues(column._cells, test_array))
 
   def testCopy(self):
+    if IGNORE_TEST:
+      return
     column_copy = self.column.copy()
     self.assertEqual(self.column._name, column_copy._name)
     self.assertEqual(np.array(self.column._cells).dtype,
@@ -82,34 +92,50 @@ class TestColumn(unittest.TestCase):
     self.assertIsNone(column_copy._parent)
 
   def testDeleteCells(self):
+    if IGNORE_TEST:
+      return
     valid_index = 0
     not_an_index = 1
     self.column.deleteCells([valid_index])
     self.assertEqual(self.column._cells[valid_index], LIST[not_an_index])
 
   def testGetDataClass(self):
+    if IGNORE_TEST:
+      return
     data_class = self.column.getDataClass()
     self.assertEqual(data_class.cls, ExtendedArray)
     data_class = self.column_str.getDataClass()
     self.assertEqual(data_class.cls, ExtendedArray)
 
   def testGetArrayType(self):
+    if IGNORE_TEST:
+      return
     array_type = self.column.getArrayType()
     self.assertEqual(array_type, np.float64)
     array_type = self.column_str.getArrayType()
     self.assertTrue(str(array_type)[0:2] == '|S')
 
   def testGetCells(self):
+    if IGNORE_TEST:
+      return
     cells = self.column.getCells()
     self.assertTrue(compareValues(self.column._cells, cells))
 
   def testNumCells(self):
+    if IGNORE_TEST:
+      return
     self.assertEqual(self.column.numCells(), len(LIST))
 
   def testGetName(self):
+    if IGNORE_TEST:
+      return
+    parent = NamedTree("Parent")
+    parent.addChild(self.column)
     self.assertEqual(self.column.getName(), COLUMN_NAME)
 
   def testSetFormula(self):
+    if IGNORE_TEST:
+      return
     error = self.column.setFormula(VALID_FORMULA)
     self.assertIsNone(error)
     self.assertEqual(self.column._formula_statement.getFormula(), 
@@ -120,30 +146,40 @@ class TestColumn(unittest.TestCase):
     self.assertIsNotNone(error)
 
   def testSetTable(self):
+    if IGNORE_TEST:
+      return
     self.column.setTable(TABLE)
     self.assertEqual(self.column._parent, TABLE)
 
   def testUpdateCell(self):
+    if IGNORE_TEST:
+      return
     valid_index = 0
     new_value = LIST[valid_index] + 10
     self.column.updateCell(new_value, valid_index)
     self.assertEqual(self.column._cells[valid_index], new_value)
 
   def testInsertCell(self):
+    if IGNORE_TEST:
+      return
     new_value = 30
     self.column.insertCell(new_value)
     index = len(LIST)
     self.assertEqual(self.column.getCells()[index], new_value)
 
   def testReplaceCells(self):
+    if IGNORE_TEST:
+     return
     self.column.replaceCells(LIST1)
     self.assertTrue(all(
         [self.column._cells[n] == LIST1[n] for n in range(len(LIST1))]))
     short_array = np.array(range(len(LIST1) - 1))
-    with self.assertRaises(er.InternalError):
+    with self.assertRaises(RuntimeError):
       self.column.replaceCells(short_array)
 
   def testIsEquivalent(self):
+    if IGNORE_TEST:
+      return
     new_column = self.column.copy()
     self.assertTrue(self.column.isEquivalent(new_column))
     new_column.addCells(np.nan)
@@ -158,6 +194,8 @@ class TestColumn(unittest.TestCase):
     self.assertTrue(self.column.isEquivalent(new_column))
   
   def testIsEquivalentNans(self):
+    if IGNORE_TEST:
+     return
     new_column = self.column.copy()
     new_column.insertCell(np.nan)
     self.column.insertCell(np.nan)
@@ -168,6 +206,8 @@ class TestColumn(unittest.TestCase):
    
   # TODO: Migrate this test? 
   def testIsEquivalentNestedLists(self):
+    if IGNORE_TEST:
+      return
     table = Table("dummy")
     try:
       [column1, column2] = table.getCapture("column_is_equivalent")
@@ -179,6 +219,8 @@ class TestColumn(unittest.TestCase):
       return
 
   def testPrunedCells(self):
+    if IGNORE_TEST:
+      return
     values = [n*1.0 for n in range(5)]
     self.column.addCells(values, replace=True)
     self.assertEqual(self.column.prunedCells(), values)
@@ -193,10 +235,14 @@ class TestColumn(unittest.TestCase):
         new_values)
 
   def testCopy(self):
+    if IGNORE_TEST:
+      return
     new_column = self.column.copy()
     self.assertTrue(self.column.isEquivalent(new_column))
 
   def testGetSerializationDict(self):
+    if IGNORE_TEST:
+      return
     serialization_dict = self.column.getSerializationDict(CLASS_STRING)
     self.assertTrue(len(serialization_dict.keys()) > 0)
     for key in serialization_dict.keys():
@@ -205,6 +251,8 @@ class TestColumn(unittest.TestCase):
       self.assertTrue(key in self.column.__dict__.keys())
 
   def testDeserialize(self):
+    if IGNORE_TEST:
+      return
     serialization_dict = self.column.getSerializationDict(CLASS_STRING)
     column = cl.Column.deserialize(serialization_dict)
     column.setParent(self.column.getParent())

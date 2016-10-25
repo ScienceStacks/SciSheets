@@ -3,17 +3,16 @@
 '''
 
 
-import errors as er
-import numpy as np
+from mysite.helpers.named_tree import NamedTree
 from helpers.formula_statement import FormulaStatement
-from mysite.helpers.tree import PositionTree
 from helpers.extended_array import ExtendedArray
 from helpers.prune_nulls import pruneNulls
 import helpers.cell_types as cell_types
 import collections
+import numpy as np
 
 
-class Column(PositionTree):
+class Column(NamedTree):
   """
   Representation of a column in a table. A column is a ctonainer
   of cells.
@@ -51,7 +50,7 @@ class Column(PositionTree):
       raise ValueError("Only serialize ExtendedArray")
     serialization_dict = {
         class_variable: str(self.__class__),
-        "_name": self.getName(),
+        "_name": self.getName(is_node_name=True),
         "_asis": self.getAsis(),
         "_cells": self.getCells(),
         "_formula": self.getFormula(),
@@ -108,7 +107,7 @@ class Column(PositionTree):
     """
     # Create an object if one is not provided
     if instance is None:
-      instance = Column(self.getName())
+      instance = Column(self.getName(is_node_name=True))
     # Copy properties from inherited classes
     instance = super(Column, self).copy(instance=instance)
     # Set properties specific to this class
@@ -198,24 +197,26 @@ class Column(PositionTree):
     data_list.insert(index, val)
     self._setDatavalues(data_list)
 
-  def isEquivalent(self, column):
+  def isEquivalent(self, other):
     """
-    Compares the internal state of this and the input column,
+    Compares the internal state of this and the input other,
     except the owning table.
-    :param Column column:
+    :param Column other:
     :return bool:
     """
-    if not self.getFormulaStatementObject().isEquivalent(column.getFormulaStatementObject()):
+    if not super(Column, self).isEquivalent(other):
       return False
-    if not self.getAsis() == column.getAsis():
+    if not self.getFormulaStatementObject().isEquivalent(other.getFormulaStatementObject()):
       return False
-    if not self.getDataClass() == column.getDataClass():
+    if not self.getAsis() == other.getAsis():
+      return False
+    if not self.getDataClass() == other.getDataClass():
       type_list = [np.ndarray, ExtendedArray]
       is_ok = (self.getDataClass().cls in type_list)  \
-         and (column.getDataClass().cls in type_list)
+         and (other.getDataClass().cls in type_list)
       if not is_ok:
         return False
-    if not cell_types.isEquivalentData(self._cells, column.getCells()):
+    if not cell_types.isEquivalentData(self._cells, other.getCells()):
       return False
     return True
 
@@ -246,7 +247,7 @@ class Column(PositionTree):
     :param new_data: array to replace existing data
     """
     if len(new_data) != len(self._cells):
-      raise er.InternalError("Inconsistent lengths")
+      raise RuntimeError("Inconsistent lengths")
     self._setDatavalues(new_data)
 
   def _setDatavalues(self, values):
@@ -297,7 +298,7 @@ class Column(PositionTree):
     if Column.isPermittedName(stripped_name) is None:
       super(Column, self).setName(stripped_name)
     else:
-      raise er.InternalError("%s is an invalid name" % name)
+      raise RuntimeError("%s is an invalid name" % name)
 
   def setTable(self, table):
     """

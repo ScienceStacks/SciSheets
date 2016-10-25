@@ -5,13 +5,13 @@
 
 from mysite import settings as settings
 from mysite.helpers.versioned_file import VersionedFile
-from mysite.helpers.tree import PositionTree
+from mysite.helpers.named_tree import NamedTree
 from column import Column
 import errors as er
 import column as cl
 
 
-class ColumnContainer(PositionTree):
+class ColumnContainer(NamedTree):
   '''
   A ColumnContainer can add and delete columns.
   It has no concept of Rows. 
@@ -26,7 +26,6 @@ class ColumnContainer(PositionTree):
   def __init__(self, name):
     super(ColumnContainer, self).__init__(name)
     self._name = name
-    self._children = []
     self._versioned_file = None
 
   def columnFromIndex(self, index):
@@ -34,55 +33,6 @@ class ColumnContainer(PositionTree):
     :return: column object at the index
     """
     return self.getChildAtPosition(index)
-
-  def createGlobalName(self, child):
-    """
-    Creates a global name
-    :param PositionTree child:
-    :return str:
-    """
-    path = child.findPathFromRoot()
-    del path[0]
-    if len(path) > 1:
-      result = ".".join(path)
-    elif len(path) == 1:
-      result = path[0]
-    else:
-      result = ""  # Root container
-    return result
-
-  def _relativeNameToGlobalName(self, name, is_relative=True):
-    """
-    Converts a name relative to the current node to an absolute name. 
-    :param str is_relative:
-    :param bool is_relative: is a relative name
-    :return str: global name
-    """
-    if not is_relative:
-      return name
-    current_node_name = self.createGlobalName(self)
-    if len(current_node_name) > 0:
-      result = ".".join([current_node_name, name])
-    else:
-      result = name
-    return result
-
-  def childFromName(self, name, is_relative=True):
-    """
-    Finds a child with the specified name or None.
-    Note that Columns must be leaves in the Tree.
-    :param name: name of the column
-    :param bool is_relative: name is relative to the current name
-       (as opposed to a global name)
-    :return list-of-PositionTree:
-    """
-    global_name = self._relativeNameToGlobalName(name, 
-        is_relative=is_relative)
-    for child in self.getChildren(is_recursive=True):
-      global_child_name = self.createGlobalName(child)
-      if global_name == global_child_name:
-        return child
-    return None
         
   def columnFromName(self, name, is_relative=True):
     """
@@ -126,13 +76,18 @@ class ColumnContainer(PositionTree):
     :return list-of-str:
     """
     return [c.getName() for c in self.getLeaves()  \
-            if isintance(c, Column)]
+            if isinstance(c, Column)]
 
-  def getColumns(self):
+  def getColumns(self, is_recursive=True):
     """
+    :param bool is_recursive: finds all columns from current node
     :return: list with the column objects in sequence
     """
-    return [c for c in self.getLeaves() if isinstance(c, Column)]
+    if is_recursive:
+      candidates = self.getLeaves()
+    else:
+      candidates = self.getChildren()
+    return [c for c in candidates if isinstance(c, Column)]
 
   def getFilepath(self):
     """
@@ -142,12 +97,6 @@ class ColumnContainer(PositionTree):
       return None
     else:
       return self._versioned_file.getFilepath()
-
-  def getName(self):
-    """
-    :return: the table name
-    """
-    return self._name
 
   def getVersionedFile(self):
     """
@@ -170,6 +119,9 @@ class ColumnContainer(PositionTree):
     :param index: column index
     """
     self.addChild(column, position=index)
+
+  def isEquivalent(self, other):
+    return super(ColumnContainer, self). isEquivalent(other)
 
   def moveChild(self, child, new_idx):
     """
@@ -222,16 +174,3 @@ class ColumnContainer(PositionTree):
     if not self.isRoot():
       raise RuntimeError("Should not set VersionedFile for non-root.")
     self._versioned_file = versioned_file
-
-  def setName(self, name):
-    """
-    :param name: new table name
-    :return: error string if invalid name, else None
-    """
-    try:
-      _ = compile(name, "string", "eval")
-      error = None
-      self._name = name
-    except SyntaxError as err:
-      error = str(err)
-    return error

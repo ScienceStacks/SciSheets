@@ -50,7 +50,8 @@ class TestColumnContainer(unittest.TestCase):
     self.columns = self.table.getColumns()
     self.subtable = Table(SUBTABLE)
     self.table.addChild(self.subtable)
-    self.subtable_column = self.subtable.getColumns()[0]
+    self.subtable_column = self.subtable.getChildAtPosition(0)
+    self.subtable_column_name = 'row'
 
   def testColumnFromIndex(self):
     if IGNORE_TEST:
@@ -61,107 +62,15 @@ class TestColumnContainer(unittest.TestCase):
     with self.assertRaises(ValueError):
       self.table.columnFromIndex(index)
 
-  def testCreateGlobalName(self):
-    if IGNORE_TEST:
-      return
-    global_name = self.table._createGlobalName(self.column5)
-    expected_name = self.column5.getName()
-    self.assertEqual(global_name, expected_name)
-    global_name = self.table._createGlobalName(self.subtable_column)
-    expected_name = ".".join([SUBTABLE, self.subtable_column.getName()])
-    self.assertEqual(global_name, expected_name)
-
-  def testRelativeNameToGlobalName(self):
-    if IGNORE_TEST:
-      return
-    global_name = self.table._relativeNameToGlobalName(COLUMN5, is_relative=True)
-    expected_name = self.column5.getName()
-    self.assertEqual(global_name, expected_name)
-    global_name = self.table._relativeNameToGlobalName(global_name, is_relative=False)
-    expected_name = self.column5.getName()
-
-  def testChildFromName(self):
-    if IGNORE_TEST:
-      return
-    global_name = self.table._createGlobalName(self.subtable_column)
-    column = self.table.childFromName(global_name, is_relative=False)
-    self.assertTrue(column.isEquivalent(self.subtable_column))
-    subtable = self.table.childFromName(SUBTABLE, is_relative=True)
-    self.assertTrue(subtable.isEquivalent(self.subtable))
-    column = self.table.childFromName(COLUMN5, is_relative=True)
-    self.assertTrue(column.isEquivalent(self.column5))
-
   def testColumnFromName(self):
     if IGNORE_TEST:
       return
-    global_name = self.table._createGlobalName(self.subtable_column)
+    global_name = self.table.createGlobalName(self.subtable_column)
     column = self.table.columnFromName(global_name, is_relative=False)
     self.assertTrue(column.isEquivalent(self.subtable_column))
     column = self.table.columnFromName(COLUMN5, is_relative=True)
     self.assertTrue(column.isEquivalent(self.column5))
     self.assertIsNone(self.table.columnFromName(SUBTABLE, is_relative=True))
-
-  def testGetCell(self):
-    if IGNORE_TEST:
-      return
-    self.assertEqual(self.table.getCell(0, 1),
-                     COLUMN1_CELLS[0])
-    index = self.table.numColumns()
-    with self.assertRaises(ValueError):
-      self.table.getCell(0, index)
-     
-
-  def testInsertColumn(self):
-    if IGNORE_TEST:
-      return
-    new_column_name = "NEW_COLUMN"
-    index = 1
-    new_column = cl.Column(new_column_name)
-    self.table.insertColumn(new_column, index)
-    self.assertEqual(self.table.getColumns()[index].getName(),
-        new_column_name)
-    newer_column_name = "NEWER_COLUMN"
-    newer_column = cl.Column(newer_column_name)
-    index = len(self.table.getColumns())
-    self.table.insertColumn(newer_column)
-    self.assertEqual(self.table.getColumns()[index].getName(),
-        newer_column_name)
-
-  def testMoveColumn1(self):
-    if IGNORE_TEST:
-      return
-    # Move column 2 to be after column 0
-    dest_idx = 0
-    column2 = self.table.columnFromName(COLUMN2)
-    self.table.moveColumn(column2, dest_idx)
-    self.assertEqual(self.table.getColumns()[dest_idx+1].getName(), COLUMN2)
-
-  def testMoveChild(self):
-    if IGNORE_TEST:
-      return
-    dest_idx = 0
-    self.table.moveChild(self.subtable, dest_idx)
-    self.assertEqual(self.table.getChildren()[dest_idx+1].getName(), 
-        self.subtable.getName())
-
-  def testNumColumns(self):
-    if IGNORE_TEST:
-      return
-    self.assertEqual(self.table.numColumns(), 5)
-
-  def testRemoveColumn(self):
-    if IGNORE_TEST:
-      return
-    num_col = self.table.numColumns()
-    column = self.table.getColumns()[1]
-    self.table.removeColumn(column)
-    self.assertEqual(self.table.numColumns(), num_col - 1)
-
-  def testGetName(self):
-    if IGNORE_TEST:
-      return
-    self.assertIsNone(self.table.setName("newTable"))
-    self.assertIsNotNone(self.table.setName("new Table"))
 
   def testGetColumnNames(self):
     if IGNORE_TEST:
@@ -174,8 +83,11 @@ class TestColumnContainer(unittest.TestCase):
   def testGetColumns(self):
     columns = self.subtable.getColumns()
     self.assertEqual(columns, [self.subtable_column])
-    columns = self.table.getColumns()
-    self.assertTrue(not self.subtable in columns)
+    table_columns = self.table.getColumns()
+    self.assertTrue(not self.subtable in table_columns)
+    columns = self.table.getColumns(is_recursive=False)
+    self.assertEqual(len(columns) + 1, len(table_columns))
+    
 
 if __name__ == '__main__':
   unittest.main()

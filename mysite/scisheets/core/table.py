@@ -7,6 +7,7 @@ import mysite.helpers.util as ut
 from mysite.helpers.data_capture import DataCapture
 from mysite.helpers.versioned_file import VersionedFile
 from helpers.formula_statement import FormulaStatement
+from helpers.is_null import isNull
 from column import Column
 from column_container import ColumnContainer
 from table_evaluator import TableEvaluator
@@ -139,7 +140,8 @@ class Table(ColumnContainer):
   # TODO: Tests with multiple levels of subtable
   def _updateNameColumn(self, nrows_table=None):
     """
-    Changes the cells in the name column to be consecutive ints.
+    Changes the cells in the name column of the table
+    to be consecutive ints.
     :paam int nrows_table: Number of rows in the table
     """
     if nrows_table is None:
@@ -169,7 +171,7 @@ class Table(ColumnContainer):
     """
     Returns the columns other than the name column
     """
-    return self.getColumns()[NAME_COLUMN_IDX + 1:]
+    return [l for l in self.getColumns() if l.name != NAME_COLUMN_STR]
 
   def getData(self):
     """
@@ -285,7 +287,8 @@ class Table(ColumnContainer):
     # Verify the sequence of row names
     for nrow in range(self.numRows()):
       expected_row_name = Table._rowNameFromIndex(nrow)
-      actual_row_name = self.getColumns()[NAME_COLUMN_IDX].getCells()[nrow]
+      actual_row_name =  \
+          self.getChildAtPosition(NAME_COLUMN_IDX).getCells()[nrow]
       if actual_row_name != expected_row_name:
         import pdb; pdb.set_trace()
         msg = "In Table %s, invalid row name at index %d: %s" % \
@@ -454,16 +457,10 @@ class Table(ColumnContainer):
       if local_debug:
         import pdb; pdb.set_trace()
       return False
-    for child in self.getChildren():
-      other_child = other_table.childFromName(child.getName())
-      if other_child is None:
-        if local_debug:
-          import pdb; pdb.set_trace()
-        return False
-      if not child.isEquivalent(other_child):
-        if local_debug:
-          import pdb; pdb.set_trace()
-        return False
+    if not super(Table, self).isEquivalent(other_table):
+      if local_debug:
+        import pdb; pdb.set_trace()
+      return False
     return True
    
 
@@ -478,12 +475,14 @@ class Table(ColumnContainer):
     if idx is None:
       idx = self.numRows()
     for ncol in range(self.numColumns()):
-      column = self.getColumns()[ncol]
-      name = column.getName()
-      if name in row.keys():
-        column.insertCell(row[name], idx)
-      else:
-        column.insertCell(None, idx)
+      column = self.getChildAtPosition(ncol)
+      if isinstance(column, Column):
+        column = self.getChildAtPosition(ncol)
+        name = column.getName()
+        if name in row.keys():
+          column.insertCell(row[name], idx)
+        else:
+          column.insertCell(None, idx)
     self._updateNameColumn()
 
   def moveRow(self, index1, index2):
@@ -638,12 +637,8 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
       delete_row = True
       for name in row.keys():
         column = self.columnFromName(name)
-        if column.isFloats():
-          if not np.isnan(row[name]):  # pylint: disable=E1101
-            delete_row = False
-        else:
-          if row[name] is not None:
-            delete_row = False
+        if not isNull(row[name]):
+          delete_row = False
       if delete_row:
         self.deleteRows([index])
       else:
@@ -679,7 +674,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
     for ncol in range(self.numColumns()):
-      column = self.getColumns()[ncol]
+      column = self.getChildAtPosition(ncol)
       name = column.getName()
       if name in row.keys():
         if name != NAME_COLUMN_STR:
