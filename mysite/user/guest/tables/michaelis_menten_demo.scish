@@ -19,6 +19,15 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
+        4.358
+      ],
+      "_formula": "import scipy.stats as ss\nSLOPE, INTERCEPT, _, _, _ = ss.linregress(INV_S, INV_V)\nSLOPE = np.round(SLOPE, 3)\nINTERCEPT = np.round(INTERCEPT, 3)",
+      "_name": "INTERCEPT"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
         0.01,
         0.05,
         0.12,
@@ -70,15 +79,6 @@
       ],
       "_formula": "np.round(1/V,2)",
       "_name": "INV_V"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        4.358
-      ],
-      "_formula": "import scipy.stats as ss\nSLOPE, INTERCEPT, _, _, _ = ss.linregress(INV_S, INV_V)\nSLOPE = np.round(SLOPE, 3)\nINTERCEPT = np.round(INTERCEPT, 3)",
-      "_name": "INTERCEPT"
     },
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
