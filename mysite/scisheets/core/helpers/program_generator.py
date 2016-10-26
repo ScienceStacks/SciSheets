@@ -477,10 +477,10 @@ while not %s.controller.isTerminateLoop():
     sa.add("%s.controller.startAnIteration()" % API_OBJECT)
     # Formula Evaluation block header
     sa.add("# Formula Execution Blocks")
-    sa.add("try:")
-    sa.indent(1)
     # Formula Evaluation block formulas
     for column in formula_columns:
+      sa.add("try:")
+      sa.indent(1)
       colnm = column.getName()
       sa.add("# Column %s" % colnm)
       statement = "%s.controller.startBlock('%s')" %  \
@@ -492,14 +492,13 @@ while not %s.controller.isTerminateLoop():
       if column.isExpression():
         sa.add("%s = %s.coerceValues('%s', %s)"  \
             % (colnm, API_OBJECT, colnm, colnm))
+      sa.indent(-1)
+      sa.add("except Exception as exc:")
+      sa.indent(1)
+      sa.add("%s.controller.exceptionForBlock(exc)" % API_OBJECT)
+      sa.indent(-1)
       sa.add(" ")
     # Formula Evaluation block footer
-    sa.add("pass")  # Ensure at least one executeable statement
-    sa.indent(-1)
-    sa.add("except Exception as exc:")
-    sa.indent(1)
-    sa.add("%s.controller.exceptionForBlock(exc)" % API_OBJECT)
-    sa.indent(-1)
     # End of loop
     statement = self._makeClosingOfFormulaEvaluationLoop(**kwargs)
     sa.add(statement)
