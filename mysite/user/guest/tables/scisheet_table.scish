@@ -5,7 +5,11 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": true,
       "_cells": [
-        "1"
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
       ],
       "_formula": null,
       "_name": "row"
@@ -14,16 +18,59 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "empty table"
+        "BLthB",
+        "hpkop",
+        "tFZMF",
+        "GBArL",
+        "qVBgh"
       ],
       "_formula": null,
       "_name": "Col_0"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        "CCUiq",
+        "yrlsc",
+        "hiZMx",
+        "BPZbl",
+        "ruHwE"
+      ],
+      "_formula": null,
+      "_name": "Col_1"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        45,
+        68,
+        50,
+        92,
+        32
+      ],
+      "_formula": null,
+      "_name": "Col_2"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        59,
+        26,
+        76,
+        84,
+        84
+      ],
+      "_formula": null,
+      "_name": "Col_3"
     }
   ],
-  "_epilogue_formula": "",
+  "_epilogue_formula": "# Epilogue\n",
   "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/scisheet_table.scish",
   "_hidden_columns": [],
   "_is_evaluate_formulas": true,
-  "_name": "EmptyTable",
-  "_prologue_formula": ""
+  "_name": "Demo",
+  "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
 }

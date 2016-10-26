@@ -93,12 +93,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.229,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        0.229
       ],
       "_formula": "np.round(1/INTERCEPT,3)",
       "_name": "V_MAX"
@@ -107,12 +102,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.011,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        0.011
       ],
       "_formula": "np.round(SLOPE*V_MAX,3)",
       "_name": "K_M"
