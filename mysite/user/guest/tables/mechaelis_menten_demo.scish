@@ -1,20 +1,6 @@
 {
   "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-  "_columns": [
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": true,
-      "_cells": [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6"
-      ],
-      "_formula": null,
-      "_name": "row"
-    },
+  "_children": [
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
@@ -75,7 +61,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        4.358
+        4.358,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
       ],
       "_formula": "import scipy.stats as ss\nSLOPE, INTERCEPT, _, _, _ = ss.linregress(INV_S, INV_V)\nSLOPE = np.round(SLOPE, 3)\nINTERCEPT = np.round(INTERCEPT, 3)",
       "_name": "INTERCEPT"
@@ -84,7 +75,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.047
+        0.047,
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
       ],
       "_formula": null,
       "_name": "SLOPE"
