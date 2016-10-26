@@ -120,6 +120,7 @@ _table.setNamespace(globals())
     :return str program: Program as a string
     """
     sa = StatementAccumulator()
+    # TODO: This won't work with nested columns
     statement = '''# Evaluation of the table %s.
 
     ''' % self._table.getName()
@@ -163,6 +164,7 @@ if %s.controller.getException() is not None:
     :return str program: Program as a string
     """
     sa = StatementAccumulator()
+    # TODO: This won't work with nested columns
     statement = '''# Script that runs formulas in the table %s.
 
     ''' % self._table.getName()
@@ -200,6 +202,7 @@ if %s.controller.getException() is not None:
     # Initializations
     sa = StatementAccumulator()
     # Program Prologue
+    # TODO: This won't work with nested columns
     statement = '''# Export of the table %s
 
     ''' % self._table.getName()
