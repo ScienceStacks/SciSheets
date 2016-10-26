@@ -20,7 +20,7 @@ class Node(object):
     """
     if instance is None:
       instance = Node(self.getName())
-    instance.setName(self.getName(is_node_name=True))
+    instance.setName(self.getName(is_global_name=False))
     return instance
 
   def getAllNodes(self):

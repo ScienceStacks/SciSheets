@@ -73,7 +73,7 @@ class Table(ColumnContainer):
       filepath = ut.changeFileExtension(self.getFilepath(), 
           settings.SCISHEETS_EXT)
     more_dict = {
-        "_name": self.getName(),
+        "_name": self.getName(is_global_name=False),
         "_prologue_formula": self.getPrologue().getFormula(),
         "_epilogue_formula": self.getEpilogue().getFormula(),
         "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
@@ -82,7 +82,7 @@ class Table(ColumnContainer):
     serialization_dict.update(more_dict)
     _children = []
     for child in self.getChildren():
-      if child.getName() != NAME_COLUMN_STR:
+      if child.getName(is_global_name=False) != NAME_COLUMN_STR:
         _children.append(child.getSerializationDict(class_variable))
     serialization_dict["_children"] = _children
     return serialization_dict
@@ -277,7 +277,7 @@ class Table(ColumnContainer):
             % (self.getName(), column.getName())
         raise er.InternalError(msg)
     # Verify that the first Column is the Name Column
-    if self.getChildAtPosition(0).getName() != NAME_COLUMN_STR:
+    if self.getChildAtPosition(0).getName(is_global_name=False) != NAME_COLUMN_STR:
       msg = "In Table %s, first column is not 'row' column" % self.getName()
       raise er.InternalError(msg)
     # Verify that names are unique
@@ -324,7 +324,8 @@ class Table(ColumnContainer):
       error = "**%s is a duplicate name" % column.getName()
       return error
     else:
-      error = cl.Column.isPermittedName(column.getName())
+      error = cl.Column.isPermittedName(  \
+          column.getName(is_global_name=False))
       if error is not None:
         return error
     if index is None:
@@ -376,7 +377,7 @@ class Table(ColumnContainer):
     """
     # Create an object if none provided
     if instance is None:
-      instance = Table(self.getName())
+      instance = Table(self.getName(is_global_name=False))
     name_column = instance.columnFromName(NAME_COLUMN_STR)
     instance.deleteColumn(name_column)  # Avoid duplicate
     # Copy everything required from inherited classes
@@ -432,10 +433,7 @@ class Table(ColumnContainer):
     :param str column_name:
     :return bool: True if column is present
     """
-    for column in self.getColumns():
-      if column.getName() == column_name:
-        return True
-    return False
+    return any([c.getName() == column_name for c in self.getColumns()])
 
   def isEquivalent(self, other_table):
     """
@@ -449,7 +447,7 @@ class Table(ColumnContainer):
       if local_debug:
         import pdb; pdb.set_trace()
       return False
-    is_same_properties = (self.getName() == other_table.getName()) and  \
+    is_same_properties = (self.getName(is_global_name=False) == other_table.getName(is_global_name=False)) and  \
         (self.numColumns() == other_table.numColumns()) and  \
         (self.getPrologue().isEquivalent(other_table.getPrologue())) and  \
         (self.getEpilogue().isEquivalent(other_table.getEpilogue()))
@@ -596,7 +594,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     # Update the order of values in each column
     for column in self.getColumns():
       try:
-        if column.getName() != NAME_COLUMN_STR:
+        if column.getName(is_global_name=False) != NAME_COLUMN_STR:
           data = column.getCells()
           new_data = [data[n] for n in sel_index]
           column.replaceCells(new_data)

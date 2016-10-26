@@ -43,7 +43,9 @@ class TestColumnContainer(unittest.TestCase):
     self.table.addColumn(column1)
     column2 = cl.Column(COLUMN2)
     column2.addCells(COLUMN2_CELLS)
-    self.table.addColumn(column2)
+    error = self.table.addColumn(column2)
+    if error is not None:
+      import pdb; pdb.set_trace()
     self.column5 = cl.Column(COLUMN5)
     self.column5.addCells(COLUMN5_CELLS)
     self.table.addColumn(self.column5)

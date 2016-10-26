@@ -34,7 +34,8 @@ class Column(NamedTree):
     self.setName(name)
     self.setAsis(asis)
     self._cells = []
-    self._formula_statement = FormulaStatement(None, self.getName())
+    self._formula_statement = FormulaStatement(None, 
+        self.getName(is_global_name=False))
     self._data_class = data_class
 
   def getSerializationDict(self, class_variable):
