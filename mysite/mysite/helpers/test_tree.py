@@ -2,6 +2,8 @@
 
 import unittest
 from tree import Node, Tree, PositionTree
+from data_capture import DataCapture
+from named_tree import NamedTree
 import json
 import os
 
@@ -14,7 +16,17 @@ NAME5 = "NAME5"
 
 IGNORE_TEST = False
 
+#############################
+# Helper Functions
+#############################
+def getCapture(filename):
+  dc = DataCapture(filename)
+  return dc.getData()
 
+
+#############################
+# Test classes
+#############################
 class TestNode(unittest.TestCase):
 
   def testAll(self):
@@ -258,11 +270,21 @@ class TestPositionTree(unittest.TestCase):
     self.assertEqual(result.count('->'), 4)
 
   def testIsRoot(self):
+    if IGNORE_TEST:
+      return
     self.assertTrue(self.root.isRoot())
     new_tree = Tree("DUMMY_TREE")
     self.root.addChild(new_tree)
     self.assertFalse(new_tree.isRoot())
     self.assertTrue(self.root.isRoot())
+
+  # TODO: Delete since this is testing Table?
+  def testIsEquivalent(self):
+    if IGNORE_TEST:
+      return
+    [table, other_table] = getCapture("test_table_1")
+    result = super(NamedTree, table).isEquivalent(other_table)
+    #self.assertTrue(result)
     
 
 if __name__ == '__main__':

@@ -32,6 +32,8 @@ class Column(NamedTree):
     """
     super(Column, self).__init__(name)
     self.setName(name)
+    if name.find(".") > 0:
+      import pdb; pdb.set_trace()
     self.setAsis(asis)
     self._cells = []
     self._formula_statement = FormulaStatement(None, 

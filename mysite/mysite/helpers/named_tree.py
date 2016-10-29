@@ -5,6 +5,7 @@ Knows about local and global names for a PositionTree
 from mysite.helpers.tree import PositionTree
 
 ROOT_NAME = ''
+SEPERATOR = "."
 
 
 class NamedTree(PositionTree):
@@ -30,12 +31,21 @@ class NamedTree(PositionTree):
     path = child.findPathFromRoot()
     del path[0]
     if len(path) > 1:
-      result = ".".join(path)
+      result = SEPERATOR.join(path)
     elif len(path) == 1:
       result = path[0]
     else:
       result = ""  # Root container
     return result
+
+  @staticmethod
+  def pathFromGlobalName(global_name):
+    """
+    Creates the name path
+    :param str global_name:
+    :return list:
+    """
+    return global_name.split(SEPERATOR)
 
   def globalName(self, name, is_relative=True):
     """
@@ -48,7 +58,7 @@ class NamedTree(PositionTree):
       return name
     current_node_name = self.createGlobalName(self)
     if len(current_node_name) > 0:
-      result = ".".join([current_node_name, name])
+      result = SEPERATOR.join([current_node_name, name])
     else:
       result = name
     return result
@@ -66,6 +76,8 @@ class NamedTree(PositionTree):
         is_relative=is_relative)
     for child in self.getChildren(is_recursive=True):
       global_child_name = self.createGlobalName(child)
+      if global_child_name.count(SEPERATOR) == 2:
+        import pdb; pdb.set_trace()
       if global_name == global_child_name:
         return child
     return None

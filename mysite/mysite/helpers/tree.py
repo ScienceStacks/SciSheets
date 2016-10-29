@@ -19,8 +19,8 @@ class Node(object):
     :return Node:
     """
     if instance is None:
-      instance = Node(self.getName())
-    instance.setName(self.getName(is_global_name=False))
+      instance = Node(self._name)
+    instance.setName(self._name)
     return instance
 
   def getAllNodes(self):
@@ -37,7 +37,7 @@ class Node(object):
     Determines if the node has the same data.
     :return bool: True if equivalent
     """
-    return self.getName() == node.getName()
+    return self._name == node._name
 
   def setName(self, name):
     """
@@ -92,7 +92,7 @@ class Tree(Node):
     """
     # Create an instance if none is provided
     if instance is None:
-      instance = Tree(self.getName())
+      instance = Tree(self._name)
     # Copy properties from inherited classes
     instance = super(Tree, self).copy(instance=instance)
     # Set properties for this class
@@ -124,7 +124,7 @@ class Tree(Node):
     cur = self
     path = []
     while not done:
-      path.append(cur.getName())
+      path.append(cur._name)
       if cur.getParent() is None:
         done = True
       cur = cur.getParent()
@@ -216,16 +216,33 @@ class Tree(Node):
     :return bool: True if equivalent
     """
     is_equivalent = super(Tree, self).isEquivalent(other)
-    is_equivalent = is_equivalent and  \
-        self.getParent() == other.getParent()
+    is_equivalent = is_equivalent and  self.isEquivalentParent(other)
     set1 = set([t.getName() for t in self.getChildren()])
     set2 = set([t.getName() for t in other.getChildren()])
     is_equivalent = is_equivalent and set1 == set2
     if is_equivalent:
       pairs = zip(self.getChildren(), other.getChildren())
-      is_equivalent = is_equivalent and  \
-          all([c1.isEquivalent(c2) for c1, c2 in pairs])
+      for c1, c2 in pairs:
+        is_this = c1.isEquivalent(c2)
+        if not is_this:
+          import pdb; pdb.set_trace()
+        is_equivalent = is_equivalent and is_this
+    import pdb; pdb.set_trace()
     return is_equivalent
+
+  def isEquivalentParent(self, other):
+    """
+    :return bool: True if equivalent
+    """
+    if self.getParent() is None and other.getParent() is None:
+      result = True
+    elif self.getParent().getName() == other.getParent().getName():
+      result = True
+    else:
+      result = False
+    return result
+    
+  
 
   def isRoot(self):
     """

@@ -208,11 +208,10 @@ class TestColumn(unittest.TestCase):
   def testIsEquivalentNestedLists(self):
     if IGNORE_TEST:
       return
-    table = Table("dummy")
     try:
-      [column1, column2] = table.getCapture("column_is_equivalent")
+      [column1, column2] = Table.getCapture("column_is_equivalent")
       self.assertTrue(column1.isEquivalent(column2))
-      [column1, column2] = table.getCapture("column_is_equivalent2")
+      [column1, column2] = Table.getCapture("column_is_equivalent2")
       self.assertTrue(column1.isEquivalent(column2))
     except AttributeError as err:
       # Can't handle the captured pickle file

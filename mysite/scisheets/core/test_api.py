@@ -2,6 +2,7 @@
 
 from api import API, APIFormulas, APIPlugin, APIAdmin
 from column import Column
+from table import Table
 import helpers_test as ht
 #from helpers.trinary import Trinary
 import table_evaluator as te
@@ -176,7 +177,7 @@ class TestAPIFormulas(unittest.TestCase):
       return
     try:
       table = self.api.getTable()
-      df, names = table.getCapture(TEST_FILE1)
+      df, names = Table.getCapture(TEST_FILE1)
       column_names = [c.getName() for c in table.getColumns()]
       for name in names:
         self.assertFalse(name in column_names)

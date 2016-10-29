@@ -1,4 +1,4 @@
-'''Tests for table'''
+""" Tests for table """
 
 from mysite import settings
 from helpers.serialize_deserialize import CLASS_VARIABLE
@@ -16,7 +16,7 @@ import unittest
 TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_table_1")
 
-IGNORE_TEST = True
+IGNORE_TEST = False
 
 
 #############################
@@ -94,7 +94,7 @@ class TestTable(unittest.TestCase):
     is_correct = row[ht.COLUMN1] is None
     is_correct = is_correct and row[ht.COLUMN2] is None
     idx = 1
-    row = self.table.getRow(idx)
+    row = self.table.getRow(row_index=idx)
     is_correct = row[ht.COLUMN1] == ht.COLUMN1_CELLS[idx]
     is_correct = is_correct and row[ht.COLUMN2] == ht.COLUMN2_CELLS[idx]
     self.assertTrue(is_correct)
@@ -111,6 +111,11 @@ class TestTable(unittest.TestCase):
     self.assertEqual(self.table.numRows(), expected_rows)
     self.assertEqual(np.array(column.getCells()).dtype,
         np.float64) # pylint: disable=E1101
+    #
+    expected_rows = len(ht.COLUMN1_CELLS) + 2
+    row = self.table.getRow()
+    self.table.addRow(row, row_index=0)
+    self.assertEqual(self.table.numRows(), expected_rows)
 
   def testAddRow2(self):
     if IGNORE_TEST:
@@ -125,6 +130,9 @@ class TestTable(unittest.TestCase):
     cells = column.getCells()
     self.assertEqual(cells[3], row[ht.COLUMN1])
     #
+    row = self.table.getRow()
+    row[ht.COLUMN1] = "four"
+    row[ht.COLUMN2] = 40.0
     self.table.addRow(row, -0.1)  # Make it the first row
     expected_rows += 1
     self.assertEqual(self.table.numRows(), expected_rows)
@@ -194,9 +202,9 @@ class TestTable(unittest.TestCase):
   def testMoveRow(self):
     if IGNORE_TEST:
       return
-    cur_row = self.table.getRow(1)
+    cur_row = self.table.getRow(row_index=1)
     self.table.moveRow(1, 2)
-    new_row = self.table.getRow(2)
+    new_row = self.table.getRow(row_index=2)
     for k in cur_row.keys():
       if k != 'row':
         self.assertEqual(cur_row[k], new_row[k])
@@ -222,14 +230,14 @@ class TestTable(unittest.TestCase):
     row[ht.COLUMN5] = 200.0
     self.table.updateRow(row, rowidx)
     row['row'] = tb.Table._rowNameFromIndex(rowidx)
-    self.assertEqual(row, self.table.getRow(index=rowidx))
+    self.assertEqual(row, self.table.getRow(row_index=rowidx))
     # More complex update
     row = self.table.getRow()  # Get an empty row
     row[ht.COLUMN1] = "four"
     row[ht.COLUMN2] = 50
     idx = 0
     self.table.updateRow(row, index=idx)
-    new_row = self.table.getRow(idx)
+    new_row = self.table.getRow(row_index=idx)
     self.assertEqual(new_row[ht.COLUMN1], row[ht.COLUMN1])
     self.assertEqual(new_row[ht.COLUMN2], row[ht.COLUMN2])
 
@@ -256,9 +264,16 @@ class TestTable(unittest.TestCase):
     rpl_idx = range(len(ht.COLUMN1_CELLS))
     del rpl_idx[0]
     rpl_idx.append(0)
-    for idx in range(1, table.numColumns()):
-      expected_array = [table_data[idx][n] for n in rpl_idx]
-      column_cells = columns[idx].getCells()
+    for column in self.table.getColumns(is_recursive=True):
+      expected_array = [column.getCells()[n] for n in rpl_idx]
+      column_cells = column.getCells()
+      is_equal = all([column_cells[n] == expected_array[n] 
+           for n in range(len(column_cells))])
+      self.assertTrue(is_equal)
+    for name in table_data:
+      expected_array = [table_data[name][n] for n in rpl_idx]
+      column = self.getColumnFromName(name)
+      column_cells = column.getCells()
       is_equal = all([column_cells[n] == expected_array[n] 
            for n in range(len(column_cells))])
       self.assertTrue(is_equal)
@@ -274,8 +289,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue(is_equal)
 
   def testTrimRows(self):
-    #if IGNORE_TEST:
-    # return
+    if IGNORE_TEST:
+      return
     num_rows = self.table.numRows()
     self.table.trimRows()
     self.assertEqual(num_rows, self.table.numRows())
@@ -283,7 +298,7 @@ class TestTable(unittest.TestCase):
     self.table.addRow(row)
     self.table.trimRows()
     self.assertEqual(num_rows, self.table.numRows())
-    self.table.addRow(row, ext_index=0)
+    self.table.addRow(row, row_index=0)
     self.table.trimRows()
     self.assertEqual(num_rows+1, self.table.numRows())
 
@@ -326,6 +341,12 @@ class TestTable(unittest.TestCase):
     self.assertTrue(self.table.isEquivalent(new_table))
     self.table.deleteColumn(this_column)
     self.assertFalse(self.table.isEquivalent(new_table))
+
+  def testIsEquivalent(self):
+    if IGNORE_TEST:
+     return
+    [table, other] = ht.getCapture("test_table_2")
+    #self.assertTrue(table.isEquivalent(other))
 
   def testGetColumnFormula(self):
     if IGNORE_TEST:

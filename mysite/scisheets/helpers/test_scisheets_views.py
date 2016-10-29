@@ -419,9 +419,9 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(new_table.numRows(), num_rows)
     self.assertEqual(new_table.numColumns(), num_columns)
     new_table_data = new_table.getData()
-    for c in range(1, num_columns):
-      expected_array = np.array([table_data[c][n] for n in rplIdx])
-      b = (new_table_data[c] == expected_array).all()
+    for name in table_data.keys():
+      expected_array = np.array([table_data[name][n] for n in rplIdx])
+      b = (new_table_data[name] == expected_array).all()
       self.assertTrue(b)
 
   def testCommandRowDelete(self):
@@ -447,9 +447,9 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(new_table.numRows(), num_rows - 1)
     self.assertEqual(new_table.numColumns(), num_columns)
     new_table_data = new_table.getData()
-    for c in range(1, num_columns):
-      expected_array = np.array([table_data[c][n] for n in rplIdx])
-      b = (new_table_data[c] == expected_array).all()
+    for name in table_data:
+      expected_array = np.array([table_data[name][n] for n in rplIdx])
+      b = (new_table_data[name] == expected_array).all()
       self.assertTrue(b)
 
   def _addRow(self, command, cur_idx, new_idx):
@@ -458,7 +458,6 @@ class TestScisheetsViews(TestCase):
     #         new_idx - index of the new row
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    table_data = table.getData()
     num_rows = table.numRows()
     num_columns = table.numColumns()
     row_name = table._rowNameFromIndex(cur_idx)
@@ -505,7 +504,6 @@ class TestScisheetsViews(TestCase):
     #         new_idx - index of the new column
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    table_data = table.getData()
     num_rows = table.numRows()
     num_columns = table.numColumns()
     # Do the cell update
@@ -548,7 +546,6 @@ class TestScisheetsViews(TestCase):
     #         which the column is to be moved
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    table_data = table.getData()
     num_rows = table.numRows()
     num_columns = table.numColumns()
     moved_column = table.columnFromIndex(column_idx_to_move)
@@ -678,7 +675,6 @@ class TestScisheetsViews(TestCase):
   def _tableTrim(self, row_idx, expected_number_rows):
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    table_data = table.getData()
     row_name = table._rowNameFromIndex(row_idx)
     # Add the row
     ajax_cmd = self._ajaxCommandFactory()

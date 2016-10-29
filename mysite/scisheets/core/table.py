@@ -1,7 +1,6 @@
 '''
   Implements the table class for SciSheets.
 '''
-
 from mysite import settings
 import mysite.helpers.util as ut
 from mysite.helpers.data_capture import DataCapture
@@ -127,10 +126,6 @@ class Table(ColumnContainer):
   def setCapture(self, filename, data):
     dc = DataCapture(filename)
     dc.setData(data)
-
-  def getCapture(self, filename):
-    dc = DataCapture(filename)
-    return dc.getData()
  
   def getIsEvaluateFormulas(self):
     return self._is_evaluate_formulas
@@ -151,8 +146,8 @@ class Table(ColumnContainer):
       names.append(Table._rowNameFromIndex(row_num))
     for table in self.getNonLeaves(is_from_root=True):
       if isinstance(table, Table):
-        name_column = table.columnFromName(NAME_COLUMN_STR)
-        name_column.addCells(names, replace=True)
+        name_column = table.getChildAtPosition(NAME_COLUMN_IDX)
+        name_column.addCells(list(names), replace=True)
 
   def _formulaStatementFromFile(self, filepath, name):
     """
@@ -175,9 +170,10 @@ class Table(ColumnContainer):
 
   def getData(self):
     """
-    Returns the data values in an array ordered by column index
+    :return dict: keys are global column names
     """
-    return [c.getCells() for c in self.getColumns()]
+    return {c.getName(): c.getCells() 
+            for c in self.getColumns(is_recusive=True)}
 
   def getEpilogue(self):
     """
@@ -192,21 +188,21 @@ class Table(ColumnContainer):
     result = [c for c in self.getColumns() if c.getFormula() is not None]
     return result
 
-  def getRow(self, index=None):
+  def getRow(self, row_index=None):
     """
-    :param index: row desired
+    :param row_index: row desired
            if None, then a row of None is returned
     :return: Row object
     """
     row = Row()
-    for column in self.getColumns():
-      if index is None:
+    for column in self.getColumns(is_recursive=True):
+      if row_index is None:
         if column.isFloats():
           row[column.getName()] = np.nan  # pylint: disable=E1101
         else:
           row[column.getName()] = None
       else:
-        row[column.getName()] = column.getCells()[index]
+        row[column.getName()] = column.getCells()[row_index]
     return row
 
   def getNamespace(self):
@@ -225,6 +221,16 @@ class Table(ColumnContainer):
     Create the row name from its index
     """
     return str(index + 1)
+
+  def _coerceNameColumnToStr(self):
+    """
+    Makes sure that row names are strings
+    """
+    column = self.columnFromName(NAME_COLUMN_STR)
+    if column is None:
+      import pdb; pdb.set_trace()
+    values = [str(v) for v in column.getCells()]
+    column.replaceCells(values)
 
   # TODO: Verify the index
   @staticmethod
@@ -319,7 +325,9 @@ class Table(ColumnContainer):
     """
     error = None
     # Check for problems with this column
-    is_ok = all([c.getName() != column.getName() for c in self.getColumns()])
+    is_ok = all([c.getName(is_global_name=False) 
+        != column.getName(is_global_name=False) 
+        for c in self.getChildren()])
     if not is_ok:
       error = "**%s is a duplicate name" % column.getName()
       return error
@@ -331,39 +339,34 @@ class Table(ColumnContainer):
     if index is None:
       index = len(self.getColumns())
     # Handle the different cases of adding a column
-    # Case 1: NameColumn
-    if self.numColumns() == 0:
-      self.insertColumn(column, index=index)
-      column.setTable(self)
-    # Case 2: First column after name column
-    elif self.numColumns() == 1:
-      self.insertColumn(column, index=index)
-      column.setTable(self)
+    self.addChild(column, position=index)
+    # Case 1: First column after name column
+    if self.numColumns() == 1:
       self._updateNameColumn()
-      self._validateTable()
-    # Case 3: Subsequent columns
+    # Case 2: Subsequent columns
     else:
-      self.insertColumn(column, index=index)
-      column.setTable(self)
       self.adjustColumnLength()
-      self._validateTable()
+    self._validateTable()
 
-  def addRow(self, row, ext_index=None):
+  def addRow(self, row, row_index=None):
     """
-    :param row: Row to add
-    :param ext_index: index where Row is added, may be a float
+    :param Row row: Row to add
+    :param int row_index: index where Row is added, may be a float
                        if None, then appended
     """
     # Determine the actual desired name
-    if ext_index is None:
+    if row_index is None:
       proposed_name = Table._rowNameFromIndex(self.numRows())
     else:
-      proposed_name = Table._rowNameFromIndex(ext_index)
-    # Assign values to the cells in the Row
-    for column in self.getColumns():
-      cur_name = column.getName()
-      if cur_name in row:
-        column.insertCell(row[cur_name])
+      proposed_name = Table._rowNameFromIndex(row_index)
+    # Assign values to the last row of each column cells
+    for column in self.getColumns(is_recursive=True):
+      if column.getName(is_global_name=False) != NAME_COLUMN_STR:
+        cur_name = column.getName()
+        if cur_name in row:
+          column.insertCell(row[cur_name])
+        else:
+          column.insertCell(None)
       else:
         column.insertCell(None)
     last_index = self.numRows() - 1
@@ -382,6 +385,7 @@ class Table(ColumnContainer):
     instance.deleteColumn(name_column)  # Avoid duplicate
     # Copy everything required from inherited classes
     super(Table, self).copy(instance=instance)
+    instance._coerceNameColumnToStr()
     # Set properties specific to this class
     instance.setPrologue(self.getPrologue().getFormula())
     instance.setEpilogue(self.getEpilogue().getFormula())
@@ -442,7 +446,7 @@ class Table(ColumnContainer):
     :param Table other_table:
     :returns bool:
     """
-    local_debug = False  # Breaks on specifc reasons for non-equiv
+    local_debug = True # Breaks on specifc reasons for non-equiv
     if not isinstance(other_table, self.__class__):
       if local_debug:
         import pdb; pdb.set_trace()
@@ -460,7 +464,17 @@ class Table(ColumnContainer):
         import pdb; pdb.set_trace()
       return False
     return True
-   
+
+  @staticmethod
+  def isNameColumn(column):
+    """
+    Determines if this is a name column
+    :param Column column:
+    :return bool: True if name column
+    """
+    path = column.pathFromGlobalName(column.getName())
+    return path[-1] == NAME_COLUMN_STR
+    
 
   def insertRow(self, row, index=None):
     """
@@ -472,22 +486,20 @@ class Table(ColumnContainer):
     idx = index
     if idx is None:
       idx = self.numRows()
-    for ncol in range(self.numColumns()):
-      column = self.getChildAtPosition(ncol)
-      if isinstance(column, Column):
-        column = self.getChildAtPosition(ncol)
-        name = column.getName()
+    for child in self.getChildren():
+      if ColumnContainer.isColumn(child):
+        name = child.getName(is_global_name=False)
         if name in row.keys():
-          column.insertCell(row[name], idx)
+          child.insertCell(row[name], idx)
         else:
-          column.insertCell(None, idx)
+          child.insertCell(None, idx)
     self._updateNameColumn()
 
   def moveRow(self, index1, index2):
     """
     Moves the row at index1 to index2
     """
-    row = self.getRow(index1)
+    row = self.getRow(row_index=index1)
     self.deleteRows([index1])
     self.insertRow(row, index2)
     self._updateNameColumn()
@@ -498,8 +510,7 @@ class Table(ColumnContainer):
     """
     return max([c.numCells() for c in self.getColumns()])
 
-  # TODO: Should check for exceptions and revert to a 
-  #       previous version of the table if encounter an error
+  # TODO: This won't work with nested columns
   def refactorColumn(self, cur_colnm, new_colnm):
     """
     Changes the column name and its occurrences in formulas in the table.
@@ -565,7 +576,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     :param proposed_name: str, proposed name
     :return: Boolean indicating success or failure
     """
-    names = [c.getName() for c in self.getColumns()]
+    names = [c.getName(is_global_name=False) for c in self.getChildren()]
     bool_test = all([name != proposed_name for name in names])
     if bool_test:
       column.setName(proposed_name)
@@ -575,10 +586,13 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     Renames the row so that it is an integer value
     that creates the row ordering desired.
+    Handles subtrees by making their name columns
+    the same length as the root.
     :param row_index: index of the row to change
     :param proposed_name: string of a number
     """
-    name_column = self.columnFromName(NAME_COLUMN_STR)
+    root = self.getRoot()
+    name_column = root.columnFromName(NAME_COLUMN_STR)
     names = name_column.getCells()
     try:
       names[row_index] = str(proposed_name)
@@ -590,11 +604,13 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
       import pdb; pdb.set_trace()
     sel_index = np.argsort(float_names)
     new_names = Table._rowNamesFromSize(len(names))
-    name_column.replaceCells(new_names)
+    for column in self.getChildren(is_recursive=True):
+      if Table.isNameColumn(column):
+        column.replaceCells(list(new_names))
     # Update the order of values in each column
-    for column in self.getColumns():
+    for column in self.getColumns(is_recursive=True):
       try:
-        if column.getName(is_global_name=False) != NAME_COLUMN_STR:
+        if Table.isNameColumn(column):
           data = column.getCells()
           new_data = [data[n] for n in sel_index]
           column.replaceCells(new_data)
@@ -627,11 +643,17 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     that have None values in the data columns
     """
     num_rows = self.numRows()
-    row_indxs = range(num_rows)
-    row_indxs.sort(reverse=True)
-    for index in row_indxs:
-      row = self.getRow(index=index)
-      del row[NAME_COLUMN_STR]
+    row_indexes = range(num_rows)
+    row_indexes.sort(reverse=True)
+    for index in row_indexes:
+      row = self.getRow(row_index=index)
+      # Delete all of the name columns
+      for colnm in row.keys():
+        column = self.columnFromName(colnm, is_relative=False)
+        if column is None:
+          import pdb; pdb.set_trace()
+        if Table.isNameColumn(column):
+          del row[column.getName()]
       delete_row = True
       for name in row.keys():
         column = self.columnFromName(name)
@@ -671,9 +693,8 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     :param index: index of row to change
     """
     row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
-    for ncol in range(self.numColumns()):
-      column = self.getChildAtPosition(ncol)
-      name = column.getName()
-      if name in row.keys():
-        if name != NAME_COLUMN_STR:
-          column.updateCell(row[name], index)
+    for name in row:
+      column = self.getColumnFromName(name)
+      if not Table.isNameColumn(column):
+        column.updateCell(row[name], index)
+    self.adjustColumnLength()

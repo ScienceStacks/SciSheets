@@ -112,13 +112,13 @@ class ColumnContainer(NamedTree):
     """
     return self.getPositionOfChild(column)
 
-  def insertColumn(self, column, index=None):
+  @classmethod
+  def isColumn(cls, child):
     """
-    Inserts the column after the specified column index
-    :param column: object
-    :param index: column index
+    :param NamedTree child:
+    :return bool: True if is a Column
     """
-    self.addChild(column, position=index)
+    return isinstance(child, Column)
 
   def isEquivalent(self, other):
     return super(ColumnContainer, self). isEquivalent(other)

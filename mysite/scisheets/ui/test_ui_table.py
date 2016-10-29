@@ -82,8 +82,8 @@ class TestUITable(TestCase):
     expected_num_columns = old_num_columns - 1
     self.assertEqual(self.table.numColumns(), expected_num_columns)
     for r in range(self.table.numRows()):
-      after_row = self.table.getRow(r)
-      before_row = before_table.getRow(r)
+      after_row = self.table.getRow(row_index=r)
+      before_row = before_table.getRow(row_index=r)
       for k in after_row.keys():
         self.assertEqual(after_row[k], before_row[k])
 

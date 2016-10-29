@@ -87,13 +87,13 @@ class TestNamedTree(unittest.TestCase):
   def testGetName(self):
     if IGNORE_TEST:
       return
-    name = self.root.getName(is_node_name=True)
+    name = self.root.getName(is_global_name=False)
     self.assertEqual(name, PARENT)
     name = self.root.getName(is_global_name=True)
     self.assertEqual(name, ROOT_NAME)
     name = self.root_child.getName()
     self.assertEqual(name, self.root_child._name)
-    name = self.subparent_child.getName()
+    name = self.subparent_child.getName(is_global_name=False)
     self.assertEqual(name, self.subparent_child_name)
     expected = ".".join([SUBPARENT, self.subparent_child_name])
     name = self.subparent_child.getName(is_global_name=True)
