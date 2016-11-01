@@ -227,7 +227,6 @@ class Tree(Node):
         if not is_this:
           import pdb; pdb.set_trace()
         is_equivalent = is_equivalent and is_this
-    import pdb; pdb.set_trace()
     return is_equivalent
 
   def isEquivalentParent(self, other):

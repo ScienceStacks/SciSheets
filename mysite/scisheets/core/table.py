@@ -144,10 +144,9 @@ class Table(ColumnContainer):
     names = []
     for row_num in range(nrows_table):
       names.append(Table._rowNameFromIndex(row_num))
-    for table in self.getNonLeaves(is_from_root=True):
-      if isinstance(table, Table):
-        name_column = table.getChildAtPosition(NAME_COLUMN_IDX)
-        name_column.addCells(list(names), replace=True)
+    for column in self.getLeaves():
+      if Table.isNameColumn(column):
+        column.addCells(list(names), replace=True)
 
   def _formulaStatementFromFile(self, filepath, name):
     """
@@ -173,7 +172,7 @@ class Table(ColumnContainer):
     :return dict: keys are global column names
     """
     return {c.getName(): c.getCells() 
-            for c in self.getColumns(is_recusive=True)}
+            for c in self.getColumns(is_recursive=True)}
 
   def getEpilogue(self):
     """
@@ -607,15 +606,13 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     for column in self.getChildren(is_recursive=True):
       if Table.isNameColumn(column):
         column.replaceCells(list(new_names))
+    self._updateNameColumn()
     # Update the order of values in each column
-    for column in self.getColumns(is_recursive=True):
-      try:
-        if Table.isNameColumn(column):
-          data = column.getCells()
-          new_data = [data[n] for n in sel_index]
-          column.replaceCells(new_data)
-      except:
-        import pdb; pdb.set_trace()
+    for column in self.getLeaves():
+      if not Table.isNameColumn(column):
+        data = column.getCells()
+        new_data = [data[n] for n in sel_index]
+        column.replaceCells(new_data)
 
   def setNamespace(self, namespace):
     self._namespace = namespace
@@ -694,7 +691,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
     for name in row:
-      column = self.getColumnFromName(name)
+      column = self.columnFromName(name)
       if not Table.isNameColumn(column):
         column.updateCell(row[name], index)
     self.adjustColumnLength()

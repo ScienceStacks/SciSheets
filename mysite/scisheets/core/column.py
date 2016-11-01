@@ -281,7 +281,8 @@ class Column(NamedTree):
     Inputs: formula - valid python expression
     Outputs: error - string giving error encountered
     """
-    self._formula_statement = FormulaStatement(formula, self.getName())
+    self._formula_statement = FormulaStatement(formula, 
+        self.getName(is_global_name=False))
     return self._formula_statement.do()
 
   @staticmethod
