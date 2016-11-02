@@ -172,7 +172,8 @@ class Table(ColumnContainer):
     :return dict: keys are global column names
     """
     return {c.getName(): list(c.getCells())
-            for c in self.getColumns(is_recursive=True)}
+            for c in self.getColumns(is_recursive=True)
+            if not Table.isNameColumn(c)}
 
   def getEpilogue(self):
     """

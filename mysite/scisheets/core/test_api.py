@@ -151,30 +151,28 @@ class TestAPIFormulas(unittest.TestCase):
 
   def _createDataframe(self, prefix="", names=None):
     if names is None:
-      data = {c.getName(): c.getCells() 
-              for c in self.api.getTable().getDataColumns()}
-      df = pd.DataFrame(data)
+      data = self.api.getTable().getData()
+      if 'row' in data:
+        import pdb; pdb.set_trace()
+        pass
     else:
       data = {}
       if len(names) >= 3:
-        data[names[2]] = [100.0, 200.0, 300.0]
+        data[names[2]] = [100.0, 200.0, 300.0, 400.0, 500.0]
       if len(names) >= 2:
-        data[names[1]] = [10.1, 20.0, 30.0]
+        data[names[1]] = [10.1, 20.0, 30.0, 40.0, 50.0]
       if len(names) >= 1:
-        data[names[0]] = ["one", "two", "three"]
+        data[names[0]] = ["one", "two", "three", "four", "five"]
     df = pd.DataFrame(data)
     return df
 
-  def _TableEqualDataframe(self, table, dataframe, names=None):
+  def _TableContainsDataframe(self, table, dataframe, names=None):
     if names is None:
       names = list(set(dataframe.columns).union(  \
            table.getColumnNames()))
-    num = len(names)
     for name in dataframe.columns:
       column = table.columnFromName(name)
-      b = all([dataframe[name][n] == column.getCells()[n]  \
-               for n in range(num)])
-      self.assertTrue(b)
+      self.assertTrue([dataframe[name].tolist() == column.getCells()])
 
   def testCreateFromDataframe(self):
     if IGNORE_TEST:
@@ -209,12 +207,12 @@ class TestAPIFormulas(unittest.TestCase):
     return
 
   def _testAddFromDataframe(self, prefix="", names=None):
-    df = self._createDataframe(prefix=prefix)
+    df = self._createDataframe(prefix=prefix, names=names)
     self.api.addColumnsToTableFromDataframe(df, names=names)
     num = len(df.columns)
     if names is None:
       names = list(df.columns)
-    self._TableEqualDataframe(self.api._table, df, names=names)
+    self._TableContainsDataframe(self.api._table, df, names=names)
 
   def testAddFromDataframe(self):
     if IGNORE_TEST:
@@ -227,10 +225,14 @@ class TestAPIFormulas(unittest.TestCase):
 
   def _testToDataframe(self, names=None):
     df = self.api.tableToDataframe(columns=names)
-    expected_df = self._createDataframe(names=names)
-    self.assertEqual(len(df.columns), len(expected_df.columns))
+    if names is None:
+      columns = self.api.getTable().getDataColumns()
+    else:
+      columns = [self.api.getTable().columnFromName(n) for n in names]
+    self.assertEqual(len(df.columns), len(columns))
     for name in df.columns:
-      self.assertTrue(list(df[name]) == list(expected_df[name]))
+      column = self.api.getTable().columnFromName(name)
+      self.assertTrue(list(df[name]) == column.getCells())
 
   def testToDataframe(self):
     if IGNORE_TEST:
