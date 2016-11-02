@@ -395,6 +395,16 @@ class TestTable(unittest.TestCase):
     serialization_dict = self.table.getSerializationDict(CLASS_VARIABLE)
     table = tb.Table.deserialize(serialization_dict)
     self.assertTrue(table.isEquivalent(self.table))
+
+  def testGetDataColumns(self):
+    if IGNORE_TEST:
+      return
+    columns = self.table.getDataColumns()
+    num = 0
+    for column in self.table.getColumns():
+      if not tb.Table.isNameColumn(column):
+        num += 1
+    self.assertEqual(len(columns), num)
       
 
 if __name__ == '__main__':
