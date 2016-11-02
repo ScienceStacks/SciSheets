@@ -134,11 +134,11 @@ class TestAPIFormulas(unittest.TestCase):
       self.assertTrue(any([c.getName() == TRUTH_COLUMNS[n]
           for c in self.api._table.getColumns()]))
 
-  def _createDataframe(self, prefix="", names=None):
+  def _OldcreateDataframe(self, prefix="", names=None):
     df = pd.DataFrame()
     data = {}
     if names is None:
-      names = ["%sDUMMY%d_COLUMN" % (prefix, n) for n in [1,2,5]]
+      names = [c.getNames() for c in self.api.getTable().getColumns()]
     if len(names) >= 3:
       data[names[2]] = [100.0, 200.0, 300.0]
     if len(names) >= 2:
@@ -147,6 +147,22 @@ class TestAPIFormulas(unittest.TestCase):
       data[names[0]] = ["one", "two", "three"]
     for name in names:
       df[name] = data[name]
+    return df
+
+  def _createDataframe(self, prefix="", names=None):
+    if names is None:
+      data = {c.getName(): c.getCells() 
+              for c in self.api.getTable().getDataColumns()}
+      df = pd.DataFrame(data)
+    else:
+      data = {}
+      if len(names) >= 3:
+        data[names[2]] = [100.0, 200.0, 300.0]
+      if len(names) >= 2:
+        data[names[1]] = [10.1, 20.0, 30.0]
+      if len(names) >= 1:
+        data[names[0]] = ["one", "two", "three"]
+    df = pd.DataFrame(data)
     return df
 
   def _TableEqualDataframe(self, table, dataframe, names=None):

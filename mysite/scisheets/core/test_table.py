@@ -206,8 +206,12 @@ class TestTable(unittest.TestCase):
     self.table.moveRow(1, 2)
     new_row = self.table.getRow(row_index=2)
     for k in cur_row.keys():
-      if k != 'row':
-        self.assertEqual(cur_row[k], new_row[k])
+      column = self.table.columnFromName(k)
+      if not tb.Table.isNameColumn(column):
+        if k != 'row':
+          if cur_row[k] != new_row[k]:
+            import pdb; pdb.set_trace()
+          self.assertEqual(cur_row[k], new_row[k])
 
   def testUpdateCell(self):
     if IGNORE_TEST:
@@ -230,7 +234,9 @@ class TestTable(unittest.TestCase):
     row[ht.COLUMN5] = 200.0
     self.table.updateRow(row, rowidx)
     row['row'] = tb.Table._rowNameFromIndex(rowidx)
-    self.assertEqual(row, self.table.getRow(row_index=rowidx))
+    this_row = self.table.getRow(row_index=rowidx)
+    for name in row:
+      self.assertEqual(row[name], this_row[name])
     # More complex update
     row = self.table.getRow()  # Get an empty row
     row[ht.COLUMN1] = "four"
@@ -256,27 +262,28 @@ class TestTable(unittest.TestCase):
     table = self.table
     row_idx = 0
     columns = table.getColumns()
-    table_data = table.getData()
+    old_table_data = table.getData()
     # Move the first row to the end of the table
     after_last_row_name = tb.Table._rowNameFromIndex(table.numRows())
     table.renameRow(row_idx, after_last_row_name)
+    new_table_data = table.getData()
     # Test if done correctly
     rpl_idx = range(len(ht.COLUMN1_CELLS))
     del rpl_idx[0]
     rpl_idx.append(0)
-    for column in self.table.getColumns(is_recursive=True):
-      expected_array = [column.getCells()[n] for n in rpl_idx]
-      column_cells = column.getCells()
-      is_equal = all([column_cells[n] == expected_array[n] 
-           for n in range(len(column_cells))])
-      self.assertTrue(is_equal)
-    for name in table_data:
-      expected_array = [table_data[name][n] for n in rpl_idx]
-      column = self.getColumnFromName(name)
-      column_cells = column.getCells()
-      is_equal = all([column_cells[n] == expected_array[n] 
-           for n in range(len(column_cells))])
-      self.assertTrue(is_equal)
+    for column in self.table.getColumns():
+      if not tb.Table.isNameColumn(column):
+        expected_array = [old_table_data[column.getName()][n] 
+            for n in rpl_idx]
+        self.assertEqual(expected_array, column.getCells())
+    for name in old_table_data:
+      expected_array = [old_table_data[name][n] for n in rpl_idx]
+      column = self.table.columnFromName(name)
+      if not tb.Table.isNameColumn(column):
+        is_equal = expected_array == column.getCells()
+        if not is_equal:
+          import pdb; pdb.set_trace()
+        self.assertTrue(is_equal)
 
   def testRenameColumn(self):
     if IGNORE_TEST:

@@ -158,5 +158,5 @@ def coerceValuesForColumn(column, values):
   """
   data_class = column.getDataClass()
   values = data_class.cons(values)
-  values.name = column.getName()
+  values.name = column.getName(is_global_name=False)
   return values

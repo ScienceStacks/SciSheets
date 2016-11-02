@@ -41,7 +41,7 @@ FUNCTION_NAME = "myFunction"
 FILE1 = "table_evaluator_test_1.scish"
 FILE2 = "table_evaluator_test_2.scish"
 
-IGNORE_TEST = True
+IGNORE_TEST = False
 
 
 # Ensure current directory is in the path
@@ -80,11 +80,12 @@ class TestTableEvaluator(unittest.TestCase):
     if IGNORE_TEST:
       return
     evaluator = TableEvaluator(self.table)
-    self.assertEqual(evaluator._table.getName(), TABLE_NAME)
+    self.assertEqual(evaluator._table.getName(is_global_name=False), 
+        TABLE_NAME)
 
   def testEvaluate(self):
-    #if IGNORE_TEST:
-    #  return
+    if IGNORE_TEST:
+      return
     error = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(error)
     # pylint: disable=E1101

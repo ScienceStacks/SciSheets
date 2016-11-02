@@ -42,7 +42,7 @@ class ColumnContainer(NamedTree):
     :return: column - column object or None if not found
     """
     leaf = self.childFromName(name, is_relative=is_relative)
-    if isinstance(leaf, Column):
+    if ColumnContainer.isColumn(leaf):
       return leaf
 
   def copy(self, instance=None):
@@ -65,7 +65,7 @@ class ColumnContainer(NamedTree):
     :return: the numpy array of the cells in the column
     """
     child = self.getChildAtPosition(column_index)
-    if isinstance(child, Column):
+    if ColumnContainer.isColumn(child):
       return child.getCells()[row_index]
     else:
       raise ValueError("Position %d in %s is not a Column" %
@@ -76,7 +76,7 @@ class ColumnContainer(NamedTree):
     :return list-of-str:
     """
     return [c.getName() for c in self.getLeaves()  \
-            if isinstance(c, Column)]
+            if ColumnContainer.isColumn(c)]
 
   def getColumns(self, is_recursive=True):
     """
@@ -87,7 +87,7 @@ class ColumnContainer(NamedTree):
       candidates = self.getLeaves()
     else:
       candidates = self.getChildren()
-    return [c for c in candidates if isinstance(c, Column)]
+    return [c for c in candidates if ColumnContainer.isColumn(c)]
 
   def getFilepath(self):
     """

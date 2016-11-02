@@ -66,11 +66,11 @@ class Table(ColumnContainer):
     """
     serialization_dict = {}
     serialization_dict[class_variable] = str(self.__class__)
-    if ut.getFileExtension(self.getFilepath()) == settings.SCISHEETS_EXT:
-      filepath = self.getFilepath()
-    else:
-      filepath = ut.changeFileExtension(self.getFilepath(), 
-          settings.SCISHEETS_EXT)
+    filepath = self.getFilepath()
+    if self.getFilepath() is not None:
+      if ut.getFileExtension(self.getFilepath()) != settings.SCISHEETS_EXT:
+        filepath = ut.changeFileExtension(self.getFilepath(), 
+            settings.SCISHEETS_EXT)
     more_dict = {
         "_name": self.getName(is_global_name=False),
         "_prologue_formula": self.getPrologue().getFormula(),
@@ -165,13 +165,13 @@ class Table(ColumnContainer):
     """
     Returns the columns other than the name column
     """
-    return [l for l in self.getColumns() if l.name != NAME_COLUMN_STR]
+    return [c for c in self.getColumns() if not Table.isNameColumn(c)]
 
   def getData(self):
     """
     :return dict: keys are global column names
     """
-    return {c.getName(): c.getCells() 
+    return {c.getName(): list(c.getCells())
             for c in self.getColumns(is_recursive=True)}
 
   def getEpilogue(self):
@@ -299,7 +299,11 @@ class Table(ColumnContainer):
         msg = "In Table %s, invalid row name at index %d: %s" % \
                 (self.getName(), nrow, actual_row_name)
         raise er.InternalError(msg)
- 
+    # Verify that the name columns are identical
+    for column in self.getColumns():
+      if Table.isNameColumn(column):
+        if not column.getCells() == name_column.getCells():
+          raise RuntimeError("%s is not a consistent name column" % column.getName())
 
   def addCells(self, column, cells, replace=False):
     """
@@ -485,7 +489,7 @@ class Table(ColumnContainer):
     idx = index
     if idx is None:
       idx = self.numRows()
-    for child in self.getChildren():
+    for child in self.getLeaves():
       if ColumnContainer.isColumn(child):
         name = child.getName(is_global_name=False)
         if name in row.keys():

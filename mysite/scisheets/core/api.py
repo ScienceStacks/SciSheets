@@ -135,6 +135,8 @@ class API(object):
       if self._table.isColumnPresent(name):
         column = self._table.columnFromName(name)
       else:
+        if "." in name:
+          import pdb; pdb.set_trace()
         column = Column(name)
         self._table.addColumn(column, index=index)
         index += 1

@@ -23,7 +23,7 @@ NCOL = 3
 NROW = 4
 BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
-IGNORE_TEST = True
+IGNORE_TEST = False
 
 
 

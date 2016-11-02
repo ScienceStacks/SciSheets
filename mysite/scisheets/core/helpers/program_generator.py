@@ -123,7 +123,7 @@ _table.setNamespace(globals())
     # TODO: This won't work with nested columns
     statement = '''# Evaluation of the table %s.
 
-    ''' % self._table.getName()
+    ''' % self._table.getName(is_global_name=False)
     sa.add(statement)
     sa.add(self._makeAPIInitializationStatements(
         create_API_object=create_API_object))
@@ -167,7 +167,7 @@ if %s.controller.getException() is not None:
     # TODO: This won't work with nested columns
     statement = '''# Script that runs formulas in the table %s.
 
-    ''' % self._table.getName()
+    ''' % self._table.getName(is_global_name=False)
     sa.add(statement)
     sa.add(self._makeAPIInitializationStatements(create_API_object=True))
     sa.add(self._makePrologue())
@@ -205,7 +205,7 @@ if %s.controller.getException() is not None:
     # TODO: This won't work with nested columns
     statement = '''# Export of the table %s
 
-    ''' % self._table.getName()
+    ''' % self._table.getName(is_global_name=False)
     sa.add(statement)
     sa.add("")
     # Make the function definition. This must enclose the prologue
@@ -359,7 +359,8 @@ if __name__ == '__main__':
         columns.append(self._table.columnFromName(name))
     if excludes is None:
       excludes = []
-    return [c for c in columns if c.getName() not in excludes]
+    return [c for c in columns 
+            if c.getName(is_global_name=False) not in excludes]
 
   def _makeVariableAssignmentStatements(self, prefix="", **kwargs):
     """
@@ -372,7 +373,7 @@ if __name__ == '__main__':
     full_object = "%s%s" % (prefix, API_OBJECT)
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
-      name = column.getName()
+      name = column.getName(is_global_name=False)
       statement = "%s = %s.getColumnValue('%s')" %   \
           (name, full_object, name)
       sa.add(statement)
@@ -403,7 +404,7 @@ if __name__ == '__main__':
     sa.add("# Assign program variables to columns values.")
     columns = self._getSelectedColumns(**kwargs)
     for column in columns:
-      name = column.getName()
+      name = column.getName(is_global_name=False)
       statement = "%s.setColumnValue('%s', %s)" % (API_OBJECT, name, name)
       sa.add(statement)
     return sa.get()
@@ -484,7 +485,7 @@ while not %s.controller.isTerminateLoop():
     for column in formula_columns:
       sa.add("try:")
       sa.indent(1)
-      colnm = column.getName()
+      colnm = column.getName(is_global_name=False)
       sa.add("# Column %s" % colnm)
       statement = "%s.controller.startBlock('%s')" %  \
         (API_OBJECT, colnm)

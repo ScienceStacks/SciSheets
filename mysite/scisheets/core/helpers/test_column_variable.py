@@ -28,7 +28,6 @@ class TestColumnVariable(unittest.TestCase):
     columns = self.table.getColumns()
     self.column_variables =  \
         [ColumnVariable(c) for c in columns] 
-       #[ColumnVariable(c) for c in columns if c.getName() != 'row'] 
 
   def testConstructor(self):
     for cv in self.column_variables:
@@ -45,19 +44,19 @@ class TestColumnVariable(unittest.TestCase):
     namespace = self.table.getNamespace()
     for cv in self.column_variables:
       if not ( isNulls(cv.getNamespaceValue()) and  \
-               isNulls(namespace[cv._column.getName()])):
+               isNulls(namespace[cv._column.getName(is_global_name=False)])):
         if (cv.getNamespaceValue().tolist() != 
-            namespace[cv._column.getName()].tolist()):
+            namespace[cv._column.getName(is_global_name=False)].tolist()):
             import pdb; pdb.set_trace()
         self.assertTrue(cv.getNamespaceValue().tolist() == 
-            namespace[cv._column.getName()].tolist())
+            namespace[cv._column.getName(is_global_name=False)].tolist())
 
   def testSetColumnValue(self):
     namespace = self.table.getNamespace()
     for cv in self.column_variables:
       num_rows = cv._column.numCells()
       new_value = [10*n for n in range(num_rows)]
-      namespace[cv._column.getName()] = new_value
+      namespace[cv._column.getName(is_global_name=False)] = new_value
       cv.setColumnValue()
       self.assertEqual(cv.getColumnValue(), new_value)
 
@@ -67,7 +66,7 @@ class TestColumnVariable(unittest.TestCase):
       self.assertTrue(cv.isNamespaceValueEquivalentToBaselineValue())
       num_rows = cv._column.numCells()
       new_value = [10*n for n in range(num_rows)]
-      namespace[cv._column.getName()] = new_value
+      namespace[cv._column.getName(is_global_name=False)] = new_value
       cv.setIterationStartValue()
       self.assertFalse(cv.isNamespaceValueEquivalentToBaselineValue())
       cv.setColumnValue()
@@ -81,7 +80,7 @@ class TestColumnVariable(unittest.TestCase):
       self.assertTrue(cv.isNamespaceValueEquivalentToIterationStartValue())
       num_rows = cv._column.numCells()
       new_value = [10*n for n in range(num_rows)]
-      namespace[cv._column.getName()] = new_value
+      namespace[cv._column.getName(is_global_name=False)] = new_value
       self.assertFalse(cv.isNamespaceValueEquivalentToIterationStartValue())
       cv.setIterationStartValue()
       self.assertTrue(cv.isNamespaceValueEquivalentToIterationStartValue())
