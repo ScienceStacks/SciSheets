@@ -79,6 +79,7 @@ class ProgramGenerator(object):
   def __init__(self, 
                table, 
                user_directory, 
+               debug=False,
                plugin_directory=settings.SCISHEETS_PLUGIN_PYDIR,
                plugin_path=settings.SCISHEETS_PLUGIN_PYPATH):
     """

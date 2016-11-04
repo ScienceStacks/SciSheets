@@ -40,7 +40,8 @@ class API(object):
   Usage:
   """
 
-  def __init__(self, is_logging=False):
+  def __init__(self, is_logging=False, debug=False):
+    self.debug = debug # Used for conditional debugging
     self._is_logging = is_logging
     self._column_variables = []
     self.setTable(None)  # self._table
@@ -74,11 +75,12 @@ class API(object):
     # Table present
     cv_dict = {}
     for column in  self._table.getColumns():
-      name = column.getName()
+      name = column.getName(is_global_name=False)
       cv = self.getColumnVariable(name)
       cv_dict[name] = cv
     if colnms is None:
-      colnms = [c.getName() for c in self._table.getColumns()]
+      colnms = [c.getName(is_global_name=False) 
+                for c in self._table.getColumns()]
     for colnm in colnms:
       column = self._table.columnFromName(colnm)
       if column is None:
@@ -91,7 +93,7 @@ class API(object):
   
   def getColumnVariable(self, colnm):
     for cv in self._column_variables:
-      if cv.getColumn().getName() == colnm:
+      if cv.getColumn().getName(is_global_name=False) == colnm:
         return cv
     return None
 
@@ -104,7 +106,8 @@ class API(object):
     :param list-of-str colnms:
     """
     if colnms is None:
-      colnms = [cv.getName() for cv in self._column_variables]
+      colnms = [cv.getName() 
+                for cv in self._column_variables]
     for cv in self._column_variables:
       if cv.getName() in colnms:
         if not cv.isNamespaceValueEquivalentToBaselineValue():
@@ -199,7 +202,8 @@ class API(object):
     """
     :return list-of-str:
     """
-    return [c.getName() for c in self._table.getColumns()]
+    return [c.getName(is_global_name=False) 
+            for c in self._table.getColumns()]
 
   def _getColumnValue(self, column_name):
     """
@@ -354,7 +358,7 @@ class APIFormulas(API):
     """
     namespace = self._table.getNamespace()
     for column in self._table.getColumns():
-      name = column.getName()
+      name = column.getName(is_global_name=False)
       if not name in excludes:
         if name in namespace:
           self.setColumnValue(name, namespace[name])

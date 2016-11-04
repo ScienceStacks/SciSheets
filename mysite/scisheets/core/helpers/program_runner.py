@@ -20,6 +20,7 @@ class ProgramRunner(object):
                program, 
                table,
                user_directory=None, 
+               debug=False,
                program_filename=None):
     """
     :param str program: string of one or more python program
@@ -29,6 +30,7 @@ class ProgramRunner(object):
     :param str program_filename: writes file executed to this file
                              filename without extension
     """
+    self.debug = debug
     self._program = program
     self._table = table
     if table is None:

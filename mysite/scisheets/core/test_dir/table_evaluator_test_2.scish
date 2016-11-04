@@ -73,7 +73,7 @@
     }
   ],
   "_epilogue_formula": "# Epilogue\n",
-  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/mechaelis_short.scish",
+  "_filepath": "/home/ubuntu/SciSheets/mysite/scisheets/core/test_dir/table_evaluator_test_2.scish",
   "_hidden_columns": [],
   "_is_evaluate_formulas": true,
   "_name": "MechaelisMenton",

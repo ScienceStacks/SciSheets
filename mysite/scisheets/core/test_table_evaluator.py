@@ -41,7 +41,7 @@ FUNCTION_NAME = "myFunction"
 FILE1 = "table_evaluator_test_1.scish"
 FILE2 = "table_evaluator_test_2.scish"
 
-IGNORE_TEST = False
+IGNORE_TEST = True
 
 
 # Ensure current directory is in the path

@@ -16,12 +16,13 @@ class ProgramExecuter(object):
   Executes a program. Provides exception reporting.
   """
 
-  def __init__(self, program_name, program, namespace):
+  def __init__(self, program_name, program, namespace, debug=False):
     """
     :param str program_name: name of the program
     :param str program: program to execute
     :param dict namespace: Namespace in which program executes
     """
+    self.debug = debug
     self._program_name = program_name
     self._program = program
     self._namespace = namespace  # Keep this pointer

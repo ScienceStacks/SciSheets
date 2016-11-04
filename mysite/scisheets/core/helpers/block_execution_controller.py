@@ -23,11 +23,12 @@ class BlockExecutionController(object):
        See: initializeLoop, startIteration, endIteration
   """
 
-  def __init__(self, scisheets_api, is_logging=False):
+  def __init__(self, scisheets_api, is_logging=False, debug=False):
     """
     :param ApiFormula scisheets_api:
     :param bool is_logging: creates a log file
     """
+    self.debug = debug
     self._api = scisheets_api
     self._block_linenumber = None  # Where exception occurred in block
     self._block_name = None
@@ -56,6 +57,8 @@ class BlockExecutionController(object):
     Called at the start of a block that is being evaluated.
     :param str name: User oriented identifier of the code block
     """
+    if self.debug:
+      import pdb; pdb.set_trace()
     self._block_name = name
     context = inspect.getouterframes(inspect.currentframe())[1]
     linenumber = context[2]
