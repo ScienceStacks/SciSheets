@@ -58,7 +58,8 @@ class BlockExecutionController(object):
     :param str name: User oriented identifier of the code block
     """
     if self.debug:
-      import pdb; pdb.set_trace()
+      if name == 'V_MAX':
+        import pdb; pdb.set_trace()
     self._block_name = name
     context = inspect.getouterframes(inspect.currentframe())[1]
     linenumber = context[2]
@@ -84,6 +85,8 @@ class BlockExecutionController(object):
     :return str, int: block name, line number in the block
     :raises RuntimeError: if not within a block
     """
+    if self.debug:
+      import pdb; pdb.set_trace()
     if self._block_name is None:
       self._block_name = "Unknown"
     self._exception = exception

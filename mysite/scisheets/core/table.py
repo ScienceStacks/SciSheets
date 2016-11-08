@@ -167,6 +167,17 @@ class Table(ColumnContainer):
     """
     return [c for c in self.getColumns() if not Table.isNameColumn(c)]
 
+  def getNameColumn(self):
+    """
+    Gets the name column for this table.
+    :return Column:
+    """
+    columns = [c for c in self.getColumns() 
+               if Table.isNameColumn(c) and c.getParent() == self]
+    if len(columns) != 1:
+      raise RuntimeError("Should have exactly one name column")
+    return columns[0]
+
   def getData(self):
     """
     :return dict: keys are global column names
@@ -287,9 +298,8 @@ class Table(ColumnContainer):
       msg = "In Table %s, first column is not 'row' column" % self.getName()
       raise er.InternalError(msg)
     # Verify that names are unique
-    if not self.validateTree():
-      raise er.DuplicateColumnName("Duplicate names in Table %s"
-          % self.getName())
+    if self.validateTree() is not None:
+      raise RuntimeError(self.validateTree())
     # Verify the sequence of row names
     for nrow in range(self.numRows()):
       expected_row_name = Table._rowNameFromIndex(nrow)
@@ -479,7 +489,6 @@ class Table(ColumnContainer):
     path = column.pathFromGlobalName(column.getName())
     return path[-1] == NAME_COLUMN_STR
     
-
   def insertRow(self, row, index=None):
     """
     Inserts the row in the desired index in the table and

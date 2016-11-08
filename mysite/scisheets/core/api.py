@@ -55,7 +55,7 @@ class API(object):
     self._table = table
     self.setColumnVariables()
     self.controller = BlockExecutionController(self, 
-        is_logging=self._is_logging)
+        is_logging=self._is_logging, debug=self.debug)
 
   def _dbgCheckColumnVariables(self):
     for cv in self._column_variables:
@@ -300,11 +300,12 @@ class APIFormulas(API):
     column_id - either the column name or column index
   """
 
-  def __init__(self, table, is_logging=False):
+  def __init__(self, table, is_logging=False, debug=False):
     """
     :param Table table: table for which execution is done
     """
-    super(APIFormulas, self).__init__(is_logging=is_logging)
+    super(APIFormulas, self).__init__(is_logging=is_logging,
+        debug=debug)
     self.setTable(table)
 
   def _createColumn(self, column_name, index=None, asis=False):
@@ -372,11 +373,11 @@ class APIPlugin(APIFormulas):
      S.initialize()
   """
 
-  def __init__(self, table_filepath, is_logging=True):
+  def __init__(self, table_filepath, is_logging=True, debug=False):
     """
     :param str table_filepath: full path to the table file
     """
-    super(APIPlugin, self).__init__(None)
+    super(APIPlugin, self).__init__(None, debug=debug)
     self._table_filepath = table_filepath
 
   def initialize(self):

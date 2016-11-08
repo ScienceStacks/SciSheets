@@ -64,11 +64,19 @@ class Tree(Node):
 
   def _checkForDuplicateNames(self):
     """
-    :return bool: True if no duplicate names
+    :return str/None: None if no duplicate
     """
     node_names = [".".join(c.findPathFromRoot())   \
                   for c in self.getAllNodes()]
-    return len(node_names) == len(set(node_names))
+    if len(node_names) == len(set(node_names)):
+      return None
+    non_duplicates = []
+    for name in node_names:
+      if name in non_duplicates:
+        return "Duplicate name: %s: " % name
+      else:
+        non_duplicates.append(name)
+    raise RuntimeError("Should have a duplicate")
 
   def addChild(self, child):
     """
@@ -83,7 +91,8 @@ class Tree(Node):
       raise ValueError("Duplicate addChild")
     self._children.append(child)
     child.setParent(self)
-    self.validateTree()
+    if self.validateTree() is not None:
+      raise RuntimeError(self.validateTree())
 
   def copy(self, instance=None):
     """
@@ -292,7 +301,9 @@ class PositionTree(Tree):
       position = len(self._children)
     self._children.insert(position, position_tree)
     position_tree.setParent(self)
-    self.validateTree()
+    error = self.validateTree()
+    if error is not None:
+      raise RuntimeError(error)
 
   def copy(self, instance=None):
     """
@@ -353,7 +364,8 @@ class PositionTree(Tree):
           % (child.getName(), self.getName()))
     self._children.remove(child)
     self._children.insert(position, child)
-    self.validateTree()
+    if self.validateTree() is not None:
+      raise RuntimeError(self.validateTree())
 
   def toString(self, is_from_root=False):
     """

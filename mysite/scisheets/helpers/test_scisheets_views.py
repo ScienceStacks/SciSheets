@@ -177,7 +177,8 @@ class TestScisheetsViews(TestCase):
     sv.saveTable(request, table)
     self.assertTrue(request.session.has_key(sv.TABLE_FILE_KEY))
     new_table = sv.getTable(request)
-    self.assertEqual(new_table.getName(), table.getName())
+    self.assertEqual(new_table.getName(is_global_name=False), 
+        table.getName(is_global_name=False))
 
   def test(self):
     if IGNORE_TEST:
@@ -238,7 +239,7 @@ class TestScisheetsViews(TestCase):
     else:
       func = notIsStrs
     for column in table.getColumns():
-      if column.getName() == 'row':
+      if Table.isNameColumn(column):
         continue
       if func(column.getCells()):
         return table.indexFromColumn(column)
@@ -333,8 +334,10 @@ class TestScisheetsViews(TestCase):
       table = self._getTableFromResponse(response)
       columns = table.getColumns()
       self.assertEqual(len(columns), NCOL+1)  # Added the 'row' column
-      self.assertEqual(columns[0].numCells(), NROW)
-      self.assertEqual(columns[COLUMN_INDEX].getName(), new_name)
+      self.assertEqual(table.getNameColumn().numCells(), NROW)
+      self.assertEqual(
+          columns[COLUMN_INDEX].getName(is_global_name=False), 
+          new_name)
 
   def testCommandColumnRename(self):
     if IGNORE_TEST:
@@ -392,6 +395,15 @@ class TestScisheetsViews(TestCase):
     refactor_name = "NewColumn"
     self._refactor(new_formula, refactor_name, True)
 
+  def _numRows(self, table_data):
+    """
+    Determines the number of rows from the getData() dict
+    :return int:
+    """
+    keys = table_data.keys()
+    key = keys[0]
+    return len(table_data[key])
+
   def testCommandRowMove(self):
     if IGNORE_TEST:
        return
@@ -400,7 +412,7 @@ class TestScisheetsViews(TestCase):
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     table_data = table.getData()
-    num_rows = len(table_data[0])
+    num_rows = self._numRows(table_data)
     num_columns = table.numColumns()
     rplIdx = range(num_rows)
     del rplIdx[0]
@@ -431,7 +443,7 @@ class TestScisheetsViews(TestCase):
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     table_data = table.getData()
-    num_rows = len(table_data[0])
+    num_rows = self._numRows(table_data)
     num_columns = table.numColumns()
     rplIdx = range(num_rows)
     del rplIdx[ROW_IDX - 1]
@@ -565,7 +577,8 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(new_table.numRows(), num_rows)
     # New column should have all None values
     column = new_table.getColumns()[expected_index]
-    self.assertEqual(column.getName(), moved_column.getName())
+    self.assertEqual(column.getName(is_global_name=False), 
+       moved_column.getName(is_global_name=False))
     b = all([column.getCells()[n] == moved_column.getCells()[n] 
              for n in range(column.numCells())])
     if not b:
@@ -702,7 +715,7 @@ class TestScisheetsViews(TestCase):
   def _tableRename(self, new_name, is_valid_name):
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    old_name = table.getName()
+    old_name = table.getName(is_global_name=False)
     # Rename the table
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
@@ -719,10 +732,12 @@ class TestScisheetsViews(TestCase):
       if not content["success"]:
         import pdb; pdb.set_trace()
       self.assertTrue(content["success"])
-      self.assertEqual(new_table.getName(), new_name)
+      self.assertEqual(new_table.getName(is_global_name=False), 
+          new_name)
     else:
       self.assertFalse(content["success"])
-      self.assertEqual(new_table.getName(), old_name)
+      self.assertEqual(new_table.getName(is_global_name=False), 
+          old_name)
 
   def testTableRename(self):
     if IGNORE_TEST:

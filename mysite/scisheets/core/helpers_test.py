@@ -132,7 +132,7 @@ def compareTableData(table1, table2, excludes=None):
   for idx in range(table1.numColumns()):
     if not idx in excludes:
       data1 = table1.getColumns()[idx].getCells()
-      data2 = table2.getColumns[idx].getCells()
+      data2 = table2.getColumns()[idx].getCells()
       if data1 != data2:
         return False
   return True

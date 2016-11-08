@@ -13,6 +13,7 @@ NAME2 = "NAME2"
 NAME3 = "NAME3"
 NAME4 = "NAME4"
 NAME5 = "NAME5"
+NEW_NAME = "XXYY"
 
 IGNORE_TEST = False
 
@@ -284,7 +285,13 @@ class TestPositionTree(unittest.TestCase):
       return
     [table, other_table] = getCapture("test_table_1")
     result = super(NamedTree, table).isEquivalent(other_table)
-    #self.assertTrue(result)
+    self.assertTrue(result)
+
+  def testValidateTree(self):
+    self.tree2 = self._AddChild(NEW_NAME)
+    with self.assertRaises(RuntimeError):
+      self.tree2 = self._AddChild(NEW_NAME)
+
     
 
 if __name__ == '__main__':

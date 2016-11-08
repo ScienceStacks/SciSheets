@@ -59,6 +59,7 @@ class TestTabularize(unittest.TestCase):
     filepath = os.path.join(settings.SCISHEETS_TEST_DIR, 
                             "tabularize_test.pcl")
     api = APIPlugin(filepath)
+    import pdb; pdb.set_trace()
     api.initialize()
     tabularize(api, 'Groups', 1, 'MeanCt',
         new_category_colnm='BioRuns',

@@ -27,9 +27,10 @@ class TableEvaluator(object):
     export: export a table as a function
   """
 
-  def __init__(self, table):
+  def __init__(self, table, debug=False):
     # Inputs: table - table to evaluate
     self._table = table
+    self.debug = debug
 
   def evaluate(self, user_directory=DEFAULT_USER_DIRECTORY):
     """
@@ -49,7 +50,8 @@ class TableEvaluator(object):
     runner = ProgramRunner(program, 
                        self._table,
                        user_directory=user_directory,  
-                       program_filename=GENERATED_FILE)
+                       program_filename=GENERATED_FILE,
+                       debug=self.debug)
     runner.writeFiles()
     return runner.execute(create_API_object=True)
 
