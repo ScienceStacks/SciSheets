@@ -81,7 +81,7 @@ class Table(ColumnContainer):
     serialization_dict.update(more_dict)
     _children = []
     for child in self.getChildren():
-      if child.getName(is_global_name=False) != NAME_COLUMN_STR:
+      if not Table.isNameColumn(child):
         _children.append(child.getSerializationDict(class_variable))
     serialization_dict["_children"] = _children
     return serialization_dict
@@ -109,8 +109,10 @@ class Table(ColumnContainer):
     else:
       raise ValueError("Cannot find children for %s" % table.getName())
     for child_dict in child_dicts:
-      new_child = deserialize(json.dumps(child_dict))
-      table.addChild(new_child)
+      # Handle older serializations
+      if not child_dict['_name'] == NAME_COLUMN_STR:
+        new_child = deserialize(json.dumps(child_dict))
+        table.addChild(new_child)
     table.adjustColumnLength()
     return table
 

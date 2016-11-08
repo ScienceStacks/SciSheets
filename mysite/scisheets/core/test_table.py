@@ -324,9 +324,10 @@ class TestTable(unittest.TestCase):
     expected_values = [5*x for x in range(5)]
     actual_values = [x for x in column2.getCells()]
     self.assertTrue(expected_values == actual_values)
-    table.refactorColumn(ht.COLUMN1, ht.COLUMN3)
+    new_name = "%s_new" % ht.COLUMN1
+    table.refactorColumn(ht.COLUMN1, new_name)
     table.evaluate(user_directory=ht.TEST_DIR)
-    column = table.columnFromName(ht.COLUMN3)
+    column = table.columnFromName(new_name)
     self.assertIsNotNone(column)
     expected_values = range(5)
     actual_values = [x for x in column.getCells()]
