@@ -87,7 +87,7 @@ class UITable(Table):
     """
     # Create an object if one is not provided
     if instance is None:
-      instance = UITable(self.getName())
+      instance = UITable(self.getName(is_global_name=False))
     # Copy properties from inherited classes
     instance = super(UITable, self).copy(instance=instance)
     # Set properties specific to this class

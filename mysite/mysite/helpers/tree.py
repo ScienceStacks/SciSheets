@@ -12,6 +12,7 @@ class Node(object):
 
   def __init__(self, name):
     self._name = name
+    self.setName(name)
 
   def copy(self, instance=None):
     """

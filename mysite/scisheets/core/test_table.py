@@ -15,6 +15,7 @@ import unittest
 
 TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_table_1")
+NEW_SUBTABLE = "ANOTHER_SUBTABLE"
 
 IGNORE_TEST = False
 
@@ -156,6 +157,33 @@ class TestTable(unittest.TestCase):
     column = self.table.columnFromName(ht.COLUMN2)
     self.table.deleteColumn(column)
     self.assertEqual(num_col-1, self.table.numColumns())
+
+  def testDeleteSubtable(self):
+    if IGNORE_TEST:
+      return
+    old_table = self.table.copy()
+    self._makeThreeLevelTable()
+    self.assertFalse(old_table.isEquivalent(self.table))
+    first_subtable = self.table.tableFromName(ht.SUBTABLE_NAME)
+    second_subtable = first_subtable.tableFromName(NEW_SUBTABLE)
+    first_subtable.removeChild(second_subtable)
+    self.assertTrue(old_table.isEquivalent(self.table))
+
+  def testComplexDeleteAndAdd(self):
+    """
+    Creates a three level subtable. Deletes the middle table
+    and then adds it back.
+    """
+    if IGNORE_TEST:
+      return
+    self._makeThreeLevelTable()
+    original_table = self.table.copy()
+    first_subtable = self.table.tableFromName(ht.SUBTABLE_NAME)
+    original_first_subtable = first_subtable.copy()
+    self.table.removeChild(first_subtable)
+    self.assertFalse(original_table.isEquivalent(self.table))
+    self.table.addChild(original_first_subtable)
+    self.assertTrue(original_table.isEquivalent(self.table))
 
   def testDeleteRows(self):
     if IGNORE_TEST:
@@ -389,10 +417,28 @@ class TestTable(unittest.TestCase):
       if not key in excludes:
         self.assertTrue(key in self.table.__dict__.keys(), "%s"% key)
 
-  # TODO: Add test where there is a child that is a Table
   def testDeserialize(self):
     if IGNORE_TEST:
       return
+    serialization_dict = self.table.getSerializationDict(CLASS_VARIABLE)
+    table = tb.Table.deserialize(serialization_dict)
+    self.assertTrue(table.isEquivalent(self.table))
+
+  def _makeThreeLevelTable(self):
+    """
+    Updtes self.table to add "SUBTABLE" under "DUMMY_SUBTABLE"
+    """
+    first_subtable = self.table.tableFromName(ht.SUBTABLE_NAME)
+    second_subtable = ht.createTable(NEW_SUBTABLE)
+    column = cl.Column(ht.COLUMN)
+    column.addCells(ht.COLUMN1_CELLS)
+    second_subtable.addColumn(column)
+    first_subtable.addChild(second_subtable)
+
+  def testComplexDeserialize(self):
+    if IGNORE_TEST:
+      return
+    self._makeThreeLevelTable
     serialization_dict = self.table.getSerializationDict(CLASS_VARIABLE)
     table = tb.Table.deserialize(serialization_dict)
     self.assertTrue(table.isEquivalent(self.table))

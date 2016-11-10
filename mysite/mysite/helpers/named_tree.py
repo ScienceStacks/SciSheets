@@ -20,7 +20,7 @@ class NamedTree(PositionTree):
 
   def __init__(self, name):
     super(NamedTree, self).__init__(name)
-    self._name = name
+    self.setName(name)
 
   def createGlobalName(self, child):
     """
@@ -76,8 +76,6 @@ class NamedTree(PositionTree):
         is_relative=is_relative)
     for child in self.getChildren(is_recursive=True):
       global_child_name = self.createGlobalName(child)
-      if global_child_name.count(SEPERATOR) == 2:
-        import pdb; pdb.set_trace()
       if global_name == global_child_name:
         return child
     return None
@@ -89,7 +87,7 @@ class NamedTree(PositionTree):
     """
     # Create an object if one is not provided
     if instance is None:
-      instance = NamedChild(self.getName())
+      instance = NamedChild(self.getName(is_global_name=False))
     super(NamedTree, self).copy(instance=instance)
     return instance
 
@@ -123,7 +121,7 @@ class NamedTree(PositionTree):
     try:
       _ = compile(name, "string", "eval")
       error = None
-      self._name = name
+      super(NamedTree, self).setName(name)
     except SyntaxError as err:
       error = str(err)
     return error

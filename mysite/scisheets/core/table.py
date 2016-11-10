@@ -462,7 +462,7 @@ class Table(ColumnContainer):
     :param Table other_table:
     :returns bool:
     """
-    local_debug = True # Breaks on specifc reasons for non-equiv
+    local_debug = False # Breaks on specifc reasons for non-equiv
     if not isinstance(other_table, self.__class__):
       if local_debug:
         import pdb; pdb.set_trace()
@@ -490,6 +490,14 @@ class Table(ColumnContainer):
     """
     path = column.pathFromGlobalName(column.getName())
     return path[-1] == NAME_COLUMN_STR
+
+  @classmethod
+  def isTable(cls, child):
+    """
+    :param NamedTree child:
+    :return bool: True if is a Column
+    """
+    return isinstance(child, Table)
     
   def insertRow(self, row, index=None):
     """
@@ -649,6 +657,17 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     self._prologue = FormulaStatement(prologue_formula, PROLOGUE_NAME)
     return self._prologue.do()
+        
+  def tableFromName(self, name, is_relative=True):
+    """
+    Finds the table with the specified name or None.
+    Note that Columns must be leaves in the Tree.
+    :param name: name of the column
+    :return: column - column object or None if not found
+    """
+    leaf = self.childFromName(name, is_relative=is_relative)
+    if Table.isTable(leaf):
+      return leaf
 
   def trimRows(self):
     """

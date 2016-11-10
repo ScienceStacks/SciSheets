@@ -25,7 +25,7 @@ class ColumnContainer(NamedTree):
 
   def __init__(self, name):
     super(ColumnContainer, self).__init__(name)
-    self._name = name
+    self.setName(name)
     self._versioned_file = None
 
   def columnFromIndex(self, index):
@@ -52,12 +52,12 @@ class ColumnContainer(NamedTree):
     """
     # Create an object if one is not provided
     if instance is None:
-      instance = ColumnContainer(self.getName())
+      instance = ColumnContainer(self.getName(is_global_name=False))
     super(ColumnContainer, self).copy(instance=instance)
     # Set properties specific to this class
     if self.getVersionedFile() is not None:
       instance.setVersionedFile(self.getVersionedFile())
-    instance.setName(self.getName())
+    instance.setName(self.getName(is_global_name=False))
     return instance
 
   def getCell(self, row_index, column_index):
@@ -171,6 +171,7 @@ class ColumnContainer(NamedTree):
     self.setVersionedFile(versioned_file)
 
   def setVersionedFile(self, versioned_file):
-    if not self.isRoot():
-      raise RuntimeError("Should not set VersionedFile for non-root.")
-    self._versioned_file = versioned_file
+    if self.isRoot():
+      self._versioned_file = versioned_file
+    else:
+      self._versioned_file = None

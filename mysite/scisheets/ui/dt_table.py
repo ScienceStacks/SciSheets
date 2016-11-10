@@ -140,9 +140,9 @@ class DTTable(UITable):
     """
     # Create an object if one is not provided
     if instance is None:
-      instance = DTTable(self.getName())
+      instance = DTTable(self.getName(is_global_name=False))
     # Copy properties from inherited classes
-    instance = super(UITable, self).copy(instance=instance)
+    instance = super(DTTable, self).copy(instance=instance)
     # Set properties from this class
     return instance
 
