@@ -204,7 +204,7 @@ class DTTable(UITable):
                 'formula_dict': formula_dict,
                 'num_cols': len(column_names),
                 'prologue': formatted_prologue,
-                'table_caption': self.getName(),
+                'table_caption': self.getName(is_global_name=False),
                 'table_file': DTTable._formatStringForJS(table_file),
                 'table_id': table_id,
                }

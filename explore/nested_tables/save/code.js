@@ -36,4 +36,5 @@ YUI().use("datatable-base", function (Y) {
     summary: "Train schedule",
     caption: "Table with nested column headers"
   }).render("#nested");
+  var a = 1;
 });
