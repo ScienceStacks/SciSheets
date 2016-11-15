@@ -16,10 +16,11 @@ function DataSource() {
   sciSheets = new SciSheets();
   this.tableCaption = "Demo";
   this.tableId = "scitable";
-  this.columnNames = [ 'row', 'Col_0', 'Col_1' ];
   this.columnDefs =
     [
       {key: "upper",
+        formatter: sciSheets.formatColumn("upper"),
+        editor:  new YAHOO.widget.TextareaCellEditor(),
         children: [
           {key: "row",
             formatter: sciSheets.formatColumn("row"),
@@ -30,11 +31,16 @@ function DataSource() {
       {key: "Col_1", formatter: sciSheets.formatColumn("Col_1"),
         editor:  new YAHOO.widget.TextareaCellEditor()}
     ];
-  //{"row": "1", "Col_0": "PPHYr", "Col_1": "1"}];
-//  this.dataSource = [
-//      {"row": "2", "Col_0": "FftSf", "Col_1": "82"},
-//      {"row": "3", "Col_0": "nAuVf", "Col_1": "48"}];
-  this.dataSource = [["1",  "PPHYr", "1"]];
+  // Columns with data in them
+  this.responseSchema = {
+    fields: ["row", "Col_0", "Col_1"]
+  };
+  // List of values for columns in the responseSchema
+  this.dataSource = [
+    ["1", "PPHYr", "1"],
+    ["2", "FftSf", "82"],
+    ["3", "nAuVf", "48"]
+  ];
   this.epilogue = "# Epilogue";
   this.prologue = "# Prologue";
   this.tableFile = "scisheet_table";
@@ -56,10 +62,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
     // Custom formatter for "address" column to preserve line breaks
     myDataSource = new YAHOO.util.DataSource(d.dataSource);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-    myDataSource.responseSchema = {
-      //fields: d.columnDefs
-      fields: ["upper", "row", "Col_0", "Col_1"]
-    };
+    myDataSource.responseSchema = d.responseSchema;
     tableHeader = d.tableCaption + " (Table File: " + d.tableFile + ")";
     myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,
       {

@@ -78,8 +78,11 @@ SciSheets.prototype.setup = function (dataTable) {
 // Data and column setup
 SciSheets.prototype.formatColumn = function (name) {
   "use strict";
+  var localName = name;
   return function (elCell, oRecord, oColumn, oData) {
-    elCell.innerHTML = "<pre class=\"" + name + "\">" + YAHOO.lang.escapeHTML(oData) + "</pre>";
+    var stringData = YAHOO.lang.escapeHTML(String(oData));
+    elCell.innerHTML = "<pre class=\"" + localName + "\">"
+          + stringData + "</pre>";
   };
 };
 

@@ -174,10 +174,15 @@ class DTTable(UITable):
 
   def render(self, table_id="scitable"):
     """
+    Renders the table for a YAHOO DataTable.
+    For hierarchical tables:
+      a) columnDefs may have children, and array with name 'children'
+      b) leafColumns should be a list of columns with data (leaf nodes)
+      c) dataSource should be a list of values (not a dict) in the same
+         order as the leafColumns
     Input: table_id - how the table is identified in the HTML
     Output: html rendering of the Table
     """
-    column_names = [c.getName() for c in self.getVisibleColumns()]
     column_names = []
     for column in self.getVisibleColumns():
       if column.getFormula() is not None:
@@ -196,9 +201,11 @@ class DTTable(UITable):
     table_file = getFileNameWithoutExtension(self.getFilepath())
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
-    ctx_dict = {'column_names': column_names,
+    ctx_dict = {'column_names': column_names,  # Delete
+                'column_tree': column_tree,  # New
+                'leaf_columns': leaf_column_names, # New
                 'count': 1,
-                'data': data,
+                'data': data,  # List of values
                 'epilogue': formatted_epilogue,
                 'final_column_name': column_names[-1],
                 'formula_dict': formula_dict,

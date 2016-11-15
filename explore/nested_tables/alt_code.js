@@ -52,6 +52,18 @@ function data1() {
     };
 }
 
+var name = "visitsmonth";
+YAHOO.widget.DataTable.Formatter.cell = function (elCell, oRecord, oColumn, oData) {
+  "use strict";
+  elCell.innerHTML = "<pre class=\"" + name + "\">" + oData + "</pre>";
+};
+
+
+//YAHOO.widget.DataTable.formatCell = function(elLiner, oRecord, oColumn, oData) { 
+//  var user = YAHOO.lang.escapeHTML(oData); 
+//  elLiner.innerHTML = "<a href=http://developer.yahoo.com/%22mailto: + user + "@mycompany.com\">" + user + "</a>"; 
+//  };
+
 function data2() {
   "use strict";
   myColumnDefs =
@@ -62,11 +74,10 @@ function data2() {
           children: [
             {label: "Visits",
               children: [
-                {key: "visitsmonth"},
-                //{key: "visitsmonth",
-                // Looks like this should be done a different way. See web page for
-                // DataTable Control: Custom Cell Formatting
-                //  formatter: sciSheets.formatColumn("Visits")},
+                //{key: "visitsmonth"},
+                {key: "visitsmonth",
+                  // formatter: "formatCell"},
+                  formatter: sciSheets.formatColumn("visitsmonth")},
                 {key: "visitsytd"}
               ]},
             {label: "Views",
