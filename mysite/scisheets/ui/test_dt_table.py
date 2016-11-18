@@ -104,6 +104,10 @@ class TestDTTable(TestCase):
     new_table = deserialize(json_str)
     self.assertTrue(self.table.isEquivalent(new_table))
 
+  def testMakeAnnotatedDepthFirstTreeRepresentation(self):
+    result = self.table._makeAnnotatedDepthFirstTreeRepresentation()
+    import pdb; pdb.set_trace()
+
 
 if __name__ == '__main__':
     unittest.man()

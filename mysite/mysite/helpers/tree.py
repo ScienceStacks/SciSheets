@@ -8,6 +8,10 @@ Implements three classes:
          the relationship is a linear order.
 """
 
+from statement_accumulator import StatementAccumulator
+import random
+
+
 class Node(object):
 
   def __init__(self, name):
@@ -23,12 +27,6 @@ class Node(object):
       instance = Node(self._name)
     instance.setName(self._name)
     return instance
-
-  def getAllNodes(self):
-    nodes = self.getChildren(is_from_root=True,
-                             is_recursive=True)
-    nodes.insert(0, self.getRoot())
-    return nodes
 
   def getName(self):
     return self._name
@@ -47,12 +45,73 @@ class Node(object):
     self._name = name
 
 
+class _TreeIterator(object):
+  
+  def __init__(self, node):
+    """
+    :params Tree node:
+    """
+    self._current = node
+      
+  def _nextSibling(self, node):
+    """
+    Finds the next sibling of the current node or None
+    :param Tree node:
+    :return Tree,Tree: sibling, parent
+    """
+    parent = node.getParent()
+    if parent is None:
+      return None, None
+    siblings = parent.getChildren()
+    next_pos = siblings.index(node) + 1
+    if next_pos < len(siblings):
+      return siblings[next_pos], parent
+    else:
+      return None, parent
+
+  def next(self):
+    """
+    Does depth first traversal of the tree.
+    Cases considered are:
+      a) current node has a child
+      b) current node does not have a child
+         i) node has a next sib
+         ii) node does not have a next sib
+    :return Tree/None:
+    """
+    if self._current is None:
+      # No more nodes
+      raise StopIteration
+    children = self._current._children
+    if len(children) > 0:
+      # Node has a child
+      next = children[0]
+    else:
+      node = self._current
+      while True:
+        node, parent = self._nextSibling(node)
+        if node is not None:
+          # No children, but has a sibling
+          next = node
+          break
+        elif parent is not None:
+          node = parent
+        else:
+          # No sibling and no parent
+          next = None
+          break
+    result = self._current
+    self._current = next
+    return result
+
+
 class Tree(Node):
 
   """
   The create, navigate, and transform nodes in a tree structure. 
   Elements of a tree are themselves trees.
   The root is a Tree that has no parent.
+  A Tree is an iterator with both a next and a prev node.
   """
 
   is_always_leaf = False
@@ -62,6 +121,47 @@ class Tree(Node):
     super(Tree, self).__init__(name)
     self._parent = None
     self._children = []
+
+  def __iter__(self):
+    return _TreeIterator(self)
+
+  @classmethod
+  def createRandomTree(cls, num_nodes, prob_child, seed=0):
+    """
+    Creates a random tree with the number of nodes specified.
+    :params int num_nodes: number of nodes in the tree
+    :param float prob_child: probability that the next node
+                             is a child of the previous
+    :param float seed:
+    """
+    count = 0
+    def getNodeName(count):
+      return "node_%d" % count
+
+    random.seed(seed)
+    root = Tree(getNodeName(count))
+    count += 1
+    parent = root
+    if num_nodes == 1:
+      return root
+    node = Tree(getNodeName(count))
+    count += 1
+    parent.addChild(node)
+    if num_nodes == 0:
+      return None
+    if num_nodes == 2:
+      return root
+    while count < num_nodes:
+      new_node = Tree(getNodeName(count))
+      count += 1
+      rand = random.random()
+      if rand < prob_child:
+        node.addChild(new_node)
+        parent = node
+        node = new_node
+      else:
+        parent.addChild(new_node)
+    return root
 
   def _checkForDuplicateNames(self):
     """
@@ -146,24 +246,17 @@ class Tree(Node):
     Returns descendent nodes in depth first order.
     :param bool is_from_root: start with the root
     :param bool is_recursive: proceed recursively
-    :return list-of-tree:
+    :return list-of-Tree:
     """
     if is_from_root:
-      start_node = self.getRoot()
+      node = self.getRoot()
     else:
-      start_node = self
+      node = self
     if not is_recursive:
-      result = start_node._children
+      result = node._children
     else:
-      active_list = list(start_node._children)
-      result = []
-      while len(active_list) > 0:
-        cur = active_list[0]
-        if cur in result:
-          raise RuntimeError("Tree contains a loop")
-        active_list.remove(cur)
-        result.append(cur)
-        [active_list.insert(0, c) for c in cur._children]
+      result = [n for n in node]
+      del result[0]  # Only want the children
     return result
 
   def getChildrenNames(self, is_from_root=False, is_recursive=False):
@@ -181,11 +274,11 @@ class Tree(Node):
     :param bool is_from_root: start with the root
     :return list-of-Tree:
     """
-    nodes = self.getChildren(is_from_root=is_from_root,
-                                is_recursive=True)  
-    if not self in nodes:
-      nodes.insert(0, self)
-    return nodes
+    if is_from_root:
+      start_node = self.getRoot()
+    else:
+      start_node = self
+    return [n for n in start_node]
 
   # TODO: Test with multiple levels of nodes
   def getLeaves(self, is_from_root=False):
@@ -276,13 +369,21 @@ class Tree(Node):
     Create a human readable form of the tree
     :param bool is_from_root: start with the root
     """
-    result = ""
-    nodes = self.getAllNodes()
-    for tree in nodes:
-      if tree.getParent() is not None:
-        result += "%s->%s\n"  \
-            % (tree.getParent().getName(), tree.getName())
-    return result
+    def nodeString(node):
+      return "%s:" % node._name
+
+    sa = StatementAccumulator()
+    root = self.getRoot()
+    sa.add(nodeString(root))
+    nodes = root.getChildren(is_recursive=True)
+    last_node = root
+    for next_node in nodes:
+      if next_node in last_node.getChildren():
+        sa.indent(1)
+      elif last_node in next_node.getChildren():
+        sa.indent(-1)
+      sa.add(nodeString(next_node))
+    return sa.get()
   
   def validateTree(self):
     return self._checkForDuplicateNames()
@@ -367,21 +468,3 @@ class PositionTree(Tree):
     self._children.insert(position, child)
     if self.validateTree() is not None:
       raise RuntimeError(self.validateTree())
-
-  def toString(self, is_from_root=False):
-    """
-    Create a human readable form of the tree
-    :param bool is_from_root: start with the root
-    :return str:
-    """
-    result = ""
-    for tree in self.getAllNodes():
-      children = tree.getChildren()
-      if len(children) > 0:
-        result += "%s\n" % tree.getName()
-        pos = 0
-        for node in children:
-          result += "  %d: ->%s\n"  \
-              % (pos, node.getName())
-          pos += 1
-    return result

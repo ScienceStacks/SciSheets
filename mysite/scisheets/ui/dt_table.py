@@ -13,10 +13,12 @@ from ui_table import UITable
 from mysite import settings as st
 from mysite.helpers import util as ut
 import collections
+import json
 import numpy as np
 import random
 
 
+# TODO: Can this be just a list of values in order of column names?
 def makeJSON(column_names, data):
   """
   Creates a valid JSON for javascript in
@@ -55,7 +57,7 @@ def makeJSON(column_names, data):
       elif isStr(item): 
         if item == 'nan':
           value = ""
-      result += '"' + column_names[c] + '": ' + '`' + value + '`'
+      result += '`' + value + '`'
       if c != number_of_columns - 1:
         result += ","
       else:
@@ -172,6 +174,41 @@ class DTTable(UITable):
       result = DTTable._formatStringForJS(formula)
     return result
 
+  def _makeColumnDefinitions(self):
+    """
+    Creates the column definition text string
+    :return JSON str:
+    """
+    last_node = self.getRoot()
+    for nodes in self.getVisibleNodes():
+      TBD
+
+  # TBD: How handle multiple name columns?
+  def _makeAnnotatedDepthFirstTreeRepresentation(self):
+    """
+    Creates a list of visible nodes from the root in depth first
+    order, where each element has the node name and its position
+    relative to the last node.
+    :returns list-of-dict: keys:
+        name: name of node
+        direction: direction in which node is placed in
+            tree: 1 (child), 0 (sibling), -1 (parent)
+    """
+    result = []
+    nodes = self.getVisibleNodes()
+    last_node = self.getRoot()
+    for node in nodes:
+      if node.getParent() == last_node:
+        direction = 1
+      elif last_node.getParent() == node:
+        direction = -1
+      else:
+        direction = 0
+      result.append({"name": node.getName(is_global_name=False), 
+                     "direction": direction})
+      last_node = node
+    return result
+
   def render(self, table_id="scitable"):
     """
     Renders the table for a YAHOO DataTable.
@@ -202,8 +239,8 @@ class DTTable(UITable):
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
     ctx_dict = {'column_names': column_names,  # Delete
-                'column_tree': column_tree,  # New
-                'leaf_columns': leaf_column_names, # New
+                #'column_tree': column_tree,  # New
+                #'leaf_columns': leaf_column_names, # New
                 'count': 1,
                 'data': data,  # List of values
                 'epilogue': formatted_epilogue,

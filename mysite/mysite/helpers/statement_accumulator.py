@@ -1,5 +1,5 @@
 """
-Manages statements generated during compilation.
+Accumulates and outputs indented statements
 """
 
 import sys

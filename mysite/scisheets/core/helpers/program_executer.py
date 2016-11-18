@@ -4,7 +4,7 @@ the SciSheets context.
 """
 
 from block_execution_controller import BlockExecutionController
-from statement_accumulator import StatementAccumulator
+from mysite.helpers.statement_accumulator import StatementAccumulator
 import exceptions
 
 CONTROLLER = "_program_executer_controller"

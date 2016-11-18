@@ -131,6 +131,15 @@ class UITable(Table):
       if column in self._hidden_columns:
         self._hidden_columns.remove(column)
 
+  def getVisibleNodes(self):
+    """
+    :return list-of-Columns:
+    """
+    vis_nodes = [c for c in  \
+                   self.getChildren(is_from_root=True, is_recursive=True) \
+                   if not c in self._hidden_columns]
+    return vis_nodes
+
   def getVisibleColumns(self):
     """
     :return list-of-Columns:
