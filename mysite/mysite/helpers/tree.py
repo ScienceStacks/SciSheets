@@ -45,39 +45,45 @@ class Node(object):
     self._name = name
 
 
-class _TreeIterator(object):
+class TreeIterator(object):
+  """
+  Iterator does a depth first traversal of the associated tree.
+  Tree may be a subtree.
+  """
   
-  def __init__(self, node):
+  def __init__(self, tree):
     """
-    :params Tree node:
+    :params Tree tree:
     """
-    self._current = node
+    self._current = tree
       
-  def _nextSibling(self, node):
+  def _nextSibling(self, node, dir):
     """
     Finds the next sibling of the current node or None
     :param Tree node:
+    :param int dir: direction that children are traversed
     :return Tree,Tree: sibling, parent
     """
     parent = node.getParent()
     if parent is None:
       return None, None
     siblings = parent.getChildren()
-    next_pos = siblings.index(node) + 1
-    if next_pos < len(siblings):
+    next_pos = siblings.index(node) + dir
+    if (next_pos < len(siblings)) and (next_pos >= 0):
       return siblings[next_pos], parent
     else:
       return None, parent
 
   def next(self):
     """
-    Does depth first traversal of the tree.
+    Does a forward depth first traversal of the tree.
     Cases considered are:
       a) current node has a child
       b) current node does not have a child
          i) node has a next sib
          ii) node does not have a next sib
-    :return Tree/None:
+    :return Tree:
+    :raises StopIteration: completed traversal
     """
     if self._current is None:
       # No more nodes
@@ -89,7 +95,7 @@ class _TreeIterator(object):
     else:
       node = self._current
       while True:
-        node, parent = self._nextSibling(node)
+        node, parent = self._nextSibling(node, 1)
         if node is not None:
           # No children, but has a sibling
           next = node
@@ -123,7 +129,7 @@ class Tree(Node):
     self._children = []
 
   def __iter__(self):
-    return _TreeIterator(self)
+    return TreeIterator(self)
 
   @classmethod
   def createRandomTree(cls, num_nodes, prob_child, seed=0):
@@ -157,10 +163,14 @@ class Tree(Node):
       rand = random.random()
       if rand < prob_child:
         node.addChild(new_node)
-        parent = node
-        node = new_node
       else:
-        parent.addChild(new_node)
+        node.getParent().addChild(new_node)
+      # Pick a new position to add nodes
+      nodes = root.getAllNodes()
+      pos = nodes.index(root)
+      del nodes[pos]
+      idx = random.randint(0, len(nodes)-1)
+      node = nodes[idx]
     return root
 
   def _checkForDuplicateNames(self):
@@ -301,6 +311,15 @@ class Tree(Node):
   def getParent(self):
     return self._parent
 
+  def getReverseOrderListOfNodes(self, is_from_root=False):
+    if is_from_root:
+      start_node = self.getRoot()
+    else:
+      start_node = self
+    nodes = [n for n in start_node]
+    nodes.reverse() 
+    return nodes
+
   def getRoot(self):
     """
     Returns the root of the trees
@@ -344,8 +363,6 @@ class Tree(Node):
       result = False
     return result
     
-  
-
   def isRoot(self):
     """
     :return bool: True if root
@@ -373,16 +390,10 @@ class Tree(Node):
       return "%s:" % node._name
 
     sa = StatementAccumulator()
-    root = self.getRoot()
-    sa.add(nodeString(root))
-    nodes = root.getChildren(is_recursive=True)
-    last_node = root
-    for next_node in nodes:
-      if next_node in last_node.getChildren():
-        sa.indent(1)
-      elif last_node in next_node.getChildren():
-        sa.indent(-1)
-      sa.add(nodeString(next_node))
+    for node in self.getAllNodes():  # Depth first order
+      indent = len(node.findPathFromRoot()) - 1
+      sa.indent(indent, is_incremental=False)
+      sa.add(nodeString(node))
     return sa.get()
   
   def validateTree(self):

@@ -1,7 +1,7 @@
 '''Tests for Tree'''
 
 import unittest
-from tree import Node, Tree, PositionTree, _TreeIterator
+from tree import Node, Tree, PositionTree, TreeIterator
 from data_capture import DataCapture
 from named_tree import NamedTree
 import json
@@ -225,6 +225,24 @@ class TestTree(unittest.TestCase):
     new_tree = self.root.copy()
     self.assertTrue(self.root.isEquivalent(new_tree))
 
+  def testGetReverseOrderListOfNodes(self):
+    if IGNORE_TEST:
+      return
+    self._createComplexTree()
+    reverse_nodes = self.root.getReverseOrderListOfNodes()
+    forward_nodes = [n for n in self.root]
+    forward_nodes.reverse()
+    self.assertEqual(forward_nodes, reverse_nodes)
+
+  def testRandomTrees(self):
+    num_nodes = [100, 3, 20, 1]
+    branching_probabilities = [0.5, 0.2, 0.8]
+    for nn in num_nodes:
+      for pp in branching_probabilities:
+         tree = Tree.createRandomTree(nn, pp, seed=0.3)
+         nodes = [n for n in tree]
+         self.assertEqual(len(nodes), nn)
+
 
 class TestPositionTree(unittest.TestCase):
   
@@ -304,14 +322,6 @@ class TestPositionTree(unittest.TestCase):
     self.assertFalse(new_tree.isRoot())
     self.assertTrue(self.root.isRoot())
 
-  # TODO: Delete since this is testing Table?
-  def testIsEquivalent(self):
-    if IGNORE_TEST:
-      return
-    [table, other_table] = getCapture("test_table_1")
-    result = super(NamedTree, table).isEquivalent(other_table)
-    self.assertTrue(result)
-
   def testValidateTree(self):
     if IGNORE_TEST:
       return
@@ -322,7 +332,7 @@ class TestPositionTree(unittest.TestCase):
   def testIter(self):
     if IGNORE_TEST:
       return
-    self.assertTrue(isinstance(iter(self.root), _TreeIterator))
+    self.assertTrue(isinstance(iter(self.root), TreeIterator))
 
   def testCreateRandomTree(self):
     if IGNORE_TEST:
@@ -338,10 +348,6 @@ class TestPositionTree(unittest.TestCase):
     tree = Tree.createRandomTree(num_nodes, 0.99)
     self.assertEqual(len(tree.getAllNodes()), num_nodes)
     self.assertEqual(len(tree.getChildren()), 1)
-
-  def testIter(self):
-    pass
-
     
 
 if __name__ == '__main__':

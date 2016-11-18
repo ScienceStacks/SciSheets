@@ -18,14 +18,14 @@ class StatementAccumulator(object):
     self._statements = []
     self._indent_level = 0
 
-  def indent(self, size, isIncremental=True):
+  def indent(self, size, is_incremental=True):
     """
     Adjusts the indentation for statements.
     :param int size: amount of indent
-    :param bool isIncremental: if True, incremental change;
+    :param bool is_incremental: if True, incremental change;
                                else, absolute
     """
-    if isIncremental:
+    if is_incremental:
       self._indent_level += size
     else:
       self._indent_level = size
