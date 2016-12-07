@@ -12,41 +12,33 @@
 
 function DataSource() {
   "use strict";
-  var sciSheets, formula_array;
+  var sciSheets;
   sciSheets = new SciSheets();
   this.tableCaption = "Demo";
   this.tableId = "scitable";
-  this.columnNames = [ 'row' , 'Col_0' , 'Col_1' ];
-  this.columnDefs = [ {key: "row", formatter: sciSheets.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor()},
-    {key: "Col_0", formatter: sciSheets.formatColumn("Col_0"), editor:  new YAHOO.widget.TextareaCellEditor()},
-    {key: "Col_1", formatter: sciSheets.formatColumn("Col_1"), editor:  new YAHOO.widget.TextareaCellEditor()}
+  this.columnNames = [ 'row', 'Col_0', 'Col_1'];
+  this.columnDefs = [ {key: "row", formatter: sciSheets.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor(),
+    children: [
+      {key: "Col_0", formatter: sciSheets.formatColumn("Col_0"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "Col_1", formatter: sciSheets.formatColumn("Col_1"), editor:  new YAHOO.widget.TextareaCellEditor()}
+    ]}
      ];
+  this.responseSchema = ["Col_0", "Col_1"];
   this.dataSource = [
-    {"row": `1`,"Col_0": `PPHYr`,"Col_1": `1`},
-    {"row": `2`,"Col_0": `FftSf`,"Col_1": `82`},
-    {"row": `3`,"Col_0": `nAuVf`,"Col_1": `48`}
-    ];
+    ['PPHYr', '1'],
+    ['FftSf', '82'],
+    ['nAuVf', '48']
+  ];
   this.epilogue = "# Epilogue ";
   this.prologue = "# Prologue";
-import math as mt
-import numpy as np
-from os import listdir
-from os.path import isfile, join
-import pandas as pd
-import scipy as sp
-from numpy import nan  # Must follow sympy import 
-`;
-  this.tableFile = `scisheet_table`;
-  this.formulas = { "Col_0": '' , "Col_1": '' , "row": '' , "dummy_key": "dummy_value"};
+  this.tableFile = 'scisheet_table';
+  this.formulas = { "Col_0": '', "Col_1": '', "row": '', "dummy_key": "dummy_value"};
 }
 
 YAHOO.util.Event.addListener(window, "load", function () {
   "use strict";
   // Reload the page if it's not the base URL.
   // The server knows the current table
-  if (window.location.href !== sciSheets.baseURL) {
-    sciSheets.utilReload();
-  }
   YAHOO.example.InlineCellEditing = (function () {
     var myDataTable, highlightEditableCell, myDataSource, tableHeader,
       id, tableElement, d, captionElement, div_ele;
@@ -59,7 +51,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
     myDataSource = new YAHOO.util.DataSource(d.dataSource);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
     myDataSource.responseSchema = {
-      fields: d.columnDefs
+      fields: d.responseSchema
     };
     tableHeader = d.tableCaption + " (Table File: " + d.tableFile + ")";
     myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,

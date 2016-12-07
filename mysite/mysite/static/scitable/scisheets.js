@@ -86,6 +86,30 @@ SciSheets.prototype.formatColumn = function (name) {
   };
 };
 
+// Create the column definitions from the column free
+// Input: Nested object with values "key" and "children"
+// Output: YAHOO DataTable ColumnDefinitions
+SciSheets.prototype.createColumnDefinitions = function (tree) {
+  "use strict";
+  var name = tree.name,
+    columnDefinitions = {"key": name,
+      'formatter': this.formatColumn(name),
+      'editor': new YAHOO.widget.TextareaCellEditor()
+      },
+    children = tree.children,
+    childrenColumnDefinitions = [],
+    child,
+    i;
+
+  for (i = 0; i < children.length; i++) {
+    child = children[i];
+    childrenColumnDefinitions =
+        childrenColumnDefinitions.concat(this.createColumnDefinitions(child));
+  }
+  columnDefinitions.children = childrenColumnDefinitions;
+  return columnDefinitions;
+};
+
 // Factory to create SeverCommand objects (a JSON structure)
 // Returns a command object
 SciSheets.prototype.createServerCommand = function () {

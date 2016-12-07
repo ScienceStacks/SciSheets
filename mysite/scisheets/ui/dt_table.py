@@ -57,7 +57,7 @@ def makeJSON(column_names, data):
       elif isStr(item): 
         if item == 'nan':
           value = ""
-      result += '`' + value + '`'
+      result += '"' + column_names[c] + '": ' + '`' + value + '`'
       if c != number_of_columns - 1:
         result += ","
       else:
@@ -180,8 +180,7 @@ class DTTable(UITable):
     :return JSON str:
     """
     last_node = self.getRoot()
-    for nodes in self.getVisibleNodes():
-      TBD
+    #for nodes in self.getVisibleNodes():
 
   # TBD: How handle multiple name columns?
   def _makeAnnotatedDepthFirstTreeRepresentation(self):

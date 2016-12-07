@@ -106,7 +106,7 @@ class TestDTTable(TestCase):
 
   def testMakeAnnotatedDepthFirstTreeRepresentation(self):
     result = self.table._makeAnnotatedDepthFirstTreeRepresentation()
-    import pdb; pdb.set_trace()
+    pass
 
 
 if __name__ == '__main__':
