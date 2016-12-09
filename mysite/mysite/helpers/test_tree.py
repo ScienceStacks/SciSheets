@@ -243,6 +243,52 @@ class TestTree(unittest.TestCase):
          nodes = [n for n in tree]
          self.assertEqual(len(nodes), nn)
 
+  def testGetUniqueName(self):
+    if IGNORE_TEST:
+      return
+    self._createComplexTree()
+    unique_name = self.tree4.getUniqueName()
+    self.assertEqual(unique_name, 'NAME1.NAME2.NAME4')
+
+  def testGetChldrenAsDict(self):
+    if IGNORE_TEST:
+      return
+    self._createComplexTree()
+    children_dict = self.root.getChildrenBreadthFirst()
+    self.assertEqual(children_dict["node"], self.root)
+    self.assertEqual(len(children_dict["children"]), 2)
+    #
+    children_dict = self.root.getChildrenBreadthFirst(
+        excludes=[self.tree2])
+    self.assertEqual(children_dict["node"], self.root)
+    self.assertEqual(len(children_dict["children"]), 1)
+    #
+    children_dict = self.root.getChildrenBreadthFirst(
+        includes=[self.root, self.tree2])
+    self.assertEqual(children_dict["node"], self.root)
+    self.assertEqual(len(children_dict["children"]), 1)
+    #
+    children_dict = self.root.getChildrenBreadthFirst(
+        includes=[self.tree2])
+    self.assertEqual(len(children_dict.keys()), 0)
+
+  def testCreateSubstitutedChildrenDict(self):
+    if IGNORE_TEST:
+      return
+    self._createComplexTree()
+    substitution_dict = {}
+    nodes = [self.root, self.tree2, self.tree3, self.tree4]
+    for node in nodes:
+      substitution_dict[node] = node.getName()
+    result = self.root.createSubstitutedChildrenDict(substitution_dict)
+    self.assertEqual(result["name"], self.root.getName())
+    self.assertEqual(len(result["children"]), 2)
+    result = self.root.createSubstitutedChildrenDict(
+        substitution_dict,
+        excludes=[self.tree2])
+    self.assertEqual(result["name"], self.root.getName())
+    self.assertEqual(len(result["children"]), 1)
+
 
 class TestPositionTree(unittest.TestCase):
   
@@ -263,7 +309,7 @@ class TestPositionTree(unittest.TestCase):
     """
     self.tree2 = self._AddChild(NAME2, position=1)
     self.tree3 = self._AddChild(NAME3, position=0)
-    self.tree4 = Tree(NAME4)
+    self.tree4 = PositionTree(NAME4)
     self.tree2.addChild(self.tree4)
 
   def testAddChild(self):
@@ -288,6 +334,12 @@ class TestPositionTree(unittest.TestCase):
     expected_position = self.root.getPositionOfChild(self.tree2)
     self.assertEqual(expected_position, self.tree2.getPosition())
     self.assertIsNone(self.root.getPosition())
+
+  def testGetDescendentAtPosition(self):
+    if IGNORE_TEST:
+      return
+    tree = self.root.getDescendentAtPosition(1)
+    self.assertEqual(tree, self.root)
 
   def testGetPositionOfChild(self):
     if IGNORE_TEST:
@@ -333,6 +385,8 @@ class TestPositionTree(unittest.TestCase):
     if IGNORE_TEST:
       return
     self.assertTrue(isinstance(iter(self.root), TreeIterator))
+    iterator = iter(self.root)
+    self.assertTrue(isinstance(next(iterator), Tree))
 
   def testCreateRandomTree(self):
     if IGNORE_TEST:

@@ -19,7 +19,7 @@ import random
 
 
 # TODO: Can this be just a list of values in order of column names?
-def makeJSON(column_names, data):
+def makeJSONData(column_names, data):
   """
   Creates a valid JSON for javascript in
   the format expected by YUI datatable
@@ -219,33 +219,51 @@ class DTTable(UITable):
     Input: table_id - how the table is identified in the HTML
     Output: html rendering of the Table
     """
-    column_names = []
-    for column in self.getVisibleColumns():
-      if column.getFormula() is not None:
-        name = "*%s" % column.getName()
-      else:
-        name = column.getName()
-      column_names.append(name)
-    column_data = [c.getCells() for c in self.getVisibleColumns()]
+    colnm_dict = {}
+    for col in self.getChildren(is_from_root=True,
+        is_recursive=True):
+      if col in self.getVisibleColumns():
+        name = col.getName(is_global_name=False)
+        annotate = ""
+        if col.getFormula() is not None:
+          annotate = "*"
+        value = "%s%s" % (annotate, name)
+        colnm_dict[name] = value
+    columns = []
+    for pos in range(1, self.numColumns()):
+      column = self.getDescendentAtPosition(pos+1) 
+      if column in self.getVisibleColumns():
+        columns.append(column)
+    column_names = [c.getName(is_global_name=False) for c in columns]
+    column_hierarchy = self.getRoot().createSubstitutedChildrenDict(
+        colnm_dict, excludes=self.getRoot().getHiddenColumns())
+    column_hierarchy = column_hierarchy["children"]
+    json_hierarchy = json.dumps(column_hierarchy)
+    json_hierarchy = json_hierarchy.replace('"name"', 'name')
+    json_hierarchy = json_hierarchy.replace('"children"', 'children')
+    # BUG - TRANSPOSE DOESN'T WORK FOR TYPE=OBJECT
+    # AND NEED TO HANDLE IRREGULAR COLUMN LENGTHS
+    column_data = [c.getCells() for c in columns]
     raw_formulas = [c.getFormula() for c in self.getVisibleColumns()]
     formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]
     formula_dict = {}
     for nn in range(len(column_names)):
       formula_dict[column_names[nn]] = formulas[nn]
-    data = makeJSON(column_names, column_data)
     indicies = range(len(column_names))
     table_file = getFileNameWithoutExtension(self.getFilepath())
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
-    ctx_dict = {'column_names': column_names,  # Delete
-                #'column_tree': column_tree,  # New
-                #'leaf_columns': leaf_column_names, # New
-                'count': 1,
-                'data': data,  # List of values
+    leaves = [c.getName(is_global_name=False) 
+              for c in self.getLeaves(is_from_root=True) 
+              if c in self.getVisibleColumns()]
+    response_schema = json.dumps(leaves)
+    import pdb; pdb.set_trace()
+    ctx_dict = {'response_schema': response_schema,
+                'response_schema': json.dumps(leaves),
+                'data': json.dumps(data),  # List of values
                 'epilogue': formatted_epilogue,
-                'final_column_name': column_names[-1],
+                'column_hierarchy': json_hierarchy,
                 'formula_dict': formula_dict,
-                'num_cols': len(column_names),
                 'prologue': formatted_prologue,
                 'table_caption': self.getName(is_global_name=False),
                 'table_file': DTTable._formatStringForJS(table_file),

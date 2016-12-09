@@ -221,6 +221,31 @@ class Tree(Node):
     instance.setParent(self.getParent())
     return instance
 
+  def createSubstitutedChildrenDict(self, substitution_dict, 
+      excludes=None, includes=None, children_dict=None):
+    """
+    Substitutes the nodes in children_dict with the values in the substitution_dict
+    :param dict substituion_dict: keys = {nodes, values} are substitutions
+    :param list-of-Tree excludes: list of nodes to exclude from list
+    :param list-of-Tree includes: list of nodes to include from list
+        If None, then include all unless excluded
+    :param ChildrenDict children_dict:
+    :return recursive dictionary: keys = {name, children} 
+    """
+    if children_dict is None:
+      children_dict = self.getChildrenBreadthFirst(excludes=excludes,
+          includes=includes)
+    result = {"name": children_dict["node"]._name}
+    dicts = []
+    for this_dict in children_dict["children"]:
+      dicts.append(self.createSubstitutedChildrenDict(
+          substitution_dict,
+          excludes=excludes, 
+          includes=includes,
+          children_dict=this_dict))
+    result["children"] = dicts
+    return result
+
   def findChildrenWithName(self, name, 
       is_from_root=False, is_recursive=False):
     """
@@ -279,6 +304,38 @@ class Tree(Node):
     return [n.getName() for n in self.getChildren(  \
         is_from_root=is_from_root, is_recursive=is_recursive)]
 
+  def getChildrenBreadthFirst(self, excludes=None, includes=None):
+    """
+    Returns nodes in a breadth-first dictionary structure starting
+    with the current node.
+    :param list-of-Tree excludes: list of nodes to exclude from list
+    :param list-of-Tree includes: list of nodes to include from list
+        If None, then include all unless excluded
+    :return ChildrenDict - recursive dictionary structure: 
+        keys = {node, children}
+    """
+    if excludes is None:
+      excludes = []
+    if includes is None:
+      includes = self.getChildren(is_from_root=True,
+          is_recursive=True)
+      includes.append(self.getRoot())
+    result = {}
+    if self in excludes:
+      return result
+    if self in includes:
+      result = {"node": self}
+    else:
+      return result
+    result_children = []
+    for child in self.getChildren():
+      this_result = child.getChildrenBreadthFirst(excludes=excludes, 
+          includes=includes)
+      if len(this_result.keys()) > 0:
+        result_children.append(this_result)
+    result["children"] = result_children
+    return result
+
   def getAllNodes(self, is_from_root=False):
     """
     :param bool is_from_root: start with the root
@@ -330,6 +387,13 @@ class Tree(Node):
     else:
       return self.getParent().getRoot()
 
+  def getUniqueName(self):
+    """
+    Returns a unique name for the node
+    """
+    path = self.findPathFromRoot()
+    return '.'.join(path)
+
   def isAlwaysLeaf(self):
     return self.__class__.is_always_leaf
 
@@ -368,6 +432,12 @@ class Tree(Node):
     :return bool: True if root
     """
     return self._parent is None
+
+  def numDescendents(self):
+    """
+    :return int: descendents below the current node
+    """
+    return len(self.getChildren(is_recursive=True))
 
   def removeTree(self):
     """
@@ -436,6 +506,20 @@ class PositionTree(Tree):
       raise ValueError("Position %d does not exist" % position)
     return self._children[position]
 
+  def getDescendentAtPosition(self, position):
+    """
+    Uses the depth-first order to the descendent
+    :param int position: 1 indexed
+    :return Tree:
+    :raises ValueError: invalid position
+    """
+    if position < 1 or position > (self.numDescendents()+1):
+      raise ValueError("%d is an invalid position" % position)
+    cur = 1
+    tree_iterator = iter(self)
+    [next(tree_iterator) for x in range(position-1)]
+    return(next(tree_iterator))
+    
   def getPosition(self):
     """
     Finds the position of this node w.r.t. its parent

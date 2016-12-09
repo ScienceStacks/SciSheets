@@ -7,10 +7,10 @@ function DataSource() {
   this.tableCaption = "{{ table_caption }}";
   this.tableId = "{{ table_id }}";
   /* list of columns with data */
-  this.responseSchema = {{ response_schema }}; // ADD - leaf columns
-  this.columnNames = {{ column_names|safe }};  // ADD - Array of str
+  this.responseSchema = {{ response_schema }};
+  this.columnNames = {{ column_names|safe }};
   /* Calculate using the column tree */
-  this.columnHierarchy = {{ column_hierarchy|safe }}; // ADD
+  this.columnHierarchy = {{ column_hierarchy|safe }};
   this.dataSource = {{ data|safe }};
   this.epilogue = {{ epilogue|safe }};
   this.prologue = {{ prologue|safe }};

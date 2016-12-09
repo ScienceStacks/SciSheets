@@ -39,7 +39,7 @@ sys.path.append(CUR_DIR)
 class TestAuxFunctions(TestCase):
 
   def _testMakeJSONStr(self, column_names, column_data, data_type):
-    json_str = dt.makeJSON(column_names, column_data)
+    json_str = dt.makeJSONData(column_names, column_data)
     converted = json.loads(json_str.replace("`", '"'))
     self.assertTrue(isinstance(converted, list))
     self.assertEqual(len(converted[0]), len(column_names))
@@ -51,7 +51,7 @@ class TestAuxFunctions(TestCase):
     self._testMakeJSONStr(COLUMN_NAMES, DATA_STRING, str)
 
   def testMakeJSONComplex(self):
-    json_str = dt.makeJSON(COLUMN_NAMES, COMPLEX_DATA)
+    json_str = dt.makeJSONData(COLUMN_NAMES, COMPLEX_DATA)
     out_list = eval(json_str)
     self.assertTrue(out_list[0]['A'], '[]')
     self.assertTrue(out_list[1]['A'], '[1]')
