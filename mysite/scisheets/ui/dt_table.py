@@ -18,8 +18,7 @@ import numpy as np
 import random
 
 
-# TODO: Can this be just a list of values in order of column names?
-def makeJSONData(column_names, data):
+def _OldmakeJSData(column_names, data):
   """
   Creates a valid JSON for javascript in
   the format expected by YUI datatable
@@ -65,6 +64,52 @@ def makeJSONData(column_names, data):
     if r < number_of_rows -1:
       result += ","
   result += "]"
+  return result
+
+# TODO: Can this be just a list of values in order of column names?
+def makeJSData(data):
+  """
+  Creates a javascript array by row from the input data, handling
+  columns of different lengths.
+  :param list-of-list-of-object: list of column values
+  :return list-of-list-of-object: list of row values
+  """
+  # Initializations
+  number_of_columns = len(data)
+  if len(data) > 0:
+    if isinstance(data[0], list):
+      number_of_rows = len(data[0])
+    else:
+      number_of_rows = 1
+  else:
+    number_of_rows = 0
+  # Convert to list of lists
+  new_data = [c if isinstance(c, list) else [c] for c in data]
+  # Construct the output
+  result = []
+  for r in range(number_of_rows):
+    row = []
+    for c in range(number_of_columns):
+      if isinstance(new_data[c], list):
+        if len(new_data[c]) - 1 < r:
+          item = ""  # Handle ragged columns
+        else:
+          item = new_data[c][r]
+      else:
+        item = new_data[c]
+      value = str(item)  # Assume use item as-is
+      if (item is None):
+        value = ""
+      elif isFloats(item) and not isinstance(item, collections.Iterable):
+        if np.isnan(float(item)):
+          value = ""
+        else:
+          value = str(item)
+      elif isStr(item): 
+        if item == 'nan':
+          value = ""
+      row.append(value)
+    result.append(row)
   return result
 
 
@@ -238,12 +283,10 @@ class DTTable(UITable):
     column_hierarchy = self.getRoot().createSubstitutedChildrenDict(
         colnm_dict, excludes=self.getRoot().getHiddenColumns())
     column_hierarchy = column_hierarchy["children"]
-    json_hierarchy = json.dumps(column_hierarchy)
-    json_hierarchy = json_hierarchy.replace('"name"', 'name')
-    json_hierarchy = json_hierarchy.replace('"children"', 'children')
-    # BUG - TRANSPOSE DOESN'T WORK FOR TYPE=OBJECT
-    # AND NEED TO HANDLE IRREGULAR COLUMN LENGTHS
-    column_data = [c.getCells() for c in columns]
+    js_column_hierarchy = json.dumps(column_hierarchy)
+    js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
+    js_column_hierarchy = js_column_hierarchy.replace('"children"', 'children')
+    js_data = str(makeJSData([c.getCells() for c in columns]))
     raw_formulas = [c.getFormula() for c in self.getVisibleColumns()]
     formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]
     formula_dict = {}
@@ -256,13 +299,11 @@ class DTTable(UITable):
     leaves = [c.getName(is_global_name=False) 
               for c in self.getLeaves(is_from_root=True) 
               if c in self.getVisibleColumns()]
-    response_schema = json.dumps(leaves)
-    import pdb; pdb.set_trace()
+    response_schema = str(leaves)
     ctx_dict = {'response_schema': response_schema,
-                'response_schema': json.dumps(leaves),
-                'data': json.dumps(data),  # List of values
+                'data': js_data,
                 'epilogue': formatted_epilogue,
-                'column_hierarchy': json_hierarchy,
+                'column_hierarchy': js_column_hierarchy,
                 'formula_dict': formula_dict,
                 'prologue': formatted_prologue,
                 'table_caption': self.getName(is_global_name=False),

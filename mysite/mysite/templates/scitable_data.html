@@ -4,17 +4,16 @@ function DataSource() {
   "use strict";
   var sciSheets, formula_array;
   sciSheets = new SciSheets();
-  this.tableCaption = "{{ table_caption }}";
-  this.tableId = "{{ table_id }}";
+  this.tableCaption = "{{ table_caption|safe }}";
+  this.tableId = "{{ table_id|safe }}";
   /* list of columns with data */
-  this.responseSchema = {{ response_schema }};
-  this.columnNames = {{ column_names|safe }};
+  this.responseSchema = {{ response_schema|safe }};
   /* Calculate using the column tree */
   this.columnHierarchy = {{ column_hierarchy|safe }};
   this.dataSource = {{ data|safe }};
   this.epilogue = {{ epilogue|safe }};
   this.prologue = {{ prologue|safe }};
-  this.tableFile = {{ table_file }};
+  this.tableFile = {{ table_file|safe }};
   this.formulas = {
   {% for key, value in formula_dict.items %}
     "{{ key  }}":

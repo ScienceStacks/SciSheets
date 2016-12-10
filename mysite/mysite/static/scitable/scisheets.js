@@ -87,26 +87,22 @@ SciSheets.prototype.formatColumn = function (name) {
 };
 
 // Create the column definitions from the column free
-// Input: Nested object with values "key" and "children"
+// Input: treeList - List of nested object with 
+//                   values "key" and "children"
 // Output: YAHOO DataTable ColumnDefinitions
-SciSheets.prototype.createColumnDefinitions = function (tree) {
+// TODO: TESTS!!!
+SciSheets.prototype.createColumnDefinitions = function (treeList) {
   "use strict";
-  var name = tree.name,
-    columnDefinitions = {"key": name,
-      'formatter': this.formatColumn(name),
+  var columnDefinitions = [], children, i, thisDefinition;
+  for (i = 0; i < treeList.length; i++) {
+    child = treeList[i];
+    thisDefinition = {"key": child.name,
+      'formatter': this.formatColumn(child.name),
       'editor': new YAHOO.widget.TextareaCellEditor()
-      },
-    children = tree.children,
-    childrenColumnDefinitions = [],
-    child,
-    i;
-
-  for (i = 0; i < children.length; i++) {
-    child = children[i];
-    childrenColumnDefinitions =
-        childrenColumnDefinitions.concat(this.createColumnDefinitions(child));
+      };
+    thisDefinition.children = this.createColumnDefinitions(child.children);
+    columnDefinitions.concat([thisDefinition]);
   }
-  columnDefinitions.children = childrenColumnDefinitions;
   return columnDefinitions;
 };
 
