@@ -472,7 +472,10 @@ class Tree(Node):
 
 class PositionTree(Tree):
 
-  """Manages relationships between children."""
+  """
+  Provides access to nodes at specific positions.
+  The position of a node is indexed from 1.
+  """
 
   def addChild(self, position_tree, position=None):
     """

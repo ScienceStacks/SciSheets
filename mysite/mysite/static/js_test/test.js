@@ -66,7 +66,15 @@ function clickTester(clickEle,
 QUnit.test("table_setup", function (assert) {
   "use strict";
   var caption, ele2, ele3, data_table, cell_1_1, cell_1_2,
-    expectAjaxCalls;
+    expectAjaxCalls,
+    treeColumns = [{
+      "name": "root",
+      "children": [
+        {"name": "child1", "children": []},
+        {"name": "child2", "children": []}
+      ]
+    }],
+    columnDefinitions;
   /* Mock Ajax */
   sciSheets.mockAjax = true;
   /* Table Tests */
@@ -120,4 +128,7 @@ QUnit.test("table_setup", function (assert) {
   cell_1_2 = data_table.getElementsByTagName("pre")[1];
   assert.ok(cell_1_2.innerHTML === CELL_1_2, "Verfiy cell 1,2");
   $(cell_1_2).trigger('click');
+  // Function tests
+  columnDefinitions = sciSheets.createColumnDefinitions(treeColumns);
+  assert.ok(columnDefinitions.length > 0);
 });

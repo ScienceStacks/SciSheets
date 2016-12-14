@@ -18,55 +18,6 @@ import numpy as np
 import random
 
 
-def _OldmakeJSData(column_names, data):
-  """
-  Creates a valid JSON for javascript in
-  the format expected by YUI datatable
-  Input: column_names - list of variables
-         data - list of array data or a list of values
-  Output: result - JSON as an array
-  """
-  number_of_columns = len(column_names)
-  if len(data) > 0:
-    if isinstance(data[0], list):
-      number_of_rows = len(data[0])
-    else:
-      number_of_rows = 1
-  else:
-    number_of_rows = 0
-  result = "["
-  for r in range(number_of_rows):
-    result += "{"
-    for c in range(number_of_columns):
-      if isinstance(data[c], list):
-        if len(data[c]) - 1 < r:
-          item = ""  # Handle ragged columns
-        else:
-          item = data[c][r]
-      else:
-        item = data[c]
-      value = str(item)  # Assume use item as-is
-      if (item is None):
-        value = ""
-      elif isFloats(item) and not isinstance(item, collections.Iterable):
-        if np.isnan(float(item)):
-          value = ""
-        else:
-          value = str(item)
-      elif isStr(item): 
-        if item == 'nan':
-          value = ""
-      result += '"' + column_names[c] + '": ' + '`' + value + '`'
-      if c != number_of_columns - 1:
-        result += ","
-      else:
-        result += "}"
-    if r < number_of_rows -1:
-      result += ","
-  result += "]"
-  return result
-
-# TODO: Can this be just a list of values in order of column names?
 def makeJSData(data):
   """
   Creates a javascript array by row from the input data, handling
@@ -275,8 +226,12 @@ class DTTable(UITable):
         value = "%s%s" % (annotate, name)
         colnm_dict[name] = value
     columns = []
-    for pos in range(1, self.numColumns()):
-      column = self.getDescendentAtPosition(pos+1) 
+    # Descendents are indexed from 1.
+    # The range skips index 1, since this is the table name
+    # The range goes to numColumns + 2 to account for 1 indexing
+    # and the root node
+    for pos in range(1, self.numColumns() + 2):
+      column = self.getDescendentAtPosition(pos) 
       if column in self.getVisibleColumns():
         columns.append(column)
     column_names = [c.getName(is_global_name=False) for c in columns]
@@ -296,7 +251,7 @@ class DTTable(UITable):
     table_file = getFileNameWithoutExtension(self.getFilepath())
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
-    leaves = [c.getName(is_global_name=False) 
+    leaves = [str(c.getName(is_global_name=False))
               for c in self.getLeaves(is_from_root=True) 
               if c in self.getVisibleColumns()]
     response_schema = str(leaves)

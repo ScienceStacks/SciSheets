@@ -47,18 +47,22 @@ YAHOO.util.Event.addListener(window, "load", function () {
   }
   YAHOO.example.InlineCellEditing = (function () {
     var myDataTable, highlightEditableCell, myDataSource, tableHeader,
-      id, tableElement, d, captionElement, div_ele;
+      id, tableElement, d, captionElement, div_ele, columnDefs;
     d = new DataSource();
     div_ele = document.getElementById("TagReplacedByJS");
     $(div_ele).attr('id', d.tableId);
 
     /* ----------- Code independent of data --------------*/
     // Custom formatter for "address" column to preserve line breaks
+    columnDefs = sciSheets.createColumnDefinitions(d.columnHierarchy);
+    // columnDefs = d.columnDefs;
     myDataSource = new YAHOO.util.DataSource(d.dataSource);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-    myDataSource.responseSchema = d.responseSchema;
+    myDataSource.responseSchema = {
+      fields: d.responseSchema
+    };
     tableHeader = d.tableCaption + " (Table File: " + d.tableFile + ")";
-    myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,
+    myDataTable = new YAHOO.widget.DataTable(d.tableId, columnDefs, myDataSource,
       {
         caption: tableHeader
       }

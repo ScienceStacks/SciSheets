@@ -16,14 +16,13 @@ function DataSource() {
   sciSheets = new SciSheets();
   this.tableCaption = "Demo";
   this.tableId = "scitable";
-  this.columnNames = [ 'row', 'Col_0', 'Col_1'];
+  this.responseSchema = ["Col_0", "Col_1"];
   this.columnDefs = [ {key: "row", formatter: sciSheets.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor(),
     children: [
       {key: "Col_0", formatter: sciSheets.formatColumn("Col_0"), editor:  new YAHOO.widget.TextareaCellEditor()},
       {key: "Col_1", formatter: sciSheets.formatColumn("Col_1"), editor:  new YAHOO.widget.TextareaCellEditor()}
     ]}
      ];
-  this.responseSchema = ["Col_0", "Col_1"];
   this.dataSource = [
     ['PPHYr', '1'],
     ['FftSf', '82'],
