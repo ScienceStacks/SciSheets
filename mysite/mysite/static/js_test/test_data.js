@@ -15,41 +15,29 @@
 /* Creates data objects used elsewhere. Codes is templated. */
 function DataSource() {
   "use strict";
-  var sciSheets = new SciSheets();
   this.tableCaption = 'New table';
   this.tableId = 'scitable';
-  this.responseSchema = ['row', 'name', 'address', 'salary'];
+  this.responseSchema = ['row', 'name', 'address', 'dollars', 'yen'];
   this.columnHierarchy = [{name: 'row', children: []},
       {name: 'name', children: []},
       {name: 'address', children: []},
-      {name: 'salary', children: []}
+      {name: 'salary', children: [
+      {name: 'dollars', children: []},
+      {name: 'yen', children: []}
+    ]}
     ];
-  this.columnDefs =
-    [ {key: "row",
-       formatter: sciSheets.formatColumn("row"),
-       editor:  new YAHOO.widget.TextareaCellEditor()},
-      {key: "name",
-        formatter: sciSheets.formatColumn("name"),
-        editor:  new YAHOO.widget.TextareaCellEditor()},
-      {key: "address",
-        formatter: sciSheets.formatColumn("address"),
-        editor:  new YAHOO.widget.TextareaCellEditor()},
-      {key: "salary",
-        formatter: sciSheets.formatColumn("salary"),
-        editor:  new YAHOO.widget.TextareaCellEditor()}
-      ];
   this.dataSource = [
-    ['1', 'John A. Smith', '1236 Some Street', '12.33'],
-    ['2', 'Joan B. Jones', '3271 Another Ave', '34556'],
-    ['3', 'Bob C. Uncle', '9996 Random Road', '893'],
-    ['4', 'John D. Smith', '1623 Some Street', '0.092'],
-    ['5', 'Joan E. Jones', '3217 Another Ave', '23456']
+    ['1', 'John A. Smith', '1236 Some Street', '12.33', '50'],
+    ['2', 'Joan B. Jones', '3271 Another Ave', '34556', '50'],
+    ['3', 'Bob C. Uncle', '9996 Random Road', '893', '50'],
+    ['4', 'John D. Smith', '1623 Some Street', '0.092', '50'],
+    ['5', 'Joan E. Jones', '3217 Another Ave', '23456', '50']
   ];
   this.epilogue = '# Epilogue ';
   this.prologue = '# Prologue';
   this.tableFile = 'scisheet_table';
-  this.formulas = {row: '', name: '', address: '',
-      salary: ''};
+  this.formulas = {row: '', name: '', address: '', salary: '',
+      dollars: '', yen: ''};
 }
 
 

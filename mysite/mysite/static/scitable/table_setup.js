@@ -55,7 +55,6 @@ YAHOO.util.Event.addListener(window, "load", function () {
     /* ----------- Code independent of data --------------*/
     // Custom formatter for "address" column to preserve line breaks
     columnDefs = sciSheets.createColumnDefinitions(d.columnHierarchy);
-    // columnDefs = d.columnDefs;
     myDataSource = new YAHOO.util.DataSource(d.dataSource);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
     myDataSource.responseSchema = {
