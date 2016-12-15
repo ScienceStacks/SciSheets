@@ -94,6 +94,8 @@ QUnit.test("table_setup", function (assert) {
   clickTester(caption, "TableClickMenu", -1, assert,
       expectAjaxCalls);
   // Column Tests
+  // If the number of columns is changed from n to m, 
+  // must change dt<n> to dt<m>.
   ele2 = document.getElementById("yui-dt6-th-row");
   assert.ok(ele2 !== null, "Verify click element for name row");
   ele3 = document.getElementById("yui-dt6-th-name");
