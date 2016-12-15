@@ -132,36 +132,46 @@ class Tree(Node):
     return TreeIterator(self)
 
   @classmethod
-  def createRandomTree(cls, num_nodes, prob_child, seed=0):
+  def createRandomTree(cls, num_nodes, prob_child, seed=0,
+      leaf_cls=None, nonleaf_cls=None):
     """
     Creates a random tree with the number of nodes specified.
     :params int num_nodes: number of nodes in the tree
     :param float prob_child: probability that the next node
                              is a child of the previous
     :param float seed:
+    :param Type leaf_cls: type that inherits from Node
+    :param Type nonleaf_class: type that inherits from Tree
     """
+    if leaf_cls is None:
+      leaf_cls = cls
+    if nonleaf_cls is None:
+      nonleaf_cls = cls
     count = 0
     def getNodeName(count):
       return "node_%d" % count
 
+    if num_nodes == 0:
+      return None
     random.seed(seed)
-    root = Tree(getNodeName(count))
+    root = nonleaf_cls(getNodeName(count))
     count += 1
     parent = root
     if num_nodes == 1:
       return root
-    node = Tree(getNodeName(count))
     count += 1
-    parent.addChild(node)
-    if num_nodes == 0:
-      return None
     if num_nodes == 2:
+      root.addChild(leaf_cls(getNodeName(count)))
       return root
+    node = leaf_cls(getNodeName(count))
+    parent.addChild(node)
     while count < num_nodes:
-      new_node = Tree(getNodeName(count))
       count += 1
+      new_node = leaf_cls(getNodeName(count))
       rand = random.random()
       if rand < prob_child:
+        if not isinstance(node, nonleaf_cls):
+          node = nonleaf_cls(node._name)
         node.addChild(new_node)
       else:
         node.getParent().addChild(new_node)
