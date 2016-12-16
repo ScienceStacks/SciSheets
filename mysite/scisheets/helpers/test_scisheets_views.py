@@ -245,8 +245,8 @@ class TestScisheetsViews(TestCase):
         return table.indexFromColumn(column)
 
   def testCommandCellUpdate(self):
-    #if IGNORE_TEST:
-    #   return
+    if IGNORE_TEST:
+       return
     ROW_INDEX = NROW - 1
     self._testCommandCellUpdate(ROW_INDEX, 9999)
     self._testCommandCellUpdate(ROW_INDEX, "aaa")
