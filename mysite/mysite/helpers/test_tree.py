@@ -222,8 +222,16 @@ class TestTree(unittest.TestCase):
   def testCopy(self):
     if IGNORE_TEST:
       return
+    self._createComplexTree()
     new_tree = self.root.copy()
     self.assertTrue(self.root.isEquivalent(new_tree))
+
+  def testComplexCopy(self):
+    if IGNORE_TEST:
+      return
+    tree = Tree.createRandomTree(100, 0.8)
+    new_tree = tree.copy()
+    self.assertTrue(tree.isEquivalent(new_tree))
 
   def testGetReverseOrderListOfNodes(self):
     if IGNORE_TEST:

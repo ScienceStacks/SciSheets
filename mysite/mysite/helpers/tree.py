@@ -57,18 +57,21 @@ class TreeIterator(object):
     """
     self._current = tree
       
-  def _nextSibling(self, node, dir):
+  def _nextSibling(self, node):
     """
     Finds the next sibling of the current node or None
     :param Tree node:
-    :param int dir: direction that children are traversed
     :return Tree,Tree: sibling, parent
     """
     parent = node.getParent()
     if parent is None:
       return None, None
     siblings = parent.getChildren()
-    next_pos = siblings.index(node) + dir
+    try:
+      next_pos = siblings.index(node) + 1
+    except Exception as e:
+      import pdb; pdb.set_trace()
+      raise e.__class__(e.message)
     if (next_pos < len(siblings)) and (next_pos >= 0):
       return siblings[next_pos], parent
     else:
@@ -95,7 +98,7 @@ class TreeIterator(object):
     else:
       node = self._current
       while True:
-        node, parent = self._nextSibling(node, 1)
+        node, parent = self._nextSibling(node)
         if node is not None:
           # No children, but has a sibling
           next = node
@@ -185,16 +188,17 @@ class Tree(Node):
 
   def _checkForDuplicateNames(self):
     """
-    :return str/None: None if no duplicate
+    :raises RuntimeError:
     """
     node_names = [".".join(c.findPathFromRoot())   \
                   for c in self.getAllNodes()]
     if len(node_names) == len(set(node_names)):
-      return None
+      return  # Names are unique
+    # Find the duplicate
     non_duplicates = []
     for name in node_names:
       if name in non_duplicates:
-        return "Duplicate name: %s: " % name
+        raise RuntimeError("Duplicate name: %s: " % name)
       else:
         non_duplicates.append(name)
     raise RuntimeError("Should have a duplicate")
@@ -212,8 +216,7 @@ class Tree(Node):
       raise ValueError("Duplicate addChild")
     self._children.append(child)
     child.setParent(self)
-    if self.validateTree() is not None:
-      raise RuntimeError(self.validateTree())
+    self.validateTree()
 
   def copy(self, instance=None):
     """
@@ -228,7 +231,6 @@ class Tree(Node):
     # Set properties for this class
     for child in self.getChildren():
       instance.addChild(child.copy())
-    instance.setParent(self.getParent())
     return instance
 
   def createSubstitutedChildrenDict(self, substitution_dict, 
@@ -475,9 +477,21 @@ class Tree(Node):
       sa.indent(indent, is_incremental=False)
       sa.add(nodeString(node))
     return sa.get()
+
+  def _checkParentChild(self):
+    """
+    Verify that the parent has this node as a child.
+    """
+    parent = self.getParent()
+    if parent is not None:
+      children = parent.getChildren()
+      if not self in children:
+        import pdb; pdb.set_trace()
+        raise RuntimeError("Child not found in parent")
   
   def validateTree(self):
-    return self._checkForDuplicateNames()
+    self._checkParentChild()
+    self._checkForDuplicateNames()
 
 
 class PositionTree(Tree):
@@ -497,9 +511,7 @@ class PositionTree(Tree):
       position = len(self._children)
     self._children.insert(position, position_tree)
     position_tree.setParent(self)
-    error = self.validateTree()
-    if error is not None:
-      raise RuntimeError(error)
+    self.validateTree()
 
   def copy(self, instance=None):
     """
@@ -574,5 +586,4 @@ class PositionTree(Tree):
           % (child.getName(), self.getName()))
     self._children.remove(child)
     self._children.insert(position, child)
-    if self.validateTree() is not None:
-      raise RuntimeError(self.validateTree())
+    self.validateTree()

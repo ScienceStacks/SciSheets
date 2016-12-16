@@ -17,7 +17,7 @@ TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_table_1")
 NEW_SUBTABLE = "ANOTHER_SUBTABLE"
 
-IGNORE_TEST = False
+IGNORE_TEST = True
 
 
 #############################
@@ -142,8 +142,9 @@ class TestTable(unittest.TestCase):
     self.assertEqual(cells[0], row[ht.COLUMN1])
 
   def testCopy(self):
-    if IGNORE_TEST:
-     return
+    #if IGNORE_TEST:
+    # return
+    self.subtable._checkParentChild()
     new_table = self.table.copy()
     self.assertEqual(self.table.numRows(), new_table.numRows())
     self.assertEqual(self.table.numColumns(), new_table.numColumns())

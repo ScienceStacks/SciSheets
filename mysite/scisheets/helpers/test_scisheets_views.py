@@ -129,7 +129,7 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(response.status_code, 200)
     if checkSessionid:
       self.assertTrue(response.cookies.has_key('sessionid'))
-    expected_keys = ['column_names', 'final_column_name', 
+    expected_keys = ['column_hierarchy', 'response_schema', 
         'table_id', 'table_caption', 'data']
     self.assertTrue(response.context.keys().issuperset(expected_keys))
 
