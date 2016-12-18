@@ -2,6 +2,8 @@
 
 import unittest
 from tree import Node, Tree, PositionTree, TreeIterator
+from scisheets.core.table import Table
+from scisheets.core.column import Column
 from data_capture import DataCapture
 from named_tree import NamedTree
 import json
@@ -242,14 +244,38 @@ class TestTree(unittest.TestCase):
     forward_nodes.reverse()
     self.assertEqual(forward_nodes, reverse_nodes)
 
-  def testRandomTrees(self):
-    num_nodes = [100, 3, 20, 1]
+  def _testRandomTrees(self, leaf_cls=None, nonleaf_cls=None,
+      tree_test=lambda x: True):
+    num_nodes = [3, 100, 20, 1]
     branching_probabilities = [0.5, 0.2, 0.8]
     for nn in num_nodes:
       for pp in branching_probabilities:
-         tree = Tree.createRandomTree(nn, pp, seed=0.3)
+         tree = Tree.createRandomTree(nn, pp, seed=0.3,
+             leaf_cls=leaf_cls, nonleaf_cls=nonleaf_cls)
          nodes = [n for n in tree]
-         self.assertEqual(len(nodes), nn)
+         diff = abs(len(nodes) - nn)
+         if diff > 1:
+           import pdb; pdb.set_trace()
+         self.assertTrue(diff < 2)
+         if not tree_test(tree):
+           import pdb; pdb.set_trace()
+         self.assertTrue(tree_test(tree))
+
+  def testRandomTrees(self):
+    if IGNORE_TEST:
+      return
+    self._testRandomTrees()
+
+  def testRandomTreeWithTableAndColumns(self):
+    if IGNORE_TEST:
+      return
+    tree_test = lambda x: all([isinstance(l, Column) 
+                               for l in x.getLeaves()])
+    self._testRandomTrees(nonleaf_cls=Table, leaf_cls=Column,
+        tree_test=tree_test)
+    self._testRandomTrees(leaf_cls=Column)
+    self._testRandomTrees(leaf_cls=Table)
+    self._testRandomTrees(nonleaf_cls=Table)
 
   def testGetUniqueName(self):
     if IGNORE_TEST:
@@ -399,17 +425,16 @@ class TestPositionTree(unittest.TestCase):
   def testCreateRandomTree(self):
     if IGNORE_TEST:
       return
-    tree = Tree.createRandomTree(1, 0.1)
-    self.assertEqual(len(tree.getAllNodes()), 1)
-    tree = Tree.createRandomTree(2, 0.1)
-    self.assertEqual(len(tree.getAllNodes()), 2)
     num_nodes = 5
     tree = Tree.createRandomTree(num_nodes, 0.1)
     self.assertEqual(len(tree.getAllNodes()), num_nodes)
     self.assertEqual(len(tree.getChildren()), num_nodes-1)
+    tree = Tree.createRandomTree(1, 0.1)
+    self.assertEqual(len(tree.getAllNodes()), 1)
+    tree = Tree.createRandomTree(2, 0.1)
+    self.assertEqual(len(tree.getAllNodes()), 2)
     tree = Tree.createRandomTree(num_nodes, 0.99)
     self.assertEqual(len(tree.getAllNodes()), num_nodes)
-    self.assertEqual(len(tree.getChildren()), 1)
     
 
 if __name__ == '__main__':

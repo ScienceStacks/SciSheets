@@ -5,6 +5,7 @@ Tests for YUI DataTable renderings.
 from mysite import settings
 from mysite.helpers.versioned_file import VersionedFile
 import scisheets.core.helpers.api_util as api_util
+from scisheets.core.column import Column
 from scisheets.core.helpers.api_util  \
     import readObjectFromFile, writeObjectToFile
 from scisheets.core.helpers.serialize_deserialize import serialize,  \
@@ -118,9 +119,18 @@ class TestDTTable(TestCase):
     expecteds = [column_hierarchy, response_schema, data_source]
     for expected in expecteds:
       self.assertTrue(expected in html)
-    #fh = open("dt_test_output.html", "w")
-    #fh.writelines(html)
-    #fh.close()
+
+  def testHierarchicalRender(self):
+    if IGNORE_TESTS:
+      return
+    table = dt.DTTable.createRandomHierarchicalTable(TABLE_NAME,
+        NROW, NCOL, prob_child=0.6, table_cls=dt.DTTable)
+    html = table.render()
+    self.assertIsNotNone(html)
+    tests = [isinstance(nl, dt.DTTable) for nl in table.getNonLeaves()]
+    self.assertTrue(all(tests))
+    tests = [isinstance(l, Column) for l in table.getLeaves()]
+    self.assertTrue(all(tests))
 
   def testRenderingListData(self):
     # set up the test table

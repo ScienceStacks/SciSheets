@@ -5,10 +5,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "FxjWV",
-        "IaDzj",
-        "wKpKV",
-        "cIMNa"
+        15,
+        21,
+        75,
+        19
       ],
       "_formula": null,
       "_name": "Col_0"
@@ -17,10 +17,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        68,
-        56,
-        98,
-        48
+        "ZyRbv",
+        "ViiHb",
+        "HYuwa",
+        "cNmzZ"
       ],
       "_formula": null,
       "_name": "Col_1"
@@ -29,10 +29,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        84,
-        75,
-        78,
-        56
+        67,
+        44,
+        38,
+        41
       ],
       "_formula": null,
       "_name": "Col_2"

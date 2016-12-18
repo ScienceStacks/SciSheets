@@ -134,6 +134,7 @@ class Tree(Node):
   def __iter__(self):
     return TreeIterator(self)
 
+  # May have a bug with using column as non-leaf class
   @classmethod
   def createRandomTree(cls, num_nodes, prob_child, seed=0,
       leaf_cls=None, nonleaf_cls=None):
@@ -158,7 +159,6 @@ class Tree(Node):
       return None
     random.seed(seed)
     root = nonleaf_cls(getNodeName(count))
-    count += 1
     parent = root
     if num_nodes == 1:
       return root
@@ -168,22 +168,30 @@ class Tree(Node):
       return root
     node = leaf_cls(getNodeName(count))
     parent.addChild(node)
-    while count < num_nodes:
-      count += 1
-      new_node = leaf_cls(getNodeName(count))
+    count = len(root.getAllNodes())
+    while  count < num_nodes:
+      new_node = leaf_cls(getNodeName(count)) 
       rand = random.random()
-      if rand < prob_child:
+      if (rand < prob_child) and (count + 1 < num_nodes):
         if not isinstance(node, nonleaf_cls):
-          node = nonleaf_cls(node._name)
+          name = node._name
+          node.removeTree()
+          node = nonleaf_cls(name)
+          parent.addChild(node)
         node.addChild(new_node)
       else:
-        node.getParent().addChild(new_node)
+        try:
+          parent.addChild(new_node)
+        except Exception as e:
+          import pdb; pdb.set_trace()
       # Pick a new position to add nodes
       nodes = root.getAllNodes()
       pos = nodes.index(root)
       del nodes[pos]
       idx = random.randint(0, len(nodes)-1)
       node = nodes[idx]
+      parent = node.getParent()
+      count = len(nodes) + 1
     return root
 
   def _checkForDuplicateNames(self):

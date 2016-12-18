@@ -453,6 +453,17 @@ class TestTable(unittest.TestCase):
       if not tb.Table.isNameColumn(column):
         num += 1
     self.assertEqual(len(columns), num)
+
+  def testCreateRandomHierarchicalTable(self):
+    if IGNORE_TEST:
+      return
+    num_nodes = 10
+    num_rows = 5
+    table = tb.Table.createRandomHierarchicalTable('HTable', num_rows,
+         num_nodes, 0.5)
+    self.assertEqual(len(table.getAllNodes()), num_nodes)
+    self.assertTrue(all([l.numCells() == num_rows
+                         for l in table.getLeaves()]))
       
 
 if __name__ == '__main__':

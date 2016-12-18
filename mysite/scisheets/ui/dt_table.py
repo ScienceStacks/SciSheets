@@ -81,28 +81,10 @@ class DTTable(UITable):
            low_int - smallest integer
            hi_int - largest integer
     """
-    ncol = int(ncol)
-    nrow = int(nrow)
-    table = cls(name)
-    ncolstr = min(ncol, ncolstr)
-    ncolint = ncol - ncolstr
-    c_list = range(ncol)
-    random.shuffle(c_list)
-    for n in range(ncol):
-      column = Column("Col_" + str(n))
-      if c_list[n] <= ncolint - 1:
-        values = np.random.randint(low_int, hi_int, nrow)
-        values_ext = values.tolist()
-      else:
-        values_ext = ut.randomWords(nrow)
-      #values_ext.append(None)
-      column.addCells(np.array(values_ext))
-      table.addColumn(column)
-    versioned_file = VersionedFile(
-        settings.SCISHEETS_DEFAULT_TABLEFILE,
-        st.SCISHEETS_USER_TBLDIR_BACKUP,
-        st.SCISHEETS_MAX_TABLE_VERSIONS)
-    table.setVersionedFile(versioned_file)
+    table = super(DTTable, cls).createRandomTable(name, nrow, ncol,
+        ncolstr=ncolstr, low_int=low_int, hi_int=hi_int,
+        table_cls=cls)
+    table.setFilepath(settings.SCISHEETS_DEFAULT_TABLEFILE)
     return table
 
   def __init__(self, name):

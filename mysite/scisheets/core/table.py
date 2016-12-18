@@ -17,6 +17,7 @@ import json
 import numpy as np
 import os
 import pandas as pd
+import random
 
 NAME_COLUMN_STR = "row"
 NAME_COLUMN_IDX = 0
@@ -58,6 +59,72 @@ class Table(ColumnContainer):
     self._epilogue = self._formulaStatementFromFile(EPILOGUE_FILEPATH,
         EPILOGUE_NAME)
     self._is_evaluate_formulas = True
+
+  @classmethod
+  def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
+        low_int=0, hi_int=100, table_cls=None):
+    """
+    Creates a table with random integers as values
+    Input: name - name of the table
+           nrow - number of rows
+           ncol - number of columns
+           ncolstr - number of columns with strings
+           low_int - smallest integer
+           hi_int - largest integer
+           table_cls - Table class to use; default is Table
+    """
+    if table_cls is None:
+      table_cls = cls
+    ncol = int(ncol)
+    nrow = int(nrow)
+    table = cls(name)
+    ncolstr = min(ncol, ncolstr)
+    ncolint = ncol - ncolstr
+    c_list = range(ncol)
+    random.shuffle(c_list)
+    for n in range(ncol):
+      column = Column("Col_" + str(n))
+      if c_list[n] <= ncolint - 1:
+        values = np.random.randint(low_int, hi_int, nrow)
+        values_ext = values.tolist()
+      else:
+        values_ext = ut.randomWords(nrow)
+      #values_ext.append(None)
+      column.addCells(np.array(values_ext))
+      table.addColumn(column)
+    return table
+
+  # BUG: createRandomTree does not return a tree with nonleaves
+  @classmethod
+  def createRandomHierarchicalTable(cls, name, nrow, num_nodes, 
+      prob_child, ncolstr=0, low_int=0, hi_int=100, table_cls=None):
+    """
+    Creates a table with random integers as values
+    :param str name: name of the table
+    :parm int nrow: number of rows
+    :parm float prob_child: probability that next node is a child
+    :parm str ncolstr: number of columns with strings
+    :parm int low_int: smallest integer
+    :parm int hi_int: largest integer
+    :parm Type table_cls: Table class to use; default is Table
+    :return table_cls:
+    """
+    if table_cls is None:
+      table_cls = cls
+    # Create the schema for the Hierarchical Table
+    htable = super(Table, cls).createRandomTree(num_nodes, prob_child,
+        leaf_cls=Column, nonleaf_cls=table_cls)
+    leaves = [c for c in htable.getLeaves() 
+              if c.getName(is_global_name=False) != NAME_COLUMN_STR]
+    num_leaves = len(htable.getLeaves()) -1  # Don't include the name column
+    # Create the values for the leaves of the Hierarchical Table
+    flat_table = Table.createRandomTable(name, nrow, num_leaves, ncolstr=ncolstr,
+        low_int=low_int, hi_int=hi_int, table_cls=table_cls)
+    data_columns = flat_table.getDataColumns()
+    pairs = zip(leaves, data_columns)
+    # Populate the leaves of the Hierarchical Table
+    [htable.addCells(l, d.getCells(), replace=True) for l, d in pairs]
+    return htable
 
   def getSerializationDict(self, class_variable):
     """
@@ -120,7 +187,8 @@ class Table(ColumnContainer):
   # The following methods are used in debugging
 
   def d(self):
-    return [(c.getName(), c.getCells()) for c in self.getColumns()]
+    return [(c.getName(), c.getCells()) for c 
+            in self.getLeaves()]
 
   def f(self):
     return [(c.getName(), c.getFormula()) for c in self.getColumns()]
