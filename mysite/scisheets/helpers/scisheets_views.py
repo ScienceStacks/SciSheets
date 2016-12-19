@@ -189,13 +189,20 @@ def saveTable(request, table):
 def scisheets(request, ncol, nrow):
   """
   Creates a new table with the specified number of columns and rows
-  considering the number of rows with strings
+  considering the number of rows with strings. 
+  Renders a hierarchical table if ncol < 0.
   """
   ncol = int(ncol)
   nrow = int(nrow)
   ncolstr = int(ncol/2)
-  table = DTTable.createRandomTable("Demo", nrow, ncol,
-      ncolstr=ncolstr)
+  if ncol < 0:  # Test for hierarchical table
+    num_nodes = 2*abs(ncol)
+    prob_child = 0.5
+    table = DTTable.createRandomHierarchicalTable("HDemo", nrow,
+      num_nodes, prob_child, ncolstr=ncolstr, table_cls=DTTable)
+  else:
+    table = DTTable.createRandomTable("Demo", nrow, ncol,
+        ncolstr=ncolstr)
   _setTableFilepath(request, table, 
       settings.SCISHEETS_DEFAULT_TABLEFILE,
       verify=False)

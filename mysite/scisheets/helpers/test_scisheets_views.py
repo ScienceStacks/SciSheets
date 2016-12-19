@@ -845,6 +845,15 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(TableFileHelper.doesFilepathExist(
         st.SCISHEETS_DEFAULT_TABLEFILE))
 
+  def testHierarchicalTable(self):
+    if IGNORE_TEST:
+       return
+    base_response = self._createBaseTable(params=[-NCOL, NROW])
+    table = self._getTableFromResponse(base_response)
+    self.assertEqual(table.numRows(), NROW)
+    for col in table.getDataColumns():
+      self.assertEqual(len(col.getCells()), NROW)
+
   def testFormulaRowAddition(self):
     if IGNORE_TEST:
        return

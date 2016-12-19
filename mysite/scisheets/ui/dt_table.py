@@ -207,15 +207,13 @@ class DTTable(UITable):
           annotate = "*"
         value = "%s%s" % (annotate, name)
         colnm_dict[name] = value
-    columns = []
     # Descendents are indexed from 1.
     # The range skips index 1, since this is the table name
     # The range goes to numColumns + 2 to account for 1 indexing
     # and the root node
-    for pos in range(1, self.numColumns() + 2):
-      column = self.getDescendentAtPosition(pos) 
-      if column in self.getVisibleColumns():
-        columns.append(column)
+    descendents = self.getAllNodes()
+    descendents.remove(self)  # Don't include the root name
+    columns = [c for c in descendents if c in self.getVisibleColumns()]
     column_names = [c.getName(is_global_name=False) for c in columns]
     column_hierarchy = self.getRoot().createSubstitutedChildrenDict(
         colnm_dict, excludes=self.getRoot().getHiddenColumns())
