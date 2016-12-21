@@ -306,25 +306,6 @@ class TestTree(unittest.TestCase):
         includes=[self.tree2])
     self.assertEqual(len(children_dict.keys()), 0)
 
-  def testCreateSubstitutedChildrenDict(self):
-    if IGNORE_TEST:
-      return
-    self._createComplexTree()
-    substitution_dict = {}
-    nodes = [self.root, self.tree2, self.tree3, self.tree4]
-    for node in nodes:
-      substitution_dict[node] = node.getName()
-    result = self.root.createSubstitutedChildrenDict(substitution_dict)
-    self.assertEqual(result["name"], self.root.getName())
-    self.assertEqual(result["label"], self.root._name)
-    self.assertEqual(len(result["children"]), 2)
-    result = self.root.createSubstitutedChildrenDict(
-        substitution_dict,
-        excludes=[self.tree2])
-    self.assertEqual(result["name"], self.root.getName())
-    self.assertEqual(result["label"], self.root._name)
-    self.assertEqual(len(result["children"]), 1)
-
 
 class TestPositionTree(unittest.TestCase):
   

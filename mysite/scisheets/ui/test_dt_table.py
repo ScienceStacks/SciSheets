@@ -4,13 +4,15 @@ Tests for YUI DataTable renderings.
 
 from mysite import settings
 from mysite.helpers.versioned_file import VersionedFile
+import mysite.helpers.named_tree as named_tree
 import scisheets.core.helpers.api_util as api_util
 from scisheets.core.column import Column
 from scisheets.core.helpers.api_util  \
     import readObjectFromFile, writeObjectToFile
 from scisheets.core.helpers.serialize_deserialize import serialize,  \
     deserialize
-from scisheets.core.helpers_test import TEST_DIR
+from scisheets.core.helpers_test import TEST_DIR,  \
+    setupTableInitialization
 import dt_table as dt
 from django.test import TestCase  # Provides mocks
 import json
@@ -155,6 +157,17 @@ class TestDTTable(TestCase):
       return
     result = self.table._makeAnnotatedDepthFirstTreeRepresentation()
     pass
+
+  def _testChildFromName(self, child):
+    name = child.getName()
+    html_name = name.replace(named_tree.SEPERATOR, dt.HTML_SEPERATOR)
+    new_child = self.table.childFromName(name)
+    self.assertTrue(child, new_child)
+
+  def testChildFromName(self):
+    setupTableInitialization(self)
+    self._testChildFromName(self.subtable)
+    self._testChildFromName(self.subtable_column1)
 
 
 if __name__ == '__main__':

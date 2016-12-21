@@ -184,9 +184,9 @@ def setupTableInitialization(o):
   o.table.addColumn(column5)
   num += 1
   o.subtable = createTable(SUBTABLE_NAME, is_subtable=True)
-  column1 = cl.Column(COLUMN1)
-  column1.addCells(COLUMN1_CELLS)
-  o.subtable.addColumn(column1)
+  o.subtable_column1 = cl.Column(COLUMN1)
+  o.subtable_column1.addCells(COLUMN1_CELLS)
+  o.subtable.addColumn(o.subtable_column1)
   o.table.addChild(o.subtable)
   num += 2  # 'row' in SUBTALBE + column1
   o.num_columns = num

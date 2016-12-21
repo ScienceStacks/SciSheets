@@ -23,6 +23,14 @@ IGNORE_TEST = False
 class TestNamedTree(unittest.TestCase):
 
   def setUp(self):
+    """
+    root(DUMMY):
+      root_child(DUMMY1_CHILD)
+      (DUMMY2_CHILD)
+      (DUMMY3_CHILD)
+      subparent(Subparent)
+        subparent_child(DUMMY4_CHILD)
+    """
     self.root = NamedTree(PARENT)
     self.root_child = NamedTree(CHILD1)
     self.root.addChild(self.root_child)
@@ -104,7 +112,23 @@ class TestNamedTree(unittest.TestCase):
      return
     self.assertIsNone(self.root.setName("newTable"))
     self.assertIsNotNone(self.root.setName("new Table"))
-    
+
+  def testCreateSubstitutedChildrenDict(self):
+    if IGNORE_TEST:
+      return
+    nodes = [self.root, self.root_child, self.subparent, self.subparent_child]
+    substitution_dict = {n: n.getName() for n in nodes}
+    result = self.root.createSubstitutedChildrenDict(substitution_dict)
+    self.assertEqual(result["name"], self.root.getName())
+    self.assertEqual(result["label"], self.root._name)
+    self.assertEqual(len(result["children"]), 4)
+    result = self.root.createSubstitutedChildrenDict(
+        substitution_dict,
+        excludes=[self.root_child])
+    self.assertEqual(result["name"], self.root.getName())
+    self.assertEqual(result["label"], self.root._name)
+    self.assertEqual(len(result["children"]), 3)
+
 
 if __name__ == '__main__':
   unittest.main()

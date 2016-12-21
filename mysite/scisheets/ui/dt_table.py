@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from mysite.helpers.versioned_file import VersionedFile
 import mysite.settings as settings
+import mysite.helpers.named_tree as named_tree
 from scisheets.core.helpers.api_util import getFileNameWithoutExtension
 from scisheets.core.helpers.cell_types import isFloats, isStr
 from scisheets.core.column import Column
@@ -16,6 +17,8 @@ import collections
 import json
 import numpy as np
 import random
+
+HTML_SEPERATOR = "-"  # Seperator used in html names
 
 
 def makeJSData(data):
@@ -128,6 +131,18 @@ class DTTable(UITable):
 
   def isEquivalent(self, other):
     return super(DTTable, self).isEquivalent(other)
+
+  def childFromName(self, name, is_relative=True):
+    """
+    Returns the column for a global name used in a DataTable HTML rendering.
+    :param str name:
+    :param bool is_relative: True if not a global name
+    """
+    if not is_relative:
+      name = name.replace(HTML_SEPERATOR, named_tree.SEPERATOR)
+    return super(DTTable, self).childFromName(name, 
+        is_relative=is_relative)
+      
 
   @staticmethod
   def _formatStringForJS(in_string):
