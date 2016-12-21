@@ -113,10 +113,11 @@ class TestDTTable(TestCase):
     self.table.evaluate(user_directory=TEST_DIR)
     html = self.table.render()
     self.assertIsNotNone(html)
-    column_hierarchy = '[{name: "row", children: []}'
+    column_hierarchy = ['name: "row"', 'label: "row"', 'children: [']
     response_schema = "row"
     data_source = "[['1', '"
-    expecteds = [column_hierarchy, response_schema, data_source]
+    expecteds = [response_schema, data_source]
+    expecteds.extend(column_hierarchy)
     for expected in expecteds:
       self.assertTrue(expected in html)
 

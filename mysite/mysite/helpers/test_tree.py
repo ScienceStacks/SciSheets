@@ -316,11 +316,13 @@ class TestTree(unittest.TestCase):
       substitution_dict[node] = node.getName()
     result = self.root.createSubstitutedChildrenDict(substitution_dict)
     self.assertEqual(result["name"], self.root.getName())
+    self.assertEqual(result["label"], self.root._name)
     self.assertEqual(len(result["children"]), 2)
     result = self.root.createSubstitutedChildrenDict(
         substitution_dict,
         excludes=[self.tree2])
     self.assertEqual(result["name"], self.root.getName())
+    self.assertEqual(result["label"], self.root._name)
     self.assertEqual(len(result["children"]), 1)
 
 

@@ -97,6 +97,7 @@ SciSheets.prototype.createColumnDefinitions = function (treeList) {
   for (i = 0; i < treeList.length; i++) {
     child = treeList[i];
     thisDefinition = {key: child.name,
+      label: child.label,
       formatter: this.formatColumn(child.name),
       editor: new YAHOO.widget.TextareaCellEditor()};
     children = this.createColumnDefinitions(child.children);

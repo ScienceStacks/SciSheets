@@ -242,7 +242,8 @@ class Tree(Node):
     return instance
 
   def createSubstitutedChildrenDict(self, substitution_dict, 
-      excludes=None, includes=None, children_dict=None):
+      excludes=None, includes=None, children_dict=None,
+      sep='.'):
     """
     Substitutes the nodes in children_dict with the values in the substitution_dict
     :param dict substituion_dict: keys = {nodes, values} are substitutions
@@ -250,19 +251,24 @@ class Tree(Node):
     :param list-of-Tree includes: list of nodes to include from list
         If None, then include all unless excluded
     :param ChildrenDict children_dict:
-    :return recursive dictionary: keys = {name, children} 
+    :param str sep: seperator in components of global name
+    :return recursive dictionary: keys = {name, label, children} 
     """
     if children_dict is None:
       children_dict = self.getChildrenBreadthFirst(excludes=excludes,
           includes=includes)
-    result = {"name": children_dict["node"]._name}
+    name = children_dict["node"].getName()
+    name = name.replace('.', sep)
+    result = {"name": name,
+              "label": children_dict["node"]._name}
     dicts = []
     for this_dict in children_dict["children"]:
       dicts.append(self.createSubstitutedChildrenDict(
           substitution_dict,
           excludes=excludes, 
           includes=includes,
-          children_dict=this_dict))
+          children_dict=this_dict,
+          sep=sep))
     result["children"] = dicts
     return result
 

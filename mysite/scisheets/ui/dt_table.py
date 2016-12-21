@@ -196,6 +196,8 @@ class DTTable(UITable):
          order as the leafColumns
     Input: table_id - how the table is identified in the HTML
     Output: html rendering of the Table
+    Note: Full column name uses a '-' seperator instead of '.'
+          because of HTML's handling of '.' in names.
     """
     colnm_dict = {}
     for col in self.getChildren(is_from_root=True,
@@ -211,30 +213,31 @@ class DTTable(UITable):
     # The range skips index 1, since this is the table name
     # The range goes to numColumns + 2 to account for 1 indexing
     # and the root node
+    seperator = '-'  # Seperator in components of global names
     descendents = self.getAllNodes()
     descendents.remove(self)  # Don't include the root name
     columns = [c for c in descendents if c in self.getVisibleColumns()]
     column_names = [c.getName(is_global_name=False) for c in columns]
     column_hierarchy = self.getRoot().createSubstitutedChildrenDict(
-        colnm_dict, excludes=self.getRoot().getHiddenColumns())
+        colnm_dict, excludes=self.getRoot().getHiddenColumns(), sep='-')
     column_hierarchy = column_hierarchy["children"]
     js_column_hierarchy = json.dumps(column_hierarchy)
     js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
     js_column_hierarchy = js_column_hierarchy.replace('"children"', 'children')
+    js_column_hierarchy = js_column_hierarchy.replace('"label"', 'label')
     js_data = str(makeJSData([c.getCells() for c in columns]))
     raw_formulas = [c.getFormula() for c in self.getVisibleColumns()]
     formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]
     formula_dict = {}
     for nn in range(len(column_names)):
       formula_dict[column_names[nn]] = formulas[nn]
-    indicies = range(len(column_names))
     table_file = getFileNameWithoutExtension(self.getFilepath())
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
-    leaves = [str(c.getName(is_global_name=False))
-              for c in self.getLeaves(is_from_root=True) 
-              if c in self.getVisibleColumns()]
-    response_schema = str(leaves)
+    leaf_names = [str(c.getName()).replace('.', seperator)
+                  for c in self.getLeaves(is_from_root=True) 
+                  if c in self.getVisibleColumns()]
+    response_schema = str(leaf_names)
     ctx_dict = {'response_schema': response_schema,
                 'data': js_data,
                 'epilogue': formatted_epilogue,
