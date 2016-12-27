@@ -35,12 +35,12 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   } else {
     scisheet.utilClick("ColumnClickMenu", oArgs.event, function (eleId) {
       var msg, cmd, newPrompt;
-      msg = "Column " + ep.columnIndex + " (" + ep.columnName + ")" + " clicked.";
+      msg = "Column " + ep.columnName + " clicked.";
       msg += " Selected " + eleId + ".";
       console.log(msg);
       cmd = scisheet.createServerCommand();
       cmd.command = eleId;
-      cmd.column = ep.columnIndex;
+      cmd.columnName = ep.columnName;
       cmd.target = "Column";
       if (cmd.command === 'Append') {
         scisheet.utilPromptForInput(cmd, "New column name", "");
@@ -66,8 +66,8 @@ SciSheetsColumn.prototype.click = function (oArgs) {
       }
       if (cmd.command === 'Rename') {
         // Change the dialog prompt
-        newPrompt = "Rename column '" + ep.columnName + "': ";
-        scisheet.utilPromptForInput(cmd, newPrompt, ep.columnName);
+        newPrompt = "Rename column '" + ep.columnLabel + "': ";
+        scisheet.utilPromptForInput(cmd, newPrompt, ep.columnLabel);
       }
     });
   }

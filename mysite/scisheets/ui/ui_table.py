@@ -166,7 +166,7 @@ class UITable(Table):
     #          target - type of table object targeted: Cell, Column, Row
     #          command - command issued
     #          table_name - name of the table
-    #          column_index - 0 based index
+    #          column_name - full path name
     #          row_index - 0 based index of row
     #          value - value assigned
     # Output: response, do_save - Dictionary with response
@@ -284,8 +284,8 @@ class UITable(Table):
     versioned = self.getVersionedFile()
     if command == "Update":
       versioned.checkpoint(id="%s/%s" % (target, command))
-      idx = int(cmd_dict["column_index"])
-      column = self.visibleColumnFromIndex(idx)
+      name = cmd_dict["column_name"]
+      column = self.childFromName(name)
       if column.getTypeForCells() == object:
         error = "Cannot update cells for the types in column %s"  \
            % column.getName()
@@ -296,7 +296,7 @@ class UITable(Table):
           value = str(value)
         self.updateCell(value,
                         cmd_dict["row_index"], 
-                        cmd_dict["column_index"])
+                        cmd_dict["column_name"])
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
@@ -310,7 +310,7 @@ class UITable(Table):
     error = None
     target = "Column"
     command = cmd_dict["command"]
-    column = self.visibleColumnFromIndex(cmd_dict["column_index"])
+    column = self.childFromName(cmd_dict["column_name"])
     versioned = self.getVersionedFile()
     if (command == "Append") or (command == "Insert"):
       versioned.checkpoint(id="%s/%s" % (target, command))
@@ -337,14 +337,10 @@ class UITable(Table):
     elif command == "Move":
       versioned.checkpoint(id="%s/%s" % (target, command))
       dest_column_name = cmd_dict["args"][0]
+      dest_column = self.childFromName(dest_column_name)
+      cur_column = self.childFromName(cmd_dict["column_name"])
       try:
-        if dest_column_name == "LAST":
-          new_column_index = self.numColumns() - 1
-        else:
-          dest_column = self.columnFromName(dest_column_name)
-          new_column_index = self.indexFromColumn(dest_column)
-        cur_column = self.visibleColumnFromIndex(cmd_dict["column_index"])
-        self.moveColumn(cur_column, new_column_index)
+       self.moveChildToOtherchild(cur_column, dest_column)
       except Exception:
         error = "Column %s does not exists." % dest_column_name
     elif command == "Refactor":

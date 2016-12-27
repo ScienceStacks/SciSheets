@@ -56,6 +56,9 @@ class TreeIterator(object):
     :params Tree tree:
     """
     self._current = tree
+    self._stop_parent = None
+    if tree.getParent() is not None:
+      self._stop_parent = tree.getParent()
       
   def _nextSibling(self, node):
     """
@@ -64,6 +67,8 @@ class TreeIterator(object):
     :return Tree,Tree: sibling, parent
     """
     parent = node.getParent()
+    if parent == self._stop_parent:
+      return None, None
     if parent is None:
       return None, None
     siblings = parent.getChildren()
@@ -481,7 +486,7 @@ class PositionTree(Tree):
 
   """
   Provides access to nodes at specific positions.
-  The position of a node is indexed from 1.
+  The position of a node is indexed from 0.
   """
 
   def addChild(self, position_tree, position=None):
@@ -513,20 +518,6 @@ class PositionTree(Tree):
     if position > len(self._children) - 1:
       raise ValueError("Position %d does not exist" % position)
     return self._children[position]
-
-  def getDescendentAtPosition(self, position):
-    """
-    Uses the depth-first order to the descendent
-    :param int position: 1 indexed
-    :return Tree:
-    :raises ValueError: invalid position
-    """
-    if position < 1 or position > (self.numDescendents()+1):
-      raise ValueError("%d is an invalid position" % position)
-    cur = 1
-    tree_iterator = iter(self)
-    [next(tree_iterator) for x in range(position-1)]
-    return(next(tree_iterator))
     
   def getPosition(self):
     """
@@ -556,7 +547,6 @@ class PositionTree(Tree):
     lst2 = [t.getName() for t in other.getAllNodes()]
     return is_equivalent and lst1 == lst2
     
-
   def moveChildToPosition(self, child, position):
     """
     Changes the position of the child with respect to its siblings.
@@ -567,6 +557,25 @@ class PositionTree(Tree):
     if not child in self._children:
       raise ValueError("Child %s does not belong to Tree %s"  \
           % (child.getName(), self.getName()))
-    self._children.remove(child)
-    self._children.insert(position, child)
+    parent = child.getParent()
+    child.removeTree()
+    parent.addChild(child, position)
+    self.validateTree()
+    
+  def moveChildToOtherchild(self, child, other_child):
+    """
+    Changes the position in the tree
+    :param PositionTree child:
+    :param PositionTree other_child:
+    :raises ValueError: other_child is a descendent of child,
+        which would create a loop in the tree
+    """
+    if not child.isAlwaysLeaf():
+      if other_child in child.getChildren(is_recursive=True):
+        raise ValueError("Moving %s to %s creates a loop."  \
+            % (child.getName(), other_child.getName()))
+    parent = other_child.getParent()
+    index = parent.getPositionOfChild(other_child)
+    child.removeTree()
+    parent.addChild(child, index)
     self.validateTree()

@@ -59,7 +59,9 @@ class API(object):
 
   def _dbgCheckColumnVariables(self):
     for cv in self._column_variables:
-      if cv._column.getTable() is None:
+      if cv._column is None:
+        import pdb; pdb.set_trace()
+      if cv._column.getParent() is None:
         import pdb; pdb.set_trace()
 
   def setColumnVariables(self, colnms=None):
@@ -74,18 +76,14 @@ class API(object):
       return
     # Table present
     cv_dict = {}
-    for column in  self._table.getColumns():
-      name = column.getName(is_global_name=False)
-      cv = self.getColumnVariable(name)
-      cv_dict[name] = cv
     if colnms is None:
-      colnms = [c.getName(is_global_name=False) 
+      colnms = [c.getName()
                 for c in self._table.getColumns()]
     for colnm in colnms:
       column = self._table.columnFromName(colnm)
       if column is None:
         import pdb; pdb.set_trace()
-      if column.getTable() is None:
+      if column.getParent() is None:
         import pdb; pdb.set_trace()
       cv_dict[colnm] = ColumnVariable(column)
     self._column_variables = cv_dict.values()
@@ -144,7 +142,7 @@ class API(object):
         self._table.addColumn(column, index=index)
         index += 1
       column.addCells(dataframe[name], replace=True)
-      if column.getTable() is None:
+      if column.getParent() is None:
         import pdb; pdb.set_trace()
         pass
     self.setColumnVariables()

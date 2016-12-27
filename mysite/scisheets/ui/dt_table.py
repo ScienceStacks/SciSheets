@@ -132,17 +132,15 @@ class DTTable(UITable):
   def isEquivalent(self, other):
     return super(DTTable, self).isEquivalent(other)
 
-  def childFromName(self, name, is_relative=True):
+  @staticmethod
+  def fromHTMLToPythonName(html_name):
     """
-    Returns the column for a global name used in a DataTable HTML rendering.
-    :param str name:
-    :param bool is_relative: True if not a global name
+    Converts the HTML name to a python name.
+    :param str html_name:
     """
-    if not is_relative:
-      name = name.replace(HTML_SEPERATOR, named_tree.SEPERATOR)
-    return super(DTTable, self).childFromName(name, 
-        is_relative=is_relative)
-      
+    python_name = html_name.replace(HTML_SEPERATOR, 
+        named_tree.SEPERATOR)
+    return python_name
 
   @staticmethod
   def _formatStringForJS(in_string):
@@ -224,17 +222,13 @@ class DTTable(UITable):
           annotate = "*"
         value = "%s%s" % (annotate, name)
         colnm_dict[name] = value
-    # Descendents are indexed from 1.
-    # The range skips index 1, since this is the table name
-    # The range goes to numColumns + 2 to account for 1 indexing
-    # and the root node
-    seperator = '-'  # Seperator in components of global names
     descendents = self.getAllNodes()
     descendents.remove(self)  # Don't include the root name
     columns = [c for c in descendents if c in self.getVisibleColumns()]
     column_names = [c.getName(is_global_name=False) for c in columns]
     column_hierarchy = self.getRoot().createSubstitutedChildrenDict(
-        colnm_dict, excludes=self.getRoot().getHiddenColumns(), sep='-')
+        colnm_dict, excludes=self.getRoot().getHiddenColumns(), 
+        sep=HTML_SEPERATOR)
     column_hierarchy = column_hierarchy["children"]
     js_column_hierarchy = json.dumps(column_hierarchy)
     js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
@@ -249,7 +243,7 @@ class DTTable(UITable):
     table_file = getFileNameWithoutExtension(self.getFilepath())
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
-    leaf_names = [str(c.getName()).replace('.', seperator)
+    leaf_names = [str(c.getName()).replace('.', HTML_SEPERATOR)
                   for c in self.getLeaves(is_from_root=True) 
                   if c in self.getVisibleColumns()]
     response_schema = str(leaf_names)

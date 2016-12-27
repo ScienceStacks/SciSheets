@@ -764,14 +764,17 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
       else:
         break
 
-  def updateCell(self, value, row_index, column_index):
+  def updateCell(self, value, row_index, column_id):
     """
     Changes the value of the identified cell
-    :param value: new value for the cell
-    :param row_index: 0-based index of the row
-    :param column_index: 0-based index of the column
+    :param obj value: new value for the cell
+    :param int row_index: 0-based index of the row
+    :param int/str column_id: 0-based index of the column or its name
     """
-    column = self.columnFromIndex(column_index)
+    if isinstance(column_id, int):
+      column = self.columnFromIndex(column_id)
+    else:
+      column = self.childFromName(column_id, is_relative=False)
     column.updateCell(value, row_index)
 
   def updateColumn(self, column, cells):

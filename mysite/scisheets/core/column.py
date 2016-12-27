@@ -310,11 +310,6 @@ class Column(NamedTree):
     """
     self.setParent(table)
 
-  def getTable(self):
-    if '_parent' not in dir(self):
-      import pdb; pdb.set_trace()
-    return self.getParent()
-
   @staticmethod
   def isPermittedName(name):
     """

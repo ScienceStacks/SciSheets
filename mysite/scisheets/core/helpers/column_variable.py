@@ -31,10 +31,10 @@ class ColumnVariable(object):
     self._iteration_start_value = self.getNamespaceValue()
 
   def getNamespaceValue(self):
-    if self._column.getTable() is None:
+    if self._column.getParent() is None:
       import pdb; pdb.set_trace()
     # TODO: This won't work with nested columns - consider namespaces
-    return self._column.getTable().getNamespace()[self._column.getName(is_global_name=False)]
+    return self._column.getParent().getNamespace()[self._column.getName(is_global_name=False)]
 
   def getColumn(self):
     return self._column
@@ -50,7 +50,7 @@ class ColumnVariable(object):
     """
     Establishes the value of the variable in the namespace.
     """
-    table = self._column.getTable()
+    table = self._column.getParent()
     # TODO: This won't work with nested columns - consider namespaces
     table.getNamespace()[self._column.getName(is_global_name=False)] =  \
         api_util.coerceValuesForColumn(self._column, 

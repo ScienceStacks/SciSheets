@@ -158,16 +158,16 @@ class TestDTTable(TestCase):
     result = self.table._makeAnnotatedDepthFirstTreeRepresentation()
     pass
 
-  def _testChildFromName(self, child):
-    name = child.getName()
-    html_name = name.replace(named_tree.SEPERATOR, dt.HTML_SEPERATOR)
-    new_child = self.table.childFromName(name)
-    self.assertTrue(child, new_child)
-
-  def testChildFromName(self):
-    setupTableInitialization(self)
-    self._testChildFromName(self.subtable)
-    self._testChildFromName(self.subtable_column1)
+  def testFromHTMLToPythonName(self):
+    short_name = 'dummy'
+    self.assertEqual(short_name, 
+         dt.DTTable.fromHTMLToPythonName(short_name))
+    long_name = '%s%s%s' % (short_name, named_tree.SEPERATOR, short_name)
+    self.assertEqual(long_name, 
+         dt.DTTable.fromHTMLToPythonName(long_name))
+    html_name = '%s%s%s' % (short_name, dt.HTML_SEPERATOR, short_name)
+    self.assertEqual(long_name, 
+         dt.DTTable.fromHTMLToPythonName(html_name))
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ import mysite.helpers.util as ut
 from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from scisheets.core.table import Table
+import scisheets.ui.dt_table as dt
 from scisheets.core.helpers_test import TableFileHelper, TEST_DIR,  \
     compareTableData
 from scisheets.core.helpers.api_util import readObjectFromFile, writeObjectToFile
@@ -16,15 +17,23 @@ import os
 import shutil
 
 # Keys used inside the server
-DICT_NAMES =  ["command", "target", "table_name", "column_index", "row_index", "value"]
+DICT_NAMES =  ["command", "target", "table_name",
+    "row_index", "value", "column_name"]
 # Parameter names in the Ajax call
-AJAX_NAMES =  ["command", "target", "table",      "column",       "row",       "value"]
+AJAX_NAMES =  ["command", "target", "table",
+    "row",       "value", "columnName" ]
 NCOL = 3
 NROW = 4
 BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
+TARGET = 'Cell'
+COMMAND = 'Update'
+VALUE = 'XXX'
+ROW_INDEX = 1
+COLUMN_INDEX = 3
+COLUMN_NAME = 'Col_2'
+TABLE_NAME = 'XYZ'
 IGNORE_TEST = False
-
 
 
 class TestScisheetsViews(TestCase):
@@ -40,18 +49,12 @@ class TestScisheetsViews(TestCase):
     request.session.save()
 
   def _ajaxCommandFactory(self):
-    TARGET = 'Cell'
-    COMMAND = 'Update'
-    VALUE = 'XXX'
-    ROW_INDEX = 1
-    COLUMN_INDEX = 3
-    TABLE_NAME = 'XYZ'
     ajax_cmd = {}
     ajax_cmd['target'] = TARGET
     ajax_cmd['command'] = COMMAND
     ajax_cmd['value'] = VALUE
     ajax_cmd['row'] = ROW_INDEX
-    ajax_cmd['column'] = COLUMN_INDEX
+    ajax_cmd['columnName'] = COLUMN_NAME
     ajax_cmd['table'] = TABLE_NAME
     ajax_cmd['args[]'] = None
     return ajax_cmd
@@ -83,6 +86,7 @@ class TestScisheetsViews(TestCase):
     #        address - URL address
     # Returns - a URL string with variables in the GET format
     url = address
+    count = 0
     if values is not None:
       count = len(values)
     if names is None:
@@ -97,17 +101,18 @@ class TestScisheetsViews(TestCase):
       if values is None:
         url += "%s=%d" % (names[n], n)
       else:
-        if isinstance(values[n], str):
+        if cell_types.isStr(values[n]):
           url += "%s=%s" % (names[n], values[n])
         elif isinstance(values[n], int):
           url += "%s=%d" % (names[n], values[n])
-        elif isinstance(values[n], float):
+        elif cell_types.isFloats([n]):
           url += "%s=%f" % (names[n], values[n])
         elif values[n] is None:
           url += "%s=%s" % (names[n], None)
         elif isinstance(values[n], list):
           url += "%s=%s" % (names[n], values[n])
         else:
+          import pdb; pdb.set_trace()
           UNKNOWN_TYPE
     return url
 
@@ -150,17 +155,25 @@ class TestScisheetsViews(TestCase):
     request = self._URL2Request(url)
     result = sv.createCommandDict(request)
     test_values = list(values)
-    if isinstance(test_values[4], int):
-      test_values[4] -= 1  # Adjust for row index
+    self.assertTrue(
+        result['column_name'].find(dt.HTML_SEPERATOR) < 0)
     for n in range(len(DICT_NAMES)):
-      if result[DICT_NAMES[n]] is not None:
-        self.assertEqual(result[DICT_NAMES[n]], test_values[n])
+      if result[DICT_NAMES[n]] is None:
+        continue
+      if DICT_NAMES[n] == "column_name":
+        continue
+      elif DICT_NAMES[n] == 'row_index':
+        test_values[n] -= 1  # Adjust for row index
+      self.assertEqual(result[DICT_NAMES[n]], test_values[n])
 
   def testCreateCommandDict(self):
     if IGNORE_TEST:
        return
-    values = ["Update", "Column", "dummy",      2,
-              4,           9999]
+    values = ["Update", "Column", "dummy",
+              4,           9999, "Col_1"]
+    self._testCreateCommandDict(AJAX_NAMES, values)  # All values are present
+    values = ["Update", "Column", "dummy",
+              4,           9999, "Col_1-Col_1"]
     self._testCreateCommandDict(AJAX_NAMES, values)  # All values are present
     for n in range(len(AJAX_NAMES)):
       new_values = list(values)
@@ -197,21 +210,23 @@ class TestScisheetsViews(TestCase):
     self._verifyResponse(response, checkSessionid=False)
 
   def _testCommandCellUpdate(self, row_index, val, check_value=True,
-      table=None, column_index=None, valid=True):
+      table=None, column_name=None, column_index=None, valid=True):
     if table is None:
       response = self._createBaseTable()
       table = self._getTableFromResponse(response)
-    if (column_index is None):
-      column_index = self._findColumnWithType(table, val)
-      if column_index is None:  # Failed to find a column
-        import pdb; pdb.set_trace()
+    if column_index is not None:
+      column = table.columnFromIndex(column_index)
+      column_name = column.getName(is_global_name=False)
+    if (column_name is None):
+      column = self._findColumnWithType(table, val)
+      column_name = column.getName()
     # Do the cell update
     create_table_url = self._createBaseURL()
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Cell'
     ajax_cmd['command'] = 'Update'
     ajax_cmd['row'] = table._rowNameFromIndex(row_index)
-    ajax_cmd['column'] = column_index
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['value'] = val
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=create_table_url)
     response = self.client.get(command_url)
@@ -221,16 +236,18 @@ class TestScisheetsViews(TestCase):
     if valid:
       self.assertEqual(content["data"], "OK")
       if check_value:
-        self.assertEqual(table.getCell(row_index, column_index), val)
+        self.assertEqual(table.getCell(row_index, column_name), val)
     else:
       self.assertNotEqual(content["data"], "OK")
     return table
 
   def _findColumnWithType(self, table, val):
-    # Inputs: table - table being analyzed
-    #         val - value whose type is to be matched
-    # Returns the index of the column with the specified type or None
-    # Assumes that the columns are either str or a number
+    """
+    :param Table table:
+    :param object val:
+    :return Column:
+    Assumes that the columns are either str or a number
+    """
     def notIsStrs(vals):
       return not cell_types.isStrs(vals)
 
@@ -242,7 +259,7 @@ class TestScisheetsViews(TestCase):
       if Table.isNameColumn(column):
         continue
       if func(column.getCells()):
-        return table.indexFromColumn(column)
+        return column
 
   def testCommandCellUpdate(self):
     if IGNORE_TEST:
@@ -258,11 +275,12 @@ class TestScisheetsViews(TestCase):
     ROW_INDEX = NROW - 1
     response = self._createBaseTable()
     table = self._getTableFromResponse(response)
-    column_index = 1
-    table.updateCell([1,2,3], ROW_INDEX, column_index)
+    column = table.columnFromIndex(1)
+    column_name = column.getName()
+    table.updateCell([1,2,3], ROW_INDEX, column_name)
     writeObjectToFile(table)
     self._testCommandCellUpdate(ROW_INDEX, 2, valid=False, 
-        table=table, column_index=column_index)
+        table=table, column_name=column_name)
 
   def testCommandCellUpdateWithValueAsList(self):
     if IGNORE_TEST:
@@ -286,11 +304,12 @@ class TestScisheetsViews(TestCase):
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     # Do the column delete
-    COLUMN_INDEX = 2
+    column = table.columnFromIndex(COLUMN_INDEX)
+    column_name = column.getName(is_global_name=False)
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Column'
     ajax_cmd['command'] = 'Delete'
-    ajax_cmd['column'] = COLUMN_INDEX
+    ajax_cmd['column_name'] = column_name
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=base_url)
     response = self.client.get(command_url)
     # Check the table
@@ -316,12 +335,15 @@ class TestScisheetsViews(TestCase):
     #         is_successful_outcome - Boolean whether rename is successful
     #         command - command issued, either Rename or Refactor
     base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
     # Do the cell update
-    COLUMN_INDEX = 2
+    column_index = 2
+    column = table.columnFromIndex(column_index)
+    column_name = column.getName(is_global_name=False)
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Column'
     ajax_cmd['command'] = command
-    ajax_cmd['column'] = COLUMN_INDEX
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = new_name.replace(' ', '+')
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=base_url)
     response = self.client.get(command_url)
@@ -336,7 +358,7 @@ class TestScisheetsViews(TestCase):
       self.assertEqual(len(columns), NCOL+1)  # Added the 'row' column
       self.assertEqual(table.getNameColumn().numCells(), NROW)
       self.assertEqual(
-          columns[COLUMN_INDEX].getName(is_global_name=False), 
+          columns[column_index].getName(is_global_name=False), 
           new_name)
 
   def testCommandColumnRename(self):
@@ -347,23 +369,22 @@ class TestScisheetsViews(TestCase):
     NEW_NAME = "New_Column"
     self._testCommandColumnRename(BASE_URL, NEW_NAME, True)
 
-  def _refactor(self, new_formula, refactor_name, isValid):
+  def _refactor(self, column_name, refactor_name, isValid):
     """
     Changes the name in column 1 and the formula formula in column 2
     to test Refactor
-    :param str new_name: new name for column 1
-    :param str new_formula: new formula for column 2
+    :param str column_name: name of the column to be refactored
+    :param str refactor_name: new name for column 1
     :param bool isValid: is a valid formula
     """
-    refactor_column = 1
-    formula_change_column = 2
     base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
     # Change the formula
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
-    ajax_cmd['column'] =  formula_change_column
-    ajax_cmd['args[]'] = new_formula
+    ajax_cmd['columnName'] =  column_name
+    ajax_cmd['args[]'] = refactor_name
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
@@ -372,7 +393,7 @@ class TestScisheetsViews(TestCase):
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Refactor"
-    ajax_cmd['column'] =  refactor_column
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = refactor_name
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -390,10 +411,10 @@ class TestScisheetsViews(TestCase):
 
   def testCommandColumnRefactorFormula(self):
     if IGNORE_TEST:
-       return
-    new_formula = "Col_0"
+      return
+    column_name = "Col_0"
     refactor_name = "NewColumn"
-    self._refactor(new_formula, refactor_name, True)
+    self._refactor(column_name, refactor_name, True)
 
   def _numRows(self, table_data):
     """
@@ -516,13 +537,15 @@ class TestScisheetsViews(TestCase):
     #         new_idx - index of the new column
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
+    column = table.columnFromIndex(cur_idx)
+    column_name = column.getName(is_global_name=False)
     num_rows = table.numRows()
     num_columns = table.numColumns()
     # Do the cell update
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Column'
     ajax_cmd['command'] = command
-    ajax_cmd['column'] = cur_idx
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = 'Yet_Another_Column'
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -558,6 +581,8 @@ class TestScisheetsViews(TestCase):
     #         which the column is to be moved
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
+    column = table.columnFromIndex(column_idx_to_move)
+    column_name = column.getName(is_global_name=False)
     num_rows = table.numRows()
     num_columns = table.numColumns()
     moved_column = table.columnFromIndex(column_idx_to_move)
@@ -567,7 +592,7 @@ class TestScisheetsViews(TestCase):
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Move"
-    ajax_cmd['column'] = column_idx_to_move
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = dest_column_name
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -585,8 +610,8 @@ class TestScisheetsViews(TestCase):
       import pdb; pdb.set_trace()
     self.assertTrue(b)
   
-  def _makeColumnName(self, column_index):
-    return "Col_%d" % column_index
+  def _makeColumnName(self, index):
+    return "Col_%d" % index
 
   def testCommandColumnMove(self):
     if IGNORE_TEST:
@@ -603,12 +628,13 @@ class TestScisheetsViews(TestCase):
     table = self._getTableFromResponse(base_response)
     old_table = table.copy()
     column = table.columnFromIndex(column_idx)
+    column_name = column.getName(is_global_name=False)
     old_formula = column.getFormula()
     # Reset the formula
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
-    ajax_cmd['column'] = column_idx
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = formula
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -616,7 +642,7 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content.has_key("success"))
     # Check the table
     new_table = self._getTableFromResponse(response)
-    new_column = new_table.columnFromIndex(column_idx)
+    new_column = new_table.childFromName(column_name)
     if isValid:
       self.assertTrue(content["success"])
       self.assertEqual(formula, new_column.getFormula())
@@ -638,11 +664,14 @@ class TestScisheetsViews(TestCase):
     # Inputs: formula - new formula for column
     #         isValid - is a valid formula
     base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    column = table.columnFromIndex(col_idx)
+    column_name = column.getName(is_global_name=False)
     # Change the formula
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
-    ajax_cmd['column'] = col_idx
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = formula
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -857,12 +886,16 @@ class TestScisheetsViews(TestCase):
   def testFormulaRowAddition(self):
     if IGNORE_TEST:
        return
+    column_idx = 1
     base_response = self._createBaseTable()
+    table = self._getTableFromResponse(base_response)
+    column = table.columnFromIndex(column_idx)
+    column_name = column.getName(is_global_name=False)
     # Change the formula
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
-    ajax_cmd['column'] = 1
+    ajax_cmd['columnName'] = column_name
     num_rows = 2*NROW
     ajax_cmd['args[]'] = "range(%d)" % num_rows
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
@@ -875,17 +908,20 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content["success"])
     self.assertEqual(table.numRows(), num_rows)
 
-  def _setFormula(self, formula, column_idx):
+  def _setFormula(self, table, formula, column_idx):
     """
     Sets the formula for the column index
+    :param Table table:
     :param str formula:
     :param int column_idx
     :return HTTP response:
     """
+    column = table.columnFromIndex(column_idx)
+    column_name = column.getName(is_global_name=False)
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
-    ajax_cmd['column'] = column_idx
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = formula
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -915,9 +951,9 @@ for x in Col_2:
     base_response = self._createBaseTable(params=[NROW, ncol])
     old_table = self._getTableFromResponse(base_response)
     # Change the first formula
-    response = self._setFormula(formula1, formula_columns[0])
+    response = self._setFormula(old_table, formula1, formula_columns[0])
     # Change the second formula
-    response = self._setFormula(formula2, formula_columns[1])
+    response = self._setFormula(old_table, formula2, formula_columns[1])
     # Check the table
     new_table = self._getTableFromResponse(response)
     error = new_table.evaluate(user_directory=TEST_DIR)
@@ -929,15 +965,18 @@ for x in Col_2:
   def testImportExcelToTable(self):
     if IGNORE_TEST:
        return
+    column_idx = 1
     filepath = os.path.join(TEST_DIR, 'RawData.xlsx')
     formula = "a = importExcelToTable(s, '%s')" % filepath
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
+    column = table.columnFromIndex(column_idx)
+    column_name = column.getName(is_global_name=False)
     # Reset the formula
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
-    ajax_cmd['column'] = 1
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = formula
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -945,19 +984,22 @@ for x in Col_2:
     self.assertTrue(content.has_key("success"))
     self.assertTrue(content["success"])
 
-  def _submitCommand(self, target, command, colidx, args):
+  def _submitCommand(self, table, target, command, colidx, args):
     """
     Submits the command and checks the response. Returns the table.
+    :param Table table:
     :param str target:
     :param str command:
     :param int colidx:
     :param str args:
     :return Table table:
     """
+    column = table.columnFromIndex(colidx)
+    column_name = column.getName(is_global_name=False)
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = target
     ajax_cmd['command'] = command
-    ajax_cmd['column'] = colidx
+    ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = args
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -969,6 +1011,10 @@ for x in Col_2:
   # TODO: Complete test for Undo. Verify that all changes
   # are undone - value, column, table
   def _testUndoTable(self, formula):
+    """
+    :param str formula:
+    :return Table:
+    """
     colidx = 1
     # Inputs: formula - new formula for column
     base_response = self._createBaseTable()
@@ -976,14 +1022,15 @@ for x in Col_2:
     column = old_table.columnFromIndex(colidx)
     self.assertIsNone(column.getFormula())
     # Change the formula
-    changed_table = self._submitCommand("Column", "Formula", colidx, formula)
+    changed_table = self._submitCommand(old_table, "Column", "Formula", colidx, formula)
     column = changed_table.columnFromIndex(colidx)
     self.assertEqual(column.getFormula(), formula)
     # Undo the change
-    undone_table = self._submitCommand("Table", "Undo", colidx, "")
+    undone_table = self._submitCommand(changed_table, "Table", "Undo", colidx, "")
     column = undone_table.columnFromIndex(colidx)
     self.assertIsNone(column.getFormula())
     self.assertTrue(compareTableData(old_table, undone_table))
+    return undone_table
 
   def testUndoTable(self):
     if IGNORE_TEST:
@@ -996,9 +1043,9 @@ for x in Col_2:
        return
     colidx = 1
     formula = "sin(4)"
-    self._testUndoTable(formula)
-    undone_table = self._submitCommand("Table", "Redo", colidx, "")
-    changed_table = self._submitCommand("Column", "Formula", colidx, formula)
+    table = self._testUndoTable(formula)
+    undone_table = self._submitCommand(table, "Table", "Redo", colidx, "")
+    changed_table = self._submitCommand(undone_table, "Column", "Formula", colidx, formula)
     column = changed_table.columnFromIndex(colidx)
     self.assertEqual(column.getFormula(), formula)
 

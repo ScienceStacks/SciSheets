@@ -60,11 +60,16 @@ class ColumnContainer(NamedTree):
     instance.setName(self.getName(is_global_name=False))
     return instance
 
-  def getCell(self, row_index, column_index):
+  def getCell(self, row_index, column_id):
     """
+    :param int row_index:
+    :param int/str column_id: either the column index or its name
     :return: the numpy array of the cells in the column
     """
-    child = self.getChildAtPosition(column_index)
+    if isinstance(column_id, int):
+      child = self.getChildAtPosition(column_id)
+    else:
+      child = self.childFromName(column_id, is_relative=False)
     if ColumnContainer.isColumn(child):
       return child.getCells()[row_index]
     else:
@@ -131,10 +136,10 @@ class ColumnContainer(NamedTree):
     """
     self.moveChildToPosition(child, new_idx+1)
 
-  def moveColumn(self, column, new_idx):
+  def moveColumn(self, column, new_column_id):
     """
     Moves the column to after the specified index
-    :param column: column to move
+    :param NamedTree column: column to move
     :param new_idx: new index for column
     """
     self.moveChildToPosition(column, new_idx+1)

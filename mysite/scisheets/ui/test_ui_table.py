@@ -41,30 +41,34 @@ class TestUITable(TestCase):
 
   def testProcessCommandCellUpdate(self):
     before_table = self.table.copy()
-    COLUMN_INDEX = 3
+    column_index = 3
+    column = self.table.getChildAtPosition(column_index)
+    column_name = column.getName(is_global_name=False)
     ROW_INDEX = 2
     NEW_VALUE = 9999
     cmd_dict = {
                 'target':  'Cell',
                 'command': 'Update',
                 'table_name': None,
-                'column_index': COLUMN_INDEX,
+                'column_name': column_name,
                 'row_index': ROW_INDEX,
                 'value': NEW_VALUE
                }
     self.table.processCommand(cmd_dict)
-    self.assertEqual(int(self.table.getCell(ROW_INDEX, COLUMN_INDEX)),
+    self.assertEqual(int(self.table.getCell(ROW_INDEX, column_name)),
       NEW_VALUE)
     for c in range(self.table.numColumns()):
       self.assertEqual(before_table.getColumns()[c].getName(), 
           self.table.getColumns()[c].getName())
       for r in range(self.table.numRows()):
-        if not (r == ROW_INDEX and c == COLUMN_INDEX):
+        if not (r == ROW_INDEX and c == column_index):
           self.assertEqual(before_table.getCell(r,c), 
               self.table.getCell(r,c))
 
   def testProcessCommandColumnDelete(self):
     COLUMN_INDEX = 3
+    column = self.table.columnFromIndex(COLUMN_INDEX)
+    column_name = column.getName(is_global_name=False)
     ROW_INDEX = None
     NEW_VALUE = None
     old_num_columns = self.table.numColumns()
@@ -74,6 +78,7 @@ class TestUITable(TestCase):
                 'target':  'Column',
                 'command': 'Delete',
                 'table_name': None,
+                'column_name': column_name,
                 'column_index': COLUMN_INDEX,
                 'row_index': ROW_INDEX,
                 'value': NEW_VALUE
@@ -89,6 +94,8 @@ class TestUITable(TestCase):
 
   def testProcessCommandColumnRename(self):
     COLUMN_INDEX = 3
+    column = self.table.columnFromIndex(COLUMN_INDEX)
+    column_name = column.getName(is_global_name=False)
     ROW_INDEX = None
     NEW_VALUE = None
     NEW_COLUMN_NAME = "New_Name"
@@ -96,6 +103,7 @@ class TestUITable(TestCase):
                 'target':  'Column',
                 'command': 'Rename',
                 'table_name': None,
+                'column_name': column_name,
                 'column_index': COLUMN_INDEX,
                 'row_index': ROW_INDEX,
                 'args': [NEW_COLUMN_NAME],

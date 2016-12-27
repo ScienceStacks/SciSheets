@@ -113,8 +113,8 @@ class TestTree(unittest.TestCase):
       NAME1->NAME2->NAME4
       NAME1->NAME3
     """
-    #if IGNORE_TEST:
-    #  return
+    if IGNORE_TEST:
+      return
     root = Tree(NEW_NAME)
     nodes = root.getAllNodes()
     self.assertEqual(len(nodes), 1)
@@ -166,13 +166,24 @@ class TestTree(unittest.TestCase):
     self.assertTrue(self.tree4 in children)
 
   def testGetChildrenFromSelf(self):
+    """
+    NAME1:
+      NAME2
+        NAME4
+          NAME4.1
+          NAME4.2
+      NAME3
+    """
     if IGNORE_TEST:
       return
     self._createComplexTree()
-    children = self.tree2.getChildren(is_from_root=False)
+    self.tree4.addChild(Tree(NAME4 + ".1"))
+    self.tree4.addChild(Tree(NAME4 + ".2"))
+    children = self.tree2.getChildren(is_from_root=False,
+        is_recursive=True)
     grandchildren = self.tree4.getChildren(is_from_root=False)
-    self.assertEqual(len(children), 1)
-    self.assertEqual(len(grandchildren), 0)
+    self.assertEqual(len(children), 3)
+    self.assertEqual(len(grandchildren), 2)
     self.assertTrue(self.tree4 in children)
 
   def testFindPathFromRoot(self):
@@ -205,7 +216,7 @@ class TestTree(unittest.TestCase):
     leaves = self.tree2.getLeaves(is_from_root=True)
     self.assertTrue(self._checkNodeLists(leaves, [self.tree3, self.tree4]))
     leaves = self.tree2.getLeaves(is_from_root=False)
-    self.assertTrue(self._checkNodeLists(leaves, [self.tree4, self.tree3]))
+    self.assertTrue(self._checkNodeLists(leaves, [self.tree4]))
 
   def testToString(self):
     if IGNORE_TEST:
@@ -352,12 +363,6 @@ class TestPositionTree(unittest.TestCase):
     self.assertEqual(expected_position, self.tree2.getPosition())
     self.assertIsNone(self.root.getPosition())
 
-  def testGetDescendentAtPosition(self):
-    if IGNORE_TEST:
-      return
-    tree = self.root.getDescendentAtPosition(1)
-    self.assertEqual(tree, self.root)
-
   def testGetPositionOfChild(self):
     if IGNORE_TEST:
       return
@@ -381,6 +386,42 @@ class TestPositionTree(unittest.TestCase):
     new_position = 0
     self.root.moveChildToPosition(tree5, new_position)
     self.assertEqual(self.root._children[0], tree5)
+
+  def testMoveChildToOtherchild(self):
+    """
+    Existing tree
+      NAME1
+        NAME3
+        NAME2
+          NAME4
+    New tree
+      NAME1
+        NAME4
+        NAME3
+        NAME2
+    """
+    if IGNORE_TEST:
+     return
+    self.root.moveChildToOtherchild(self.tree4, self.tree3)
+    self.assertEqual(self.root.getChildAtPosition(0), self.tree4)
+
+  def testMoveChildToOtherchild2(self):
+    """
+    Existing tree
+      NAME1
+        NAME3
+        NAME2
+          NAME4
+    New tree
+      NAME1
+        NAME2
+          NAME4
+        NAME3
+    """
+    if IGNORE_TEST:
+     return
+    self.root.moveChildToOtherchild(self.tree3, self.tree2)
+    self.assertEqual(self.root.getChildAtPosition(0), self.tree2)
 
   def testIsRoot(self):
     if IGNORE_TEST:

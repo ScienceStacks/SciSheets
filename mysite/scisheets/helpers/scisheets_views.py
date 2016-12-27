@@ -65,14 +65,17 @@ def createCommandDict(request):
     Row     Append   Add a new row after the current row
     Row     Insert   Add a new row before the current row
     Row     Move     Move the row to the specified position
+  Handles the conversion from the HTML name to the python name
+  for a column.
   """
   cmd_dict = {}
   cmd_dict['command'] = extractDataFromRequest(request, 'command')
   cmd_dict['target'] = extractDataFromRequest(request, 'target')
   cmd_dict['table_name'] = extractDataFromRequest(request, 'table')
   cmd_dict['args'] = extractDataFromRequest(request, 'args[]', listvar=True)
-  cmd_dict['column_index'] = extractDataFromRequest(request,
-      'column', convert=True)
+  html_name = extractDataFromRequest(request, 'columnName')
+  python_name = DTTable.fromHTMLToPythonName(html_name)
+  cmd_dict['column_name'] = DTTable.fromHTMLToPythonName(python_name)
   row_name = extractDataFromRequest(request, 'row')
   if row_name is not None and len(str(row_name)) > 0:
     cmd_dict['row_index'] = DTTable.rowIndexFromName(row_name)

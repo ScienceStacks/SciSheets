@@ -200,7 +200,7 @@ class TestAPIFormulas(unittest.TestCase):
       for name in names:
         self.assertTrue(name in column_names)
         column = table.columnFromName(name)
-        self.assertIsNotNone(column.getTable())
+        self.assertIsNotNone(column.getParent())
     except AttributeError as err:
       # Can't handle the captured pickle file
       pass

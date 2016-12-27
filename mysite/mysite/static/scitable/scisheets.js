@@ -116,35 +116,13 @@ SciSheets.prototype.createServerCommand = function () {
   return {command: null,
           target: null,  // Part of table targeted
           table: null,   // Table name
-          column: null,
+          columnName: null,
           row: null,
           args: [],
           value: null
          };
 };
 
-/* --------------------------------------------------------------- 
-  Sends a ServerCommand object to the sever
-   Assumes that a JSON object is returned from the server.
-      success: boolean that indicates if processing was successful
-      data: string returned from server
-   Input: serverCommand - a ServerCommand object
-          successFunction - function to execute if successful
-            The function has a single argument that is the
-            string value returned from the server.
-   Usage example:
-      var scisheets = new SciSheets();
-      var data = scisheets.createServerCommand();
-      data.command = "delete";
-      data.table = "my table";
-      data.column = "-3";
-      var aSuccessFunction = function (return_data) {
-        "use strict";
-        alert(return_data);
-        window.console.log('Successful');
-      };
-      scisheets.sendServerCommand(data, aSuccessFunction);
---------------------------------------------------------------- */
 SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction) {
   "use strict";
   this.ajaxCallCount += 1;
@@ -177,12 +155,12 @@ SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction
 //   this.scisheet - the scisheet processed
 //   this.oArgs - the arguments provided
 //   this.target - target of click
-//   this.columnName - name of the column clicked
-//   this.columnIndex - index of the column clicked
+//   this.columnName - key of the column clicked
+//   this.columnLabel - label of the column clicked
 //   this.rowIndex - index of the row clicked
 function SciSheetsUtilEvent(scisheet, oArgs) {
   "use strict";
-  var table;
+  var table, column;
   this.scisheet = scisheet;
   this.oArgs = oArgs;
   table = scisheet.dataTable;
@@ -190,8 +168,9 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
     console.log("***Could not process oArgs.");
   } else {
     this.target = oArgs.target;
-    this.columnName = table.getColumn(this.target).field;
-    this.columnIndex = oArgs.target.cellIndex;
+    column = table.getColumn(this.target);
+    this.columnName = column.field;
+    this.columnLabel = column.label;
     this.rowIndex = table.getRecordIndex(this.target) + 1;
   }
   this.rowIndex = table.getRecordIndex(this.target) + 1;
