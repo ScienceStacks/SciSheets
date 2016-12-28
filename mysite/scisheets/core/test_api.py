@@ -31,6 +31,7 @@ class TestAPI(unittest.TestCase):
     self.api._table = ht.createTable("test", column_name=COLUMN1)
     self.column1 = self.api._table.columnFromName(COLUMN1)
     self.column1.addCells(COLUMN1_VALUES, replace=True)
+    self.api.setColumnVariables(colnms=[COLUMN1])
     ht.setupTableInitialization(self)
 
   def testGetColumnValues(self):

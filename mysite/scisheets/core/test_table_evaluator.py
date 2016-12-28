@@ -57,6 +57,16 @@ augmentPythonPath([__file__, 'helpers/program_generator.py'])
 class TestTableEvaluator(unittest.TestCase):
 
   def setUp(self):
+    """
+    Creates the following structure:
+    DUMMY_TABLE
+      row:
+        DUMMY1:
+        A:
+        B:
+        C:
+        VALID_FORMULA:
+    """
     self.table = createTable(TABLE_NAME)
     self._addColumn(COLUMN1, cells=COLUMN1_CELLS)
     self.column_a = self._addColumn(COLUMN2, cells=COLUMN2_CELLS)
@@ -343,6 +353,36 @@ def find_primes(n):
 DUMMY1 = find_primes(100)
 '''
     self.column_valid_formula.setFormula(formula)
+    errors = self.evaluator.evaluate(user_directory=TEST_DIR)
+    self.assertIsNone(errors)
+
+  def testTableNamespaceHasColumnsInSubtables(self):
+    """
+    Tests that a name in a subtable is in the namespace
+    and can be evaluated.
+    
+    DUMMY_TABLE
+      row
+      DUMMY1
+      A
+      B
+      C
+      VALID_FORMULA
+      Subtable
+        row
+        SubtableColumn1
+        SubtableColumn2
+    """
+    if IGNORE_TEST:
+      return
+    column_name1 = "SubtableColumn1"
+    column_name2 = "SubtableColumn2"
+    colnms = [column_name1, column_name2]
+    subtable = createTable("Subtable", column_name=colnms)
+    self.table.addChild(subtable)
+    column2 = subtable.columnFromName(column_name2)
+    formula = "SubtableColumn1*10"
+    column2.setFormula(formula)
     errors = self.evaluator.evaluate(user_directory=TEST_DIR)
     self.assertIsNone(errors)
 

@@ -201,7 +201,6 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   $("#formula-textarea").linedtextarea({selectedLine: linePosition});
   leftPos = evObj.pageX1 + 30;
   topPos = 10;
-  // evObj.pageX1, evObj.pageY
   $("#formula-dialog").css({left: leftPos, top: topPos});
   $("#formula-dialog-submit").click(function () {
     cmd.args = [eleTextarea.value];

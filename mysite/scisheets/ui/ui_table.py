@@ -303,6 +303,15 @@ class UITable(Table):
     response = self._createResponse(error)
     return response
 
+  def _isDuplicateInGlobalScope(self, name):
+    """
+    Checks if the local name duplicates other local names in the global scope of column names.
+    :param str name:
+    :return bool: True if duplicate
+    """
+    global_names = [c.getName(is_global_name=False) for c in self.getColumns()]
+    return name in global_names
+
   def _columnCommand(self, cmd_dict):
     # Processes a UI request for a Column
     # Input: cmd_dict - dictionary with the keys
@@ -316,6 +325,8 @@ class UITable(Table):
       versioned.checkpoint(id="%s/%s" % (target, command))
       name = cmd_dict["args"][0]
       error = Column.isPermittedName(name)
+      if self._isDuplicateInGlobalScope(name):
+        error = "%s conflics with existing names" % proposed_name
       if error is None:
         new_column = Column(name)
         increment = 0
@@ -346,14 +357,23 @@ class UITable(Table):
     elif command == "Refactor":
       versioned.checkpoint(id="%s/%s" % (target, command))
       proposed_name = cmd_dict["args"][0]
-      try:
-        self.refactorColumn(column.getName(), proposed_name)
-      except Exception as err:
-        error = str(err)
+      if self._isDuplicateInGlobalScope(proposed_name):
+        error = "%s conflics with existing names" % proposed_name
+      else:
+        try:
+          self.refactorColumn(column.getName(), proposed_name)
+        except Exception as err:
+          error = str(err)
     elif command == "Rename":
       versioned.checkpoint(id="%s/%s" % (target, command))
       proposed_name = cmd_dict["args"][0]
-      if not self.renameColumn(column, proposed_name):
+      is_error = False
+      if self._isDuplicateInGlobalScope(proposed_name):
+        is_error = True
+      if (not is_error) and   \
+          not self.renameColumn(column, proposed_name):
+        is_error = True
+      if is_error:
         error = "%s is a duplicate column name." % proposed_name
     else:
       msg = "Unimplemented %s command: %s." % (target, command)

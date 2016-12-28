@@ -49,8 +49,8 @@ SciSheetsColumn.prototype.click = function (oArgs) {
         scisheet.utilSendAndReload(cmd);
       }
       if (cmd.command === 'Formula') {
-        formula = scisheet.formulas[ep.columnName];
-        scisheet.utilUpdateFormula(cmd, ep.columnName,
+        formula = scisheet.formulas[ep.columnLabel];
+        scisheet.utilUpdateFormula(cmd, ep.columnLabel,
             formula, 1, oArgs);
       }
       if (cmd.command === 'Insert') {

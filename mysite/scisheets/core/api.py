@@ -80,7 +80,7 @@ class API(object):
       colnms = [c.getName()
                 for c in self._table.getColumns()]
     for colnm in colnms:
-      column = self._table.columnFromName(colnm)
+      column = self._table.childFromName(colnm, is_relative=False)
       if column is None:
         import pdb; pdb.set_trace()
       if column.getParent() is None:
@@ -188,7 +188,8 @@ class API(object):
     if isinstance(column_id, int):
       column = self._table.columnFromIndex(column_id)
     elif cell_types.isStr(column_id):
-      column = self._table.columnFromName(column_id)
+      cv = self.getColumnVariable(column_id)
+      column = cv.getColumn()
     else:
       column = None
     if column is None and validate:
@@ -323,6 +324,7 @@ class APIFormulas(API):
     error = self._table.addColumn(column, index)
     if error is not None:
       raise ValueError(error)
+    self.setColumnVariables(colnms=[column_name])
     return column
 
   def createColumn(self, column_name, index=None, asis=False):
