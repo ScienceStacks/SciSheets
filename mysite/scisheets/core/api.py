@@ -75,7 +75,9 @@ class API(object):
       self._column_variables = []
       return
     # Table present
-    cv_dict = {}
+    cv_dict = {cv._column.getName(): cv 
+               for cv in self._column_variables
+               if not cv._column.isRoot()}
     if colnms is None:
       colnms = [c.getName()
                 for c in self._table.getColumns()]
