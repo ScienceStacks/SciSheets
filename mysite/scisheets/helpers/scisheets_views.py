@@ -73,6 +73,10 @@ def createCommandDict(request):
   cmd_dict['target'] = extractDataFromRequest(request, 'target')
   cmd_dict['table_name'] = extractDataFromRequest(request, 'table')
   cmd_dict['args'] = extractDataFromRequest(request, 'args[]', listvar=True)
+  affected_commands = ["Rename", "Move", "Append", "Insert"]
+  if cmd_dict['command'] in affected_commands:
+    python_name = DTTable.fromHTMLToPythonName(cmd_dict['args'][0])
+    cmd_dict['args'][0] = python_name
   html_name = extractDataFromRequest(request, 'columnName')
   python_name = DTTable.fromHTMLToPythonName(html_name)
   cmd_dict['column_name'] = DTTable.fromHTMLToPythonName(python_name)

@@ -63,7 +63,8 @@ YAHOO.util.Event.addListener(window, "load", function () {
     tableHeader = d.tableCaption + " (Table File: " + d.tableFile + ")";
     myDataTable = new YAHOO.widget.DataTable(d.tableId, columnDefs, myDataSource,
       {
-        caption: tableHeader
+        caption: tableHeader,
+        draggableColumns: true
       }
         );
     sciSheets.setup(myDataTable);

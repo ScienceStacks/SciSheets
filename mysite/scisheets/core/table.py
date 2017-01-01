@@ -59,6 +59,7 @@ class Table(ColumnContainer):
     self._epilogue = self._formulaStatementFromFile(EPILOGUE_FILEPATH,
         EPILOGUE_NAME)
     self._is_evaluate_formulas = True
+    self._is_attached = True  # Table's schema is combined with Parent
 
   @classmethod
   def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
@@ -236,6 +237,9 @@ class Table(ColumnContainer):
     Returns the columns other than the name column
     """
     return [c for c in self.getColumns() if not Table.isNameColumn(c)]
+
+  def isAttached(self):
+    return self._is_attached
 
   def getNameColumn(self):
     """
@@ -705,6 +709,9 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
         data = column.getCells()
         new_data = [data[n] for n in sel_index]
         column.replaceCells(new_data)
+
+  def setIsAttached(self, value):
+    self._is_attached = value
 
   def setNamespace(self, namespace):
     self._namespace = namespace

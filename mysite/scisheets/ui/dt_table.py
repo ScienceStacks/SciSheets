@@ -199,6 +199,21 @@ class DTTable(UITable):
       last_node = node
     return result
 
+  def _getExcludedNameColumns(self):
+    """
+    Returns a list of name columns that are to be excluded from
+    rendering because they belong to attached tables.
+    """
+    result = []
+    for column in self.getColumns():
+      if not column.getParent().isAttached():
+        continue
+      if self == column.getParent():
+        continue
+      if DTTable.isNameColumn(column):
+        result.append(column)
+    return result
+
   def render(self, table_id="scitable"):
     """
     Renders the table for a YAHOO DataTable.
@@ -224,11 +239,14 @@ class DTTable(UITable):
         colnm_dict[name] = value
     descendents = self.getAllNodes()
     descendents.remove(self)  # Don't include the root name
-    columns = [c for c in descendents if c in self.getVisibleColumns()]
+    excluded_name_columns = self._getExcludedNameColumns()
+    columns = [c for c in descendents 
+        if c in self.getVisibleColumns() and not c in excluded_name_columns]
     column_names = [c.getName(is_global_name=False) for c in columns]
+    excludes = self.getRoot().getHiddenColumns()
+    excludes.extend(excluded_name_columns)
     column_hierarchy = self.getRoot().createSubstitutedChildrenDict(
-        colnm_dict, excludes=self.getRoot().getHiddenColumns(), 
-        sep=HTML_SEPERATOR)
+        colnm_dict, excludes=excludes, sep=HTML_SEPERATOR)
     column_hierarchy = column_hierarchy["children"]
     js_column_hierarchy = json.dumps(column_hierarchy)
     js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
@@ -244,8 +262,8 @@ class DTTable(UITable):
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
     leaf_names = [str(c.getName()).replace('.', HTML_SEPERATOR)
-                  for c in self.getLeaves(is_from_root=True) 
-                  if c in self.getVisibleColumns()]
+        for c in self.getLeaves(is_from_root=True) 
+        if c in self.getVisibleColumns() and not c in excluded_name_columns]
     response_schema = str(leaf_names)
     ctx_dict = {'response_schema': response_schema,
                 'data': js_data,

@@ -14,6 +14,7 @@ from scisheets.core.helpers.serialize_deserialize import serialize,  \
 from scisheets.core.helpers_test import TEST_DIR,  \
     setupTableInitialization
 import dt_table as dt
+import scisheets.core.table as ta
 from django.test import TestCase  # Provides mocks
 import json
 import numpy as np
@@ -168,6 +169,14 @@ class TestDTTable(TestCase):
     html_name = '%s%s%s' % (short_name, dt.HTML_SEPERATOR, short_name)
     self.assertEqual(long_name, 
          dt.DTTable.fromHTMLToPythonName(html_name))
+
+  def testGetExcludedNameColumns(self):
+    htable = ta.Table.createRandomHierarchicalTable("Test",
+        3, 20, 0.5, table_cls=dt.DTTable)
+    columns = htable._getExcludedNameColumns()
+    expected_num_columns =  \
+        htable.toString().count(ta.NAME_COLUMN_STR) - 1
+    self.assertEqual(len(columns), expected_num_columns)
 
 
 if __name__ == '__main__':

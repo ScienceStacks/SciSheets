@@ -309,7 +309,7 @@ class UITable(Table):
     :param str name:
     :return bool: True if duplicate
     """
-    global_names = [c.getName(is_global_name=False) for c in self.getColumns()]
+    global_names = [c.getName() for c in self.getChildren(is_recursive=True)]
     return name in global_names
 
   def _columnCommand(self, cmd_dict):
@@ -332,9 +332,10 @@ class UITable(Table):
         increment = 0
         if command == "Append":
           increment = 1
-        column_index = self.indexFromColumn(column)
+        parent = column.getParent()
+        column_index = column.getPosition()
         new_column_index = column_index + increment
-        self.addColumn(new_column, new_column_index)
+        parent.addChild(new_column, new_column_index)
     elif command == "Delete":
       versioned.checkpoint(id="%s/%s" % (target, command))
       self.deleteColumn(column)
@@ -348,7 +349,7 @@ class UITable(Table):
     elif command == "Move":
       versioned.checkpoint(id="%s/%s" % (target, command))
       dest_column_name = cmd_dict["args"][0]
-      dest_column = self.childFromName(dest_column_name)
+      dest_column = self.childFromName(dest_column_name, is_relative=False)
       cur_column = self.childFromName(cmd_dict["column_name"])
       try:
        self.moveChildToOtherchild(cur_column, dest_column)
