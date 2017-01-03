@@ -413,8 +413,6 @@ class Tree(Node):
       pairs = zip(self.getChildren(), other.getChildren())
       for c1, c2 in pairs:
         is_this = c1.isEquivalent(c2)
-        if not is_this:
-          import pdb; pdb.set_trace()
         is_equivalent = is_equivalent and is_this
     return is_equivalent
 

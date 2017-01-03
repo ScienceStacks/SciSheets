@@ -3,6 +3,7 @@ Knows about local and global names for a PositionTree
 """
 
 from mysite.helpers.tree import PositionTree
+import random
 
 ROOT_NAME = ''
 GLOBAL_SEPARATOR = "."
@@ -174,14 +175,14 @@ class NamedTree(PositionTree):
       error = str(err)
     return error
 
-  @classmethod
-  def flatten(cls, tree, flatten_separator=FLATTEN_SEPARATOR):
+  # TODO: Encode position of the detached child so can reconstruct
+  #  the original tree
+  def flatten(self, flatten_separator=FLATTEN_SEPARATOR):
     """
     Returns a graph with the leaves as children of the root.
     The names of children are changed to their path name in
     the original graph. Handles "detached" subtrees, which
     are extracted as seperate trees.
-    :param Tree tree: tree to flatten
     :param str flatten_separator:
     :return list-of-Tree: 
     """
@@ -204,9 +205,10 @@ class NamedTree(PositionTree):
           child_name = makeName(base_name, child)
           child.setName(child_name)
 
-    new_tree = cls(tree.getName(is_global_name=False))
-    result = [new_tree]
-    for child in tree.getChildren():
+    cls = type(self)
+    new_tree = cls(self.getName(is_global_name=False))
+    tree_list = [new_tree]
+    for child in self.getChildren():
       # Child is a leaf
       if child.isLeaf():
         new_child = child.copy()
@@ -214,43 +216,82 @@ class NamedTree(PositionTree):
         new_tree.addChild(new_child)
       # Child is attached. Transfer attached leaves to the new tree
       elif child.isAttached():
-        sub_result = cls.flatten(child, flatten_separator=flatten_separator)
-        setFlattenName(sub_result, child.getName(is_global_name=False))
-        [new_tree.addChild(l) for l in sub_result[0].getChildren()]
-        result.extend(sub_result[1:])
+        sub_tree_list = child.flatten(flatten_separator=flatten_separator)
+        setFlattenName(sub_tree_list, child.getName(is_global_name=False))
+        [new_tree.addChild(l) for l in sub_tree_list[0].getChildren()]
+        tree_list.extend(sub_tree_list[1:])
       # Child is detached. Add to the list of trees
       else:
         new_child = child.copy()
-        new_child.setName(makeName(tree.getName(is_global_name=False), new_child))
-        sub_result = cls.flatten(new_child, flatten_separator=flatten_separator)
-        setFlattenName(sub_result, None)
-        result.extend(sub_result)
-    return result
+        new_child.setName(makeName(new_tree.getName(is_global_name=False), child))
+        sub_tree_list = new_child.flatten(flatten_separator=flatten_separator)
+        setFlattenName(sub_tree_list, None)
+        tree_list.extend(sub_tree_list)
+    return tree_list
 
-  '''
   @classmethod
-  def unflatten(cls, tree, flatten_separator=FLATTEN_SEPARATOR):
+  def unflatten(cls, trees, flatten_separator=FLATTEN_SEPARATOR):
     """
-    Restores a previously flattened tree to its original structure.
-    :param Tree tree: tree to flatten
+    Restores a previously flattened tree to its original structure
+    based on the node names.
+    :param list-of-Trees trees: the first tree in the list becomes
+        the root of the unflattened tree
     :param str flatten_separator:
     :return Tree: new tree
-    Do the following for each name:
-      1. Determine that each subname is a node
-      2. Create a copy of this name
-      3. Add to the dict
+    Intermediate nodes are of the same class as the root tree class
+    Assumes that detached are constructed so that they are a child
+        of the original root of the tree.
     """
-    def getAncestorNames(name):
-      """
-      Returns a list of ancestor names
-      """
-      parsed_name = name.split(flatten_separator)
-      result = ['']
-      for ele in parsed_name:
-    new_tree = cls(tree.getName(is_global_name=False))
-    node_dict = {c.getName(is_global_name=False): None for n in tree.getChildren()}
-    names = node_dict.keys()
-    # Handle nodes top to bottom
-    for name in names:
-      if not flatten_separator in name:
-    '''    
+    root = None
+    for tree in trees:
+      tree_cls = type(tree)
+      new_tree = tree_cls(tree.getName(is_global_name=False))
+      if tree == trees[0]:
+        new_tree.setIsAttached(True)
+        root = new_tree
+      else:
+        new_tree.setIsAttached(False)
+        parsed_name = new_tree.getName(is_global_name=False).split(flatten_separator)
+        if parsed_name[0] != root.getName(is_global_name=False):
+          import pdb; pdb.set_trace()
+          raise RuntimeError("Invalid name for a detached tree")
+        new_tree.setName(parsed_name[1])
+        root.addChild(new_tree)
+      for child in tree.getChildren():
+        parsed_name = child.getName(is_global_name=False).split(flatten_separator)
+        cur_node = new_tree
+        nonleaf_names = parsed_name[:-1]
+        leaf_name = parsed_name[-1]
+        for name in nonleaf_names:
+          nonleaf = cur_node.childFromName(name)
+          if nonleaf is None:
+            nonleaf = tree_cls(name)
+            cur_node.addChild(nonleaf)
+          cur_node = nonleaf
+        # cur_node is now the parent of the leaf
+        leaf_node = child.copy()
+        leaf_node.setName(leaf_name)
+        cur_node.addChild(leaf_node)
+    return root
+
+  @classmethod
+  def createRandomNamedTree(cls, num_nodes, prob_child, seed=0,
+      leaf_cls=None, nonleaf_cls=None, prob_detach=0.0):
+    """
+    Creates a random NamedTree with detached nodes.
+    :params int num_nodes: number of nodes in the tree
+    :param float prob_child: probability that the next node
+                             is a child of the previous
+    :param float seed:
+    :param Type leaf_cls: type that inherits from Node
+    :param Type nonleaf_class: type that inherits from Tree
+    :param float prob_detach: probability that a non-leaf is
+       detached
+    """
+    tree = cls.createRandomTree(num_nodes, prob_child, seed=seed,
+        leaf_cls=leaf_cls, nonleaf_cls=nonleaf_cls)
+    for child in tree.getNonLeaves():
+      if random.random() < prob_detach:
+        child.setIsAttached(False)
+    return tree
+        

@@ -139,7 +139,7 @@ class TestNamedTree(unittest.TestCase):
       DUMMY__DUMMY3_CHILD
       DUMMY__Subparent__DUMMY4_CHILD
     """
-    tree_list = NamedTree.flatten(self.root)
+    tree_list = self.root.flatten()
     new_tree = tree_list[0]
     expected_names = [CHILD1, CHILD2, CHILD3, 
         "%s%s%s" % (SUBPARENT, FLATTEN_SEPARATOR, CHILD4)]
@@ -158,7 +158,7 @@ class TestNamedTree(unittest.TestCase):
       DUMMY__Subparent__DUMMY4_CHILD
     """
     self.subparent.setIsAttached(False)
-    tree_list = NamedTree.flatten(self.root)
+    tree_list = self.root.flatten()
     flat_tree = tree_list[0]
     expected_names = [CHILD1, CHILD2, CHILD3, CHILD4]
     names = [l.getName(is_global_name=False) 
@@ -169,6 +169,26 @@ class TestNamedTree(unittest.TestCase):
     self.assertEqual(name, tree_list[1]._name)
     child = tree_list[1].getChildren()[0]
     self.assertEqual(expected_names[-1], child._name)
+
+  def testUnflattenOneTree(self):
+    tree_list = self.root.flatten()
+    new_tree = NamedTree.unflatten(tree_list)
+    self.assertTrue(self.root.isEquivalent(new_tree))
+
+  def testUnflattenTwoTrees(self):
+    self.subparent.setIsAttached(False)
+    tree_list = self.root.flatten()
+    new_tree = NamedTree.unflatten(tree_list)
+    self.assertTrue(self.root.isEquivalent(new_tree))
+
+  # TODO: Once record position of detached tree
+  #       test for correctness with detached trees
+  def testUnflattenManyTrees(self):
+    tree = NamedTree.createRandomNamedTree(20, 0.5,
+        prob_detach=0.0)
+    tree_list = tree.flatten()
+    new_tree = NamedTree.unflatten(tree_list)
+    self.assertTrue(tree.isEquivalent(new_tree))
 
 
 if __name__ == '__main__':
