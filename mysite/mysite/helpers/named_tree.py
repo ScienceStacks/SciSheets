@@ -5,7 +5,8 @@ Knows about local and global names for a PositionTree
 from mysite.helpers.tree import PositionTree
 
 ROOT_NAME = ''
-SEPERATOR = "."
+GLOBAL_SEPARATOR = "."
+FLATTEN_SEPARATOR = "__"
 
 
 class NamedTree(PositionTree):
@@ -16,10 +17,15 @@ class NamedTree(PositionTree):
   a global name that specifies a path from the root.
   The name does not include the name of the root table and so
   the global name for the root is ''.
+  A tree may be "attached" or not "attached" to its parent.
+  The semantics of not being attached are that the tree is actually
+  the root of a separate forest, but it retains the global name structure
+  of the original tree.
   '''
 
   def __init__(self, name):
     super(NamedTree, self).__init__(name)
+    self._attached = True  # Flatten semantics keep this as one tree
     self.setName(name)
 
   def createGlobalName(self, child):
@@ -31,7 +37,7 @@ class NamedTree(PositionTree):
     path = child.findPathFromRoot()
     del path[0]
     if len(path) > 1:
-      result = SEPERATOR.join(path)
+      result = GLOBAL_SEPARATOR.join(path)
     elif len(path) == 1:
       result = path[0]
     else:
@@ -40,7 +46,7 @@ class NamedTree(PositionTree):
 
   def createSubstitutedChildrenDict(self, substitution_dict, 
       excludes=None, includes=None, children_dict=None,
-      sep=SEPERATOR):
+      sep=GLOBAL_SEPARATOR):
     """
     Substitutes the nodes in children_dict with the values in the substitution_dict
     :param dict substituion_dict: keys = {nodes, values} are substitutions
@@ -48,7 +54,7 @@ class NamedTree(PositionTree):
     :param list-of-Tree includes: list of nodes to include from list
         If None, then include all unless excluded
     :param ChildrenDict children_dict:
-    :param str sep: seperator in components of global name
+    :param str sep: separator in components of global name
     :return recursive dictionary: keys = {name, label, children} 
     """
     if children_dict is None:
@@ -76,7 +82,7 @@ class NamedTree(PositionTree):
     :param str global_name:
     :return list:
     """
-    return global_name.split(SEPERATOR)
+    return global_name.split(GLOBAL_SEPARATOR)
 
   def globalName(self, name, is_relative=True):
     """
@@ -89,7 +95,7 @@ class NamedTree(PositionTree):
       return name
     current_node_name = self.createGlobalName(self)
     if len(current_node_name) > 0:
-      result = SEPERATOR.join([current_node_name, name])
+      result = GLOBAL_SEPARATOR.join([current_node_name, name])
     else:
       result = name
     return result
@@ -118,11 +124,19 @@ class NamedTree(PositionTree):
     """
     # Create an object if one is not provided
     if instance is None:
-      instance = NamedChild(self.getName(is_global_name=False))
+      instance = NamedTree(self.getName(is_global_name=False))
     super(NamedTree, self).copy(instance=instance)
+    instance.setIsAttached(self.isAttached())
     return instance
 
+  def isAttached(self):
+    if not "_attached" in self.__dict__:
+      self._attached = False
+    return self._attached
+
   def isEquivalent(self, other):
+    if not (self.isAttached() == other.isAttached()):
+      return False
     return super(NamedTree, self).isEquivalent(other)
 
   # TODO: Callers need to set is_relative_name
@@ -143,6 +157,9 @@ class NamedTree(PositionTree):
       name = parent.globalName(node_name, is_relative=True)
     return name
 
+  def setIsAttached(self, setting):
+    self._attached = setting
+
   def setName(self, name):
     """
     Names must be valid python strings
@@ -156,3 +173,84 @@ class NamedTree(PositionTree):
     except SyntaxError as err:
       error = str(err)
     return error
+
+  @classmethod
+  def flatten(cls, tree, flatten_separator=FLATTEN_SEPARATOR):
+    """
+    Returns a graph with the leaves as children of the root.
+    The names of children are changed to their path name in
+    the original graph. Handles "detached" subtrees, which
+    are extracted as seperate trees.
+    :param Tree tree: tree to flatten
+    :param str flatten_separator:
+    :return list-of-Tree: 
+    """
+    def makeName(base_name, tree):
+      if base_name is None:
+        return tree.getName(is_global_name=False)
+      return "%s%s%s" % (base_name, flatten_separator, 
+          tree.getName(is_global_name=False))
+
+    def setFlattenName(tree_list, base_name):
+      """
+      Changes the name of trees and their chldren in a list
+      :param list-of-Tree tree_list:
+      :param str/None base_name:
+      """
+      if base_name is None:
+        return
+      for tree in tree_list:
+        for child in tree.getChildren():
+          child_name = makeName(base_name, child)
+          child.setName(child_name)
+
+    new_tree = cls(tree.getName(is_global_name=False))
+    result = [new_tree]
+    for child in tree.getChildren():
+      # Child is a leaf
+      if child.isLeaf():
+        new_child = child.copy()
+        new_child.setName(makeName(None, new_child))
+        new_tree.addChild(new_child)
+      # Child is attached. Transfer attached leaves to the new tree
+      elif child.isAttached():
+        sub_result = cls.flatten(child, flatten_separator=flatten_separator)
+        setFlattenName(sub_result, child.getName(is_global_name=False))
+        [new_tree.addChild(l) for l in sub_result[0].getChildren()]
+        result.extend(sub_result[1:])
+      # Child is detached. Add to the list of trees
+      else:
+        new_child = child.copy()
+        new_child.setName(makeName(tree.getName(is_global_name=False), new_child))
+        sub_result = cls.flatten(new_child, flatten_separator=flatten_separator)
+        setFlattenName(sub_result, None)
+        result.extend(sub_result)
+    return result
+
+  '''
+  @classmethod
+  def unflatten(cls, tree, flatten_separator=FLATTEN_SEPARATOR):
+    """
+    Restores a previously flattened tree to its original structure.
+    :param Tree tree: tree to flatten
+    :param str flatten_separator:
+    :return Tree: new tree
+    Do the following for each name:
+      1. Determine that each subname is a node
+      2. Create a copy of this name
+      3. Add to the dict
+    """
+    def getAncestorNames(name):
+      """
+      Returns a list of ancestor names
+      """
+      parsed_name = name.split(flatten_separator)
+      result = ['']
+      for ele in parsed_name:
+    new_tree = cls(tree.getName(is_global_name=False))
+    node_dict = {c.getName(is_global_name=False): None for n in tree.getChildren()}
+    names = node_dict.keys()
+    # Handle nodes top to bottom
+    for name in names:
+      if not flatten_separator in name:
+    '''    

@@ -59,7 +59,6 @@ class Table(ColumnContainer):
     self._epilogue = self._formulaStatementFromFile(EPILOGUE_FILEPATH,
         EPILOGUE_NAME)
     self._is_evaluate_formulas = True
-    self._is_attached = True  # Table's schema is combined with Parent
 
   @classmethod
   def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
@@ -145,6 +144,7 @@ class Table(ColumnContainer):
         "_epilogue_formula": self.getEpilogue().getFormula(),
         "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
         "_filepath": filepath,
+        "_attached": self.isAttached(),
         }
     serialization_dict.update(more_dict)
     _children = []
@@ -170,6 +170,8 @@ class Table(ColumnContainer):
     table.setPrologue(serialization_dict["_prologue_formula"])
     table.setEpilogue(serialization_dict["_epilogue_formula"])
     table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])
+    if "_attached" in serialization_dict.keys():
+      table.setIsAttached(serialization_dict["_attached"])
     if "_children" in serialization_dict.keys():
       child_dicts = serialization_dict["_children"]
     elif "_columns" in serialization_dict.keys():
@@ -237,9 +239,6 @@ class Table(ColumnContainer):
     Returns the columns other than the name column
     """
     return [c for c in self.getColumns() if not Table.isNameColumn(c)]
-
-  def isAttached(self):
-    return self._is_attached
 
   def getNameColumn(self):
     """
@@ -709,9 +708,6 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
         data = column.getCells()
         new_data = [data[n] for n in sel_index]
         column.replaceCells(new_data)
-
-  def setIsAttached(self, value):
-    self._is_attached = value
 
   def setNamespace(self, namespace):
     self._namespace = namespace

@@ -397,6 +397,9 @@ class Tree(Node):
   def isAlwaysLeaf(self):
     return self.__class__.is_always_leaf
 
+  def isLeaf(self):
+    return len(self.getChildren()) == 0
+
   def isEquivalent(self, other):
     """
     :return bool: True if equivalent

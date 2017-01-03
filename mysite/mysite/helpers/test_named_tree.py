@@ -1,6 +1,6 @@
 '''Tests for ColumnContainer'''
 
-from named_tree import NamedTree, ROOT_NAME
+from named_tree import NamedTree, ROOT_NAME, FLATTEN_SEPARATOR
 import unittest
 
 
@@ -128,6 +128,47 @@ class TestNamedTree(unittest.TestCase):
     self.assertEqual(result["name"], self.root.getName())
     self.assertEqual(result["label"], self.root._name)
     self.assertEqual(len(result["children"]), 3)
+
+  def testFlattenAttached(self):
+    """
+    Should produce
+
+    root(DUMMY):
+      DUMMY__DUMMY1_CHILD
+      DUMMY__DUMMY2_CHILD
+      DUMMY__DUMMY3_CHILD
+      DUMMY__Subparent__DUMMY4_CHILD
+    """
+    tree_list = NamedTree.flatten(self.root)
+    new_tree = tree_list[0]
+    expected_names = [CHILD1, CHILD2, CHILD3, 
+        "%s%s%s" % (SUBPARENT, FLATTEN_SEPARATOR, CHILD4)]
+    names = [l.getName(is_global_name=False) 
+             for l in new_tree.getLeaves()]
+    self.assertEqual(set(expected_names), set(names))
+
+  def testFlattenDetached(self):
+    """
+    Should produce
+
+    root(DUMMY):
+      DUMMY__DUMMY1_CHILD
+      DUMMY__DUMMY2_CHILD
+      DUMMY__DUMMY3_CHILD
+      DUMMY__Subparent__DUMMY4_CHILD
+    """
+    self.subparent.setIsAttached(False)
+    tree_list = NamedTree.flatten(self.root)
+    flat_tree = tree_list[0]
+    expected_names = [CHILD1, CHILD2, CHILD3, CHILD4]
+    names = [l.getName(is_global_name=False) 
+             for l in flat_tree.getLeaves()]
+    self.assertEqual(set(expected_names[:-1]), set(names))
+    name = "%s%s%s" % (self.root._name, FLATTEN_SEPARATOR,
+        SUBPARENT)   
+    self.assertEqual(name, tree_list[1]._name)
+    child = tree_list[1].getChildren()[0]
+    self.assertEqual(expected_names[-1], child._name)
 
 
 if __name__ == '__main__':

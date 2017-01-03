@@ -18,7 +18,7 @@ import json
 import numpy as np
 import random
 
-HTML_SEPERATOR = "-"  # Seperator used in html names
+HTML_SEPARATOR = "-"  # Seperator used in html names
 
 
 def makeJSData(data):
@@ -138,8 +138,8 @@ class DTTable(UITable):
     Converts the HTML name to a python name.
     :param str html_name:
     """
-    python_name = html_name.replace(HTML_SEPERATOR, 
-        named_tree.SEPERATOR)
+    python_name = html_name.replace(HTML_SEPARATOR, 
+        named_tree.GLOBAL_SEPARATOR)
     return python_name
 
   @staticmethod
@@ -246,7 +246,7 @@ class DTTable(UITable):
     excludes = self.getRoot().getHiddenColumns()
     excludes.extend(excluded_name_columns)
     column_hierarchy = self.getRoot().createSubstitutedChildrenDict(
-        colnm_dict, excludes=excludes, sep=HTML_SEPERATOR)
+        colnm_dict, excludes=excludes, sep=HTML_SEPARATOR)
     column_hierarchy = column_hierarchy["children"]
     js_column_hierarchy = json.dumps(column_hierarchy)
     js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
@@ -261,7 +261,7 @@ class DTTable(UITable):
     table_file = getFileNameWithoutExtension(self.getFilepath())
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
-    leaf_names = [str(c.getName()).replace('.', HTML_SEPERATOR)
+    leaf_names = [str(c.getName()).replace('.', HTML_SEPARATOR)
         for c in self.getLeaves(is_from_root=True) 
         if c in self.getVisibleColumns() and not c in excluded_name_columns]
     response_schema = str(leaf_names)

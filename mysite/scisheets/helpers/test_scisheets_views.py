@@ -156,7 +156,7 @@ class TestScisheetsViews(TestCase):
     result = sv.createCommandDict(request)
     test_values = list(values)
     self.assertTrue(
-        result['column_name'].find(dt.HTML_SEPERATOR) < 0)
+        result['column_name'].find(dt.HTML_SEPARATOR) < 0)
     for n in range(len(DICT_NAMES)):
       if result[DICT_NAMES[n]] is None:
         continue

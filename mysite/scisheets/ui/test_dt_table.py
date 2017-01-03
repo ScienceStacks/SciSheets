@@ -163,10 +163,10 @@ class TestDTTable(TestCase):
     short_name = 'dummy'
     self.assertEqual(short_name, 
          dt.DTTable.fromHTMLToPythonName(short_name))
-    long_name = '%s%s%s' % (short_name, named_tree.SEPERATOR, short_name)
+    long_name = '%s%s%s' % (short_name, named_tree.GLOBAL_SEPARATOR, short_name)
     self.assertEqual(long_name, 
          dt.DTTable.fromHTMLToPythonName(long_name))
-    html_name = '%s%s%s' % (short_name, dt.HTML_SEPERATOR, short_name)
+    html_name = '%s%s%s' % (short_name, dt.HTML_SEPARATOR, short_name)
     self.assertEqual(long_name, 
          dt.DTTable.fromHTMLToPythonName(html_name))
 

@@ -1,14 +1,15 @@
 {
   "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+  "_attached": true,
   "_children": [
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        48,
-        49,
-        8,
-        19
+        42,
+        10,
+        7,
+        14
       ],
       "_formula": null,
       "_name": "Col_0"
@@ -29,10 +30,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        90,
-        6,
-        86,
-        16
+        91,
+        0,
+        22,
+        12
       ],
       "_formula": null,
       "_name": "Col_2"
