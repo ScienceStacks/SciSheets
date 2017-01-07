@@ -477,8 +477,26 @@ class Tree(Node):
       if not self in children:
         import pdb; pdb.set_trace()
         raise RuntimeError("Child not found in parent")
+
+  def _checkTreeStructure(self):
+    """
+    Verifies that this is a tree.
+    """
+    nodes_found = []
+    pending_nodes = [self.getRoot()]
+    while len(pending_nodes) > 0:
+      node = pending_nodes[0]
+      del pending_nodes[0]
+      children = node.getChildren()
+      b = all([not c in nodes_found for c in children])
+      if not b:
+        raise RuntimeError("Multiple paths to a child of %s" %
+            node.getName())
+      pending_nodes.extend(children)
+      nodes_found.extend(children)
   
   def validateTree(self):
+    self._checkTreeStructure()
     self._checkParentChild()
     self._checkForDuplicateNames()
 
