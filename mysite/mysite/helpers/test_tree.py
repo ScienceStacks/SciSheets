@@ -459,6 +459,9 @@ class TestPositionTree(unittest.TestCase):
     self.assertEqual(len(tree.getAllNodes()), 2)
     tree = Tree.createRandomTree(num_nodes, 0.99)
     self.assertEqual(len(tree.getAllNodes()), num_nodes)
+    num_nodes = 500
+    tree = Tree.createRandomTree(num_nodes, 0.1)
+    tree.validateTree()
     
 
 if __name__ == '__main__':

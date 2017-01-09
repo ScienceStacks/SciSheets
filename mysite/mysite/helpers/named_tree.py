@@ -21,15 +21,10 @@ class NamedTree(PositionTree):
   a global name that specifies a path from the root.
   The name does not include the name of the root table and so
   the global name for the root is ''.
-  A tree may be "attached" or not "attached" to its parent.
-  The semantics of not being attached are that the tree is actually
-  the root of a separate forest, but it retains the global name structure
-  of the original tree.
   '''
 
   def __init__(self, name):
     super(NamedTree, self).__init__(name)
-    self._attached = True  # Flatten semantics keep this as one tree
     self.setName(name)
 
   def createGlobalName(self, child):
@@ -130,26 +125,10 @@ class NamedTree(PositionTree):
     if instance is None:
       instance = NamedTree(self.getName(is_global_name=False))
     super(NamedTree, self).copy(instance=instance)
-    instance.setIsAttached(self.isAttached())
     return instance
 
-  def isAttached(self):
-    if not "_attached" in self.__dict__:
-      self._attached = False
-    return self._attached
-
   def isEquivalent(self, other):
-    if not (self.isAttached() == other.isAttached()):
-      return False
     return super(NamedTree, self).isEquivalent(other)
-
-  def moveChildrenFromOtherTree(self, other):
-    """
-    Moves children from other to this tree.
-    """
-    for child in other.getChildren():
-      child.removeTree()
-      self.addChild(child)
 
   # TODO: Callers need to set is_relative_name
   def getName(self, is_global_name=True):
@@ -169,9 +148,6 @@ class NamedTree(PositionTree):
       name = parent.globalName(node_name, is_relative=True)
     return name
 
-  def setIsAttached(self, setting):
-    self._attached = setting
-
   def setName(self, name):
     """
     Names must be valid python strings
@@ -186,16 +162,74 @@ class NamedTree(PositionTree):
       error = str(err)
     return error
 
-  def _augmentFlattenedName(self, new_element,
-       flatten_separator=FLATTEN_SEPARATOR):
+  def _makeFlattenName(self, flatten_separator=FLATTEN_SEPARATOR,
+      is_skip_first=False):
     """
-    Adds the name of the new element to the current element
-    :param Tree new_element:
-    :return str"
+    Creates a flatten name from the root
+    :param str flatten_separator:
+    :param bool is_skip_first: Don't include the first node
+        in the path
     """
-    name = "%s%s%s" % (new_element.getName(is_global_name=False), 
-        flatten_separator, self.getName(is_global_name=False))
+    path = self.findPathFromRoot()
+    if is_skip_first:
+      del path[0]
+    name = flatten_separator.join(path)
     return name
+
+  def _detachTrees(self, flatten_separator=FLATTEN_SEPARATOR):
+    """
+    Construct a set of detached trees with parent names that
+    describe the path to the detached tree in the original tree.
+    :param str flatten_separator:
+    :return list-of-NamedElement: 
+    """
+    DetachedElement = namedtuple('DetachedElement', 'name position')
+
+    new_tree = self.copy()
+    detached = [n for n in new_tree.getAllNodes() if not n.isAttached()]
+    elements = [NamedElement(tree=new_tree, position=0)]
+    tree_dict = {}  # Values are DetachedElement
+    # Acquire information about nodes before the tree is modified
+    for node in detached:
+      element = DetachedElement(name=node._makeFlattenName(), 
+          position=node.getPosition())
+      tree_dict[node] = element
+    # Cannot change the name until have computed all names
+    for node in tree_dict.keys():
+      node.setName(tree_dict[node].name)
+    # Need a separate pass because all names must be from
+    # the original root of the tree
+    for node in detached:
+      node.removeTree()  # Remove the detached tree
+      element = NamedElement(tree=node, position=tree_dict[node].position)
+      elements.append(element)
+    return elements
+
+  def _flattenAttachedTree(self, flatten_separator=FLATTEN_SEPARATOR,
+      is_copy=True):
+    """
+    Creates a two level tree where the children are leaves and the child name
+    is the path from the root to the leaf in the original tree.
+    :param str flatten_separator:
+    :param bool is_copy: creates a copy of the leaves
+                              others, the original tree is modified
+    :returns Tree: flattened tree
+    """
+    cls = type(self)
+    new_tree = cls(self.getName(is_global_name=False))
+    leaves = []
+    for leaf in self.getLeaves():
+      new_name = leaf._makeFlattenName(is_skip_first=True)
+      if is_copy:
+        new_leaf = leaf.copy()
+      else:
+        new_leaf = leaf
+      new_leaf.setName(new_name)
+      leaves.append(new_leaf)
+    for leaf in leaves:
+      leaf.removeTree()
+      new_tree.addChild(leaf)
+    return new_tree
 
   def flatten(self, flatten_separator=FLATTEN_SEPARATOR):
     """
@@ -214,93 +248,16 @@ class NamedTree(PositionTree):
     :param str flatten_separator:
     :return list-of-NamedElement: 
     """
-    def addNamePrefix(node, elements, is_prefix_root=False,
-         is_prefix_children=False):
-      """
-      Adds the node's to nodes in trees of the elements
-      :param Tree node
-      :param list-of-NamedElement elements:
-      :param bool is_prefix_root: rename the root of the tree
-      :param bool is_prefix_children: rename the children of the tree
-      """
-      for element in elements:
-        if is_prefix_root:
-          root_name = element.tree._augmentFlattenedName(node,
-              flatten_separator=flatten_separator)
-          element.tree.setName(root_name)
-        if is_prefix_children:
-          for child in element.tree.getChildren():
-            child_name = child._augmentFlattenedName(node,
-                flatten_separator=flatten_separator)
-            child.setName(child_name)
-
-    cls = type(self)
-    new_tree = cls(self.getName(is_global_name=False))
-    elements = [NamedElement(tree=new_tree, position=0)]
-    for child in self.getChildren():
-      # Child is a leaf
-      if child.isLeaf():
-        new_child = child.copy()
-        new_tree.addChild(new_child)
-      # Non-leaf
-      else:
-        child_elements = child.flatten(flatten_separator=flatten_separator)
-        if child.isAttached():
-          # Record the child in the path
-          addNamePrefix(child, [child_elements[0]], is_prefix_children=True)
-          # Remove the child from the tree
-          new_tree.moveChildrenFromOtherTree(child_elements[0].tree)
-          elements.extend(list(child_elements[1:]))
-        else:
-          child._verifyElements(child_elements)
-          elements.extend(list(child_elements))
-        child._verifyNonleafUnflatten(elements, is_unique=True)
-    addNamePrefix(new_tree, elements[1:], is_prefix_root=True)
-    new_tree._verifyElements(elements)
-    return elements
-
-  def _verifyElements(self, elements):
-    """
-    Verifies that the leaves of the Tree are the same as
-    the number of elements.
-    :param list-of-NamedElement elements:
-    """
-    def leafName(leaf):
-      # BUG - WANT PATH FROM self to leaf
-      path = leaf.findPathFromRoot()
-      return FLATTEN_SEPARATOR.join(path)
-
-    expected_leaves = [leafName(l) for l in self.getLeaves()]
-    actual_leaves = []
+    elements = self._detachTrees()
+    new_elements = []
     for element in elements:
-      for leaf in element.tree.getLeaves():
-        actual_leaves.append(leafName(leaf))
-    if set(expected_leaves) != set(actual_leaves):
-      import pdb; pdb.set_trace()
-      raise RuntimeError("Failed to find correct number of leaves")
-
-  @staticmethod
-  def _elementsString(elements):
-    result = ''
-    for element in elements:
-      result = result + '\n' + '\n' + element.tree.toString()
-    return result
-
-  def _verifyNonleafUnflatten(self, elements, is_unique=False):
-    """
-    Verifies that the child's name appears somewhere in all tree names
-    """
-    for element in elements:
-      for child in element.tree.getChildren():
-        full_name = self._augmentFlattenedName(child, 
-            flatten_separator=FLATTEN_SEPARATOR)
-        name_list = full_name.split(FLATTEN_SEPARATOR)
-        if not self.getName(is_global_name=False) in full_name:
-          import pdb; pdb.set_trace()
-          raise RuntimeError("Invalid path in flattened tree: %s" % full_name)
-        if is_unique and len(name_list) < len(set(name_list)):
-          import pdb; pdb.set_trace()
-          raise RuntimeError("Child name occurs too often: %s" % full_name)
+      element.tree.validateTree()
+      new_tree = element.tree._flattenAttachedTree(is_copy=False)
+      new_tree.validateTree()
+      named_element = NamedElement(tree=new_tree,
+          position=element.position)
+      new_elements.append(named_element)
+    return new_elements
 
   @classmethod
   def unflatten(cls, elements, flatten_separator=FLATTEN_SEPARATOR):
@@ -323,7 +280,6 @@ class NamedTree(PositionTree):
       :param int/None position:
       :return Tree: node added
       """
-      root._checkTreeStructure()
       cur_node = root
       tree_cls = type(root)
       name = flat_child.getName(is_global_name=False)
@@ -338,7 +294,6 @@ class NamedTree(PositionTree):
           if nonleaf is None:
             nonleaf = tree_cls(name)
             cur_node.addChild(nonleaf)
-            cur_node._checkTreeStructure()
           cur_node = nonleaf
       leaf_node = cur_node.childFromName(leaf_name)
       if leaf_node is None:
@@ -350,6 +305,7 @@ class NamedTree(PositionTree):
     root = None
     for element in elements:
       tree = element.tree
+      tree.validateTree()
       tree_cls = type(tree)
       new_tree = tree_cls(tree.getName(is_global_name=False))
       if tree == elements[0].tree:
@@ -360,7 +316,6 @@ class NamedTree(PositionTree):
         # Detached tree
         parsed_name = tree.getName(is_global_name=False).split(flatten_separator)
         if parsed_name[0] != root.getName(is_global_name=False):
-          import pdb; pdb.set_trace()
           raise RuntimeError("Invalid name for a detached tree")
         new_tree = addChildByFlattenedName(root, new_tree, 
             position=element.position)

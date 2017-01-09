@@ -3,6 +3,7 @@ Implements three classes:
   Node - an element in a tree
   Tree - maintains  and manages the relationships between a 
          Node's parent and its children
+  TreeIterator - provides depth-first traversal of Trees
   PositionTree - A Tree that tracks the relationship between its
          children (referred to as position). In this implementation,
          the relationship is a linear order.
@@ -31,12 +32,23 @@ class Node(object):
   def getName(self):
     return self._name
 
-  def isEquivalent(self, node):
+  def isAttached(self):
+    if not "_attached" in self.__dict__:
+      self._attached = False
+    return self._attached
+
+  def isEquivalent(self, other):
     """
     Determines if the node has the same data.
+    :param Tree other:
     :return bool: True if equivalent
     """
-    return self._name == node._name
+    if not (self.isAttached() == other.isAttached()):
+      return False
+    return self._name == other._name
+
+  def setIsAttached(self, setting):
+    self._attached = setting
 
   def setName(self, name):
     """
@@ -126,6 +138,12 @@ class Tree(Node):
   Elements of a tree are themselves trees.
   The root is a Tree that has no parent.
   A Tree is an iterator with both a next and a prev node.
+  There is also a way to represent a nested forest, a single
+  Tree that embeds other Trees. This is indicated by having
+  a node be "attached" or not "attached".
+  The semantics of *not* being attached are that the tree is actually
+  the root of a separate forest, but it retains the global name structure
+  of the original tree.
   """
 
   is_always_leaf = False
@@ -133,6 +151,7 @@ class Tree(Node):
 
   def __init__(self, name):
     super(Tree, self).__init__(name)
+    self._attached = True
     self._parent = None
     self._children = []
 
@@ -241,6 +260,7 @@ class Tree(Node):
       instance = Tree(self._name)
     # Copy properties from inherited classes
     instance = super(Tree, self).copy(instance=instance)
+    instance.setIsAttached(self.isAttached())
     # Set properties for this class
     for child in self.getChildren():
       instance.addChild(child.copy())
@@ -345,7 +365,13 @@ class Tree(Node):
       start_node = self.getRoot()
     else:
       start_node = self
-    return [n for n in start_node]
+    nodes = []
+    for node in start_node:
+      if node in nodes:
+        import pdb; pdb.set_trace()
+        raise RuntimeError("Duplicate occurrence of %s" % node._name)
+      nodes.append(node)
+    return nodes
 
   # TODO: Test with multiple levels of nodes
   def getLeaves(self, is_from_root=False):
@@ -434,6 +460,14 @@ class Tree(Node):
     """
     return self._parent is None
 
+  def moveChildrenFromOtherTree(self, other):
+    """
+    Moves children from other to this tree.
+    """
+    for child in other.getChildren():
+      child.removeTree()
+      self.addChild(child)
+
   def numDescendents(self):
     """
     :return int: descendents below the current node
@@ -454,11 +488,16 @@ class Tree(Node):
 
   def toString(self, is_from_root=True):
     """
-    Create a human readable form of the tree
+    Create a human readable form of the tree.
+    Detached nodes a prefixed by an "*".
     :param bool is_from_root: start with the root
     """
     def nodeString(node):
-      return "%s:" % node._name
+      if node.isAttached():
+        pfx = ""
+      else:
+        pfx = "*"
+      return "%s%s:" % (pfx, node._name)
 
     sa = StatementAccumulator()
     for node in self.getAllNodes():  # Depth first order
@@ -466,17 +505,6 @@ class Tree(Node):
       sa.indent(indent, is_incremental=False)
       sa.add(nodeString(node))
     return sa.get()
-
-  def _checkParentChild(self):
-    """
-    Verify that the parent has this node as a child.
-    """
-    parent = self.getParent()
-    if parent is not None:
-      children = parent.getChildren()
-      if not self in children:
-        import pdb; pdb.set_trace()
-        raise RuntimeError("Child not found in parent")
 
   def _checkTreeStructure(self):
     """
@@ -494,6 +522,13 @@ class Tree(Node):
             node.getName())
       pending_nodes.extend(children)
       nodes_found.extend(children)
+
+  def _checkParentChild(self):
+    for child in self._children:
+      if child._parent != self:
+        import pdb; pdb.set_trace()
+        raise RuntimeError("Parent-child mismatch")
+      child._checkParentChild()
   
   def validateTree(self):
     self._checkTreeStructure()
