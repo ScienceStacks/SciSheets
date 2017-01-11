@@ -5,6 +5,7 @@
 /*jslint plusplus: true */
 /*jshint onevar: false */
 /*global $, alert, YAHOO, SciSheets, SciSheetsColumn, SciSheetsUtilEvent */
+/*global YUI */
 /*global $, sciSheets, SciSheetsTable, SciSheetsColumn, SciSheetsRow, SciSheetsCell, DataSource */
 /*jslint unparam: true*/
 /*jslint browser: true */
@@ -37,7 +38,6 @@
        - Change the name of a Table or Column
        - Change a row number
 */
-
 YAHOO.util.Event.addListener(window, "load", function () {
   "use strict";
   // Reload the page if it's not the base URL.
@@ -64,6 +64,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
     myDataTable = new YAHOO.widget.DataTable(d.tableId, columnDefs, myDataSource,
       {
         caption: tableHeader,
+        selectionMode: "single",
         draggableColumns: true
       }
         );

@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>SciSheets</title>
+
+<style type="text/css">
+/*margin and padding on body element
+  can introduce errors in determining
+  element position and are not recommended;
+  we turn them off as a foundation for YUI
+  CSS treatments. */
+body {
+	margin:0;
+	padding:0;
+}
+caption {
+	margin-top: 1em;
+        font-size: large;
+}
+custom-class { 
+        opacity: 0.6;filter:alpha(opacity=60); 
+        color:blue; 
+        border: 2px solid gray; 
+} 
+datatable tr { 
+        cursor: pointer; 
+}
+</style>
+
+
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yuiapi.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-linedtextarea/jquery-linedtextarea.js"></script>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-linedtextarea/jquery-linedtextarea.css"/>
+<link rel="stylesheet" type="text/css" href="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.css"/>
+
+<!--begin custom header content for this page-->
+<style type="text/css">
+/* custom styles for this example */
+.yui-skin-sam .yui-dt-col-address pre { font-family:arial;font-size:100%; } /* Use PRE in first col to preserve linebreaks*/
+</style>
+
+<!--end custom header content for this example-->
+
+</head>
+
+<body class="yui-skin-sam">
+
+<!-- =============================== -->
+<div id="User Notifications">
+
+<p id="notification-working" style="font-size:30px;display:none"> 
+  <font color="green">Working...</font>
+</p>
+
+<!-- =============================== -->
+<div id="ClickMenus">
+
+<style type="text/css">
+.dropcontainer {
+position: relative;
+font-size: 16px;
+color: #777;
+}
+
+.trigger {
+color: #777;
+padding: 10px;
+font-size: 16px;
+width: 50%;
+background: #fff url(../images/select-arrow-open.png) 98% center no-repeat;
+display: block;
+border: 1px solid #ccc;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+.trigger:hover {
+color: #777;
+background: #f5f5f5 url(../images/select-arrow-open.png) 98% center no-repeat;
+}
+
+.activetrigger {
+color: #777;
+padding: 10px;
+font-size: 16px;
+width: 50%;
+background: #f5f5f5 url(../images/select-arrow-close.png) 98% center no-repeat;
+display: block;
+border: 1px solid #ccc;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+.activetrigger:hover {
+background: #f5f5f5 url(../images/select-arrow-close.png) 98% center no-repeat;
+color: #777;
+}
+
+.activetrigger:active {
+background: #f5f5f5 url(../images/select-arrow-close.png) 98% center no-repeat;
+color: #777;
+}
+
+.dropcontainer ul {
+font-size: 16px;
+border: 1px solid #ccc;
+border-top: none;
+background: #fff;
+list-style-type: none;
+padding: 10px;
+margin: 0;
+width: 50%;
+z-index: 100;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+.dropcontainer ul li {
+padding: 5px;
+}
+
+.dropcontainer ul li:hover {
+background: #f5f5f5;
+outline: none;
+}
+
+.dropcontainer ul li:first-child {
+display: none;
+}
+
+.dropcontainer ul li:last-child {
+border-bottom: none;
+}
+
+.dropdownhidden {
+display: none;
+}
+
+.dropdownvisible {
+height: auto;
+}</style>
+<select name="select-file" id="select-file" data-native-menu="false" style="display:none;width:50px">
+  <option>Select a Table file</option>	
+</select> 	
+
+<ul style="width:100px;display:none" id="TableClickMenu">
+	<li id="delete" >Delete</li>
+	<li id="export" >Export</li>
+	<li id="epilogue" >Epilogue</li>
+	<li id="new" >New</li>
+	<li id="open" >Open</li>
+	<li id="prologue" >Prologue</li>
+	<li id="redo">Redo</li>
+	<li id="rename">Rename</li>
+	<li id="saveas">SaveAs</li>
+	<li id="trim">Trim</li>
+	<li id="undo">Undo</li>
+</ul>
+
+<ul style="width:100px;display:none" id="ColumnClickMenu">
+	<li id="append">Append</li>
+	<li id="delete" >Delete</li>
+	<li id="formula" >Formula</li>
+	<li id="hide" >Hide</li>
+	<li id="insert">Insert</li>
+	<li id="move">Move</li>
+	<li id="refactor">Refactor</li>
+	<li id="rename">Rename</li>
+</ul>
+
+<ul style="width:100px;display:none" id="NameColumnClickMenu">
+	<li id="hide">Hide</li>
+</ul>
+
+<ul style="width:100px;display:none" id="RowClickMenu">
+	<li id="append">Append</li>
+	<li id="delete" >Delete</li>
+	<li id="hide" >Hide</li>
+	<li id="insert">Insert</li>
+	<li id="move">Move</li>
+</ul>
+</div>
+
+<div id="formula-dialog" 
+    style="
+           display:none;
+           min-width:875px;
+           max-width: 1000px;
+           margin: 0 auto;
+           ">
+<h2 id="formula-header"
+    style="
+           font-size:100%;
+           background-color:WhiteSmoke
+          ">
+  Formula Name</h2>
+<br/>
+  <form id="formula-form">
+<textarea name="formula-entry" id="formula-textarea" form="formula-form" 
+    style="
+           background-color:WhiteSmoke;
+           border-style: solid;
+           font-family: Courier New;
+           font-size: 105%;
+           height: 100%;
+           margin: 0;
+           overflow:auto;
+           padding-top: 5px;
+           resize:both;
+           white-space:pre-wrap;
+           width: 100%;
+           "
+    rows="10" 
+    cols="80">
+Formula...
+</textarea>
+<br/>
+<input type="button" id="formula-dialog-submit" value="Submit"/> 
+<input type="button" id="formula-dialog-cancel" value="Cancel"/>
+</form>
+</div>
+
+<div id="moverow-dialog" style="width:100px;display:none">
+  <form>
+    <fieldset>
+      <label for="name" id="moverow-dialog-label">New Position: </label>
+      <input type="text" name="name" id="moverow-dialog-name" class="ui-widget-content">
+    </fieldset>
+  </form>
+</div>
+
+<div id="export-dialog" 
+    style="
+          background-color:WhiteSmoke;
+          width: 30%;
+          display:none;
+          resize:both;
+          overflow:auto
+          " 
+>
+<h2 id="export-header"
+    style="
+           font-size:150%;
+          ">
+  Table Export</h2>
+  <form>
+    <fieldset>
+      <label for="function-name" id="export-dialog-function-name-label">Function name: </label>
+      <input type="text" name="function-name" id="export-dialog-function-name">
+    </fieldset>
+    <fieldset>
+      <label for="inputs" id="export-dialog-inputs-label">List of input columns: </label>
+      <input type="text" name="inputs" id="export-dialog-inputs">
+    </fieldset>
+    <fieldset>
+      <label for="outputs" id="export-dialog-outputs-label">List of output columns: </label>
+      <input type="text" name="outputs" id="export-dialog-outputs">
+    </fieldset>
+    <br/>
+    <input type="button" id="export-dialog-submit" value="Submit"/> 
+    <input type="button" id="export-dialog-cancel" value="Cancel"/>
+  </form>
+</div>
+
+<!-- =============================== -->
+
+<div id="TagReplacedByJS"></div>
+
+<!-- ========= Incorporate data from server ====================== -->
+<script src="code.js"></script>
+
+</body>
+</html>
