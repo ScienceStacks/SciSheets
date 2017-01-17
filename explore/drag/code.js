@@ -39,28 +39,26 @@ YAHOO.util.Event.addListener(window, "load", function () {
           {responseSchema: {fields: ["id", "date", "quantity", "amount", "title"]}}),
       myDataTable = new YAHOO.widget.DataTable("datatable", myColumnDefs, myDataSource, {caption: "YUI Datatable/DragDrop"}),
       myDTDTargets = {},
-      onRowSelect = function (ev) {
-        var par = myDataTable.getTrEl(Event.getTarget(ev)),
+      onColumnSelect = function (ev) {
+        var par = myDataTable.getThEl(Event.getTarget(ev)),
           srcData,
           srcIndex,
           tmpIndex = null,
-          ddRow = new YAHOO.util.DDProxy(par.id);
-        ddRow.handleMouseDown(ev.event);
+          ddCol = new YAHOO.util.DDProxy(par.id);
+        ddCol.handleMouseDown(ev.event);
         /**
         * Once we start dragging a row, we make the proxyEl look like the src Element. We get also cache all the data related to the
         * @return void
         * @static
         * @method startDrag
        */
-        ddRow.startDrag = function () {
+        ddCol.startDrag = function () {
           var proxyEl  = this.getDragEl(),
             srcEl = this.getEl();
-          srcData = myDataTable.getRecord(srcEl).getData();
-          srcIndex = srcEl.sectionRowIndex;
           // Make the proxy look like the source element
           Dom.setStyle(srcEl, "visibility", "hidden");
-          proxyEl.innerHTML = "<table><tbody>" + srcEl.innerHTML
-              + "</tbody></table>";
+          proxyEl.innerHTML = "<table><thead>" + srcEl.innerHTML
+              + "</thead></table>";
         };
         /**
         * Once we end dragging a row, we swap the proxy with the real element.
@@ -70,13 +68,14 @@ YAHOO.util.Event.addListener(window, "load", function () {
         * @static
         * @method endDrag
         */
-        ddRow.endDrag = function (x, y) {
+        ddCol.endDrag = function (x, y) {
           var proxyEl  = this.getDragEl(),
             srcEl = this.getEl();
           Dom.setStyle(proxyEl, "visibility", "hidden");
           Dom.setStyle(srcEl, "visibility", "");
+          var destEl = Dom.get(id);
         };
-        /**
+        /*
         * This is the function that does the trick of swapping one row with another.
         * @param e : The drag event
         * @param id : The id of the row being dragged
@@ -84,11 +83,12 @@ YAHOO.util.Event.addListener(window, "load", function () {
         * @static
         * @method onDragOver
         */
-        ddRow.onDragOver = function (e, id) {
+        ddCol.onDragOver = function (e, id) {
           // Reorder rows as user drags
+          return
           var destEl = Dom.get(id),
             destIndex = destEl.sectionRowIndex;
-          if (destEl.nodeName.toLowerCase() === "tr") {
+          if (destEl.nodeName.toLowerCase() === "th") {
             if (tmpIndex !== null) {
               myDataTable.deleteRow(tmpIndex);
             }
@@ -101,7 +101,9 @@ YAHOO.util.Event.addListener(window, "load", function () {
           }
         };
       };
-    myDataTable.subscribe('cellMousedownEvent', onRowSelect);
+    // Fires when the column is double clicked
+    myDataTable.subscribe("theadCellClickEvent", onColumnSelect);
+    //myDataTable.subscribe('cellMousedownEvent', onColumnSelect);
     //////////////////////////////////////////////////////////////////////////////
     // Create DDTarget instances when DataTable is initialized
     //////////////////////////////////////////////////////////////////////////////
