@@ -113,22 +113,6 @@ class TestNamedTree(unittest.TestCase):
     self.assertIsNone(self.root.setName("newTable"))
     self.assertIsNotNone(self.root.setName("new Table"))
 
-  def testCreateSubstitutedChildrenDict(self):
-    if IGNORE_TEST:
-      return
-    nodes = [self.root, self.root_child, self.subparent, self.subparent_child]
-    substitution_dict = {n: n.getName() for n in nodes}
-    result = self.root.createSubstitutedChildrenDict(substitution_dict)
-    self.assertEqual(result["name"], self.root.getName())
-    self.assertEqual(result["label"], self.root._name)
-    self.assertEqual(len(result["children"]), 4)
-    result = self.root.createSubstitutedChildrenDict(
-        substitution_dict,
-        excludes=[self.root_child])
-    self.assertEqual(result["name"], self.root.getName())
-    self.assertEqual(result["label"], self.root._name)
-    self.assertEqual(len(result["children"]), 3)
-
   def testFlattenAttached(self):
     """
     Should produce

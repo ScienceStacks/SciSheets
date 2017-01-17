@@ -36,7 +36,7 @@ CUR_DIR = os.path.dirname(__file__)
 TESTFILE2 = "testcase_2.scish"
 TESTFILE3 = "testcase_3.scish"
 
-IGNORE_TESTS = False
+IGNORE_TEST = False
 
 
 # Ensure that tested module is accessible in debugger
@@ -61,13 +61,13 @@ class TestAuxFunctions(TestCase):
                          js_data[r][c])
 
   def testMakeJSDataStr(self):
-    if IGNORE_TESTS:
+    if IGNORE_TEST:
       return
     self._testMakeJSDataStr(DATA)
     self._testMakeJSDataStr(DATA_STRING)
 
   def testMakeJSDataComplex1(self):
-    if IGNORE_TESTS:
+    if IGNORE_TEST:
       return
     js_data = dt.makeJSData(COMPLEX_DATA1)
     row3 = js_data[2]
@@ -75,7 +75,7 @@ class TestAuxFunctions(TestCase):
     self.assertEqual(row3[3], "")
 
   def testMakeJSDataComplex2(self):
-    if IGNORE_TESTS:
+    if IGNORE_TEST:
       return
     js_data = dt.makeJSData(COMPLEX_DATA2)
     row3 = js_data[2]
@@ -86,7 +86,7 @@ class TestAuxFunctions(TestCase):
     """
     Inputs to test cases are stored in pcl files.
     """
-    if IGNORE_TESTS:
+    if IGNORE_TEST:
       return
     files = ["test_dt_table_1.scish"]
     # Tests are functions that take result as an argument and return a bool
@@ -109,7 +109,7 @@ class TestDTTable(TestCase):
 
   # TODO: Do something better with this test
   def testRender(self):
-    if IGNORE_TESTS:
+    if IGNORE_TEST:
       return
     Col_0 = self.table.getColumns()[1]
     Col_0.setFormula("Col_1 = 'x'")
@@ -125,7 +125,7 @@ class TestDTTable(TestCase):
       self.assertTrue(expected in html)
 
   def testHierarchicalRender(self):
-    if IGNORE_TESTS:
+    if IGNORE_TEST:
       return
     table = dt.DTTable.createRandomHierarchicalTable(TABLE_NAME,
         NROW, NCOL, prob_child=0.6, table_cls=dt.DTTable)
@@ -138,7 +138,7 @@ class TestDTTable(TestCase):
 
   def testRenderingListData(self):
     # set up the test table
-    if IGNORE_TESTS:
+    if IGNORE_TEST:
       return
     table_filepath = os.path.join(TEST_DIR, TESTFILE2)
     table = readObjectFromFile(table_filepath, verify=False)
@@ -147,17 +147,11 @@ class TestDTTable(TestCase):
     html = table.render()
 
   def testSerializeDeserialize(self):
-    if IGNORE_TESTS:
+    if IGNORE_TEST:
       return
     json_str = serialize(self.table)
     new_table = deserialize(json_str)
     self.assertTrue(self.table.isEquivalent(new_table))
-
-  def testMakeAnnotatedDepthFirstTreeRepresentation(self):
-    if IGNORE_TESTS:
-      return
-    result = self.table._makeAnnotatedDepthFirstTreeRepresentation()
-    pass
 
   def testFromHTMLToPythonName(self):
     short_name = 'dummy'
@@ -177,6 +171,36 @@ class TestDTTable(TestCase):
     expected_num_columns =  \
         htable.toString().count(ta.NAME_COLUMN_STR) - 1
     self.assertEqual(len(columns), expected_num_columns)
+
+  def testCreateSubstitutedChildrenDict(self):
+    if IGNORE_TEST:
+      return
+    nodes = self.table.getAllNodes()
+    substitution_dict = {n: n.getName() for n in nodes}
+    result = self.table._createSubstitutedChildrenDict(substitution_dict)
+    self.assertEqual(result["name"], self.table.getName())
+    self.assertEqual(result["label"], self.table._name)
+    children = self.table.getChildren()
+    self.assertEqual(len(result["children"]), len(children))
+    result = self.table._createSubstitutedChildrenDict(
+        substitution_dict,
+        excludes=[children[0]])
+    self.assertEqual(result["name"], self.table.getName())
+    self.assertEqual(result["label"], self.table._name)
+    self.assertEqual(len(result["children"]), len(children) - 1)
+
+  def testRenderDetachedTree(self):
+    if IGNORE_TEST:
+     return
+    tree = dt.DTTable.createRandomHierarchicalTable('Dummy', 2, 100,
+        0.5, prob_detach=0.4)
+    detached_trees = [t for t in tree.getAllNodes() if not t.isAttached()]
+    expected_count = len(detached_trees)
+    html = tree.render()
+    count_left = html.count('name: "<"')
+    count_right = html.count('name: ">"')
+    self.assertEqual(expected_count, count_left)
+    self.assertEqual(expected_count, count_right)
 
 
 if __name__ == '__main__':

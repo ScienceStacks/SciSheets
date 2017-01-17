@@ -206,7 +206,8 @@ def scisheets(request, ncol, nrow):
     num_nodes = 2*abs(ncol)
     prob_child = 0.5
     table = DTTable.createRandomHierarchicalTable("HDemo", nrow,
-      num_nodes, prob_child, ncolstr=ncolstr, table_cls=DTTable)
+      num_nodes, prob_child, prob_detach=0.4,
+      ncolstr=ncolstr, table_cls=DTTable)
   else:
     table = DTTable.createRandomTable("Demo", nrow, ncol,
         ncolstr=ncolstr)

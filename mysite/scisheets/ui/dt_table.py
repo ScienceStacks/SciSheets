@@ -173,32 +173,6 @@ class DTTable(UITable):
     last_node = self.getRoot()
     #for nodes in self.getVisibleNodes():
 
-  # TBD: How handle multiple name columns?
-  def _makeAnnotatedDepthFirstTreeRepresentation(self):
-    """
-    Creates a list of visible nodes from the root in depth first
-    order, where each element has the node name and its position
-    relative to the last node.
-    :returns list-of-dict: keys:
-        name: name of node
-        direction: direction in which node is placed in
-            tree: 1 (child), 0 (sibling), -1 (parent)
-    """
-    result = []
-    nodes = self.getVisibleNodes()
-    last_node = self.getRoot()
-    for node in nodes:
-      if node.getParent() == last_node:
-        direction = 1
-      elif last_node.getParent() == node:
-        direction = -1
-      else:
-        direction = 0
-      result.append({"name": node.getName(is_global_name=False), 
-                     "direction": direction})
-      last_node = node
-    return result
-
   def _getExcludedNameColumns(self):
     """
     Returns a list of name columns that are to be excluded from
@@ -208,10 +182,49 @@ class DTTable(UITable):
     for column in self.getColumns():
       if not column.getParent().isAttached():
         continue
-      if self == column.getParent():
+      if column.getParent() == column.getRoot():
         continue
       if DTTable.isNameColumn(column):
         result.append(column)
+    return result
+
+  def _createSubstitutedChildrenDict(self, substitution_dict, 
+      excludes=None, includes=None, children_dict=None,
+      sep=named_tree.GLOBAL_SEPARATOR):
+    """
+    Substitutes the nodes in children_dict with the values in the substitution_dict.
+    Adds columns for detached subtables.
+    :param dict substituion_dict: keys = {nodes, values} are substitutions
+    :param list-of-Tree excludes: list of nodes to exclude from list
+    :param list-of-Tree includes: list of nodes to include from list
+        If None, then include all unless excluded
+    :param ChildrenDict children_dict:
+    :param str sep: separator in components of global name
+    :return recursive dictionary: keys = {name, label, children} 
+    """
+    start_marker = "<"
+    end_marker = ">"
+    if children_dict is None:
+      children_dict = self.getChildrenBreadthFirst(excludes=excludes,
+          includes=includes)
+    node = children_dict["node"]
+    name = node.getName()
+    name = name.replace('.', sep)
+    result = {"name": name,
+              "label": children_dict["node"].getName(is_global_name=False)}
+    dicts = []
+    if not node.isAttached():
+      dicts.append({"name": start_marker, "label": start_marker})
+    for this_dict in children_dict["children"]:
+      dicts.append(self._createSubstitutedChildrenDict(
+          substitution_dict,
+          excludes=excludes, 
+          includes=includes,
+          children_dict=this_dict,
+          sep=sep))
+    if not node.isAttached():
+      dicts.append({"name": end_marker, "label": end_marker})
+    result["children"] = dicts
     return result
 
   def render(self, table_id="scitable"):
@@ -222,6 +235,9 @@ class DTTable(UITable):
       b) leafColumns should be a list of columns with data (leaf nodes)
       c) dataSource should be a list of values (not a dict) in the same
          order as the leafColumns
+      d) Detached subtables are rendered with a ' ' column on either
+         side and do render the row column
+      e) Attached subtables do not have their row column rendered
     Input: table_id - how the table is identified in the HTML
     Output: html rendering of the Table
     Note: Full column name uses a '-' seperator instead of '.'
@@ -245,7 +261,7 @@ class DTTable(UITable):
     column_names = [c.getName(is_global_name=False) for c in columns]
     excludes = self.getRoot().getHiddenColumns()
     excludes.extend(excluded_name_columns)
-    column_hierarchy = self.getRoot().createSubstitutedChildrenDict(
+    column_hierarchy = self._createSubstitutedChildrenDict(
         colnm_dict, excludes=excludes, sep=HTML_SEPARATOR)
     column_hierarchy = column_hierarchy["children"]
     js_column_hierarchy = json.dumps(column_hierarchy)

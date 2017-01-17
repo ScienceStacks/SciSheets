@@ -94,26 +94,28 @@ class Table(ColumnContainer):
       table.addColumn(column)
     return table
 
-  # BUG: createRandomTree does not return a tree with nonleaves
   @classmethod
   def createRandomHierarchicalTable(cls, name, nrow, num_nodes, 
-      prob_child, ncolstr=0, low_int=0, hi_int=100, table_cls=None):
+      prob_child, ncolstr=0, low_int=0, hi_int=100, prob_detach=0,
+      table_cls=None):
     """
     Creates a table with random integers as values
     :param str name: name of the table
-    :parm int nrow: number of rows
-    :parm float prob_child: probability that next node is a child
-    :parm str ncolstr: number of columns with strings
-    :parm int low_int: smallest integer
-    :parm int hi_int: largest integer
+    :param int nrow: number of rows
+    :param float prob_child: probability that next node is a child
+    :param str ncolstr: number of columns with strings
+    :param int low_int: smallest integer
+    :param int hi_int: largest integer
+    :param float prob_detach: probability that a subtree is detached
     :parm Type table_cls: Table class to use; default is Table
     :return table_cls:
     """
     if table_cls is None:
       table_cls = cls
     # Create the schema for the Hierarchical Table
-    htable = super(Table, cls).createRandomTree(num_nodes, prob_child,
-        leaf_cls=Column, nonleaf_cls=table_cls)
+    htable = super(Table, cls).createRandomNamedTree(num_nodes, 
+        prob_child, leaf_cls=Column, prob_detach=prob_detach, 
+        nonleaf_cls=table_cls)
     leaves = [c for c in htable.getLeaves() 
               if c.getName(is_global_name=False) != NAME_COLUMN_STR]
     num_leaves = len(htable.getLeaves()) -1  # Don't include the name column

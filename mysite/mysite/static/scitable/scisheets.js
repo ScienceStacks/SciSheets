@@ -90,21 +90,23 @@ SciSheets.prototype.formatColumn = function (name) {
 // Input: treeList - List of nested object with 
 //                   values "key" and "children"
 // Output: YAHOO DataTable ColumnDefinitions
-// DO: TESTS!!!
+// The names "<" and ">" are separators for detached tables.
 SciSheets.prototype.createColumnDefinitions = function (treeList) {
   "use strict";
   var columnDefinitions = [], i, thisDefinition, child, children;
   for (i = 0; i < treeList.length; i++) {
     child = treeList[i];
-    thisDefinition = {key: child.name,
-      label: child.label,
-      formatter: this.formatColumn(child.name),
-      editor: new YAHOO.widget.TextareaCellEditor()};
-    children = this.createColumnDefinitions(child.children);
-    if (children.length > 0) {
-      thisDefinition.children = children;
+    if (child.name !== "<" && child.name !== ">") {
+      thisDefinition = {key: child.name,
+        label: child.label,
+        formatter: this.formatColumn(child.name),
+        editor: new YAHOO.widget.TextareaCellEditor()};
+      children = this.createColumnDefinitions(child.children);
+      if (children.length > 0) {
+        thisDefinition.children = children;
+      }
+      columnDefinitions = columnDefinitions.concat([thisDefinition]);
     }
-    columnDefinitions = columnDefinitions.concat([thisDefinition]);
   }
   return columnDefinitions;
 };
