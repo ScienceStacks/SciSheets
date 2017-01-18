@@ -3,8 +3,10 @@
 from mysite import settings
 from scisheets.core.helpers.serialize_deserialize import serialize,  \
     deserialize
-from dt_table import DTTable
+from scisheets.core.column import Column
+from scisheets.core.table import NAME_COLUMN_STR
 import ui_table as ui
+from dt_table import DTTable
 from django.test import TestCase  # Provides mocks
 import json
 
@@ -122,7 +124,7 @@ class TestUITable(TestCase):
     mod_list_of_str = ui.UITable._addEscapesToQuotes(list_of_str)
     self.assertTrue(list_of_str == mod_list_of_str)
 
-  def testHiddenColumns(self):
+  def testGetHiddenColumns(self):
     columns = self.table.getColumns()
     for column in columns:
       self.table.hideColumns(column)
@@ -130,7 +132,7 @@ class TestUITable(TestCase):
       self.table.hideColumns([column])
       self.assertTrue(column in self.table._hidden_columns)
       self.assertEqual(len(self.table._hidden_columns) , 1)
-      self.assertEqual(self.table.getHiddenColumns(), [column])
+      self.assertEqual(self.table.getHiddenNodes(), [column])
       self.table.unhideColumns(column)
       self.assertEqual(len(self.table._hidden_columns) , 0)
 
@@ -138,6 +140,56 @@ class TestUITable(TestCase):
     json_str = serialize(self.table)
     new_table = deserialize(json_str)
     self.assertTrue(self.table.isEquivalent(new_table))
+
+  def createNestedTable(self):
+    """
+    Table
+      A
+      B
+      Subtable
+        C
+        D
+    :return dict: name, object pairs
+    """
+    table = ui.UITable("Table")
+    result = {"Table": table}
+    result["A"] = Column("A")
+    table.addColumn(result["A"])
+    result["B"] = Column("B")
+    table.addColumn(result["B"])
+    subtable = ui.UITable("Subtable")
+    result["Subtable"] = subtable
+    table.addChild(subtable)
+    result["C"] = Column("C")
+    subtable.addColumn(result["C"])
+    result["D"] = Column("D")
+    subtable.addColumn(result["D"])
+    return result
+
+  def _testGetVisibleColumns(self, hide_names, expected_names):
+    """
+    Hides the list of names specified and then
+    tests that the result is the expected_names.
+    :param list-of-str hide_names:
+    :param list-of-str expected_names:
+    """
+    node_dict = self.createNestedTable()
+    table = node_dict["Table"]
+    for name in hide_names:
+      table.hideColumns(node_dict[name])
+    visibles = table.getVisibleNodes()
+    # Add two to account for name columns
+    self.assertEqual(len(expected_names)+2, len(visibles))
+    for name in expected_names:
+      if name == NAME_COLUMN_STR:
+        continue
+      if not node_dict[name] in visibles:
+        import pdb; pdb.set_trace()
+      self.assertTrue(node_dict[name] in visibles)
+
+  def testGetVisibleColumns(self):
+    self._testGetVisibleColumns(["C"],
+        ["A", "B", "Subtable", "D"])
     
 
 if __name__ == '__main__':

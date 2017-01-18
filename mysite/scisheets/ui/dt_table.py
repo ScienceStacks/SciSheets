@@ -4,7 +4,6 @@
 
 from django.shortcuts import render
 from django.template.loader import get_template
-from mysite.helpers.versioned_file import VersionedFile
 import mysite.settings as settings
 import mysite.helpers.named_tree as named_tree
 from scisheets.core.helpers.api_util import getFileNameWithoutExtension
@@ -28,29 +27,26 @@ def makeJSData(data):
   :param list-of-list-of-object: list of column values
   :return list-of-list-of-object: list of row values
   """
+  def findNumberOfRows(data):
+    number_of_rows = 0
+    if len(data) > 0:
+      for item in data:
+        number_of_rows = max(number_of_rows, len(item))
+    return number_of_rows
+    
   # Initializations
   number_of_columns = len(data)
-  if len(data) > 0:
-    if isinstance(data[0], list):
-      number_of_rows = len(data[0])
-    else:
-      number_of_rows = 1
-  else:
-    number_of_rows = 0
-  # Convert to list of lists
   new_data = [c if isinstance(c, list) else [c] for c in data]
+  number_of_rows = findNumberOfRows(new_data)
   # Construct the output
   result = []
   for r in range(number_of_rows):
     row = []
     for c in range(number_of_columns):
-      if isinstance(new_data[c], list):
-        if len(new_data[c]) - 1 < r:
-          item = ""  # Handle ragged columns
-        else:
-          item = new_data[c][r]
+      if len(new_data[c]) - 1 < r:
+        item = ""  # Handle ragged columns
       else:
-        item = new_data[c]
+        item = new_data[c][r]
       value = str(item)  # Assume use item as-is
       if (item is None):
         value = ""
@@ -189,41 +185,32 @@ class DTTable(UITable):
     return result
 
   def _createSubstitutedChildrenDict(self, substitution_dict, 
-      excludes=None, includes=None, children_dict=None,
+      excludes=None, children_dict=None,
       sep=named_tree.GLOBAL_SEPARATOR):
     """
     Substitutes the nodes in children_dict with the values in the substitution_dict.
-    Adds columns for detached subtables.
     :param dict substituion_dict: keys = {nodes, values} are substitutions
     :param list-of-Tree excludes: list of nodes to exclude from list
-    :param list-of-Tree includes: list of nodes to include from list
-        If None, then include all unless excluded
     :param ChildrenDict children_dict:
     :param str sep: separator in components of global name
     :return recursive dictionary: keys = {name, label, children} 
     """
-    start_marker = "<"
-    end_marker = ">"
     if children_dict is None:
-      children_dict = self.getChildrenBreadthFirst(excludes=excludes,
-          includes=includes)
+      children_dict = self.getChildrenBreadthFirst(excludes=excludes)
     node = children_dict["node"]
     name = node.getName()
     name = name.replace('.', sep)
     result = {"name": name,
               "label": children_dict["node"].getName(is_global_name=False)}
     dicts = []
-    if not node.isAttached():
-      dicts.append({"name": start_marker, "label": start_marker})
     for this_dict in children_dict["children"]:
+      if this_dict["node"] in excludes:
+        continue
       dicts.append(self._createSubstitutedChildrenDict(
           substitution_dict,
           excludes=excludes, 
-          includes=includes,
           children_dict=this_dict,
           sep=sep))
-    if not node.isAttached():
-      dicts.append({"name": end_marker, "label": end_marker})
     result["children"] = dicts
     return result
 
@@ -246,7 +233,7 @@ class DTTable(UITable):
     colnm_dict = {}
     for col in self.getChildren(is_from_root=True,
         is_recursive=True):
-      if col in self.getVisibleColumns():
+      if col in self.getVisibleNodes():
         name = col.getName(is_global_name=False)
         annotate = ""
         if col.getFormula() is not None:
@@ -257,9 +244,10 @@ class DTTable(UITable):
     descendents.remove(self)  # Don't include the root name
     excluded_name_columns = self._getExcludedNameColumns()
     columns = [c for c in descendents 
-        if c in self.getVisibleColumns() and not c in excluded_name_columns]
+        if c in self.getVisibleNodes() and not c in excluded_name_columns]
+    leaves = DTTable.findLeaves(columns)
     column_names = [c.getName(is_global_name=False) for c in columns]
-    excludes = self.getRoot().getHiddenColumns()
+    excludes = self.getHiddenNodes()
     excludes.extend(excluded_name_columns)
     column_hierarchy = self._createSubstitutedChildrenDict(
         colnm_dict, excludes=excludes, sep=HTML_SEPARATOR)
@@ -268,8 +256,8 @@ class DTTable(UITable):
     js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
     js_column_hierarchy = js_column_hierarchy.replace('"children"', 'children')
     js_column_hierarchy = js_column_hierarchy.replace('"label"', 'label')
-    js_data = str(makeJSData([c.getCells() for c in columns]))
-    raw_formulas = [c.getFormula() for c in self.getVisibleColumns()]
+    js_data = str(makeJSData([c.getCells() for c in leaves]))
+    raw_formulas = [c.getFormula() for c in self.getVisibleNodes()]
     formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]
     formula_dict = {}
     for nn in range(len(column_names)):
@@ -278,8 +266,7 @@ class DTTable(UITable):
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
     leaf_names = [str(c.getName()).replace('.', HTML_SEPARATOR)
-        for c in self.getLeaves(is_from_root=True) 
-        if c in self.getVisibleColumns() and not c in excluded_name_columns]
+        for c in leaves]
     response_schema = str(leaf_names)
     ctx_dict = {'response_schema': response_schema,
                 'data': js_data,

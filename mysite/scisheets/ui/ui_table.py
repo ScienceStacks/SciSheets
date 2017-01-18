@@ -31,7 +31,7 @@ class UITable(Table):
     serialization_dict =   \
         super(UITable, self).getSerializationDict(class_variable)
     serialization_dict[class_variable] = str(self.__class__)
-    column_names = [c.getName() for c in self.getHiddenColumns()]
+    column_names = [c.getName() for c in self.getHiddenNodes()]
     serialization_dict['_hidden_columns'] = column_names
     return serialization_dict
 
@@ -50,6 +50,11 @@ class UITable(Table):
                       serialization_dict["_hidden_columns"]]
     instance.hideColumns(hidden_columns)
     return instance
+
+  @staticmethod
+  def _versionCheckpoint(versioned, target, command):
+    if versioned is not None:
+      versioned.checkpoint(id="%s/%s" % (target, command))
 
   def _createResponse(self, error):
     # Returns a response of the desired type
@@ -72,10 +77,10 @@ class UITable(Table):
     """
     if not super(UITable, self).isEquivalent(other):
       return False
-    if not len(self.getHiddenColumns()) == len(other.getHiddenColumns()):
+    if not len(self.getHiddenNodes()) == len(other.getHiddenNodes()):
       return False
-    for column in self.getHiddenColumns():
-      tests = [column.isEquivalent(c) for c in other.getHiddenColumns()]
+    for column in self.getHiddenNodes():
+      tests = [column.isEquivalent(c) for c in other.getHiddenNodes()]
       if not any(tests):
         return False
     return True
@@ -91,7 +96,7 @@ class UITable(Table):
     # Copy properties from inherited classes
     instance = super(UITable, self).copy(instance=instance)
     # Set properties specific to this class
-    instance._hidden_columns = self.getHiddenColumns()
+    instance._hidden_columns = self.getHiddenNodes()
     return instance
 
   def unhideAllColumns(self):
@@ -133,32 +138,34 @@ class UITable(Table):
 
   def getVisibleNodes(self):
     """
-    :return list-of-Columns:
+    Considers the column hierarchy when determining which columns are visible.
+    A child is not visible if it's parent is hidden.
+    :return list-of-NamedTree:
     """
-    vis_nodes = [c for c in  \
-                   self.getChildren(is_from_root=True, is_recursive=True) \
-                   if not c in self._hidden_columns]
-    return vis_nodes
+    visibles = []
+    nodes = self.getAllNodes()
+    nodes.remove(self)
+    for node in nodes:
+      path = node.findNodesFromRoot()
+      is_visible = True
+      for ancestor in path:
+        if ancestor in self._hidden_columns:
+          is_visible = False
+          break
+      if is_visible:
+        visibles.append(node)
+    return visibles
 
-  def getVisibleColumns(self):
+  def getHiddenNodes(self):
     """
-    :return list-of-Columns:
+    :return list-of-ColumnContainer:
     """
-    vis_columns = [c for c in self.getColumns()  \
-                   if not c in self._hidden_columns]
-    return vis_columns
-
-  def visibleColumnFromIndex(self, index):
-    """
-    Eliminates hidden columns when computing index.
-    :param int index:
-    :return Column:
-    """
-    return self.getVisibleColumns()[index]
-
-  def getHiddenColumns(self):
     self._cleanHiddenColumns()
-    return self._hidden_columns
+    visibles = set(self.getVisibleNodes())
+    nodes = self.getAllNodes()
+    nodes.remove(self)
+    hiddens = set(nodes).difference(visibles)
+    return list(hiddens)
 
   def processCommand(self, cmd_dict):
     # Processes a UI request for the Table.
@@ -252,12 +259,12 @@ class UITable(Table):
       response = self._createResponse(error)
       do_save = False
     elif command == "Rename":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       proposed_name = cmd_dict['args'][0]
       error = self.setName(proposed_name)
       response = self._createResponse(error)
     elif command == "Trim":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       self.trimRows()
       response = self._createResponse(error)
     elif command == "Undo":
@@ -283,7 +290,7 @@ class UITable(Table):
     command = cmd_dict["command"]
     versioned = self.getVersionedFile()
     if command == "Update":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       name = cmd_dict["column_name"]
       column = self.childFromName(name)
       if column.getTypeForCells() == object:
@@ -322,7 +329,7 @@ class UITable(Table):
     column = self.childFromName(cmd_dict["column_name"])
     versioned = self.getVersionedFile()
     if (command == "Append") or (command == "Insert"):
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       name = cmd_dict["args"][0]
       error = Column.isPermittedName(name)
       if self._isDuplicateInGlobalScope(name):
@@ -337,17 +344,17 @@ class UITable(Table):
         new_column_index = column_index + increment
         parent.addChild(new_column, new_column_index)
     elif command == "Delete":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       self.deleteColumn(column)
     elif command == "Formula":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       formula = cmd_dict["args"][0]
       if len(formula.strip()) == 0:
         error = column.setFormula(None)
       else:
         error = column.setFormula(formula)
     elif command == "Move":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       dest_column_name = cmd_dict["args"][0]
       dest_column = self.childFromName(dest_column_name, is_relative=False)
       cur_column = self.childFromName(cmd_dict["column_name"])
@@ -356,7 +363,7 @@ class UITable(Table):
       except Exception:
         error = "Column %s does not exists." % dest_column_name
     elif command == "Refactor":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       proposed_name = cmd_dict["args"][0]
       if self._isDuplicateInGlobalScope(proposed_name):
         error = "%s conflics with existing names" % proposed_name
@@ -366,7 +373,7 @@ class UITable(Table):
         except Exception as err:
           error = str(err)
     elif command == "Rename":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       proposed_name = cmd_dict["args"][0]
       is_error = False
       if self._isDuplicateInGlobalScope(proposed_name):
@@ -392,18 +399,20 @@ class UITable(Table):
     row_index = cmd_dict['row_index']
     versioned = self.getVersionedFile()
     if command == "Move":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      if versioned is not None:
+        versioned.checkpoint(id="%s/%s" % (target, command))
       new_name = cmd_dict["args"][0]
       self.renameRow(row_index, new_name)
     elif command == "Delete":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      if versioned is not None:
+        versioned.checkpoint(id="%s/%s" % (target, command))
       self.deleteRows([row_index])
     elif command == "Insert":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       row = self.getRow()
       self.addRow(row, row_index - 0.1)  # Add a new row before 
     elif command == "Append":
-      versioned.checkpoint(id="%s/%s" % (target, command))
+      UITable._versionCheckpoint(versioned, target, command)
       row = self.getRow()
       self.addRow(row, row_index + 0.1)  # Add a new row after
     else:

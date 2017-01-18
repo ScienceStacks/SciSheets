@@ -462,6 +462,20 @@ class TestPositionTree(unittest.TestCase):
     num_nodes = 500
     tree = Tree.createRandomTree(num_nodes, 0.1)
     tree.validateTree()
+
+  def testFindLeavesInNodes(self):
+    num_nodes = 50
+    tree1 = Tree.createRandomTree(num_nodes, 0.2)
+    tree2 = Tree.createRandomTree(num_nodes, 0.2)
+    expected = tree1.getLeaves()
+    expected.extend(tree2.getLeaves())
+    expected = set(expected)
+    nodes = tree1.getAllNodes()
+    nodes.extend(tree2.getAllNodes())
+    actual = set(Tree.findLeavesInNodes(nodes))
+    self.assertEqual(expected.difference(actual),
+        actual.difference(expected))
+
     
 
 if __name__ == '__main__':

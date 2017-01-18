@@ -158,6 +158,21 @@ class Tree(Node):
   def __iter__(self):
     return TreeIterator(self)
 
+  @classmethod
+  def findLeavesInNodes(cls, nodes):
+    """
+    Finds the nodes that have no children within a collection of nodes.
+    :param list-of-Tree nodes:
+    :return list-of-Tree leaves:
+    """
+    leaves = []
+    node_set = set(nodes)
+    for node in nodes:
+      children = set(node.getChildren())
+      if len(children.intersection(node_set)) == 0:
+        leaves.append(node)
+    return leaves
+
   # May have a bug with using column as non-leaf class
   @classmethod
   def createRandomTree(cls, num_nodes, prob_child, seed=0,
@@ -285,11 +300,18 @@ class Tree(Node):
     A path is a list of member names traversed
     :return list-of-str:
     """
+    return [n._name for n in self.findNodesFromRoot()]
+
+  def findNodesFromRoot(self):
+    """
+    Finds the list of nodes from the root.
+    :return list-of-Tree:
+    """
     done = False
     cur = self
     path = []
     while not done:
-      path.append(cur._name)
+      path.append(cur)
       if cur.getParent() is None:
         done = True
       cur = cur.getParent()
