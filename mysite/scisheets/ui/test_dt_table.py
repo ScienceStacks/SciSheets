@@ -172,20 +172,22 @@ class TestDTTable(TestCase):
         htable.toString().count(ta.NAME_COLUMN_STR) - 1
     self.assertEqual(len(columns), expected_num_columns)
 
-  def testCreateSubstitutedChildrenDict(self):
+  def testCreateRecursiveChildrenDict(self):
     if IGNORE_TEST:
       return
     nodes = self.table.getAllNodes()
-    substitution_dict = {n: n.getName() for n in nodes}
-    result = self.table._createSubstitutedChildrenDict(substitution_dict)
-    self.assertEqual(result["name"], self.table.getName())
+    label_dict = self.table._createLabels()
+    result = self.table._createRecursiveChildrenDict(label_dict)
+    self.assertEqual(result["name"], 
+        self.table.getName(is_global_name=False))
     self.assertEqual(result["label"], self.table._name)
     children = self.table.getChildren()
     self.assertEqual(len(result["children"]), len(children))
-    result = self.table._createSubstitutedChildrenDict(
-        substitution_dict,
+    result = self.table._createRecursiveChildrenDict(
+        label_dict,
         excludes=[children[0]])
-    self.assertEqual(result["name"], self.table.getName())
+    self.assertEqual(result["name"],
+        self.table.getName(is_global_name=False))
     self.assertEqual(result["label"], self.table._name)
     self.assertEqual(len(result["children"]), len(children) - 1)
 
@@ -195,12 +197,13 @@ class TestDTTable(TestCase):
     tree = dt.DTTable.createRandomHierarchicalTable('Dummy', 2, 100,
         0.5, prob_detach=0.4)
     detached_trees = [t for t in tree.getAllNodes() if not t.isAttached()]
+    # Eliminate the root if present
+    if tree in detached_trees:
+      detached_trees.remove(tree)
     expected_count = len(detached_trees)
     html = tree.render()
-    count_left = html.count('name: "<"')
-    count_right = html.count('name: ">"')
+    count_left = html.count('label: "[')
     self.assertEqual(expected_count, count_left)
-    self.assertEqual(expected_count, count_right)
 
 
 if __name__ == '__main__':

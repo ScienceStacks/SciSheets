@@ -411,6 +411,7 @@ class TestTable(unittest.TestCase):
     self.assertTrue(all(is_presents))
     excludes = ['_prologue_formula', 
                 '_epilogue_formula', 
+                '_attached',
                 '_filepath', 
                 CLASS_VARIABLE,
                ]

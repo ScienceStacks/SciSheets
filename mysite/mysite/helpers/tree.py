@@ -33,9 +33,9 @@ class Node(object):
     return self._name
 
   def isAttached(self):
-    if not "_attached" in self.__dict__:
-      self._attached = False
-    return self._attached
+    if not "_is_attached" in self.__dict__:
+      self._is_attached = False
+    return self._is_attached
 
   def isEquivalent(self, other):
     """
@@ -48,7 +48,7 @@ class Node(object):
     return self._name == other._name
 
   def setIsAttached(self, setting):
-    self._attached = setting
+    self._is_attached = setting
 
   def setName(self, name):
     """
@@ -151,7 +151,7 @@ class Tree(Node):
 
   def __init__(self, name):
     super(Tree, self).__init__(name)
-    self._attached = True
+    self._is_attached = True
     self._parent = None
     self._children = []
 
@@ -516,10 +516,12 @@ class Tree(Node):
     """
     def nodeString(node):
       if node.isAttached():
-        pfx = ""
+        result = node._name
       else:
-        pfx = "*"
-      return "%s%s:" % (pfx, node._name)
+        result = "[%s]" % node._name
+        if node._name == 'row':
+          import pdb; pdb.set_trace()
+      return result
 
     sa = StatementAccumulator()
     for node in self.getAllNodes():  # Depth first order

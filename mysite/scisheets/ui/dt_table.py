@@ -184,12 +184,12 @@ class DTTable(UITable):
         result.append(column)
     return result
 
-  def _createSubstitutedChildrenDict(self, substitution_dict, 
+  def _createRecursiveChildrenDict(self, label_dict, 
       excludes=None, children_dict=None,
       sep=named_tree.GLOBAL_SEPARATOR):
     """
-    Substitutes the nodes in children_dict with the values in the substitution_dict.
-    :param dict substituion_dict: keys = {nodes, values} are substitutions
+    Creates a recursive parent-child structure.
+    :param dict label_dict: key is global name, value is label
     :param list-of-Tree excludes: list of nodes to exclude from list
     :param ChildrenDict children_dict:
     :param str sep: separator in components of global name
@@ -197,22 +197,50 @@ class DTTable(UITable):
     """
     if children_dict is None:
       children_dict = self.getChildrenBreadthFirst(excludes=excludes)
+    if excludes is None:
+      excludes = []
     node = children_dict["node"]
-    name = node.getName()
-    name = name.replace('.', sep)
-    result = {"name": name,
-              "label": children_dict["node"].getName(is_global_name=False)}
+    if node == node.getRoot():
+      key = node.getName(is_global_name=False)
+      label_dict[key] = key
+    else:
+      key = node.getName()
+    name = key.replace('.', sep)
+    result = {"name": name, "label": label_dict[key]}
     dicts = []
     for this_dict in children_dict["children"]:
       if this_dict["node"] in excludes:
         continue
-      dicts.append(self._createSubstitutedChildrenDict(
-          substitution_dict,
+      dicts.append(self._createRecursiveChildrenDict(
+          label_dict,
           excludes=excludes, 
           children_dict=this_dict,
           sep=sep))
     result["children"] = dicts
     return result
+
+  def _createLabels(self):
+    """
+    Creates a dictionary of the labels for the nodes.
+    :return dict: key is global name, value is label.
+    """
+    label_dict = {}
+    for child in self.getChildren(is_from_root=True,
+        is_recursive=True):
+      if child in self.getVisibleNodes():
+        key = child.getName()
+        name = child.getName(is_global_name=False)
+        prefix = ""
+        suffix = ""
+        if isinstance(child, Column):
+          if child.getFormula() is not None:
+            prefix = "*"
+        elif not child.isAttached():
+          prefix = "[%s" % prefix
+          suffix = "%s]" % suffix
+        value = "%s%s%s" % (prefix, name, suffix)
+        label_dict[key] = value
+    return label_dict
 
   def render(self, table_id="scitable"):
     """
@@ -230,34 +258,26 @@ class DTTable(UITable):
     Note: Full column name uses a '-' seperator instead of '.'
           because of HTML's handling of '.' in names.
     """
-    colnm_dict = {}
-    for col in self.getChildren(is_from_root=True,
-        is_recursive=True):
-      if col in self.getVisibleNodes():
-        name = col.getName(is_global_name=False)
-        annotate = ""
-        if col.getFormula() is not None:
-          annotate = "*"
-        value = "%s%s" % (annotate, name)
-        colnm_dict[name] = value
     descendents = self.getAllNodes()
     descendents.remove(self)  # Don't include the root name
     excluded_name_columns = self._getExcludedNameColumns()
     columns = [c for c in descendents 
         if c in self.getVisibleNodes() and not c in excluded_name_columns]
-    leaves = DTTable.findLeaves(columns)
+    leaves = DTTable.findLeavesInNodes(columns)
     column_names = [c.getName(is_global_name=False) for c in columns]
     excludes = self.getHiddenNodes()
     excludes.extend(excluded_name_columns)
-    column_hierarchy = self._createSubstitutedChildrenDict(
-        colnm_dict, excludes=excludes, sep=HTML_SEPARATOR)
+    label_dict = self._createLabels()
+    column_hierarchy = self._createRecursiveChildrenDict(
+        label_dict, excludes=excludes, sep=HTML_SEPARATOR)
     column_hierarchy = column_hierarchy["children"]
     js_column_hierarchy = json.dumps(column_hierarchy)
     js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
     js_column_hierarchy = js_column_hierarchy.replace('"children"', 'children')
     js_column_hierarchy = js_column_hierarchy.replace('"label"', 'label')
     js_data = str(makeJSData([c.getCells() for c in leaves]))
-    raw_formulas = [c.getFormula() for c in self.getVisibleNodes()]
+    raw_formulas = [c.getFormula() if isinstance(c, Column) else None
+                    for c in self.getVisibleNodes()]
     formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]
     formula_dict = {}
     for nn in range(len(column_names)):
