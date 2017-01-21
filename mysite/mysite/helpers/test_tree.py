@@ -476,6 +476,17 @@ class TestPositionTree(unittest.TestCase):
     self.assertEqual(expected.difference(actual),
         actual.difference(expected))
 
+  def testFindRootsInNodes(self):
+    num_nodes = 5
+    tree1 = Tree.createRandomTree(num_nodes, 0.2)
+    tree2 = Tree.createRandomTree(num_nodes, 0.2)
+    nodes = tree1.getAllNodes()
+    nodes.extend(tree2.getAllNodes())
+    roots = Tree.findRootsInNodes(nodes)
+    self.assertEqual(len(roots), 2)
+    for tree in [tree1, tree2]:
+      self.assertTrue(tree in roots)
+
     
 
 if __name__ == '__main__':

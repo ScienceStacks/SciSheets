@@ -18,6 +18,7 @@ import numpy as np
 import random
 
 HTML_SEPARATOR = "-"  # Seperator used in html names
+LABEL_HIDDEN = "..."  # Label used for root hidden columns
 
 
 def makeJSData(data):
@@ -227,8 +228,8 @@ class DTTable(UITable):
     label_dict = {}
     for child in self.getChildren(is_from_root=True,
         is_recursive=True):
+      key = child.getName()
       if child in self.getVisibleNodes():
-        key = child.getName()
         name = child.getName(is_global_name=False)
         prefix = ""
         suffix = ""
@@ -240,6 +241,8 @@ class DTTable(UITable):
           suffix = "%s]" % suffix
         value = "%s%s%s" % (prefix, name, suffix)
         label_dict[key] = value
+      else:
+        label_dict[key] = LABEL_HIDDEN
     return label_dict
 
   def render(self, table_id="scitable"):
@@ -265,7 +268,10 @@ class DTTable(UITable):
         if c in self.getVisibleNodes() and not c in excluded_name_columns]
     leaves = DTTable.findLeavesInNodes(columns)
     column_names = [c.getName(is_global_name=False) for c in columns]
-    excludes = self.getHiddenNodes()
+    hiddens = self.getHiddenNodes()
+    hidden_roots = DTTable.findRootsInNodes(hiddens)
+    leaves.extend(hidden_roots)
+    excludes = list(set(hiddens).difference(set(hidden_roots)))
     excludes.extend(excluded_name_columns)
     label_dict = self._createLabels()
     column_hierarchy = self._createRecursiveChildrenDict(
@@ -275,8 +281,8 @@ class DTTable(UITable):
     js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
     js_column_hierarchy = js_column_hierarchy.replace('"children"', 'children')
     js_column_hierarchy = js_column_hierarchy.replace('"label"', 'label')
-    js_data = str(makeJSData([l.getCells() if isinstance(l, Column) else []
-        for l in leaves]))
+    js_data = str(makeJSData([l.getCells() if (isinstance(l, Column) and 
+        (l not in hidden_roots)) else [] for l in leaves]))
     raw_formulas = [c.getFormula() if isinstance(c, Column) else None
                     for c in self.getVisibleNodes()]
     formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]

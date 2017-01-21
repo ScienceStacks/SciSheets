@@ -173,6 +173,16 @@ class Tree(Node):
         leaves.append(node)
     return leaves
 
+  @classmethod
+  def findRootsInNodes(cls, nodes):
+    """
+    Finds the nodes that have no parent within a collection of nodes.
+    :param list-of-Tree nodes:
+    :return list-of-Tree leaves:
+    """
+    return [n for n in nodes if 
+            (n.getParent() is None) or (not n.getParent() in nodes)]
+
   # May have a bug with using column as non-leaf class
   @classmethod
   def createRandomTree(cls, num_nodes, prob_child, seed=0,
