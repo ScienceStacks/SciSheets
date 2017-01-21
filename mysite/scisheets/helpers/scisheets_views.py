@@ -49,11 +49,15 @@ def createCommandDict(request):
     Table   OpenTableFile Change the current Table file to
                      what is specified in the args list
     Table   Prologue Update the prologue code for the table
+    Table   Redo     Revert an undo
     Table   Rename   Change the table name. Must be a valid python name
     Table   SaveAs   Save the table to the specified table file
     Table   Trim     Remove None rows from the end of the table
+    Table   Unhide   Make all columns visible
+    Table   Undo     Revert to previous version
     Cell    Update   Update the specified cell
     Column  Append   Add a new column to the right of the current
+    Column  Hide     Hide the columns
     Column  Insert   Add a new column to the left of the current
     Column  Delete   Delete the column
     Column  Formula  Change the column's formula

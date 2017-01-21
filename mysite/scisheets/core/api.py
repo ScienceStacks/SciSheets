@@ -244,9 +244,9 @@ class API(object):
         raise ValueError("Column %s not found" % name)
       columns.append(column)
     if is_visible:
-      self._table.unhideColumns(columns)
+      self._table.unhideChildren(columns)
     else:
-      self._table.hideColumns(columns)
+      self._table.hideChildren(columns)
 
   def setColumnValue(self, column_name, values):
     """

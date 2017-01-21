@@ -136,6 +136,9 @@ SciSheetsTable.prototype.click = function (oArgs) {
     if (cmd.command === 'Trim') {
       scisheet.utilSendAndReload(cmd);
     }
+    if (cmd.command === 'Unhide') {
+      scisheet.utilSendAndReload(cmd);
+    }
     if (cmd.command === 'Undo') {
       scisheet.utilSendAndReload(cmd);
     }

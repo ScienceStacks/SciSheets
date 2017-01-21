@@ -53,6 +53,9 @@ SciSheetsColumn.prototype.click = function (oArgs) {
         scisheet.utilUpdateFormula(cmd, ep.columnLabel,
             formula, 1, oArgs);
       }
+      if (cmd.command === 'Hide') {
+        scisheet.utilSendAndReload(cmd);
+      }
       if (cmd.command === 'Insert') {
         scisheet.utilPromptForInput(cmd, "New column name", "");
       }

@@ -90,7 +90,8 @@ QUnit.test("table_setup", function (assert) {
                     1, // Rename
                     1, // Save
                     1, // Trim
-                    1]; // Undo
+                    1, // Undo
+                    1]; // Unhide
   clickTester(caption, "TableClickMenu", -1, assert,
       expectAjaxCalls);
   // Column Tests

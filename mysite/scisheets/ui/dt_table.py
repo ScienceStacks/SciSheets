@@ -275,7 +275,8 @@ class DTTable(UITable):
     js_column_hierarchy = js_column_hierarchy.replace('"name"', 'name')
     js_column_hierarchy = js_column_hierarchy.replace('"children"', 'children')
     js_column_hierarchy = js_column_hierarchy.replace('"label"', 'label')
-    js_data = str(makeJSData([c.getCells() for c in leaves]))
+    js_data = str(makeJSData([l.getCells() if isinstance(l, Column) else []
+        for l in leaves]))
     raw_formulas = [c.getFormula() if isinstance(c, Column) else None
                     for c in self.getVisibleNodes()]
     formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]

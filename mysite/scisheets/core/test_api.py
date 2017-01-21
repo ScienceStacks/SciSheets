@@ -54,12 +54,12 @@ class TestAPI(unittest.TestCase):
       return
     names = ['row']
     column = self.api._table.columnFromName(names[0])
-    self.assertEqual(len(self.api._table._hidden_columns), 0)
+    self.assertEqual(len(self.api._table._hidden_children), 0)
     self.api.setColumnVisibility(names, is_visible=False)
-    self.assertEqual(len(self.api._table._hidden_columns), 1)
-    self.assertTrue(column in self.api._table._hidden_columns)
+    self.assertEqual(len(self.api._table._hidden_children), 1)
+    self.assertTrue(column in self.api._table._hidden_children)
     self.api.setColumnVisibility(names, is_visible=True)
-    self.assertEqual(len(self.api._table._hidden_columns), 0)
+    self.assertEqual(len(self.api._table._hidden_children), 0)
 
   def testSetColumnVariables(self):
     if IGNORE_TEST:

@@ -21,7 +21,7 @@ class UITable(Table):
 
   def __init__(self, name):
     super(UITable, self).__init__(name)
-    self._hidden_columns = []
+    self._hidden_children = []
 
   def getSerializationDict(self, class_variable):
     """
@@ -31,8 +31,8 @@ class UITable(Table):
     serialization_dict =   \
         super(UITable, self).getSerializationDict(class_variable)
     serialization_dict[class_variable] = str(self.__class__)
-    column_names = [c.getName() for c in self.getHiddenNodes()]
-    serialization_dict['_hidden_columns'] = column_names
+    child_names = [c.getName() for c in self._hidden_children]
+    serialization_dict['_hidden_children'] = child_names
     return serialization_dict
 
   @classmethod
@@ -46,9 +46,13 @@ class UITable(Table):
       instance = UITable(serialization_dict["_name"])
     super(UITable, cls).deserialize(serialization_dict,
         instance=instance)
-    hidden_columns = [instance.columnFromName(n) for n in  \
-                      serialization_dict["_hidden_columns"]]
-    instance.hideColumns(hidden_columns)
+    if "_hidden_children" in serialization_dict:
+      key = "_hidden_children"
+    else:
+      key = "_hidden_columns"
+    hidden_children = [instance.childFromName(n, is_relative=False) 
+                       for n in serialization_dict[key]]
+    instance.hideChildren(hidden_children)
     return instance
 
   @staticmethod
@@ -96,45 +100,43 @@ class UITable(Table):
     # Copy properties from inherited classes
     instance = super(UITable, self).copy(instance=instance)
     # Set properties specific to this class
-    instance._hidden_columns = self.getHiddenNodes()
+    instance._hidden_children = self._hidden_children
     return instance
 
-  def unhideAllColumns(self):
+  def unhideAllChildren(self):
     """
-    Unmarks columns as as hidden.
+    Unmarks children as as hidden.
     """
-    self._hidden_columns = []
+    self._hidden_children = []
 
-  def _cleanHiddenColumns(self):
+  def _cleanHiddenChildren(self):
     """
-    Columns may be deleted at a lower level
+    Children may be deleted at a lower level
     """
-    self._hidden_columns = [c for c in self._hidden_columns  \
-                            if c in self.getColumns()]
+    self._hidden_children = [c for c in self._hidden_children  \
+                            if c in self.getAllNodes()]
 
-  def hideColumns(self, columns):
+  def hideChildren(self, children):
     """
-    Marks columns as as hidden.
-    :param list-of-Column or Column: columns
+    Marks children as as hidden.
+    :param list-of-NamedTree or NamedTree: children
     """
-    self._cleanHiddenColumns()
-    if isinstance(columns, Column):
-      columns = [columns]
-    for column in columns:
-      if not column in self._hidden_columns:
-        self._hidden_columns.append(column)
+    if not isinstance(children, list):
+      children = [children]
+    for child in children:
+      if not child in self._hidden_children:
+        self._hidden_children.append(child)
 
-  def unhideColumns(self, columns):
+  def unhideChildren(self, children):
     """
-    Unmarks columns as as hidden.
-    :param list-of-Column or Column: columns
+    Unmarks children as as hidden.
+    :param list-of-Column or Column: children
     """
-    self._cleanHiddenColumns()
-    if isinstance(columns, Column):
-      columns = [columns]
-    for column in columns:
-      if column in self._hidden_columns:
-        self._hidden_columns.remove(column)
+    if isinstance(children, Column):
+      children = [children]
+    for child in children:
+      if child in self._hidden_children:
+        self._hidden_children.remove(child)
 
   def getVisibleNodes(self):
     """
@@ -149,7 +151,7 @@ class UITable(Table):
       path = node.findNodesFromRoot()
       is_visible = True
       for ancestor in path:
-        if ancestor in self._hidden_columns:
+        if ancestor in self._hidden_children:
           is_visible = False
           break
       if is_visible:
@@ -160,7 +162,6 @@ class UITable(Table):
     """
     :return list-of-ColumnContainer:
     """
-    self._cleanHiddenColumns()
     visibles = set(self.getVisibleNodes())
     nodes = self.getAllNodes()
     nodes.remove(self)
@@ -275,6 +276,10 @@ class UITable(Table):
         error = str(err)
       response = self._createResponse(error)
       do_save = False
+    elif command == "Unhide":
+      UITable._versionCheckpoint(versioned, target, command)
+      self.unhideAllChildren()
+      response = self._createResponse(error)
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
@@ -346,6 +351,7 @@ class UITable(Table):
     elif command == "Delete":
       UITable._versionCheckpoint(versioned, target, command)
       self.deleteColumn(column)
+      self._cleanHiddenChildren()
     elif command == "Formula":
       UITable._versionCheckpoint(versioned, target, command)
       formula = cmd_dict["args"][0]
@@ -353,6 +359,10 @@ class UITable(Table):
         error = column.setFormula(None)
       else:
         error = column.setFormula(formula)
+    elif command == "Hide":
+      if column in self.getHiddenNodes():
+        raise RuntimeError("Column %s is already hiddent" % column_name)
+      self.hideChildren([column])
     elif command == "Move":
       UITable._versionCheckpoint(versioned, target, command)
       dest_column_name = cmd_dict["args"][0]

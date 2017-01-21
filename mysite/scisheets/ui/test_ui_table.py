@@ -127,14 +127,14 @@ class TestUITable(TestCase):
   def testGetHiddenColumns(self):
     columns = self.table.getColumns()
     for column in columns:
-      self.table.hideColumns(column)
-      self.assertTrue(column in self.table._hidden_columns)
-      self.table.hideColumns([column])
-      self.assertTrue(column in self.table._hidden_columns)
-      self.assertEqual(len(self.table._hidden_columns) , 1)
+      self.table.hideChildren(column)
+      self.assertTrue(column in self.table._hidden_children)
+      self.table.hideChildren([column])
+      self.assertTrue(column in self.table._hidden_children)
+      self.assertEqual(len(self.table._hidden_children) , 1)
       self.assertEqual(self.table.getHiddenNodes(), [column])
-      self.table.unhideColumns(column)
-      self.assertEqual(len(self.table._hidden_columns) , 0)
+      self.table.unhideChildren(column)
+      self.assertEqual(len(self.table._hidden_children) , 0)
 
   def testSerializeDeserialize(self):
     json_str = serialize(self.table)
@@ -176,7 +176,7 @@ class TestUITable(TestCase):
     node_dict = self.createNestedTable()
     table = node_dict["Table"]
     for name in hide_names:
-      table.hideColumns(node_dict[name])
+      table.hideChildren(node_dict[name])
     visibles = table.getVisibleNodes()
     # Add two to account for name columns
     self.assertEqual(len(expected_names)+2, len(visibles))
