@@ -489,6 +489,10 @@ class TestPositionTree(unittest.TestCase):
     tree1.addChild(tree2)
     roots = Tree.findRootsInNodes(nodes)
     self.assertEqual(roots, [tree1])
+    nodes.remove(tree1)
+    roots = Tree.findRootsInNodes(nodes)
+    expected = tree1.getChildren()
+    self.assertEqual(roots, expected)
 
     
 
