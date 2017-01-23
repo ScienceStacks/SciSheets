@@ -360,9 +360,8 @@ class UITable(Table):
       else:
         error = column.setFormula(formula)
     elif command == "Hide":
-      if column in self.getHiddenNodes():
-        raise RuntimeError("Column %s is already hiddent" % column_name)
-      self.hideChildren([column])
+      if not column in self.getHiddenNodes():
+        self.hideChildren([column])
     elif command == "Move":
       UITable._versionCheckpoint(versioned, target, command)
       dest_column_name = cmd_dict["args"][0]
@@ -393,6 +392,8 @@ class UITable(Table):
         is_error = True
       if is_error:
         error = "%s is a duplicate column name." % proposed_name
+    elif command == "Unhide":
+      self.unhideChildren([column])
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)

@@ -66,6 +66,7 @@ def createCommandDict(request):
     Column  Refactor Rename the column and change formulas to use
                      the new name
     Column  Rename   Rename the column
+    Column  Unhide   Unhide the column
     Row     Append   Add a new row after the current row
     Row     Insert   Add a new row before the current row
     Row     Move     Move the row to the specified position

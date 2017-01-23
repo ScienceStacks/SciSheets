@@ -84,6 +84,20 @@ YAHOO.util.Event.addListener(window, "load", function () {
       }
     };
     myDataTable.subscribe("cellMouseoverEvent", highlightEditableCell);
+    myDataTable.subscribe("headerCellMouseoverEvent", function (oArgs) {
+      var ele, ep, newLabel, startPos;
+      ele = oArgs.target;
+      ep = new SciSheetsUtilEvent(sciSheets, oArgs);
+      if (ele.innerText === "...") {
+        newLabel = ep.columnName;
+        // Need to parse columnName
+        while (newLabel.indexOf("-") > 0) {
+          startPos = newLabel.indexOf("-") + 1;
+          newLabel = newLabel.substr(startPos, newLabel.length);
+        }
+        ele.innerText = newLabel;
+      }
+    });
     myDataTable.subscribe("cellMouseoutEvent", myDataTable.onEventUnhighlightCell);
     id = '#' + d.tableId;
     tableElement = $(id);

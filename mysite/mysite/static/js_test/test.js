@@ -109,7 +109,8 @@ QUnit.test("table_setup", function (assert) {
     1, // Insert
     1, // Move
     1,  // Refactor
-    1  // Rename
+    1,  // Rename
+    1  // Unhide
   ];
   // The following tests fail in batch mode
   clickTester(ele3, "ColumnClickMenu", -1, assert,

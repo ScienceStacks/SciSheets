@@ -72,6 +72,9 @@ SciSheetsColumn.prototype.click = function (oArgs) {
         newPrompt = "Rename column '" + ep.columnLabel + "': ";
         scisheet.utilPromptForInput(cmd, newPrompt, ep.columnLabel);
       }
+      if (cmd.command === 'Unhide') {
+        scisheet.utilSendAndReload(cmd);
+      }
     });
   }
 };
