@@ -32,11 +32,6 @@ class Node(object):
   def getName(self):
     return self._name
 
-  def isAttached(self):
-    if not "_is_attached" in self.__dict__:
-      self._is_attached = False
-    return self._is_attached
-
   def isEquivalent(self, other):
     """
     Determines if the node has the same data.
@@ -46,9 +41,6 @@ class Node(object):
     if not (self.isAttached() == other.isAttached()):
       return False
     return self._name == other._name
-
-  def setIsAttached(self, setting):
-    self._is_attached = setting
 
   def setName(self, name):
     """
@@ -312,21 +304,37 @@ class Tree(Node):
     """
     return [n._name for n in self.findNodesFromRoot()]
 
+  def findNodesFromAncestor(self, tree):
+    """
+    Finds the list of nodes from the current node to the tree.
+    If tree is not an ancestor, None is returned.
+    :param Tree tree;
+    :return list-of-Tree or None:
+    """
+    found = False
+    cur = self
+    path = []
+    while True:
+      path.append(cur)
+      if cur == tree:
+        found = True
+        break
+      parent = cur.getParent()
+      if parent is None:
+        break
+      cur = parent
+    if found:
+      path.reverse()
+    else:
+      path = None
+    return path
+
   def findNodesFromRoot(self):
     """
     Finds the list of nodes from the root.
     :return list-of-Tree:
     """
-    done = False
-    cur = self
-    path = []
-    while not done:
-      path.append(cur)
-      if cur.getParent() is None:
-        done = True
-      cur = cur.getParent()
-    path.reverse()
-    return path
+    return self.findNodesFromAncestor(self.getRoot())
 
   def getChildren(self, is_from_root=False, is_recursive=False):
     """
@@ -405,6 +413,22 @@ class Tree(Node):
       nodes.append(node)
     return nodes
 
+  def getAttachedLeaves(self, is_from_root=False):
+    """
+    Finds all of the leaves of this tree
+    that are attached to the graph
+    :param bool is_from_root: start with the root
+    :return list-of-Tree: nodes without children
+    """
+    leaves = self.getLeaves(is_from_root=is_from_root)
+    attached_leaves = []
+    for leaf in leaves:
+      nodes = leaf.findNodesFromAncestor(self)
+      nodes.remove(self)
+      if all([n.isAttached() for n in nodes]):
+        attached_leaves.append(leaf)
+    return attached_leaves
+
   # TODO: Test with multiple levels of nodes
   def getLeaves(self, is_from_root=False):
     """
@@ -412,7 +436,7 @@ class Tree(Node):
     :return list-of-Tree: nodes without children
     """
     return [n for n in self.getAllNodes(is_from_root=is_from_root)  \
-            if len(n.getChildren()) == 0]
+            if n.isLeaf()]
     
   # TODO: Test with multiple levels of nodes
   def getNonLeaves(self, is_from_root=False):
@@ -454,6 +478,11 @@ class Tree(Node):
 
   def isAlwaysLeaf(self):
     return self.__class__.is_always_leaf
+
+  def isAttached(self):
+    if not "_is_attached" in self.__dict__:
+      self._is_attached = False
+    return self._is_attached
 
   def isLeaf(self):
     return len(self.getChildren()) == 0
@@ -514,6 +543,9 @@ class Tree(Node):
     if parent is not None:
       parent._children.remove(self)
     self.setParent(None)
+
+  def setIsAttached(self, setting):
+    self._is_attached = setting
 
   def setParent(self, tree):
     self._parent = tree

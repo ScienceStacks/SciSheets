@@ -95,7 +95,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
           startPos = newLabel.indexOf("-") + 1;
           newLabel = newLabel.substr(startPos, newLabel.length);
         }
-        ele.innerText = newLabel;
+        ele.innerText = "..." + newLabel + "...";
       }
     });
     myDataTable.subscribe("cellMouseoutEvent", myDataTable.onEventUnhighlightCell);
@@ -122,9 +122,10 @@ YAHOO.util.Event.addListener(window, "load", function () {
     //   this - table
     // oArgs depends on the environment of the click
     myDataTable.subscribe("cellClickEvent", function (oArgs) {
-      var ep, sciSheetsRow, sciSheetsCell;
+      var ep, sciSheetsRow, sciSheetsCell, scisheets;
+      scisheets = sciSheets;
       ep = new SciSheetsUtilEvent(sciSheets, oArgs);
-      if (ep.columnName === "row") {
+      if (ep.columnLabel === scisheets.ROWNAME) {
         sciSheetsRow = new SciSheetsRow(sciSheets);
         sciSheetsRow.click(oArgs);
       } else {
@@ -132,24 +133,6 @@ YAHOO.util.Event.addListener(window, "load", function () {
         sciSheetsCell.click(oArgs);
       }
     });
-
-
-      /* Mutation
-      table.addRow({ item: 'collet', cost: 0.42, price: 2.65 });
-      
-      table.addRows([
-          { item: 'nut',    cost: 0.42, price: 2.65 },
-          { item: 'washer', cost: 0.01, price: 0.08 },
-          { item: 'bit',    cost: 0.19, price: 0.97 }
-      ]);
-      
-      // Remove table records by their Model, id, clientId, or index
-      table.removeRow(0);
-      
-      // Modify a record by passing its id, clientId, or index, followed by an
-      // object with new field values
-      table.modifyRow('record_4', { cost: 0.74 });
-      */
 
     return {
       oDS: myDataSource,

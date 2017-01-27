@@ -31,6 +31,7 @@ SciSheetsRow.prototype.click = function (oArgs) {
     cmd = scisheet.createServerCommand();
     cmd.command = eleId;
     cmd.row = ep.rowIndex;
+    cmd.columnName = ep.columnName;
     cmd.target = "Row";
     if (cmd.command === 'Insert') {
       scisheet.utilSendAndReload(cmd);

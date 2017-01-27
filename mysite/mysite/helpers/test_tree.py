@@ -18,7 +18,7 @@ NAME5 = "NAME5"
 NEW_NAME = "XXYY"
 COMPLEX_TREE_LIST = [NAME2, NAME4, NAME3]
 
-IGNORE_TEST = False
+IGNORE_TEST = True
 
 #############################
 # Helper Functions
@@ -76,8 +76,10 @@ class TestTree(unittest.TestCase):
   def _createComplexTree(self, root_name=NAME):
     """
     Creates the following tree
-      NAME1->NAME2->NAME4
-      NAME1->NAME3
+      NAME1
+        NAME2
+          NAME4
+        NAME3
     :param str root_name: name of the root node
     """
     self.tree2 = self._AddChild(NAME2)
@@ -316,6 +318,29 @@ class TestTree(unittest.TestCase):
     children_dict = self.root.getChildrenBreadthFirst(
         includes=[self.tree2])
     self.assertEqual(len(children_dict.keys()), 0)
+
+  def testGetAttachedLeaves(self):
+    """
+      NAME1
+        NAME2
+          NAME4
+        NAME3
+    """
+    if IGNORE_TEST:
+      return
+    # All leaves
+    self._createComplexTree()
+    leaves = self.root.getAttachedLeaves()
+    self.assertEqual(set(leaves),
+        set([self.tree4, self.tree3]))
+    # Eliminate NAME4
+    self.tree2.setIsAttached(False)
+    leaves = self.root.getAttachedLeaves()
+    self.assertEqual(leaves, [self.tree3])
+    # Detaching the root shouldn't matter
+    self.root.setIsAttached(False)
+    leaves = self.root.getAttachedLeaves()
+    self.assertEqual(leaves, [self.tree3])
 
 
 class TestPositionTree(unittest.TestCase):

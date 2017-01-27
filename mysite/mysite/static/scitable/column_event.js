@@ -11,8 +11,6 @@
 /*jslint indent: 2 */
 /*jslint newcap: true */
 
-var ROW_NAME = "row";
-
 function SciSheetsColumn(scisheet) {
   "use strict";
   this.scisheet = scisheet;
@@ -25,7 +23,7 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
-  if (ep.columnName  === ROW_NAME) {
+  if (ep.columnLabel  === scisheet.ROWNAME) {
     scisheet.utilClick("NameColumnClickMenu", oArgs.event, function (eleId) {
       var msg;
       msg = "Row Name Column clicked.";

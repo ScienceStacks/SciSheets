@@ -63,6 +63,7 @@ function SciSheets() {
   this.tableFile = null;  // No file specified for the table
   this.blinker = new SciSheetsBlinker($("#notification-working"));
   this.tableName = null;
+  this.ROWNAME = "row";
 }
 
 // Setup
@@ -172,7 +173,11 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
     this.target = oArgs.target;
     column = table.getColumn(this.target);
     this.columnName = column.field;
-    this.columnLabel = column.label;
+    if (column.label === undefined) {
+      this.columnLabel = column.field;
+    } else {
+      this.columnLabel = column.label;
+    }
     this.rowIndex = table.getRecordIndex(this.target) + 1;
   }
   this.rowIndex = table.getRecordIndex(this.target) + 1;

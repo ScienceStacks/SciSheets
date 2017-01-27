@@ -13,6 +13,23 @@ import os
 import re
 
 
+class _Response(dict):
+  """
+  Object provided in response to a UI request
+  """
+
+  def __init__(self, error):
+    """
+    :param Exception error:
+    """
+    if error is None:
+      self['data'] = "OK"
+      self['success'] = True
+    else:
+      self['data'] = str(error)
+      self['success'] = False
+
+
 class UITable(Table):
   """
   Extends the Table class to provide rendering of the Table as
@@ -64,16 +81,12 @@ class UITable(Table):
     # Returns a response of the desired type
     # Input: error - result of processing a command
     #                (may be None)
-    # Output: response
+    # _Response
     if error is None:
       new_error = self.evaluate(user_directory=settings.SCISHEETS_USER_PYDIR)
     else:
       new_error = error
-    if new_error is None:
-      response = {'data': "OK", 'success': True}
-    else:
-      response = {'data': str(new_error), 'success': False}
-    return response
+    return _Response(error)
 
   def isEquivalent(self, other):
     """
@@ -401,9 +414,13 @@ class UITable(Table):
     return response
 
   def _rowCommand(self, cmd_dict):
-    # Processes a UI request for a Row
-    # Input: cmd_dict - dictionary with the keys
-    # Output: response - response to user
+    """
+    Processes a UI request for a Row
+    :param dict cmd_dict: - dictionary with the keys
+    :return dict: keys are data and success
+    Handles detached tables by determining the lowest
+    table in the table tree that issued the command.
+    """
     error = None
     target = "Row"
     command = cmd_dict["command"]
