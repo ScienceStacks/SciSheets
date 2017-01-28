@@ -12,7 +12,6 @@ from column_container import ColumnContainer
 from table_evaluator import TableEvaluator
 from helpers.serialize_deserialize import deserialize
 import errors as er
-import column as cl
 import json
 import numpy as np
 import os
@@ -423,7 +422,7 @@ class Table(ColumnContainer):
       error = "**%s is a duplicate name" % column.getName()
       return error
     else:
-      error = cl.Column.isPermittedName(  \
+      error = Column.isPermittedName(  \
           column.getName(is_global_name=False))
       if error is not None:
         return error
@@ -484,13 +483,15 @@ class Table(ColumnContainer):
     self.adjustColumnLength()
     return instance
 
-  def deleteColumn(self, column):
+  def deleteColumn(self, node):
     """
-    Deletes a column from the table.
+    Deletes a node from the table.
     :param column: column obj to delete
     """
-    self.removeColumn(column)
-    column.setTable(None)
+    if isinstance(node, Column):
+      self.removeColumn(node)
+    else:
+      node.removeTree()
 
   def deleteRows(self, indicies):
     """
