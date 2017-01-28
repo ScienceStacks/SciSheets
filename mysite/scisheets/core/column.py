@@ -249,8 +249,8 @@ class Column(NamedTree):
     """
     :param new_data: array to replace existing data
     """
-    if len(new_data) != len(self._cells):
-      raise RuntimeError("Inconsistent lengths")
+    #if len(new_data) != len(self._cells):
+    #  raise RuntimeError("Inconsistent lengths")
     self._setDatavalues(new_data)
 
   def _setDatavalues(self, values):

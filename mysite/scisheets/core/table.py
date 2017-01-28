@@ -196,7 +196,8 @@ class Table(ColumnContainer):
             in self.getLeaves()]
 
   def f(self):
-    return [(c.getName(), c.getFormula()) for c in self.getColumns()]
+    return [(c.getName(), c.getFormula()) 
+            for c in self.getColumns(is_attached=False)]
 
   def setCapture(self, filename, data):
     dc = DataCapture(filename)
@@ -219,7 +220,7 @@ class Table(ColumnContainer):
     names = []
     for row_num in range(nrows_table):
       names.append(Table._rowNameFromIndex(row_num))
-    for column in self.getLeaves():
+    for column in self.getLeaves(is_attached=True):
       if Table.isNameColumn(column):
         column.addCells(list(names), replace=True)
 
@@ -271,7 +272,8 @@ class Table(ColumnContainer):
     """
     :return list-of-Column:
     """
-    result = [c for c in self.getColumns() if c.getFormula() is not None]
+    result = [c for c in self.getColumns(is_attached=False) 
+              if c.getFormula() is not None]
     return result
 
   def getRow(self, row_index=None):
@@ -426,7 +428,7 @@ class Table(ColumnContainer):
       if error is not None:
         return error
     if index is None:
-      index = len(self.getColumns())
+      index = len(self.getColumns(is_attached=False))
     # Handle the different cases of adding a column
     self.addChild(column, position=index)
     # Case 1: First column after name column
@@ -526,7 +528,8 @@ class Table(ColumnContainer):
     :param str column_name:
     :return bool: True if column is present
     """
-    return any([c.getName() == column_name for c in self.getColumns()])
+    return any([c.getName() == column_name 
+                for c in self.getColumns(is_attached=False)])
 
   def isEquivalent(self, other_table):
     """
@@ -582,7 +585,7 @@ class Table(ColumnContainer):
     idx = index
     if idx is None:
       idx = self.numRows()
-    for child in self.getLeaves():
+    for child in self.getLeaves(is_attached=True):
       if ColumnContainer.isColumn(child):
         name = child.getName(is_global_name=False)
         if name in row.keys():
@@ -604,7 +607,8 @@ class Table(ColumnContainer):
     """
     Returns the number of rows in the table
     """
-    return max([c.numCells() for c in self.getColumns()])
+    attached_leaves = self.getAttachedNodes(self.getColumns())
+    return max([c.numCells() for c in attached_leaves])
 
   # TODO: This won't work with nested columns
   def refactorColumn(self, cur_colnm, new_colnm):
@@ -632,7 +636,7 @@ class Table(ColumnContainer):
     if column is None:
       raise ValueError("Column %s does not exist." % cur_colnm)
     column.setName(new_colnm)
-    columns = self.getColumns()
+    columns = self.getColumns(is_attached=False)
     changed_columns = []
     try:
       # Do the Columns
@@ -705,7 +709,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
         column.replaceCells(list(new_names))
     self._updateNameColumn()
     # Update the order of values in each column
-    for column in self.getLeaves():
+    for column in self.getLeaves(is_attached=True):
       if not Table.isNameColumn(column):
         data = column.getCells()
         new_data = [data[n] for n in sel_index]

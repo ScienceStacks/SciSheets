@@ -86,7 +86,7 @@ class UITable(Table):
       new_error = self.evaluate(user_directory=settings.SCISHEETS_USER_PYDIR)
     else:
       new_error = error
-    return _Response(error)
+    return _Response(new_error)
 
   def isEquivalent(self, other):
     """
@@ -424,25 +424,28 @@ class UITable(Table):
     error = None
     target = "Row"
     command = cmd_dict["command"]
+    column_name = cmd_dict["column_name"]
+    column = self.columnFromName(column_name)
+    table = column.getParent()
     row_index = cmd_dict['row_index']
     versioned = self.getVersionedFile()
     if command == "Move":
       if versioned is not None:
         versioned.checkpoint(id="%s/%s" % (target, command))
       new_name = cmd_dict["args"][0]
-      self.renameRow(row_index, new_name)
+      table.renameRow(row_index, new_name)
     elif command == "Delete":
       if versioned is not None:
         versioned.checkpoint(id="%s/%s" % (target, command))
-      self.deleteRows([row_index])
+      table.deleteRows([row_index])
     elif command == "Insert":
       UITable._versionCheckpoint(versioned, target, command)
       row = self.getRow()
-      self.addRow(row, row_index - 0.1)  # Add a new row before 
+      table.addRow(row, row_index - 0.1)  # Add a new row before 
     elif command == "Append":
       UITable._versionCheckpoint(versioned, target, command)
       row = self.getRow()
-      self.addRow(row, row_index + 0.1)  # Add a new row after
+      table.addRow(row, row_index + 0.1)  # Add a new row after
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)

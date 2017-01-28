@@ -330,16 +330,17 @@ class TestTree(unittest.TestCase):
       return
     # All leaves
     self._createComplexTree()
-    leaves = self.root.getAttachedLeaves()
+    all_leaves = self.root.getLeaves()
+    leaves = self.root.getAttachedLeaves(all_leaves)
     self.assertEqual(set(leaves),
         set([self.tree4, self.tree3]))
     # Eliminate NAME4
     self.tree2.setIsAttached(False)
-    leaves = self.root.getAttachedLeaves()
+    leaves = self.root.getAttachedLeaves(all_leaves)
     self.assertEqual(leaves, [self.tree3])
     # Detaching the root shouldn't matter
     self.root.setIsAttached(False)
-    leaves = self.root.getAttachedLeaves()
+    leaves = self.root.getAttachedLeaves(all_leaves)
     self.assertEqual(leaves, [self.tree3])
 
 

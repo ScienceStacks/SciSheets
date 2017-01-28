@@ -83,15 +83,18 @@ class ColumnContainer(NamedTree):
     return [c.getName() for c in self.getLeaves()  \
             if ColumnContainer.isColumn(c)]
 
-  def getColumns(self, is_recursive=True):
+  def getColumns(self, is_recursive=True, is_attached=True):
     """
     :param bool is_recursive: finds all columns from current node
+    :param bool is_attached: only return attached columns
     :return: list with the column objects in sequence
     """
     if is_recursive:
       candidates = self.getLeaves()
     else:
       candidates = self.getChildren()
+    if is_attached:
+      candidates = self.getAttachedNodes(candidates)
     return [c for c in candidates if ColumnContainer.isColumn(c)]
 
   def getFilepath(self):

@@ -413,30 +413,34 @@ class Tree(Node):
       nodes.append(node)
     return nodes
 
-  def getAttachedLeaves(self, is_from_root=False):
+  def getAttachedNodes(self, nodes):
     """
-    Finds all of the leaves of this tree
-    that are attached to the graph
-    :param bool is_from_root: start with the root
+    Finds the nodes that are attached to this tree.
+    :param list-of-tree nodes:
     :return list-of-Tree: nodes without children
     """
-    leaves = self.getLeaves(is_from_root=is_from_root)
-    attached_leaves = []
-    for leaf in leaves:
-      nodes = leaf.findNodesFromAncestor(self)
-      nodes.remove(self)
-      if all([n.isAttached() for n in nodes]):
-        attached_leaves.append(leaf)
-    return attached_leaves
+    attached = []
+    for node in nodes:
+      node_path = node.findNodesFromAncestor(self)
+      if node_path is None:
+        continue
+      node_path.remove(self)
+      if all([n.isAttached() for n in node_path]):
+        attached.append(node)
+    return attached
 
   # TODO: Test with multiple levels of nodes
-  def getLeaves(self, is_from_root=False):
+  def getLeaves(self, is_from_root=False, is_attached=False):
     """
     :param bool is_from_root: start with the root
+    :param bool is_attached: only return leaves attached to the Tree
     :return list-of-Tree: nodes without children
     """
-    return [n for n in self.getAllNodes(is_from_root=is_from_root)  \
-            if n.isLeaf()]
+    leaves = [n for n in self.getAllNodes(is_from_root=is_from_root)  \
+              if n.isLeaf()]
+    if is_attached:
+      leaves = self.getAttachedNodes(leaves)
+    return leaves
     
   # TODO: Test with multiple levels of nodes
   def getNonLeaves(self, is_from_root=False):

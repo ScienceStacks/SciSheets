@@ -174,8 +174,8 @@ class TestColumn(unittest.TestCase):
     self.assertTrue(all(
         [self.column._cells[n] == LIST1[n] for n in range(len(LIST1))]))
     short_array = np.array(range(len(LIST1) - 1))
-    with self.assertRaises(RuntimeError):
-      self.column.replaceCells(short_array)
+    # No exception should be caused
+    self.column.replaceCells(short_array)
 
   def testIsEquivalent(self):
     if IGNORE_TEST:
