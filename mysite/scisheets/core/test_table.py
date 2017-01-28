@@ -156,7 +156,7 @@ class TestTable(unittest.TestCase):
       return
     num_col = self.table.numColumns()
     column = self.table.columnFromName(ht.COLUMN2)
-    self.table.deleteColumn(column)
+    column.removeTree()
     self.assertEqual(num_col-1, self.table.numColumns())
 
   def testDeleteSubtable(self):
@@ -167,7 +167,7 @@ class TestTable(unittest.TestCase):
     self.assertFalse(old_table.isEquivalent(self.table))
     first_subtable = self.table.tableFromName(ht.SUBTABLE_NAME)
     second_subtable = first_subtable.tableFromName(NEW_SUBTABLE)
-    first_subtable.removeChild(second_subtable)
+    second_subtable.removeTree()
     self.assertTrue(old_table.isEquivalent(self.table))
 
   def testComplexDeleteAndAdd(self):
@@ -181,7 +181,7 @@ class TestTable(unittest.TestCase):
     original_table = self.table.copy()
     first_subtable = self.table.tableFromName(ht.SUBTABLE_NAME)
     original_first_subtable = first_subtable.copy()
-    self.table.removeChild(first_subtable)
+    first_subtable.removeTree()
     self.assertFalse(original_table.isEquivalent(self.table))
     self.table.addChild(original_first_subtable)
     self.assertTrue(original_table.isEquivalent(self.table))
@@ -376,7 +376,7 @@ class TestTable(unittest.TestCase):
     self.assertFalse(self.table.isEquivalent(new_table))
     this_column.updateCell(new_cell, 0)
     self.assertTrue(self.table.isEquivalent(new_table))
-    self.table.deleteColumn(this_column)
+    this_column.removeTree()
     self.assertFalse(self.table.isEquivalent(new_table))
 
   def testIsEquivalent(self):

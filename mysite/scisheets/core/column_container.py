@@ -153,18 +153,6 @@ class ColumnContainer(NamedTree):
     """
     return len(self.getColumns())
 
-  def removeChild(self, child):
-    """
-    Removes the chld object from the table
-    """
-    child.removeTree()
-
-  def removeColumn(self, column):
-    """
-    Removes the column object from the table
-    """
-    self.removeChild(column)
-
   def setColumns(self, columns):
     [self.addChild(c) for c in columns]
 

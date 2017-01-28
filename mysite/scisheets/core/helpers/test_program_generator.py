@@ -163,7 +163,7 @@ class TestProgramGenerator(unittest.TestCase):
   def testFormulaColumns(self):
     columns = self.generator._formulaColumns()
     self.assertEqual(columns[0].getName(), 'VALID_FORMULA')
-    self.table.deleteColumn(columns[0])
+    columns[0].removeTree()
     columns = self.generator._formulaColumns()
     self.assertEqual(len(columns), 0)
 

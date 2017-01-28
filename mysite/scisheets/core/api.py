@@ -349,7 +349,7 @@ class APIFormulas(API):
     """
     column = self.getColumn(column_id, validate=False)
     if column is not None:
-      _  = self._table.deleteColumn(column)
+      _  = column.removeTree()
       self.setColumnVariables()
 
   def updateTableCellsAndColumnVariables(self, excludes):

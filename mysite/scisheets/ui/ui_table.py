@@ -363,7 +363,7 @@ class UITable(Table):
         parent.addChild(new_column, new_column_index)
     elif command == "Delete":
       UITable._versionCheckpoint(versioned, target, command)
-      self.deleteColumn(column)
+      column.removeTree()
       self._cleanHiddenChildren()
     elif command == "Formula":
       UITable._versionCheckpoint(versioned, target, command)

@@ -472,7 +472,7 @@ class Table(ColumnContainer):
     if instance is None:
       instance = Table(self.getName(is_global_name=False))
     name_column = instance.columnFromName(NAME_COLUMN_STR)
-    instance.deleteColumn(name_column)  # Avoid duplicate
+    name_column.removeTree()  # Avoid duplicate
     # Copy everything required from inherited classes
     super(Table, self).copy(instance=instance)
     instance._coerceNameColumnToStr()
@@ -482,16 +482,6 @@ class Table(ColumnContainer):
     instance.setIsEvaluateFormulas(self.getIsEvaluateFormulas())
     self.adjustColumnLength()
     return instance
-
-  def deleteColumn(self, node):
-    """
-    Deletes a node from the table.
-    :param column: column obj to delete
-    """
-    if isinstance(node, Column):
-      self.removeColumn(node)
-    else:
-      node.removeTree()
 
   def deleteRows(self, indicies):
     """
