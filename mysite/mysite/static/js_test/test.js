@@ -63,7 +63,7 @@ function clickTester(clickEle,
 
 // These tests only verify that there is no exception
 // when clicking through the menu options
-QUnit.test("table_setup", function (assert) {
+QUnit.test("sheet_setup", function (assert) {
   "use strict";
   var caption, ele2, ele3, data_table, cell_1_1, cell_1_2,
     expectAjaxCalls,
@@ -77,12 +77,13 @@ QUnit.test("table_setup", function (assert) {
     columnDefinitions;
   /* Mock Ajax */
   sciSheets.mockAjax = true;
-  /* Table Tests */
+  /* Sheet Tests */
   caption = document.getElementsByTagName("caption")[0];
-  assert.ok(caption !== null, "Verify table caption");
+  assert.ok(caption !== null, "Verify sheet caption");
   expectAjaxCalls = [1,  // Delete
                     1,  // Epilogue
                     1,  // Export
+                    1,  // Hide
                     1,  // New
                     1,  // Open
                     1,  // Prologue
@@ -92,8 +93,24 @@ QUnit.test("table_setup", function (assert) {
                     1, // Trim
                     1, // Undo
                     1]; // Unhide
+  clickTester(caption, "SheetClickMenu", -1, assert,
+      expectAjaxCalls);
+  /* Table Tests */
+  expectAjaxCalls = [1,  // Append
+                    1,  // Delete
+                    1,  // Epilogue
+                    1,  // Hide
+                    1,  // Insert
+                    1,  // Move
+                    1,  // Prologue
+                    1,  // Refactor
+                    1, // Rename
+                    1, // Trim
+                    1]; // Unhide
+  /* Do Later: Need a nested table to test this
   clickTester(caption, "TableClickMenu", -1, assert,
       expectAjaxCalls);
+  */
   // Column Tests
   // If the number of columns is changed from n to m, 
   // must change dt<n> to dt<m>.

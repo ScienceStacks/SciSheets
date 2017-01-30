@@ -4,7 +4,7 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global $, alert, YAHOO, SciSheets, SciSheetsColumn, SciSheetsUtilEvent */
+/*global $, alert, YAHOO, SciSheets, SciSheetsSheet, SciSheetsUtilEvent */
 /*global YUI */
 /*global $, sciSheets, SciSheetsTable, SciSheetsColumn, SciSheetsRow, SciSheetsCell, DataSource */
 /*jslint unparam: true*/
@@ -72,6 +72,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
     sciSheets.formulas = d.formulas;
     sciSheets.epilogue = d.epilogue;
     sciSheets.prologue = d.prologue;
+    sciSheets.responseSchema = d.responseSchema;
     sciSheets.tableFile = d.tableFile;
     sciSheets.tableName = d.tableCaption;
 
@@ -103,18 +104,20 @@ YAHOO.util.Event.addListener(window, "load", function () {
     tableElement = $(id);
     captionElement = tableElement.find('caption');
 
-    /*------------------- Catch table clicks  --------------*/
+    /*---------------- Catch Sheet clicks (caption)  --------------*/
     captionElement.click(function (oArgs) {
-      var sciSheetsTable;
-      sciSheetsTable = new SciSheetsTable(sciSheets);
-      sciSheetsTable.click(oArgs);
+      var sciSheetsSheet;
+      sciSheetsSheet = new SciSheetsSheet(sciSheets);
+      /* Sheet will redirect Table commands. */
+      sciSheetsSheet.click(oArgs);
     });
 
-    /*------------------- Catch column clicks  --------------*/
+    /*--------------- Catch column and Table clicks  --------------*/
     myDataTable.subscribe("theadCellClickEvent", function (oArgs) {
-      var sciSheetsColumn;
-      sciSheetsColumn = new SciSheetsColumn(sciSheets);
-      sciSheetsColumn.click(oArgs);
+      var sciSheetsTable;
+      sciSheetsTable = new SciSheetsTable(sciSheets);
+      /* Table will redirect to Column handler. */
+      sciSheetsTable.click(oArgs);
     });
 
     /* --------------- Catch cell clicks ------------------------*/

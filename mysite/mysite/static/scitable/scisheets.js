@@ -50,16 +50,17 @@ SciSheetsBlinker.prototype.stop = function () {
 
 /* --------------- SciSheets Objects ------------------*/
 
-/* Create the SciSheets namespace. Values are assigned in table_setup.js */
+/* Create the SciSheets namespace. Values are assigned in sheet_setup.js */
 function SciSheets() {
   "use strict";
   this.baseURL = "http://localhost:8000/scisheets/";
-  this.dataTable = null;  // dataTable for this SciSheet
+  this.dataTable = null;  // dataTable for this Sheet
   this.mockAjax = false;
   this.ajaxCallCount = 0;
   this.formulas = null;  // Dictionary by column name of formulas
   this.epilogue = null;
   this.prologue = null;
+  this.responseSchema = null;
   this.tableFile = null;  // No file specified for the table
   this.blinker = new SciSheetsBlinker($("#notification-working"));
   this.tableName = null;

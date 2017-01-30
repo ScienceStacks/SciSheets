@@ -147,10 +147,11 @@ height: auto;
   <option>Select a Table file</option>	
 </select> 	
 
-<ul style="width:100px;display:none" id="TableClickMenu">
+<ul style="width:100px;display:none" id="SheetClickMenu">
 	<li id="delete" >Delete</li>
 	<li id="export" >Export</li>
 	<li id="epilogue" >Epilogue</li>
+	<li id="hide" >Hide</li>
 	<li id="new" >New</li>
 	<li id="open" >Open</li>
 	<li id="prologue" >Prologue</li>
@@ -159,6 +160,20 @@ height: auto;
 	<li id="saveas">SaveAs</li>
 	<li id="trim">Trim</li>
 	<li id="undo">Undo</li>
+	<li id="unhide">Unhide</li>
+</ul>
+
+<ul style="width:100px;display:none" id="TableClickMenu">
+	<li id="append">Append</li>
+	<li id="delete" >Delete</li>
+	<li id="epilogue" >Epilogue</li>
+	<li id="hide" >Hide</li>
+	<li id="insert">Insert</li>
+	<li id="move">Move</li>
+	<li id="prologue" >Prologue</li>
+	<li id="refactor">Refactor</li>
+	<li id="rename">Rename</li>
+	<li id="trim">Trim</li>
 	<li id="unhide">Unhide</li>
 </ul>
 
@@ -274,10 +289,12 @@ Formula...
 
 <script type="text/javascript" src='{% static "scitable/scisheets.js" %}'> </script>
 <script type="text/javascript" src='{% static "scitable/table_event.js" %}'> </script>
+<script type="text/javascript" src='{% static "scitable/sheet_event.js" %}'> </script>
+<script type="text/javascript" src='{% static "scitable/column_event.js" %}'> </script>
 <script type="text/javascript" src='{% static "scitable/column_event.js" %}'> </script>
 <script type="text/javascript" src='{% static "scitable/row_event.js" %}'> </script>
 <script type="text/javascript" src='{% static "scitable/cell_event.js" %}'> </script>
-<script type="text/javascript" src='{% static "scitable/table_setup.js" %}'> </script>
+<script type="text/javascript" src='{% static "scitable/sheet_setup.js" %}'> </script>
 <!-- ========= Incorporate data from server ====================== -->
 {% include "scitable_data.html" %}
 

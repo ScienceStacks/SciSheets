@@ -21,8 +21,6 @@ SciSheetsColumn.prototype.click = function (oArgs) {
   var ep, scisheet, formula;
   scisheet = this.scisheet;
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
-  $(ep.target).effect("highlight", 1000000);
-  $(ep.target).toggle("highlight");
   if (ep.columnLabel  === scisheet.ROWNAME) {
     scisheet.utilClick("NameColumnClickMenu", oArgs.event, function (eleId) {
       var msg;
