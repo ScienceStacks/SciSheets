@@ -232,13 +232,14 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
 
 // Generic click handle for a popup menu
 // Input: eleId - ID of the popup menu to use
-//        evObj - event object
+//        oArgs - arguments provided to event handler
 //        selectedEleFunc - function that processes the selected element
 //            argument - ID of the selected element
 // Output: establishes the click handlers
-SciSheets.prototype.utilClick = function (eleId, evObj, selectedEleFunc) {
+SciSheets.prototype.utilClick = function (eleId, oArgs, selectedEleFunc) {
   "use strict";
-  var clickMenu, selected, scisheet;
+  var clickMenu, selected, scisheet, evObj;
+  evObj = oArgs.event;
   selected = false;
   scisheet = this;
   clickMenu = document.getElementById(eleId);
@@ -248,7 +249,7 @@ SciSheets.prototype.utilClick = function (eleId, evObj, selectedEleFunc) {
       role: "listbox",
       select: function (event, data) {
         selected = true;
-        selectedEleFunc(event.currentTarget.firstChild.data);
+        selectedEleFunc(event.currentTarget.firstChild.data, oArgs);
       },
       blur: function (event, data) {
         if (event.handleObj.type === "mouseout") {
