@@ -18,34 +18,38 @@ function SciSheetsTable(scisheet) {
 
 SciSheetsTable.prototype.click = function (oArgs) {
   "use strict";
-  var ep, scisheet, scisheetColumn;
+  var ep, scisheet, scisheetColumn, processClick;
+
+  processClick = function (eleId) {
+    /* Processes a click on a Table menu */
+    /* Input: eleId - menu item selection */
+    this.processCommand(eleId, oArgs, scisheet);
+  };
+
   scisheet = this.scisheet;
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
-  if (scisheet.responseSchema.indexOf(ep.columnName) > 0) {
+  if (scisheet.responseSchema.indexOf(ep.columnName) > -1) {
     /* Check if this is a Column instead of a Table */
     scisheetColumn = new SciSheetsColumn(scisheet);
     scisheetColumn.click(oArgs);
   } else {
     /* Is a table command. */
-    this.utilClick("TableClickMenu", oArgs, this.processClick);
+    this.utilClick("TableClickMenu", oArgs, processClick);
   }
 };
 
-SciSheetsTable.prototype.processClick = function (eleId, oArgs) {
-  /* Processes a click on a Table menu */
-  /* Input: eleId - menu item selection */
+SciSheetsTable.prototype.processCommand = function (eleId, oArgs, scisheet) {
   'use strict';
-  var cmd, simpleCommands, scisheet;
-  scisheet = this.scisheet;
+  var cmd, simpleCommands;
   console.log("Table click. Selected " + eleId + ".");
   cmd = scisheet.createServerCommand();
   cmd.command = eleId;
   cmd.target = "Table";
   simpleCommands = ['Append', 'Delete', 'Hide', 'Insert', 'Move',
       'Trim', 'Unhide'];
-  if (simpleCommands.indexOf(cmd.command) > 0) {
+  if (simpleCommands.indexOf(cmd.command) > -1) {
     scisheet.utilSendAndReload(cmd);
   } else if (cmd.command === 'Epilogue') {
     scisheet.utilUpdateFormula(cmd, cmd.command,

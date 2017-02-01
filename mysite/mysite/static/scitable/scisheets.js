@@ -239,17 +239,19 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
 SciSheets.prototype.utilClick = function (eleId, oArgs, selectedEleFunc) {
   "use strict";
   var clickMenu, selected, scisheet, evObj;
-  evObj = oArgs.event;
   selected = false;
   scisheet = this;
   clickMenu = document.getElementById(eleId);
-  $(clickMenu).css({left: evObj.pageX, top: evObj.pageY});
+  if (oArgs.event !== undefined) {
+    evObj = oArgs.event;
+    $(clickMenu).css({left: evObj.pageX, top: evObj.pageY});
+  }
   $(clickMenu).menu(
     {
       role: "listbox",
       select: function (event, data) {
         selected = true;
-        selectedEleFunc(event.currentTarget.firstChild.data, oArgs);
+        selectedEleFunc(event.currentTarget.firstChild.data);
       },
       blur: function (event, data) {
         if (event.handleObj.type === "mouseout") {

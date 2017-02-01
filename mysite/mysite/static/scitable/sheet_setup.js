@@ -92,7 +92,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
       if (ele.innerText === "...") {
         newLabel = ep.columnName;
         // Need to parse columnName
-        while (newLabel.indexOf("-") > 0) {
+        while (newLabel.indexOf("-") > -1) {
           startPos = newLabel.indexOf("-") + 1;
           newLabel = newLabel.substr(startPos, newLabel.length);
         }
