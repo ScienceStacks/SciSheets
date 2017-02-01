@@ -60,7 +60,7 @@ function SciSheets() {
   this.formulas = null;  // Dictionary by column name of formulas
   this.epilogue = null;
   this.prologue = null;
-  this.responseSchema = null;
+  this.responseSchema = [];
   this.tableFile = null;  // No file specified for the table
   this.blinker = new SciSheetsBlinker($("#notification-working"));
   this.tableName = null;
@@ -68,13 +68,17 @@ function SciSheets() {
 }
 
 // Setup
-SciSheets.prototype.setup = function (dataTable) {
+SciSheets.prototype.setup = function (dataTable, responseSchema) {
   "use strict";
-  var ele;
+  var ele, i;
   this.dataTable = dataTable;
   // Handle caption
   ele = document.getElementsByTagName("caption")[0];
   $(ele).css("font-size", "14px");
+  this.responseSchema = [];
+  for (i = 0; i < responseSchema.length; i++) {
+    this.responseSchema.push(responseSchema[i].key);
+  }
 };
 
 // Data and column setup

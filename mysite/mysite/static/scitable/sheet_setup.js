@@ -68,11 +68,10 @@ YAHOO.util.Event.addListener(window, "load", function () {
         draggableColumns: true
       }
         );
-    sciSheets.setup(myDataTable);
+    sciSheets.setup(myDataTable, d.responseSchema);
     sciSheets.formulas = d.formulas;
     sciSheets.epilogue = d.epilogue;
     sciSheets.prologue = d.prologue;
-    sciSheets.responseSchema = d.responseSchema;
     sciSheets.tableFile = d.tableFile;
     sciSheets.tableName = d.tableCaption;
 

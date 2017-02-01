@@ -18,7 +18,9 @@ function SciSheetsRow(scisheet) {
 
 SciSheetsRow.prototype.click = function (oArgs) {
   "use strict";
-  var ep, scisheet, processClick;
+  var ep, scisheet, processClick, scisheetRow;
+  scisheetRow = this;
+  scisheet = scisheetRow.scisheet;
 
   processClick = function (eleId) {
     var msg, cmd, ele;
@@ -70,8 +72,7 @@ SciSheetsRow.prototype.click = function (oArgs) {
     }
   };
 
-  scisheet = this.scisheet;
-  ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
+  ep = new SciSheetsUtilEvent(scisheet, oArgs);
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
   scisheet.utilClick("RowClickMenu", oArgs, processClick);

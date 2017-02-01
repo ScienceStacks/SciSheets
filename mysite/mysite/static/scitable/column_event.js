@@ -18,7 +18,9 @@ function SciSheetsColumn(scisheet) {
 
 SciSheetsColumn.prototype.click = function (oArgs) {
   "use strict";
-  var ep, scisheet, processClick;
+  var ep, scisheet, processClick, scisheetColumn;
+  scisheetColumn = this;
+  scisheet = scisheetColumn.scisheet;
 
   processClick = function (eleId) {
     var msg, cmd, newPrompt, formula;
@@ -64,7 +66,6 @@ SciSheetsColumn.prototype.click = function (oArgs) {
     }
   };
 
-  scisheet = this.scisheet;
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
   if (ep.columnLabel  === scisheet.ROWNAME) {
     scisheet.utilClick("NameColumnClickMenu", oArgs, function (eleId, oArgs) {

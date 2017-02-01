@@ -18,15 +18,16 @@ function SciSheetsTable(scisheet) {
 
 SciSheetsTable.prototype.click = function (oArgs) {
   "use strict";
-  var ep, scisheet, scisheetColumn, processClick;
+  var ep, scisheet, scisheetTable, scisheetColumn, processClick;
+  scisheetTable = this;
+  scisheet = scisheetTable.scisheet;
 
   processClick = function (eleId) {
     /* Processes a click on a Table menu */
     /* Input: eleId - menu item selection */
-    this.processCommand(eleId, oArgs, scisheet);
+    scisheetTable.processCommand(eleId, oArgs, scisheet);
   };
 
-  scisheet = this.scisheet;
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
   $(ep.target).effect("highlight", 1000000);
   $(ep.target).toggle("highlight");
@@ -36,7 +37,7 @@ SciSheetsTable.prototype.click = function (oArgs) {
     scisheetColumn.click(oArgs);
   } else {
     /* Is a table command. */
-    this.utilClick("TableClickMenu", oArgs, processClick);
+    scisheet.utilClick("TableClickMenu", oArgs, processClick);
   }
 };
 

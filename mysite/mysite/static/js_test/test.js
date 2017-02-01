@@ -121,7 +121,7 @@ QUnit.test("sheet_setup", function (assert) {
     1, // Append
     1,  // Delete
     1, // Formula
-    0, // Hide
+    1, // Hide
     1, // Insert
     1, // Move
     1,  // Refactor

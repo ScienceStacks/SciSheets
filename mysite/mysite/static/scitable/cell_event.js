@@ -18,8 +18,9 @@ function SciSheetsCell(scisheet) {
 
 SciSheetsCell.prototype.click = function (oArgs) {
   "use strict";
-  var ep, scisheet;
-  scisheet = this.scisheet;
+  var ep, scisheet, scisheetCell;
+  scisheetCell = this;
+  scisheet = scisheetCell.scisheet;
   if (oArgs.target) {
     ep = new SciSheetsUtilEvent(scisheet, oArgs);
     scisheet.dataTable.subscribe('editorCancelEvent', function (editEvent) {
@@ -40,6 +41,6 @@ SciSheetsCell.prototype.click = function (oArgs) {
       scisheet.utilSendAndReload(cmd);
       scisheet.dataTable.unsubscribe('editorSaveEvent');
     });
-    this.scisheet.dataTable.onEventShowCellEditor(oArgs);
+    scisheet.dataTable.onEventShowCellEditor(oArgs);
   }
 };

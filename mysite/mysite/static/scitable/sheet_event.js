@@ -92,6 +92,8 @@ SciSheetsSheet.prototype.utilExportDialog = function (cmd) {
 SciSheetsSheet.prototype.click = function (oArgs) {
   "use strict";
   var scisheet, scisheetSheet, processClick;
+  scisheetSheet = this;
+  scisheet = scisheetSheet.scisheet;
 
   processClick = function (eleId) {
     var cmd, tableCommands, scisheetTable, simpleCommands;
@@ -101,7 +103,7 @@ SciSheetsSheet.prototype.click = function (oArgs) {
     tableCommands = ['Epilogue', 'Prologue', 'Rename', 'Trim', 'Unhide'];
     if (tableCommands.indexOf(cmd.command) > -1) {
       /* Table command */
-      scisheetTable = this.scisheetTable;
+      scisheetTable = new SciSheetsTable(scisheet);
       scisheetTable.processCommand(cmd.command, oArgs, scisheet);
     } else {
       cmd.target = "Sheet";
@@ -125,7 +127,5 @@ SciSheetsSheet.prototype.click = function (oArgs) {
     }
   };
 
-  scisheet = this.scisheet;
-  scisheetSheet = this;
   this.scisheet.utilClick("SheetClickMenu", oArgs, processClick);
 };
