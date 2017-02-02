@@ -29,6 +29,7 @@ SciSheets.prototype.utilMenuProcessor = function (eleId, oArgs, target) {
   console.log(target + " click. Selected " + eleId + ".");
   cmd = this.createServerCommand();
   cmd.command = eleId;
+  cmd.columnName = ep.columnName;
   cmd.target = target;
   simpleCommands = ['Append', 'Delete', 'Hide', 'Trim', 'Unhide'];
   if (simpleCommands.indexOf(cmd.command) > -1) {

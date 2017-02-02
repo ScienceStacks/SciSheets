@@ -100,7 +100,7 @@ SciSheetsSheet.prototype.click = function (oArgs) {
     console.log("Table click. Selected " + eleId + ".");
     cmd = scisheet.createServerCommand();
     cmd.command = eleId;
-    tableCommands = ['Epilogue', 'Prologue', 'Rename', 'Trim', 'Unhide'];
+    tableCommands = ['Epilogue', 'Prologue', 'Rename', 'Trim'];
     if (tableCommands.indexOf(cmd.command) > -1) {
       /* Table command */
       scisheet.utilMenuProcessor(eleId, oArgs, "Table", oArgs);

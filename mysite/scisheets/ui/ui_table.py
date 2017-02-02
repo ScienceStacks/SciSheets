@@ -233,11 +233,11 @@ class UITable(Table):
     table = self.childFromName(cmd_dict["column_name"], is_all=True)
     do_save = True
     error = None
+    response = self._createResponse(error)
     command = cmd_dict["command"]
     versioned = self.getVersionedFile()
     if command == "Delete":
       table.removeTree()
-      response = self._createResponse(error)
     elif command == "Epilogue":
       epilogue = cmd_dict['args'][0]
       error = table.setEpilogue(epilogue)
@@ -245,7 +245,6 @@ class UITable(Table):
     elif command == "Hide":
       UITable._versionCheckpoint(versioned, target, command)
       self.hideChildren([table])
-      response = self._createResponse(error)
     elif command == "Move":
       UITable._versionCheckpoint(versioned, target, command)
       dest_child_name = cmd_dict["args"][0]
@@ -254,7 +253,9 @@ class UITable(Table):
       try:
        self.moveChildToOtherchild(table, dest_child)
       except Exception:
-        error = "Table %s does not exists." % dest_child_name
+        import pdb; pdb.set_trace()
+        error = "%s does not exists." % dest_child_name
+        response = self._createResponse(error)
     elif command == "Prologue":
       prologue = cmd_dict['args'][0]
       error = table.setPrologue(prologue)
@@ -267,11 +268,9 @@ class UITable(Table):
     elif command == "Trim":
       UITable._versionCheckpoint(versioned, target, command)
       table.trimRows()
-      response = self._createResponse(error)
     elif command == "Unhide":
       UITable._versionCheckpoint(versioned, target, command)
       self.unhideChildren([table])
-      response = self._createResponse(error)
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)

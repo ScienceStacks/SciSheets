@@ -177,7 +177,7 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
   } else {
     this.target = oArgs.target;
     column = table.getColumn(this.target);
-    if (column == null) {
+    if (column === null) {
       this.columnLabel = "";
       this.columnName = "";
     } else {
