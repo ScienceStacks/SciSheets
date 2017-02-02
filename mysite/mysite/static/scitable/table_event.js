@@ -25,7 +25,7 @@ SciSheetsTable.prototype.click = function (oArgs) {
   processClick = function (eleId) {
     /* Processes a click on a Table menu */
     /* Input: eleId - menu item selection */
-    scisheetTable.processCommand(eleId, oArgs, scisheet);
+    scisheet.utilMenuProcessor(eleId, oArgs, "Table");
   };
 
   ep = new SciSheetsUtilEvent(scisheet, oArgs);
@@ -38,30 +38,5 @@ SciSheetsTable.prototype.click = function (oArgs) {
   } else {
     /* Is a table command. */
     scisheet.utilClick("TableClickMenu", oArgs, processClick);
-  }
-};
-
-SciSheetsTable.prototype.processCommand = function (eleId, oArgs, scisheet) {
-  'use strict';
-  var cmd, simpleCommands;
-  console.log("Table click. Selected " + eleId + ".");
-  cmd = scisheet.createServerCommand();
-  cmd.command = eleId;
-  cmd.target = "Table";
-  simpleCommands = ['Append', 'Delete', 'Hide', 'Insert', 'Move',
-      'Trim', 'Unhide'];
-  if (simpleCommands.indexOf(cmd.command) > -1) {
-    scisheet.utilSendAndReload(cmd);
-  } else if (cmd.command === 'Epilogue') {
-    scisheet.utilUpdateFormula(cmd, cmd.command,
-        scisheet.epilogue, 1, oArgs);
-  } else if (cmd.command === 'Prologue') {
-    scisheet.utilUpdateFormula(cmd, cmd.command,
-        scisheet.prologue, 1, oArgs);
-  } else if (cmd.command === 'Rename') {
-    scisheet.utilPromptForInput(cmd, "New table name",
-        scisheet.tableCaption);
-  } else {
-    alert("**Invalid command: " + cmd.command);
   }
 };

@@ -27,7 +27,7 @@ SciSheetsSheet.prototype.utilSelectFile = function (fileNames) {
     cmd = scisheet.createServerCommand();
     cmd.target = "Sheet";
     cmd.args = [this.id];
-    cmd.command = "OpenTableFile";
+    cmd.command = "OpenSheetFile";
     $(selMenu).css("display", "none");
     scisheet.utilSendAndReload(cmd);
   };
@@ -96,15 +96,14 @@ SciSheetsSheet.prototype.click = function (oArgs) {
   scisheet = scisheetSheet.scisheet;
 
   processClick = function (eleId) {
-    var cmd, tableCommands, scisheetTable, simpleCommands;
+    var cmd, tableCommands, simpleCommands;
     console.log("Table click. Selected " + eleId + ".");
     cmd = scisheet.createServerCommand();
     cmd.command = eleId;
     tableCommands = ['Epilogue', 'Prologue', 'Rename', 'Trim', 'Unhide'];
     if (tableCommands.indexOf(cmd.command) > -1) {
       /* Table command */
-      scisheetTable = new SciSheetsTable(scisheet);
-      scisheetTable.processCommand(cmd.command, oArgs, scisheet);
+      scisheet.utilMenuProcessor(eleId, oArgs, "Table", oArgs);
     } else {
       cmd.target = "Sheet";
       /* Sheet command */
@@ -114,7 +113,7 @@ SciSheetsSheet.prototype.click = function (oArgs) {
       } else if (cmd.command === 'Export') {
         scisheetSheet.utilExportDialog(cmd);
       } else if (cmd.command === 'Open') {
-        cmd.command = 'ListTableFiles';
+        cmd.command = 'ListSheetFiles';
         scisheet.sendServerCommand(cmd, function (names) {
           // User selects the file to open
           scisheetSheet.utilSelectFile(names);

@@ -68,18 +68,22 @@ class NamedTree(PositionTree):
       result = name
     return result
 
-  def childFromName(self, name, is_relative=True):
+  def childFromName(self, name, is_relative=True, is_all=False):
     """
     Finds a child with the specified name or None.
     Note that Columns must be leaves in the Tree.
     :param name: name of the column
     :param bool is_relative: name is relative to the current name
        (as opposed to a global name)
+    :param bool is_all: include the root
     :return list-of-PositionTree:
     """
     global_name = self.globalName(name, 
         is_relative=is_relative)
-    for child in self.getChildren(is_recursive=True):
+    nodes = self.getChildren(is_recursive=True)
+    if is_all:
+      nodes.insert(0, self)
+    for child in nodes:
       global_child_name = self.createGlobalName(child)
       if global_name == global_child_name:
         return child

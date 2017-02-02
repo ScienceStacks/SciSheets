@@ -40,22 +40,25 @@ def createCommandDict(request):
   Input: request - HTML request object
   Output: cmd_dict - dictionary of the command
    TARGET  COMMAND   DESCRIPTION
-    Table   Delete   Delete the table file and switch to the
+    Sheet   Delete   Delete the sheet file and switch to the
                      using a random file
-    Table   Epilogue Update the epilogue code for the table
-    Table   Export   Export the table into python
-    Table   ListTableFiles Returns a list of the table files
-    Table   New      Opens a new blank table
-    Table   OpenTableFile Change the current Table file to
+    Sheet   Export   Export the table into python
+    Sheet   ListSheetFiles Returns a list of the table files
+    Sheet   New      Opens a new blank table
+    Sheet   OpenSheetFile Change the current Table file to
                      what is specified in the args list
+    Sheet   Redo     Revert an undo
+    Sheet   SaveAs   Save the sheet to the specified file file
+    Sheet   Unhide   Make all tables and columns visible
+    Sheet   Undo     Revert to previous version
+    Table   Delete   Delete the table
+    Table   Epilogue Update the epilogue code for the table
+    Table   Hide     Hide the table
+    Table   Move     Reposition the table
     Table   Prologue Update the prologue code for the table
-    Table   Redo     Revert an undo
     Table   Rename   Change the table name. Must be a valid python name
-    Table   SaveAs   Save the table to the specified table file
     Table   Trim     Remove None rows from the end of the table
-    Table   Unhide   Make all columns visible
-    Table   Undo     Revert to previous version
-    Cell    Update   Update the specified cell
+    Table   Unhide   Make all columns of the Table visible
     Column  Append   Add a new column to the right of the current
     Column  Hide     Hide the columns
     Column  Insert   Add a new column to the left of the current
@@ -70,6 +73,7 @@ def createCommandDict(request):
     Row     Append   Add a new row after the current row
     Row     Insert   Add a new row before the current row
     Row     Move     Move the row to the specified position
+    Cell    Update   Update the specified cell
   Handles the conversion from the HTML name to the python name
   for a column.
   """
@@ -264,16 +268,16 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
   command_result = None
   table = getTable(request)
   target = cmd_dict["target"]
-  if target == 'Table':
+  if target == 'Sheet':
     if cmd_dict['command'] == "Delete":
       current_file_path = _getTableFilepath(request)
       os.remove(current_file_path)
       command_result = _makeNewTable(request)
-    elif cmd_dict['command'] == "ListTableFiles":
+    elif cmd_dict['command'] == "ListSheetFiles":
       command_result = _listTableFiles()
     elif cmd_dict['command'] == "New":
       command_result = _makeNewTable(request)
-    elif cmd_dict['command'] == "OpenTableFile":
+    elif cmd_dict['command'] == "OpenSheetFile":
       filename = cmd_dict['args'][0]
       table_filepath = _createTableFilepath(filename)
       table = readObjectFromFile(table_filepath, verify=False)

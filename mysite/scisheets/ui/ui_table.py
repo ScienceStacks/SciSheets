@@ -204,6 +204,8 @@ class UITable(Table):
       response = self._rowCommand(cmd_dict)
     elif target == "Table":
       response, do_save = self._tableCommand(cmd_dict)
+    elif target == "Sheet":
+      response, do_save = self._sheetCommand(cmd_dict)
     else:
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
@@ -228,15 +230,65 @@ class UITable(Table):
     # Output: response, do_save - response to user
     #         do_save - bool (if should save table)
     target = "Table"
+    table = self.childFromName(cmd_dict["column_name"], is_all=True)
     do_save = True
     error = None
     command = cmd_dict["command"]
     versioned = self.getVersionedFile()
-    if command == "Epilogue":
-      epilogue = cmd_dict['args'][0]
-      error = self.setEpilogue(epilogue)
+    if command == "Delete":
+      table.removeTree()
       response = self._createResponse(error)
-    elif command == "Export":
+    elif command == "Epilogue":
+      epilogue = cmd_dict['args'][0]
+      error = table.setEpilogue(epilogue)
+      response = self._createResponse(error)
+    elif command == "Hide":
+      UITable._versionCheckpoint(versioned, target, command)
+      self.hideChildren([table])
+      response = self._createResponse(error)
+    elif command == "Move":
+      UITable._versionCheckpoint(versioned, target, command)
+      dest_child_name = cmd_dict["args"][0]
+      dest_child = self.childFromName(dest_child_name, is_relative=False)
+      table = self.childFromName(cmd_dict["column_name"])
+      try:
+       self.moveChildToOtherchild(table, dest_child)
+      except Exception:
+        error = "Table %s does not exists." % dest_child_name
+    elif command == "Prologue":
+      prologue = cmd_dict['args'][0]
+      error = table.setPrologue(prologue)
+      response = self._createResponse(error)
+    elif command == "Rename":
+      UITable._versionCheckpoint(versioned, target, command)
+      proposed_name = cmd_dict['args'][0]
+      error = table.setName(proposed_name)
+      response = self._createResponse(error)
+    elif command == "Trim":
+      UITable._versionCheckpoint(versioned, target, command)
+      table.trimRows()
+      response = self._createResponse(error)
+    elif command == "Unhide":
+      UITable._versionCheckpoint(versioned, target, command)
+      self.unhideChildren([table])
+      response = self._createResponse(error)
+    else:
+      msg = "Unimplemented %s command: %s." % (target, command)
+      raise NotYetImplemented(msg)
+    return response, do_save
+
+  def _sheetCommand(self, cmd_dict):
+    # TODO: Test
+    # Processes a UI request for a Table
+    # Input: cmd_dict - dictionary with the keys
+    # Output: response, do_save - response to user
+    #         do_save - bool (if should save table)
+    target = "Sheet"
+    do_save = True
+    error = None
+    command = cmd_dict["command"]
+    versioned = self.getVersionedFile()
+    if command == "Export":
       args_list = cmd_dict['args']
       # TODO: Create correct format for argument in test
       if isinstance(args_list, list):
@@ -260,10 +312,6 @@ class UITable(Table):
       fullname = "%s.%s" % (file_name, settings.SCISHEETS_EXT)
       file_path = os.path.join(settings.BASE_DIR, fullname)
       SET_CURRENT_FILE(file_path) # This is current in the session variable.
-    elif command == "Prologue":
-      prologue = cmd_dict['args'][0]
-      error = self.setPrologue(prologue)
-      response = self._createResponse(error)
     elif command == "Redo":
       try:
         versioned.redo()
@@ -272,15 +320,6 @@ class UITable(Table):
         error = str(err)
       response = self._createResponse(error)
       do_save = False
-    elif command == "Rename":
-      UITable._versionCheckpoint(versioned, target, command)
-      proposed_name = cmd_dict['args'][0]
-      error = self.setName(proposed_name)
-      response = self._createResponse(error)
-    elif command == "Trim":
-      UITable._versionCheckpoint(versioned, target, command)
-      self.trimRows()
-      response = self._createResponse(error)
     elif command == "Undo":
       try:
         versioned.undo()

@@ -703,7 +703,7 @@ class TestScisheetsViews(TestCase):
     self._evaluateTable(FORMULA, True)
     # Do the export
     ajax_cmd = self._ajaxCommandFactory()
-    ajax_cmd['target'] = "Table"
+    ajax_cmd['target'] = "Sheet"
     ajax_cmd['command'] = "Export"
     inputs = "Col_1"
     outputs = "Col_%d, Col_%d" % (NCOL-1, NCOL-2)
@@ -728,6 +728,7 @@ class TestScisheetsViews(TestCase):
     # Do the trim
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
+    ajax_cmd['columnName'] = table.getName()
     ajax_cmd['command'] = 'Trim'
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -749,6 +750,7 @@ class TestScisheetsViews(TestCase):
     ajax_cmd = self._ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
     ajax_cmd['command'] = 'Rename'
+    ajax_cmd['columnName'] = table.getName()
     ajax_cmd['args[]'] = new_name
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -774,7 +776,7 @@ class TestScisheetsViews(TestCase):
     self._tableRename("valid_name", True)
     self._tableRename("invalid_name!", False)
 
-  def testTableListTableFiles(self):
+  def testTableListSheetFiles(self):
     if IGNORE_TEST:
        return
     filename = "dummy"
@@ -783,8 +785,8 @@ class TestScisheetsViews(TestCase):
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     ajax_cmd = self._ajaxCommandFactory()
-    ajax_cmd['target'] = 'Table'
-    ajax_cmd['command'] = 'ListTableFiles'
+    ajax_cmd['target'] = 'Sheet'
+    ajax_cmd['command'] = 'ListSheetFiles'
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
@@ -794,15 +796,15 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(filename in content["data"])
     helper.destroy()
 
-  def testTableOpenTableFiles(self):
+  def testTableOpenSheetFiles(self):
     if IGNORE_TEST:
        return
     filename = "dummy"
     helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     helper.create()
     ajax_cmd = self._ajaxCommandFactory()
-    ajax_cmd['target'] = 'Table'
-    ajax_cmd['command'] = 'OpenTableFile'
+    ajax_cmd['target'] = 'Sheet'
+    ajax_cmd['command'] = 'OpenSheetFile'
     ajax_cmd['args[]'] = filename
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -819,8 +821,9 @@ class TestScisheetsViews(TestCase):
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     ajax_cmd = self._ajaxCommandFactory()
-    ajax_cmd['target'] = 'Table'
+    ajax_cmd['target'] = 'Sheet'
     ajax_cmd['command'] = 'SaveAs'
+    ajax_cmd['columnName'] = table.getName()
     ajax_cmd['args[]'] = filename
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -847,7 +850,7 @@ class TestScisheetsViews(TestCase):
     helper.create()
     self._tableSave(filename)
     ajax_cmd = self._ajaxCommandFactory()
-    ajax_cmd['target'] = 'Table'
+    ajax_cmd['target'] = 'Sheet'
     ajax_cmd['command'] = 'Delete'
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -864,7 +867,7 @@ class TestScisheetsViews(TestCase):
     filename = st.SCISHEETS_DEFAULT_TABLEFILE
     _ = self._createBaseTable()
     ajax_cmd = self._ajaxCommandFactory()
-    ajax_cmd['target'] = 'Table'
+    ajax_cmd['target'] = 'Sheet'
     ajax_cmd['command'] = 'New'
     command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
@@ -1026,7 +1029,7 @@ for x in Col_2:
     column = changed_table.columnFromIndex(colidx)
     self.assertEqual(column.getFormula(), formula)
     # Undo the change
-    undone_table = self._submitCommand(changed_table, "Table", "Undo", colidx, "")
+    undone_table = self._submitCommand(changed_table, "Sheet", "Undo", colidx, "")
     column = undone_table.columnFromIndex(colidx)
     self.assertIsNone(column.getFormula())
     self.assertTrue(compareTableData(old_table, undone_table))
@@ -1044,7 +1047,7 @@ for x in Col_2:
     colidx = 1
     formula = "sin(4)"
     table = self._testUndoTable(formula)
-    undone_table = self._submitCommand(table, "Table", "Redo", colidx, "")
+    undone_table = self._submitCommand(table, "Sheet", "Redo", colidx, "")
     changed_table = self._submitCommand(undone_table, "Column", "Formula", colidx, formula)
     column = changed_table.columnFromIndex(colidx)
     self.assertEqual(column.getFormula(), formula)
@@ -1058,9 +1061,11 @@ for x in Col_2:
     """
     for command in ["Prologue", "Epilogue"]:
       base_response = self._createBaseTable()
+      table = self._getTableFromResponse(base_response)
       ajax_cmd = self._ajaxCommandFactory()
       ajax_cmd['target'] = "Table"
       ajax_cmd['command'] = command
+      ajax_cmd['columnName'] = table.getName()
       ajax_cmd['args[]'] = formula
       command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
       response = self.client.get(command_url)
