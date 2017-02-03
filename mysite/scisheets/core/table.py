@@ -125,6 +125,10 @@ class Table(ColumnContainer):
     pairs = zip(leaves, data_columns)
     # Populate the leaves of the Hierarchical Table
     [htable.addCells(l, d.getCells(), replace=True) for l, d in pairs]
+    # Validate the table
+    if NAME_COLUMN_STR in  \
+        [n.getName(is_global_name=False) for n in htable.getNonLeaves()]:
+      import pdb; pdb.set_trace()
     return htable
 
   def getSerializationDict(self, class_variable):

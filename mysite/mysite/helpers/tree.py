@@ -215,8 +215,8 @@ class Tree(Node):
       rand = random.random()
       if (rand < prob_child) and (count + 1 < num_nodes):
         if not isinstance(node, nonleaf_cls):
-          name = node._name
-          node.removeTree()
+          count += 1
+          name = getNodeName(count)
           node = nonleaf_cls(name)
           parent.addChild(node)
         node.addChild(new_node)
@@ -565,8 +565,6 @@ class Tree(Node):
         result = node._name
       else:
         result = "[%s]" % node._name
-        if node._name == 'row':
-          import pdb; pdb.set_trace()
       return result
 
     sa = StatementAccumulator()

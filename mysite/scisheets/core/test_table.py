@@ -16,6 +16,9 @@ import unittest
 TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_table_1")
 NEW_SUBTABLE = "ANOTHER_SUBTABLE"
+TABLE_NAME = "My_Table"
+NCOL = 10
+NROW = 3
 
 IGNORE_TEST = False
 
@@ -454,6 +457,23 @@ class TestTable(unittest.TestCase):
       if not tb.Table.isNameColumn(column):
         num += 1
     self.assertEqual(len(columns), num)
+
+  def testCreateRandomTable(self):
+    table = tb.Table.createRandomTable(TABLE_NAME,
+        NROW, NCOL)
+    self.assertEqual(table.numRows(), NROW)
+    self.assertEqual(table.numColumns(), NCOL+1)  # Include name col
+    NCOLSTR = min(2, NCOL)
+    new_table = tb.Table.createRandomTable(TABLE_NAME,
+        NROW, NCOL, ncolstr=NCOLSTR)
+    num_str_col = 0
+    for n in range(1, NCOL+1):  # Added the name column
+      cell = new_table.getColumns()[n].getCells()[0]
+      if isinstance(cell, str):
+        num_str_col += 1
+    self.assertEqual(num_str_col, NCOLSTR)
+    self.assertEqual(new_table.numColumns(), NCOL + 1)  # Include the 'row' column
+    self.assertEqual(new_table.numRows(), NROW)
 
   def testCreateRandomHierarchicalTable(self):
     if IGNORE_TEST:

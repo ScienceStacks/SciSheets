@@ -135,11 +135,8 @@ class DTTable(UITable):
     Converts the HTML name to a python name.
     :param str html_name:
     """
-    try:
-      python_name = html_name.replace(HTML_SEPARATOR, 
-          named_tree.GLOBAL_SEPARATOR)
-    except Exception as e:
-      import pdb; pdb.set_trace()
+    python_name = html_name.replace(HTML_SEPARATOR, 
+        named_tree.GLOBAL_SEPARATOR)
     return python_name
 
   @staticmethod
