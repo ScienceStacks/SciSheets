@@ -1,4 +1,4 @@
-'''Tests for UITable.'''
+'''Tests for UITable for Column Commands.'''
 
 from mysite import settings
 from scisheets.core.helpers.serialize_deserialize import serialize,  \
@@ -20,45 +20,11 @@ TABLE_NAME = "MY_TABLE"
 IGNORE_TEST = True
     
 
-class TestUITable(TestCase):
+class TestUITableCell(TestCase):
 
   def setUp(self):
     self.table = ui.UITable.createRandomHierarchicalTable(TABLE_NAME, 
         NROW, 3*NCOL, 0.3, prob_detach=0.2)
-
-  def testProcessCommandCellUpdate(self):
-    if IGNORE_TEST:
-      return
-    table = ui.UITable.createRandomTable(TABLE_NAME,
-        NROW, NCOL)
-    before_table = table.copy()
-    column_index = 3
-    column = table.getChildAtPosition(column_index)
-    column_name = column.getName(is_global_name=False)
-    ROW_INDEX = 2
-    NEW_VALUE = 9999
-    cmd_dict = {
-                'target':  'Cell',
-                'command': 'Update',
-                'table_name': None,
-                'column_name': column_name,
-                'row_index': ROW_INDEX,
-                'value': NEW_VALUE
-               }
-    table.processCommand(cmd_dict)
-    self.assertEqual(int(table.getCell(ROW_INDEX, column_name)),
-      NEW_VALUE)
-    for c in range(table.numColumns()):
-      self.assertEqual(before_table.getColumns()[c].getName(), 
-          table.getColumns()[c].getName())
-      for r in range(table.numRows()):
-        if not (r == ROW_INDEX and c == column_index):
-          self.assertEqual(before_table.getCell(r,c), 
-              table.getCell(r,c))
-
-  def testProcessCommandTableDelete(self):
-    if IGNORE_TEST:
-      return
 
   def _testProcessCommandColumnDelete(self, target):
     """
@@ -127,16 +93,6 @@ class TestUITable(TestCase):
     self.assertEqual(self.table.numColumns(), old_num_columns)
     self.assertEqual(self.table.getColumns()[COLUMN_INDEX].getName(), NEW_COLUMN_NAME)
 
-  def testAddEscapesToQuotes(self):
-    if IGNORE_TEST:
-      return
-    list_of_str = ["xy", "x'y'"]
-    mod_list_of_str = ui.UITable._addEscapesToQuotes(list_of_str)
-    self.assertEqual(mod_list_of_str[1].index("\\"), 1)
-    list_of_str = range(3)
-    mod_list_of_str = ui.UITable._addEscapesToQuotes(list_of_str)
-    self.assertTrue(list_of_str == mod_list_of_str)
-
   def testGetHiddenColumns(self):
     if IGNORE_TEST:
       return
@@ -150,40 +106,6 @@ class TestUITable(TestCase):
       self.assertEqual(self.table.getHiddenNodes(), [column])
       self.table.unhideChildren(column)
       self.assertEqual(len(self.table._hidden_children) , 0)
-
-  def testSerializeDeserialize(self):
-    if IGNORE_TEST:
-      return
-    json_str = serialize(self.table)
-    new_table = deserialize(json_str)
-    self.assertTrue(self.table.isEquivalent(new_table))
-
-  def createNestedTable(self):
-    """
-    Table
-      A
-      B
-      Subtable
-        C
-        D
-    :return dict: name, object pairs
-    """
-    if IGNORE_TEST:
-      return
-    table = ui.UITable("Table")
-    result = {"Table": table}
-    result["A"] = Column("A")
-    table.addColumn(result["A"])
-    result["B"] = Column("B")
-    table.addColumn(result["B"])
-    subtable = ui.UITable("Subtable")
-    result["Subtable"] = subtable
-    table.addChild(subtable)
-    result["C"] = Column("C")
-    subtable.addColumn(result["C"])
-    result["D"] = Column("D")
-    subtable.addColumn(result["D"])
-    return result
 
   def _testGetVisibleColumns(self, hide_names, expected_names):
     """
