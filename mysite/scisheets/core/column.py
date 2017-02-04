@@ -200,28 +200,36 @@ class Column(NamedTree):
     data_list.insert(index, val)
     self._setDatavalues(data_list)
 
-  def isEquivalent(self, other):
+  def isEquivalent(self, other, is_exception=False):
     """
     Compares the internal state of this and the input other,
     except the owning table.
     :param Column other:
+    :param bool is_exception:
     :return bool:
     """
-    if not super(Column, self).isEquivalent(other):
-      return False
-    if not self.getFormulaStatementObject().isEquivalent(other.getFormulaStatementObject()):
-      return False
-    if not self.getAsis() == other.getAsis():
-      return False
-    if not self.getDataClass() == other.getDataClass():
+    msg = None
+    if not super(Column, self).isEquivalent(other,
+        is_exception=is_exception):
+      msg = "Columns %s do not agree because of ancestor." % self.getName()
+    elif not self.getFormulaStatementObject().isEquivalent(other.getFormulaStatementObject()):
+      msg = "Columns %s do not agree on formulas." % self.getName()
+    elif not self.getAsis() == other.getAsis():
+      msg = "Columns %s do not agree on asis property." % self.getName()
+    elif not self.getDataClass() == other.getDataClass():
       type_list = [np.ndarray, ExtendedArray]
       is_ok = (self.getDataClass().cls in type_list)  \
          and (other.getDataClass().cls in type_list)
       if not is_ok:
-        return False
-    if not cell_types.isEquivalentData(self._cells, other.getCells()):
+        msg = "Columns %s do not agree on data class." % self.getName()
+    elif not cell_types.isEquivalentData(self._cells, other.getCells()):
+      msg = "Columns %s do not agree on data." % self.getName()
+    if msg is None:
+      return True
+    if is_exception:
+      raise AssertionError(msg)
+    else:
       return False
-    return True
 
   def isExpression(self):
     return self._formula_statement.isExpression()

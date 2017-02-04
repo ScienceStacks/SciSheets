@@ -126,8 +126,14 @@ class DTTable(UITable):
     # Set properties from this class
     return instance
 
-  def isEquivalent(self, other):
-    return super(DTTable, self).isEquivalent(other)
+  def isEquivalent(self, other, is_exception=False):
+    """
+    :param UITable other:
+    :param bool is_exception: generate an AssertionError if false
+    :return bool:
+    """
+    return super(DTTable, self).isEquivalent(other, 
+        is_exception=is_exception)
 
   @staticmethod
   def fromHTMLToPythonName(html_name):

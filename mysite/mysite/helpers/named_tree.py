@@ -100,8 +100,14 @@ class NamedTree(PositionTree):
     super(NamedTree, self).copy(instance=instance)
     return instance
 
-  def isEquivalent(self, other):
-    return super(NamedTree, self).isEquivalent(other)
+  def isEquivalent(self, other, is_exception=False):
+    """
+    :param ColumnContainer other:
+    :param bool is_exception: generate an AssertionError if false
+    :return bool:
+    """
+    return super(NamedTree, self).isEquivalent(other,
+        is_exception=is_exception)
 
   # TODO: Callers need to set is_relative_name
   def getName(self, is_global_name=True):

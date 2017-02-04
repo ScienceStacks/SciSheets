@@ -124,7 +124,7 @@ class Table(ColumnContainer):
     data_columns = flat_table.getDataColumns()
     pairs = zip(leaves, data_columns)
     # Populate the leaves of the Hierarchical Table
-    [htable.addCells(l, d.getCells(), replace=True) for l, d in pairs]
+    [l.getParent().addCells(l, d.getCells(), replace=True) for l, d in pairs]
     # Validate the table
     if NAME_COLUMN_STR in  \
         [n.getName(is_global_name=False) for n in htable.getNonLeaves()]:
@@ -526,31 +526,34 @@ class Table(ColumnContainer):
     return any([c.getName() == column_name 
                 for c in self.getColumns(is_attached=False)])
 
-  def isEquivalent(self, other_table):
+  def isEquivalent(self, other_table, is_exception=False):
     """
     Checks that the tables have the same values of their properties,
     excluding the VersionedFile.
     :param Table other_table:
+    :param bool is_exception: generate an AssertionError if false
     :returns bool:
     """
-    local_debug = False # Breaks on specifc reasons for non-equiv
+    msg = None
     if not isinstance(other_table, self.__class__):
-      if local_debug:
-        import pdb; pdb.set_trace()
+      msg = "Table is not equivalent to a non-table."
+    elif not (self.getName(is_global_name=False) == other_table.getName(is_global_name=False)):
+      msg = "Table has a different name."
+    elif not (self.numColumns() == other_table.numColumns()):
+      msg = "Table has a different number of columns."
+    elif not (self.getPrologue().isEquivalent(other_table.getPrologue())):
+      msg = "Table has a different Prologue."
+    elif not  (self.getEpilogue().isEquivalent(other_table.getEpilogue())):
+      msg = "Table has a different Epilogue."
+    elif not super(Table, self).isEquivalent(other_table,
+        is_exception=is_exception):
+      msg = "Differs because of ancestor of Table."
+    if msg is None:
+      return True
+    elif is_exception:
+      raise AssertionError(msg)
+    else:
       return False
-    is_same_properties = (self.getName(is_global_name=False) == other_table.getName(is_global_name=False)) and  \
-        (self.numColumns() == other_table.numColumns()) and  \
-        (self.getPrologue().isEquivalent(other_table.getPrologue())) and  \
-        (self.getEpilogue().isEquivalent(other_table.getEpilogue()))
-    if not is_same_properties:
-      if local_debug:
-        import pdb; pdb.set_trace()
-      return False
-    if not super(Table, self).isEquivalent(other_table):
-      if local_debug:
-        import pdb; pdb.set_trace()
-      return False
-    return True
 
   @staticmethod
   def isNameColumn(column):

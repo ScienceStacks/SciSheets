@@ -128,8 +128,14 @@ class ColumnContainer(NamedTree):
     """
     return isinstance(child, Column)
 
-  def isEquivalent(self, other):
-    return super(ColumnContainer, self). isEquivalent(other)
+  def isEquivalent(self, other, is_exception=False):
+    """
+    :param ColumnContainer other:
+    :param bool is_exception: generate an AssertionError if false
+    :return bool:
+    """
+    return super(ColumnContainer, self). isEquivalent(other,
+        is_exception=is_exception)
 
   def moveChild(self, child, new_idx):
     """

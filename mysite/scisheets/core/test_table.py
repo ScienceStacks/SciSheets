@@ -370,6 +370,8 @@ class TestTable(unittest.TestCase):
      return
     new_table = self.table.copy()
     self.assertTrue(self.table.isEquivalent(new_table))
+    self.assertTrue(self.table.isEquivalent(new_table, 
+        is_exception=True))
     column = new_table.columnFromIndex(1)
     this_column = self.table.columnFromName(column.getName())
     column = new_table.columnFromIndex(1)
@@ -377,12 +379,15 @@ class TestTable(unittest.TestCase):
     new_cell = "New%s" % str(cell)
     column.updateCell(new_cell, 0)
     self.assertFalse(self.table.isEquivalent(new_table))
+    with self.assertRaises(AssertionError):
+      self.assertFalse(self.table.isEquivalent(new_table,
+          is_exception=True))
     this_column.updateCell(new_cell, 0)
     self.assertTrue(self.table.isEquivalent(new_table))
     this_column.removeTree()
     self.assertFalse(self.table.isEquivalent(new_table))
 
-  def testIsEquivalent(self):
+  def testIsEquivalent2(self):
     if IGNORE_TEST:
      return
     [table, other] = ht.getCapture("test_table_2")

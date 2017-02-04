@@ -88,19 +88,31 @@ class UITable(Table):
       new_error = error
     return _Response(new_error)
 
-  def isEquivalent(self, other):
+  def isEquivalent(self, other, is_exception=False):
     """
+    :param UITable other:
+    :param bool is_exception: generate an AssertionError if false
     :return bool: True if equivalent
     """
-    if not super(UITable, self).isEquivalent(other):
-      return False
-    if not len(self.getHiddenNodes()) == len(other.getHiddenNodes()):
-      return False
-    for column in self.getHiddenNodes():
-      tests = [column.isEquivalent(c) for c in other.getHiddenNodes()]
-      if not any(tests):
+    msg = None
+    if not super(UITable, self).isEquivalent(other, 
+        is_exception=is_exception):
+      msg = "Failed equivalence in ancestor of UITable."
+    elif not len(self.getHiddenNodes()) == len(other.getHiddenNodes()):
+      msg = "Hidden Nodes are not equivalent"
+    else:
+      for column in self.getHiddenNodes():
+        tests = [column.isEquivalent(c) for c in other.getHiddenNodes()]
+        if not any(tests):
+          msg = "Column %s is not hidden" % column.getName()
+          break
+    if msg is None:
+      return True
+    else:
+      if is_exception:
+        raise AssertionError(msg)
+      else:
         return False
-    return True
 
   def copy(self, instance=None):
     """

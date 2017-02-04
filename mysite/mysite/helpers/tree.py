@@ -32,15 +32,23 @@ class Node(object):
   def getName(self):
     return self._name
 
-  def isEquivalent(self, other):
+  def isEquivalent(self, other, is_exception=False):
     """
-    Determines if the node has the same data.
-    :param Tree other:
-    :return bool: True if equivalent
+    :param Node other:
+    :param bool is_exception: generate an AssertionError if false
+    :return bool:
     """
+    msg = None
     if not (self.isAttached() == other.isAttached()):
+      msg = "Do not agree on isAttached."
+    if self._name != other._name:
+      msg = "Do not agree on name."
+    if msg is None:
+      return True
+    if is_exception:
+      raise AssertionError(msg)
+    else:
       return False
-    return self._name == other._name
 
   def setName(self, name):
     """
@@ -491,24 +499,39 @@ class Tree(Node):
   def isLeaf(self):
     return len(self.getChildren()) == 0
 
-  def isEquivalent(self, other):
+  def isEquivalent(self, other, is_exception=False):
     """
-    :return bool: True if equivalent
+    :param ColumnContainer other:
+    :param bool is_exception: generate an AssertionError if false
+    :return bool:
     """
-    is_equivalent = super(Tree, self).isEquivalent(other)
-    is_equivalent = is_equivalent and  self.isEquivalentParent(other)
-    set1 = set([t.getName() for t in self.getChildren()])
-    set2 = set([t.getName() for t in other.getChildren()])
-    is_equivalent = is_equivalent and set1 == set2
-    if is_equivalent:
-      pairs = zip(self.getChildren(), other.getChildren())
-      for c1, c2 in pairs:
-        is_this = c1.isEquivalent(c2)
-        is_equivalent = is_equivalent and is_this
-    return is_equivalent
+    msg = None
+    if not super(Tree, self).isEquivalent(other, 
+        is_exception=is_exception):
+      msg = "Do not agree on parent of Tree."
+    elif not self.isEquivalentParent(other):
+      msg = "Do not agree on parent of node."
+    else:
+      set1 = set([t.getName() for t in self.getChildren()])
+      set2 = set([t.getName() for t in other.getChildren()])
+      if not set1 == set2:
+        msg = "Do not have equivalent children."
+      else:
+        pairs = zip(self.getChildren(), other.getChildren())
+        for c1, c2 in pairs:
+          if not c1.isEquivalent(c2, is_exception=is_exception):
+            msg = "Do not agree for child named %s" % c1.getName()
+    if msg is None:
+      return True
+    elif is_exception:
+      raise AssertionError(msg)
+    else:
+      return False
 
-  def isEquivalentParent(self, other):
+  def isEquivalentParent(self, other, is_exception=False):
     """
+    :param PositionTree other:
+    :param bool is_exeption: determines if an exception is thrown
     :return bool: True if equivalent
     """
     if self.getParent() is None and other.getParent() is None:
@@ -517,6 +540,8 @@ class Tree(Node):
       result = True
     else:
       result = False
+    if is_exception:
+      raise AssertionError("Parents do not match.")
     return result
     
   def isRoot(self):
@@ -660,14 +685,26 @@ class PositionTree(Tree):
     except ValueError:
       return None
 
-  def isEquivalent(self, other):
+  def isEquivalent(self, other, is_exception):
     """
+    :param bool is_exception:
     :param PositionTree position_tree:
     """
-    is_equivalent = super(PositionTree, self).isEquivalent(other)
-    lst1 = [t.getName() for t in self.getAllNodes()]
-    lst2 = [t.getName() for t in other.getAllNodes()]
-    return is_equivalent and lst1 == lst2
+    msg = None
+    if not super(PositionTree, self).isEquivalent(other,
+        is_exception=is_exception):
+      msg = "PositionTree do not agree because of ancestor."
+    else:
+      lst1 = [t.getName() for t in self.getAllNodes()]
+      lst2 = [t.getName() for t in other.getAllNodes()]
+      if lst1 != lst2:
+        msg = "PositionTrees do not agree on positions of children."
+    if msg is None:
+      return True
+    if is_exception:
+      raise AssertionError(msg)
+    else:
+      return False
     
   def moveChildToPosition(self, child, position):
     """
