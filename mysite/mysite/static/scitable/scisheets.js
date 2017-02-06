@@ -318,32 +318,6 @@ SciSheets.prototype.utilPromptForInput = function (cmd, newPrompt, defaultValue)
   }
 };
 
-/*--------------------- Menu Command Processing ----------------------*/
-
-SciSheets.prototype.processCommandMenu = function (eleId, oArgs, scisheet) {
-  'use strict';
-  var cmd, simpleCommands;
-  console.log("Table click. Selected " + eleId + ".");
-  cmd = scisheet.createServerCommand();
-  cmd.command = eleId;
-  cmd.target = "Table";
-  simpleCommands = ['Append', 'Delete', 'Hide', 'Insert', 'Move',
-      'Trim', 'Unhide'];
-  if (simpleCommands.indexOf(cmd.command) > -1) {
-    scisheet.utilSendAndReload(cmd);
-  } else if (cmd.command === 'Epilogue') {
-    scisheet.utilUpdateFormula(cmd, cmd.command,
-        scisheet.epilogue, 1, oArgs);
-  } else if (cmd.command === 'Prologue') {
-    scisheet.utilUpdateFormula(cmd, cmd.command,
-        scisheet.prologue, 1, oArgs);
-  } else if (cmd.command === 'Rename') {
-    scisheet.utilPromptForInput(cmd, "New table name",
-        scisheet.tableCaption);
-  } else {
-    alert("**Invalid command: " + cmd.command);
-  }
-};
 
 /* Setup the global variable */
 var sciSheets = new SciSheets();

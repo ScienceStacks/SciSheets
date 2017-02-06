@@ -87,3 +87,27 @@ SciSheetsColumn.prototype.processCommand = function (eleId, oArgs, scisheet) {
     scisheet.utilSendAndReload(cmd);
   }
 };
+
+/*---------------------- Misc Utilities ---------------*/
+/*
+ * To be done: Add tests
+ * Removes annotations from the column label
+ * Input: str columnLabel
+ * Output: str cleanColumnLabel
+ */
+SciSheetsColumn.prototype.utilCleanLabel = function (columnLabel) {
+  'use strict';
+  var cleanColumnLabel, endPos, removeStrings;
+  removeStrings = ["*", "[", "]"];
+  if (removeStrings.indexOf(columnLabel[0]) > -1) {
+    cleanColumnLabel = this.utilCleanLabel(columnLabel.substr(1));
+  } else {
+    cleanColumnLabel = columnLabel;
+  }
+  endPos = cleanColumnLabel.length;
+  if (removeStrings.indexOf(columnLabel[endPos]) > -1) {
+    cleanColumnLabel = this.utilCleanLabel(columnLabel.substr(0,
+        endPos));
+  }
+  return cleanColumnLabel;
+};

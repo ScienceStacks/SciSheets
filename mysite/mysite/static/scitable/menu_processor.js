@@ -5,7 +5,7 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global $, alert, YAHOO, SciSheets, SciSheetsUtilEvent */
+/*global $, alert, YAHOO, SciSheets, SciSheetsColumn, SciSheetsUtilEvent */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
@@ -24,8 +24,10 @@ SciSheets.prototype.utilMenuProcessor = function (eleId, oArgs, target) {
    * target - target of the click
    */
   'use strict';
-  var cmd, simpleCommands, ep, formula, newPrompt;
+  var cmd, simpleCommands, ep, formula, newPrompt, cleanLabel,
+    scisheetsColumn;
   ep = new SciSheetsUtilEvent(this, oArgs);
+  scisheetsColumn = new SciSheetsColumn(this);
   console.log(target + " click. Selected " + eleId + ".");
   cmd = this.createServerCommand();
   cmd.command = eleId;
@@ -38,8 +40,9 @@ SciSheets.prototype.utilMenuProcessor = function (eleId, oArgs, target) {
     this.utilUpdateFormula(cmd, cmd.command,
         this.epilogue, 1, oArgs);
   } else if (cmd.command === 'Formula') {
-    formula = this.formulas[ep.columnLabel];
-    this.utilUpdateFormula(cmd, ep.columnLabel,
+    cleanLabel = scisheetsColumn.utilCleanLabel(ep.columnLabel);
+    formula = this.formulas[cleanLabel];
+    this.utilUpdateFormula(cmd, cleanLabel,
         formula, 1, oArgs);
   } else if (cmd.command === 'Insert') {
     this.utilPromptForInput(cmd, "New column name", "");
