@@ -161,10 +161,10 @@ class TestProgramGenerator(unittest.TestCase):
         self.generator. _makeVariableAssignmentStatements)
 
   def testFormulaColumns(self):
-    columns = self.generator._formulaColumns()
+    columns = self.generator._getFormulaColumns()
     self.assertEqual(columns[0].getName(), 'VALID_FORMULA')
     columns[0].removeTree()
-    columns = self.generator._formulaColumns()
+    columns = self.generator._getFormulaColumns()
     self.assertEqual(len(columns), 0)
 
   def testMakeVariablePrintStatements(self):

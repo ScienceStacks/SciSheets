@@ -66,8 +66,14 @@ class TestAPI(unittest.TestCase):
       return
     table = self.api.getTable()
     self.api.setColumnVariables()
-    for column in table.getColumns():
-      self.assertTrue(column.getName() in table.getNamespace())
+    columns = [c for c in table.getColumns(is_attached=False)
+               if not Table.isNameColumn(c)]
+    for column in columns:
+      if not column.getName(is_global_name=False)  \
+          in table.getNamespace():
+        import pdb; pdb.set_trace()
+      self.assertTrue(column.getName(is_global_name=False) 
+          in table.getNamespace())
     new_column_name = "New_Column"
     new_column = Column(new_column_name)
     table.addColumn(new_column)
