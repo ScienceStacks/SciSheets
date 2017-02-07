@@ -250,10 +250,9 @@ class TestTable(unittest.TestCase):
       return
     new_value = "onee"
     row_index = 0
-    self.table.updateCell("onee", row_index, ht.COLUMN2_INDEX)
-    columns = self.table.getColumns()
-    self.assertEqual(columns[ht.COLUMN2_INDEX].getCells()[row_index],
-        new_value)
+    column2 = self.table.childFromName(ht.COLUMN2)
+    self.table.updateCell("onee", row_index, column2.getName())
+    self.assertEqual(column2.getCells()[row_index], new_value)
 
   def testUpdateRow(self):
     if IGNORE_TEST:

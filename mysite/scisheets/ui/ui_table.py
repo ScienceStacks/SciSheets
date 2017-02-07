@@ -165,7 +165,7 @@ class UITable(Table):
 
   def getVisibleNodes(self):
     """
-    Considers the column hierarchy when determining which columns are visible.
+    Considers the node hierarchy when determining which nodes are visible.
     A child is not visible if it's parent is hidden.
     :return list-of-NamedTree:
     """
@@ -182,6 +182,12 @@ class UITable(Table):
       if is_visible:
         visibles.append(node)
     return visibles
+
+  def getVisibleColumns(self):
+    """
+    :return list-of-Column:
+    """
+    return [c for c in self.getVisibleNodes() if isinstance(c, Column)]
 
   def getHiddenNodes(self):
     """
@@ -394,7 +400,8 @@ class UITable(Table):
     error = None
     target = "Column"
     command = cmd_dict["command"]
-    column = self.childFromName(cmd_dict["column_name"])
+    column = self.childFromName(cmd_dict["column_name"],
+        is_relative=False)
     versioned = self.getVersionedFile()
     if (command == "Append") or (command == "Insert"):
       UITable._versionCheckpoint(versioned, target, command)

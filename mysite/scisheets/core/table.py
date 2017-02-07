@@ -91,6 +91,7 @@ class Table(ColumnContainer):
       #values_ext.append(None)
       column.addCells(np.array(values_ext))
       table.addColumn(column)
+    table.setFilepath(settings.SCISHEETS_DEFAULT_TABLEFILE)
     return table
 
   @classmethod
@@ -129,6 +130,7 @@ class Table(ColumnContainer):
     if NAME_COLUMN_STR in  \
         [n.getName(is_global_name=False) for n in htable.getNonLeaves()]:
       import pdb; pdb.set_trace()
+    htable.setFilepath(settings.SCISHEETS_DEFAULT_TABLEFILE)
     return htable
 
   def getSerializationDict(self, class_variable):
@@ -261,8 +263,7 @@ class Table(ColumnContainer):
     """
     :return dict: keys are global column names
     """
-    return {c.getName(): list(c.getCells())
-            for c in self.getColumns(is_recursive=True)
+    return {c.getName(): list(c.getCells()) for c in self.getColumns()
             if not Table.isNameColumn(c)}
 
   def getEpilogue(self):
@@ -286,7 +287,7 @@ class Table(ColumnContainer):
     :return: Row object
     """
     row = Row()
-    for column in self.getColumns(is_recursive=True):
+    for column in self.getColumns():
       if row_index is None:
         if column.isFloats():
           row[column.getName()] = np.nan  # pylint: disable=E1101
@@ -454,7 +455,7 @@ class Table(ColumnContainer):
     else:
       proposed_name = Table._rowNameFromIndex(row_index)
     # Assign values to the last row of each column cells
-    for column in self.getColumns(is_recursive=True):
+    for column in self.getColumns():
       if column.getName(is_global_name=False) != NAME_COLUMN_STR:
         cur_name = column.getName()
         if cur_name in row:

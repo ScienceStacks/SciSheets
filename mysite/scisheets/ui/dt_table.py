@@ -69,24 +69,6 @@ class DTTable(UITable):
   Does rendersing specific to YUI DataTable
   """
 
-  @classmethod
-  def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
-        low_int=0, hi_int=100):
-    """
-    Creates a table with random integers as values
-    Input: name - name of the table
-           nrow - number of rows
-           ncol - number of columns
-           ncolstr - number of columns with strings
-           low_int - smallest integer
-           hi_int - largest integer
-    """
-    table = super(DTTable, cls).createRandomTable(name, nrow, ncol,
-        ncolstr=ncolstr, low_int=low_int, hi_int=hi_int,
-        table_cls=cls)
-    table.setFilepath(settings.SCISHEETS_DEFAULT_TABLEFILE)
-    return table
-
   def __init__(self, name):
     super(DTTable, self).__init__(name)
 
@@ -144,6 +126,16 @@ class DTTable(UITable):
     python_name = html_name.replace(HTML_SEPARATOR, 
         named_tree.GLOBAL_SEPARATOR)
     return python_name
+
+  @staticmethod
+  def fromPythonToHTMLName(python_name):
+    """
+    Converts the python name to an HTML name.
+    :param str python_name:
+    """
+    html_name = str(python_name).replace(named_tree.GLOBAL_SEPARATOR,
+        HTML_SEPARATOR)
+    return html_name
 
   @staticmethod
   def _formatStringForJS(in_string):
@@ -273,7 +265,8 @@ class DTTable(UITable):
     columns = [c for c in descendents 
         if c in self.getVisibleNodes() and not c in excluded_name_columns]
     leaves = DTTable.findLeavesInNodes(columns)
-    column_names = [c.getName(is_global_name=False) for c in columns]
+    column_labels = [c.getName(is_global_name=False) for c in columns]
+    column_names = [DTTable.fromPythonToHTMLName(c.getName()) for c in columns]
     hiddens = self.getHiddenNodes()
     hidden_roots = DTTable.findRootsInNodes(hiddens)
     leaves.extend(hidden_roots)
@@ -289,17 +282,15 @@ class DTTable(UITable):
     js_column_hierarchy = js_column_hierarchy.replace('"label"', 'label')
     js_data = str(makeJSData([l.getCells() if (isinstance(l, Column) and 
         (l not in hidden_roots)) else [] for l in leaves]))
-    raw_formulas = [c.getFormula() if isinstance(c, Column) else None
-                    for c in self.getVisibleNodes()]
-    formulas = [DTTable._formatFormula(ff) for ff in raw_formulas]
     formula_dict = {}
-    for nn in range(len(column_names)):
-      formula_dict[column_names[nn]] = formulas[nn]
+    for column in self.getVisibleColumns():
+      key = DTTable.fromPythonToHTMLName(column.getName())
+      formula_dict[key] =  \
+          DTTable._formatFormula(column.getFormula())
     table_file = getFileNameWithoutExtension(self.getFilepath())
     formatted_epilogue = DTTable._formatFormula(self.getEpilogue().getFormula())
     formatted_prologue = DTTable._formatFormula(self.getPrologue().getFormula())
-    leaf_names = [str(c.getName()).replace('.', HTML_SEPARATOR)
-        for c in leaves]
+    leaf_names = [DTTable.fromPythonToHTMLName(c.getName()) for c in leaves]
     response_schema = str(leaf_names)
     ctx_dict = {'response_schema': response_schema,
                 'data': js_data,

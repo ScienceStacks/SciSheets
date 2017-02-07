@@ -5,7 +5,7 @@ from scisheets.core.helpers.serialize_deserialize import serialize,  \
     deserialize
 from scisheets.core.column import Column
 from scisheets.core.table import NAME_COLUMN_STR
-import ui_table as ui
+from ui_table import UITable
 from django.test import TestCase  # Provides mocks
 import json
 
@@ -17,19 +17,21 @@ DATA_STRING = ['AA', 'BB', 'CC']
 NCOL = 30
 NROW = 3
 TABLE_NAME = "MY_TABLE"
-IGNORE_TEST = False
+IGNORE_TEST = True
     
 
 class TestUITableCell(TestCase):
 
   def setUp(self):
-    self.table = ui.UITable.createRandomHierarchicalTable(TABLE_NAME, 
+    if IGNORE_TEST:
+      return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
         NROW, 3*NCOL, 0.3, prob_detach=0.2)
 
   def testProcessCommandCellUpdate(self):
     if IGNORE_TEST:
       return
-    table = ui.UITable.createRandomTable(TABLE_NAME,
+    table = UITable.createRandomTable(TABLE_NAME,
         NROW, NCOL)
     before_table = table.copy()
     column_index = 3
@@ -55,6 +57,40 @@ class TestUITableCell(TestCase):
         if not (r == ROW_INDEX and c == column_index):
           self.assertEqual(before_table.getCell(r,c), 
               table.getCell(r,c))
+
+  def _testProcessCommandColumnFormula(self, column):
+    """
+    :param Column column: column to evaluate
+    """
+    #if IGNORE_TEST:
+    #  return
+    colnm = column.getName(is_global_name=False)
+    formula =   \
+'''
+a = 5
+%s = range(a)
+''' % colnm
+    cmd_dict = {
+                'target':  'Column',
+                'command': 'Formula',
+                'table_name': None,
+                'column_name': column.getName(),
+                'row_index': None,
+                'value': None ,
+                'args': [formula],
+               }
+    self.table.processCommand(cmd_dict)
+    self.assertEqual(column.getFormula(), formula)
+    self.assertEqual(column.getCells(), range(5))
+
+  def testProcessCommandColumnFormula(self):
+    #if IGNORE_TEST:
+    #  return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
+    leaves = [l for l in self.table.getLeaves() 
+              if l.getName(is_global_name=False) != NAME_COLUMN_STR]
+    [self._testProcessCommandColumnFormula(c) for c in leaves]
 
   def testProcessCommandTableDelete(self):
     if IGNORE_TEST:
@@ -128,10 +164,10 @@ class TestUITableCell(TestCase):
     if IGNORE_TEST:
       return
     list_of_str = ["xy", "x'y'"]
-    mod_list_of_str = ui.UITable._addEscapesToQuotes(list_of_str)
+    mod_list_of_str = UITable._addEscapesToQuotes(list_of_str)
     self.assertEqual(mod_list_of_str[1].index("\\"), 1)
     list_of_str = range(3)
-    mod_list_of_str = ui.UITable._addEscapesToQuotes(list_of_str)
+    mod_list_of_str = UITable._addEscapesToQuotes(list_of_str)
     self.assertTrue(list_of_str == mod_list_of_str)
 
   def testGetHiddenColumns(self):
@@ -168,13 +204,13 @@ class TestUITableCell(TestCase):
     """
     if IGNORE_TEST:
       return
-    table = ui.UITable("Table")
+    table = UITable("Table")
     result = {"Table": table}
     result["A"] = Column("A")
     table.addColumn(result["A"])
     result["B"] = Column("B")
     table.addColumn(result["B"])
-    subtable = ui.UITable("Subtable")
+    subtable = UITable("Subtable")
     result["Subtable"] = subtable
     table.addChild(subtable)
     result["C"] = Column("C")
