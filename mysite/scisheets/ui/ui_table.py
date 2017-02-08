@@ -253,8 +253,14 @@ class UITable(Table):
     error = None
     response = self._createResponse(error)
     command = cmd_dict["command"]
+    if "args" in cmd_dict:
+      argument = cmd_dict["args"][0]
+    else:
+      argument = None
     versioned = self.getVersionedFile()
-    if command == "Delete":
+    if (command == "Append") or (command == "Insert"):
+      error = self._commandAPpendAndInsert(table, target, command, argument)
+    elif command == "Delete":
       table.removeTree()
     elif command == "Epilogue":
       epilogue = cmd_dict['args'][0]
@@ -265,7 +271,7 @@ class UITable(Table):
       self.hideChildren([table])
     elif command == "Move":
       UITable._versionCheckpoint(versioned, target, command)
-      dest_child_name = cmd_dict["args"][0]
+      dest_child_name = argument
       dest_child = self.childFromName(dest_child_name, is_relative=False)
       table = self.childFromName(cmd_dict["column_name"])
       try:
@@ -393,6 +399,31 @@ class UITable(Table):
     global_names = [c.getName() for c in self.getChildren(is_recursive=True)]
     return name in global_names
 
+  def _commandAPpendAndInsert(self, node, target, command, name):
+    """
+    Processes Append and Insert commands for targets of Column and Table.
+    :param NamedTree node:
+    :param str target:
+    :param str command:
+    :param str name: name for new Column
+    :return str error:
+    """
+    versioned = self.getVersionedFile()
+    UITable._versionCheckpoint(versioned, target, command)
+    error = Column.isPermittedName(name)
+    if self._isDuplicateInGlobalScope(name):
+      error = "%s conflics with existing names" % proposed_name
+    if error is None:
+      new_column = Column(name)
+      increment = 0
+      if command == "Append":
+        increment = 1
+      parent = node.getParent()
+      column_index = node.getPosition()
+      new_column_index = column_index + increment
+      parent.addChild(new_column, new_column_index)
+    return error
+
   def _columnCommand(self, cmd_dict):
     # Processes a UI request for a Column
     # Input: cmd_dict - dictionary with the keys
@@ -403,28 +434,19 @@ class UITable(Table):
     column = self.childFromName(cmd_dict["column_name"],
         is_relative=False)
     versioned = self.getVersionedFile()
+    if "args" in cmd_dict:
+      argument = cmd_dict["args"][0]
+    else:
+      argument = None
     if (command == "Append") or (command == "Insert"):
-      UITable._versionCheckpoint(versioned, target, command)
-      name = cmd_dict["args"][0]
-      error = Column.isPermittedName(name)
-      if self._isDuplicateInGlobalScope(name):
-        error = "%s conflics with existing names" % proposed_name
-      if error is None:
-        new_column = Column(name)
-        increment = 0
-        if command == "Append":
-          increment = 1
-        parent = column.getParent()
-        column_index = column.getPosition()
-        new_column_index = column_index + increment
-        parent.addChild(new_column, new_column_index)
+      error = self._commandAPpendAndInsert(column, target, command, argument)
     elif command == "Delete":
       UITable._versionCheckpoint(versioned, target, command)
       column.removeTree()
       self._cleanHiddenChildren()
     elif command == "Formula":
       UITable._versionCheckpoint(versioned, target, command)
-      formula = cmd_dict["args"][0]
+      formula = argument
       if len(formula.strip()) == 0:
         error = column.setFormula(None)
       else:
@@ -434,7 +456,7 @@ class UITable(Table):
         self.hideChildren([column])
     elif command == "Move":
       UITable._versionCheckpoint(versioned, target, command)
-      dest_column_name = cmd_dict["args"][0]
+      dest_column_name = argument
       dest_column = self.childFromName(dest_column_name, is_relative=False)
       cur_column = self.childFromName(cmd_dict["column_name"])
       try:
@@ -443,7 +465,7 @@ class UITable(Table):
         error = "Column %s does not exists." % dest_column_name
     elif command == "Refactor":
       UITable._versionCheckpoint(versioned, target, command)
-      proposed_name = cmd_dict["args"][0]
+      proposed_name = argument
       if self._isDuplicateInGlobalScope(proposed_name):
         error = "%s conflics with existing names" % proposed_name
       else:
@@ -453,7 +475,7 @@ class UITable(Table):
           error = str(err)
     elif command == "Rename":
       UITable._versionCheckpoint(versioned, target, command)
-      proposed_name = cmd_dict["args"][0]
+      proposed_name = argument
       is_error = False
       if self._isDuplicateInGlobalScope(proposed_name):
         is_error = True

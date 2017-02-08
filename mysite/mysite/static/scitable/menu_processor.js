@@ -31,9 +31,11 @@ SciSheets.prototype.utilMenuProcessor = function (eleId, oArgs, target) {
   cmd.command = eleId;
   cmd.columnName = ep.columnName;
   cmd.target = target;
-  simpleCommands = ['Append', 'Delete', 'Hide', 'Trim', 'Unhide'];
+  simpleCommands = ['Delete', 'Hide', 'Trim', 'Unhide'];
   if (simpleCommands.indexOf(cmd.command) > -1) {
     this.utilSendAndReload(cmd);
+  } else if (cmd.command === 'Append') {
+    this.utilPromptForInput(cmd, "New column name", "");
   } else if (cmd.command === 'Epilogue') {
     this.utilUpdateFormula(cmd, cmd.command,
         this.epilogue, 1, oArgs);

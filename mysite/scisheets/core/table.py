@@ -242,11 +242,12 @@ class Table(ColumnContainer):
     return FormulaStatement(statements, name)
 
   # Data columns are those that have user data. The "row" column is excluded.
-  def getDataColumns(self):
+  def getDataColumns(self, is_recursive=True, is_attached=True):
     """
     Returns the columns other than the name column
     """
-    return [c for c in self.getColumns() if not Table.isNameColumn(c)]
+    return [c for c in self.getColumns(is_recursive=is_recursive, 
+            is_attached=is_attached) if not Table.isNameColumn(c)]
 
   def getNameColumn(self):
     """

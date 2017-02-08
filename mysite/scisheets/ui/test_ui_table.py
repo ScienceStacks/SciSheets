@@ -4,31 +4,27 @@ from mysite import settings
 from scisheets.core.helpers.serialize_deserialize import serialize,  \
     deserialize
 from scisheets.core.column import Column
-from scisheets.core.table import NAME_COLUMN_STR
+from scisheets.core.table import NAME_COLUMN_STR, Table
 from ui_table import UITable
 from django.test import TestCase  # Provides mocks
 import json
+import random
 
 
 # Constants
 COLUMN_NAMES = ['A', 'B', 'C']
 DATA = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]
 DATA_STRING = ['AA', 'BB', 'CC']
+IGNORE_TEST = False
+LARGE_NUMBER = 1000
 NCOL = 30
 NROW = 3
 TABLE_NAME = "MY_TABLE"
-IGNORE_TEST = True
     
 
-class TestUITableCell(TestCase):
+class TestUITableCommandsCell(TestCase):
 
-  def setUp(self):
-    if IGNORE_TEST:
-      return
-    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
-        NROW, 3*NCOL, 0.3, prob_detach=0.2)
-
-  def testProcessCommandCellUpdate(self):
+  def testCellUpdate(self):
     if IGNORE_TEST:
       return
     table = UITable.createRandomTable(TABLE_NAME,
@@ -58,12 +54,105 @@ class TestUITableCell(TestCase):
           self.assertEqual(before_table.getCell(r,c), 
               table.getCell(r,c))
 
-  def _testProcessCommandColumnFormula(self, column):
+
+class TestUITableCommandsTableAndColumn(TestCase):
+
+  def _getNode(self, target):
+    """
+    Gets a node appropriate for the target
+    :param str target: Table or Column
+    :return NamedTree node:
+    """
+    nodes = self.table.getAllNodes()
+    if target == "Table":
+      cls = Table
+    else:
+      cls = Column
+    for _ in range(LARGE_NUMBER):
+      index = random.randint(0,len(nodes)-1)
+      node = nodes[index]
+      if isinstance(node, cls):
+        return node
+    raise RuntimeError("Could not find a node.")
+
+  def _testAppendAndInsert(self, target, command):
+    """
+    :param str target: Table or Column
+    :param str command: 'Append' or 'Insert'
+    """
+    new_name = "NEW_COLUMN"
+    node = self._getNode(target)
+    node_name = node.getName()
+    cmd_dict = {
+                'target':  target,
+                'command': command,
+                'table_name': None,
+                'column_name': node_name,
+                'column_index': -1,
+                'row_index': None,
+                'value': None,
+                'args': [new_name],
+               }
+    expected_columns = self.table.numColumns() + 1
+    if command == "Append":
+      expected_position = node.getPosition() + 1
+    else:
+      expected_position = node.getPosition()
+    self.table.processCommand(cmd_dict)
+    self.assertEqual(self.table.numColumns(), expected_columns)
+    new_node = self.table.childFromName(new_name)
+    self.assertIsNotNone(new_node)
+    self.assertEqual(new_node.getPosition(), expected_position)
+
+  def testAppendAndInsert(self):
+    if IGNORE_TEST:
+      return
+    targets = ["Column", "Table"]
+    commands = ["Append", "Insert"]
+    for target in targets:
+      for command in commands:
+        self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+            NROW, NCOL, 0.3, prob_detach=0.2)
+        self._testAppendAndInsert(target, command)
+
+  def _testDelete(self, target):
+    """
+    :param str target: Table or Column
+    """
+    node = self._getNode(target)
+    node_name = node.getName()
+    old_num_nodes = len(self.table.getAllNodes())
+    before_table = self.table.copy()
+    cmd_dict = {
+                'target':  target,
+                'command': 'Delete',
+                'table_name': None,
+                'column_name': node_name,
+                'column_index': -1,
+                'row_index': None,
+                'value': None,
+               }
+    expected_num_nodes = old_num_nodes - len(node.getAllNodes())
+    self.table.processCommand(cmd_dict)
+    self.assertEqual(len(self.table.getAllNodes()), expected_num_nodes)
+    for r in range(self.table.numRows()):
+      after_row = self.table.getRow(row_index=r)
+      before_row = before_table.getRow(row_index=r)
+      for k in after_row.keys():
+        self.assertEqual(after_row[k], before_row[k])
+
+  def testDelete(self):
+    if IGNORE_TEST:
+      return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
+    self._testDelete("Table")
+    self._testDelete("Column")
+
+  def _testFormula(self, column):
     """
     :param Column column: column to evaluate
     """
-    #if IGNORE_TEST:
-    #  return
     colnm = column.getName(is_global_name=False)
     formula =   \
 '''
@@ -83,82 +172,111 @@ a = 5
     self.assertEqual(column.getFormula(), formula)
     self.assertEqual(column.getCells(), range(5))
 
-  def testProcessCommandColumnFormula(self):
-    #if IGNORE_TEST:
-    #  return
-    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
-        NROW, NCOL, 0.3, prob_detach=0.2)
-    leaves = [l for l in self.table.getLeaves() 
-              if l.getName(is_global_name=False) != NAME_COLUMN_STR]
-    [self._testProcessCommandColumnFormula(c) for c in leaves]
-
-  def testProcessCommandTableDelete(self):
+  def testFormula(self):
     if IGNORE_TEST:
       return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
+    leaves = self.table.getDataColumns(is_recursive=True,
+        is_attached=False)
+    [self._testFormula(c) for c in leaves]
 
-  def _testProcessCommandColumnDelete(self, target):
+  def _testHide(self, target):
     """
     :param str target: Table or Column
     """
-    if target == "Table":
-      non_leaves  = self.table.getNonLeaves()
-      node = non_leaves[-1]
-    else:
-      leaves  = [l for l in self.table.getLeaves() 
-                 if l.getName(is_global_name='False') != NAME_COLUMN_STR]
-      node = leaves[-1]
+    node = self._getNode(target)
+    nodes = node.getAllNodes()
     node_name = node.getName()
-    ROW_INDEX = None
-    NEW_VALUE = None
-    old_num_nodes = len(self.table.getAllNodes())
-    before_table = self.table.copy()
     cmd_dict = {
                 'target':  target,
-                'command': 'Delete',
+                'command': 'Hide',
                 'table_name': None,
                 'column_name': node_name,
                 'column_index': -1,
-                'row_index': ROW_INDEX,
-                'value': NEW_VALUE
+                'row_index': None,
+                'value': None,
                }
-    expected_num_nodes = old_num_nodes - len(node.getAllNodes())
     self.table.processCommand(cmd_dict)
-    self.assertEqual(len(self.table.getAllNodes()), expected_num_nodes)
-    for r in range(self.table.numRows()):
-      after_row = self.table.getRow(row_index=r)
-      before_row = before_table.getRow(row_index=r)
-      for k in after_row.keys():
-        self.assertEqual(after_row[k], before_row[k])
+    [self.assertTrue(n in self.table.getHiddenNodes()) for n in nodes]
 
-  def testProcessCommandColumnDelete(self):
+  def testHide(self):
     if IGNORE_TEST:
       return
-    self._testProcessCommandColumnDelete("Table")
-    self._testProcessCommandColumnDelete("Column")
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
+    self._testHide("Column")
+    self._testHide("Table")
 
-  def testProcessCommandColumnRename(self):
-    if IGNORE_TEST:
-      return
-    COLUMN_INDEX = 3
-    column = self.table.columnFromIndex(COLUMN_INDEX)
-    column_name = column.getName(is_global_name=False)
-    ROW_INDEX = None
-    NEW_VALUE = None
-    NEW_COLUMN_NAME = "New_Name"
+  def _testMove(self, target):
+    """
+    :param str source: Table or Column
+    :param str destination: Table or Column
+    """
+    source = self._getNode(target)
+    destination = source
+    while destination == source:
+      destination = self._getNode(target)
     cmd_dict = {
-                'target':  'Column',
+                'target':  target,
+                'command': 'Move',
+                'table_name': None,
+                'column_name': source.getName(),
+                'column_index': -1,
+                'row_index': None,
+                'value': None,
+                'args': [destination.getName()],
+               }
+    expected_position = destination.getPosition()
+    expected_parent = destination.getParent()
+    self.table.processCommand(cmd_dict)
+    self.assertEqual(source.getPosition(), expected_position)
+    self.assertEqual(source.getParent(), expected_parent)
+
+  def testMove(self):
+    if IGNORE_TEST:
+      return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
+    self._testMove("Table")
+    self._testMove("Column")
+
+  def _testRename(self, target):
+    node = self._getNode(target)
+    current_name = node.getName(is_global_name=False)
+    new_name = "New_Name"
+    cmd_dict = {
+                'target': target, 
                 'command': 'Rename',
                 'table_name': None,
-                'column_name': column_name,
-                'column_index': COLUMN_INDEX,
-                'row_index': ROW_INDEX,
-                'args': [NEW_COLUMN_NAME],
-                'value': NEW_VALUE,
+                'column_name': current_name,
+                'column_index': -1,
+                'row_index': None,
+                'args': [new_name],
+                'value': None,
                }
-    old_num_columns = self.table.numColumns()
+    num_columns = self.table.numColumns()
     self.table.processCommand(cmd_dict)
-    self.assertEqual(self.table.numColumns(), old_num_columns)
-    self.assertEqual(self.table.getColumns()[COLUMN_INDEX].getName(), NEW_COLUMN_NAME)
+    self.assertEqual(self.table.numColumns(), num_columns)
+    new_node = self.table.childFromName(new_name)
+    self.assertIsNotNone(new_name)
+
+  def testRename(self):
+    if IGNORE_TEST:
+      return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
+    self._testRename("Table")
+    self._testRename("Column")
+
+
+class TestUITableFunctions(TestCase):
+
+  def setUp(self):
+    if IGNORE_TEST:
+      return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
 
   def testAddEscapesToQuotes(self):
     if IGNORE_TEST:
@@ -247,6 +365,15 @@ a = 5
       return
     self._testGetVisibleColumns(["C"],
         ["A", "B", "Subtable", "D"])
+
+
+class TestUITableSheetCommands(TestCase):
+
+  def setUp(self):
+    if IGNORE_TEST:
+      return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
     
 
 if __name__ == '__main__':
