@@ -97,11 +97,9 @@ QUnit.test("sheet_setup", function (assert) {
   /* Table Tests */
   expectAjaxCalls = [1,  // Append
                     1,  // Delete
-                    1,  // Epilogue
                     1,  // Hide
                     1,  // Insert
                     1,  // Move
-                    1,  // Prologue
                     1,  // Refactor
                     1, // Rename
                     1, // Trim

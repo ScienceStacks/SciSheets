@@ -11,7 +11,8 @@
 /*jslint indent: 2 */
 
 /*
-  MenuProcessor provides methods to process command popup menus.
+  MenuProcessor provides methods to process command popup menus
+  for Sheet, Table, and Column.
   Depends: SciSheets, SciSheetsUtilEvent
 */
 

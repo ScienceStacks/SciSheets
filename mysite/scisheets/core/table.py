@@ -53,10 +53,14 @@ class Table(ColumnContainer):
     super(Table, self).__init__(name)
     self._namespace = {}  # Namespace for formula evaluation
     self._createNameColumn()
-    self._prologue = self._formulaStatementFromFile(PROLOGUE_FILEPATH,
-        PROLOGUE_NAME)
-    self._epilogue = self._formulaStatementFromFile(EPILOGUE_FILEPATH,
-        EPILOGUE_NAME)
+    if self.getParent() is None:
+      self._prologue = self._formulaStatementFromFile(PROLOGUE_FILEPATH,
+          PROLOGUE_NAME)
+      self._epilogue = self._formulaStatementFromFile(EPILOGUE_FILEPATH,
+          EPILOGUE_NAME)
+    else:
+      self._prologue = None
+      self._epilogue = None
     self._is_evaluate_formulas = True
 
   @classmethod
