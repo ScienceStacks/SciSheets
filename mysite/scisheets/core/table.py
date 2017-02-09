@@ -686,13 +686,10 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     Renames the row so that it is an integer value
     that creates the row ordering desired.
-    Handles subtrees by making their name columns
-    the same length as the root.
     :param row_index: index of the row to change
     :param proposed_name: string of a number
     """
-    root = self.getRoot()
-    name_column = root.columnFromName(NAME_COLUMN_STR)
+    name_column = self.columnFromName(NAME_COLUMN_STR)
     names = name_column.getCells()
     try:
       names[row_index] = str(proposed_name)

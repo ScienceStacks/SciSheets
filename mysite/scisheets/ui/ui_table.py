@@ -163,6 +163,9 @@ class UITable(Table):
       if child in self._hidden_children:
         self._hidden_children.remove(child)
 
+  def isHiddenChild(self, child):
+    return child in self._hidden_children
+
   def getVisibleNodes(self):
     """
     Considers the node hierarchy when determining which nodes are visible.
@@ -208,12 +211,12 @@ class UITable(Table):
     #          column_name - full path name
     #          row_index - 0 based index of row
     #          value - value assigned
-    # Output: response, do_save - Dictionary with response
+    # Output: response, is_save - Dictionary with response
     #            data: data returned
     #            success: True/False
-    #         do_save - bool (if should save table)
+    #         is_save - bool (if should save table)
     target = cmd_dict["target"]
-    do_save = True
+    is_save = True
     if target == "Cell":
       response = self._cellCommand(cmd_dict)
     elif target == "Column":
@@ -221,13 +224,13 @@ class UITable(Table):
     elif target == "Row":
       response = self._rowCommand(cmd_dict)
     elif target == "Table":
-      response, do_save = self._tableCommand(cmd_dict)
+      response, is_save = self._tableCommand(cmd_dict)
     elif target == "Sheet":
-      response, do_save = self._sheetCommand(cmd_dict)
+      response, is_save = self._sheetCommand(cmd_dict)
     else:
         msg = "Unimplemented %s." % target
         raise NotYetImplemented(msg)
-    return response, do_save
+    return response, is_save
 
   def _extractListFromString(self, list_as_str):
     # TODO: Test
@@ -245,21 +248,23 @@ class UITable(Table):
     # TODO: Test
     # Processes a UI request for a Table
     # Input: cmd_dict - dictionary with the keys
-    # Output: response, do_save - response to user
-    #         do_save - bool (if should save table)
+    # Output: response, is_save - response to user
+    #         is_save - bool (if should save table)
     target = "Table"
     table = self.childFromName(cmd_dict["column_name"], is_all=True)
-    do_save = True
+    is_save = True
     error = None
     response = self._createResponse(error)
     command = cmd_dict["command"]
     if "args" in cmd_dict:
-      argument = cmd_dict["args"][0]
+      args = cmd_dict["args"]
+      if isinstance(args, list):
+        argument = cmd_dict["args"][0]
     else:
       argument = None
     versioned = self.getVersionedFile()
     if (command == "Append") or (command == "Insert"):
-      error = self._commandAPpendAndInsert(table, target, command, argument)
+      error = self._commandAppendAndInsert(table, target, command, argument)
     elif command == "Delete":
       table.removeTree()
     elif command == "Epilogue":
@@ -298,16 +303,16 @@ class UITable(Table):
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    return response, do_save
+    return response, is_save
 
   def _sheetCommand(self, cmd_dict):
     # TODO: Test
     # Processes a UI request for a Table
     # Input: cmd_dict - dictionary with the keys
-    # Output: response, do_save - response to user
-    #         do_save - bool (if should save table)
+    # Output: response, is_save - response to user
+    #         is_save - bool (if should save table)
     target = "Sheet"
-    do_save = True
+    is_save = True
     error = None
     command = cmd_dict["command"]
     versioned = self.getVersionedFile()
@@ -317,24 +322,21 @@ class UITable(Table):
       if isinstance(args_list, list):
         if len(args_list) != 3:
           args_list = eval(cmd_dict['args'][0])
-      POS_FUNC = 0
-      POS_INPUTS = 1
-      POS_OUTPUTS = 2
-      function_name = args_list[POS_FUNC]
-      inputs, error = self._extractListFromString(args_list[POS_INPUTS])
+      pos_func = 0  # Position of the function name
+      pos_inputs = 1  # Position of the list of input column names
+      pos_outputs = 2  # Position of the list of output column names
+      function_name = args_list[pos_func]
+      inputs, error = self._extractListFromString(args_list[pos_inputs])
       if error is None:
-        outputs, error = self._extractListFromString(args_list[POS_OUTPUTS])
+        outputs, error = self._extractListFromString(args_list[pos_outputs])
         if error is None:
           error = self.export(function_name=function_name,
                               inputs=inputs,
                               outputs=outputs,
                               user_directory=settings.SCISHEETS_USER_PYDIR)
+      if error is not None:
+        is_save = False
       response = self._createResponse(error)
-    elif command == "Open":
-      file_name = cmd_dict['args'][0]
-      fullname = "%s.%s" % (file_name, settings.SCISHEETS_EXT)
-      file_path = os.path.join(settings.BASE_DIR, fullname)
-      SET_CURRENT_FILE(file_path) # This is current in the session variable.
     elif command == "Redo":
       try:
         versioned.redo()
@@ -342,7 +344,7 @@ class UITable(Table):
       except Exception as err:
         error = str(err)
       response = self._createResponse(error)
-      do_save = False
+      is_save = False
     elif command == "Undo":
       try:
         versioned.undo()
@@ -350,7 +352,7 @@ class UITable(Table):
       except Exception as err:
         error = str(err)
       response = self._createResponse(error)
-      do_save = False
+      is_save = False
     elif command == "Unhide":
       UITable._versionCheckpoint(versioned, target, command)
       self.unhideAllChildren()
@@ -358,7 +360,7 @@ class UITable(Table):
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    return response, do_save
+    return response, is_save
 
   def _cellCommand(self, cmd_dict):
     # Processes a UI request for a Cell
@@ -399,7 +401,7 @@ class UITable(Table):
     global_names = [c.getName() for c in self.getChildren(is_recursive=True)]
     return name in global_names
 
-  def _commandAPpendAndInsert(self, node, target, command, name):
+  def _commandAppendAndInsert(self, node, target, command, name):
     """
     Processes Append and Insert commands for targets of Column and Table.
     :param NamedTree node:
@@ -439,7 +441,7 @@ class UITable(Table):
     else:
       argument = None
     if (command == "Append") or (command == "Insert"):
-      error = self._commandAPpendAndInsert(column, target, command, argument)
+      error = self._commandAppendAndInsert(column, target, command, argument)
     elif command == "Delete":
       UITable._versionCheckpoint(versioned, target, command)
       column.removeTree()

@@ -20,8 +20,55 @@ LARGE_NUMBER = 1000
 NCOL = 30
 NROW = 3
 TABLE_NAME = "MY_TABLE"
+
+
+########################################################
+# Utility Functions And Classes
+########################################################
+def _getNode(table, target, excludes=None):
+  """
+  Gets a node of the specified class.
+  :param Table table: Table to search
+  :param str/Type target: Table or Column
+  :param list-of-Node excludes: nodes to exclude
+  :return NamedTree node:
+  """
+  if excludes is None:
+    excludes = []
+  nodes = table.getAllNodes()
+  if isinstance(target, str):
+    if target == "Table":
+      cls = Table
+    else:
+      cls = Column
+  else:
+    cls = target
+  for _ in range(LARGE_NUMBER):
+    index = random.randint(0,len(nodes)-1)
+    node = nodes[index]
+    if isinstance(node, cls):
+      if not node in excludes:
+        return node
+  raise RuntimeError("Could not find a node.")
+
+def _evaluateMockedResponse(table, cmd_dict, 
+    success=True, is_save=True):
+  """
+  Evaluates if the response from a mock is as expected.
+  :param Table table:
+  :param dict cmd_dict:
+  :param bool success: value of success
+  :param bool is_save: value of is_save
+  """
+  response, returned_is_save =  \
+      table.processCommand(cmd_dict)
+  return (response['success'] ==  success)  \
+      and returned_is_save == is_save
     
 
+########################################################
+# Test Classes
+########################################################
 class TestUITableCommandsCell(TestCase):
 
   def testCellUpdate(self):
@@ -57,23 +104,16 @@ class TestUITableCommandsCell(TestCase):
 
 class TestUITableCommandsTableAndColumn(TestCase):
 
-  def _getNode(self, target):
-    """
-    Gets a node appropriate for the target
-    :param str target: Table or Column
-    :return NamedTree node:
-    """
-    nodes = self.table.getAllNodes()
-    if target == "Table":
-      cls = Table
-    else:
-      cls = Column
-    for _ in range(LARGE_NUMBER):
-      index = random.randint(0,len(nodes)-1)
-      node = nodes[index]
-      if isinstance(node, cls):
-        return node
-    raise RuntimeError("Could not find a node.")
+  def setUp(self):
+    self.cmd_dict = {
+                    'target':  None,
+                    'command': None,
+                    'table_name': None,
+                    'column_name': None,
+                    'column_index': -1,
+                    'row_index': None,
+                    'value': None,
+                   }
 
   def _testAppendAndInsert(self, target, command):
     """
@@ -81,24 +121,18 @@ class TestUITableCommandsTableAndColumn(TestCase):
     :param str command: 'Append' or 'Insert'
     """
     new_name = "NEW_COLUMN"
-    node = self._getNode(target)
+    node = _getNode(self.table, target)
     node_name = node.getName()
-    cmd_dict = {
-                'target':  target,
-                'command': command,
-                'table_name': None,
-                'column_name': node_name,
-                'column_index': -1,
-                'row_index': None,
-                'value': None,
-                'args': [new_name],
-               }
+    self.cmd_dict['target'] = target
+    self.cmd_dict['command'] = command
+    self.cmd_dict['column_name'] = node_name
+    self.cmd_dict['args'] = [new_name]
     expected_columns = self.table.numColumns() + 1
     if command == "Append":
       expected_position = node.getPosition() + 1
     else:
       expected_position = node.getPosition()
-    self.table.processCommand(cmd_dict)
+    self.table.processCommand(self.cmd_dict)
     self.assertEqual(self.table.numColumns(), expected_columns)
     new_node = self.table.childFromName(new_name)
     self.assertIsNotNone(new_node)
@@ -119,21 +153,15 @@ class TestUITableCommandsTableAndColumn(TestCase):
     """
     :param str target: Table or Column
     """
-    node = self._getNode(target)
+    node = _getNode(self.table, target)
     node_name = node.getName()
     old_num_nodes = len(self.table.getAllNodes())
     before_table = self.table.copy()
-    cmd_dict = {
-                'target':  target,
-                'command': 'Delete',
-                'table_name': None,
-                'column_name': node_name,
-                'column_index': -1,
-                'row_index': None,
-                'value': None,
-               }
+    self.cmd_dict['target'] = target
+    self.cmd_dict['command'] = 'Delete'
+    self.cmd_dict['column_name'] = node_name
     expected_num_nodes = old_num_nodes - len(node.getAllNodes())
-    self.table.processCommand(cmd_dict)
+    self.table.processCommand(self.cmd_dict)
     self.assertEqual(len(self.table.getAllNodes()), expected_num_nodes)
     for r in range(self.table.numRows()):
       after_row = self.table.getRow(row_index=r)
@@ -159,16 +187,11 @@ class TestUITableCommandsTableAndColumn(TestCase):
 a = 5
 %s = range(a)
 ''' % colnm
-    cmd_dict = {
-                'target':  'Column',
-                'command': 'Formula',
-                'table_name': None,
-                'column_name': column.getName(),
-                'row_index': None,
-                'value': None ,
-                'args': [formula],
-               }
-    self.table.processCommand(cmd_dict)
+    self.cmd_dict['target'] = 'Column'
+    self.cmd_dict['command'] = 'Formula'
+    self.cmd_dict['column_name'] = column.getName()
+    self.cmd_dict['args'] = [formula]
+    self.table.processCommand(self.cmd_dict)
     self.assertEqual(column.getFormula(), formula)
     self.assertEqual(column.getCells(), range(5))
 
@@ -185,19 +208,13 @@ a = 5
     """
     :param str target: Table or Column
     """
-    node = self._getNode(target)
+    node = _getNode(self.table, target)
     nodes = node.getAllNodes()
     node_name = node.getName()
-    cmd_dict = {
-                'target':  target,
-                'command': 'Hide',
-                'table_name': None,
-                'column_name': node_name,
-                'column_index': -1,
-                'row_index': None,
-                'value': None,
-               }
-    self.table.processCommand(cmd_dict)
+    self.cmd_dict['target'] = target
+    self.cmd_dict['command'] = 'Hide'
+    self.cmd_dict['column_name'] = node_name
+    self.table.processCommand(self.cmd_dict)
     [self.assertTrue(n in self.table.getHiddenNodes()) for n in nodes]
 
   def testHide(self):
@@ -213,23 +230,17 @@ a = 5
     :param str source: Table or Column
     :param str destination: Table or Column
     """
-    source = self._getNode(target)
+    source = _getNode(self.table, target)
     destination = source
     while destination == source:
-      destination = self._getNode(target)
-    cmd_dict = {
-                'target':  target,
-                'command': 'Move',
-                'table_name': None,
-                'column_name': source.getName(),
-                'column_index': -1,
-                'row_index': None,
-                'value': None,
-                'args': [destination.getName()],
-               }
+      destination = _getNode(self.table, target)
+    self.cmd_dict['target'] = target
+    self.cmd_dict['command'] = 'Move'
+    self.cmd_dict['column_name'] = source.getName()
+    self.cmd_dict['args'] = [destination.getName()]
     expected_position = destination.getPosition()
     expected_parent = destination.getParent()
-    self.table.processCommand(cmd_dict)
+    self.table.processCommand(self.cmd_dict)
     self.assertEqual(source.getPosition(), expected_position)
     self.assertEqual(source.getParent(), expected_parent)
 
@@ -242,21 +253,15 @@ a = 5
     self._testMove("Column")
 
   def _testRename(self, target):
-    node = self._getNode(target)
+    node = _getNode(self.table, target)
     current_name = node.getName(is_global_name=False)
     new_name = "New_Name"
-    cmd_dict = {
-                'target': target, 
-                'command': 'Rename',
-                'table_name': None,
-                'column_name': current_name,
-                'column_index': -1,
-                'row_index': None,
-                'args': [new_name],
-                'value': None,
-               }
+    self.cmd_dict['target'] = target
+    self.cmd_dict['command'] = 'Rename'
+    self.cmd_dict['column_name'] = current_name
+    self.cmd_dict['args'] = [new_name]
     num_columns = self.table.numColumns()
-    self.table.processCommand(cmd_dict)
+    self.table.processCommand(self.cmd_dict)
     self.assertEqual(self.table.numColumns(), num_columns)
     new_node = self.table.childFromName(new_name)
     self.assertIsNotNone(new_name)
@@ -301,6 +306,15 @@ class TestUITableFunctions(TestCase):
       self.assertEqual(self.table.getHiddenNodes(), [column])
       self.table.unhideChildren(column)
       self.assertEqual(len(self.table._hidden_children) , 0)
+
+  def testIsEquivalentAndCopy(self):
+    if IGNORE_TEST:
+      return
+    table_copy = self.table.copy()
+    self.assertTrue(self.table.isEquivalent(table_copy))
+    node = _getNode(self.table, "Column")
+    node.removeTree()
+    self.assertFalse(self.table.isEquivalent(table_copy))
 
   def testSerializeDeserialize(self):
     if IGNORE_TEST:
@@ -367,14 +381,168 @@ class TestUITableFunctions(TestCase):
         ["A", "B", "Subtable", "D"])
 
 
+class _PseudoVersionedGood(object):
+  """
+  Used to mock VersionedFile
+  """
+
+  def undo(self):
+    return
+
+  def redo(self):
+    return
+
+  def getFilepath(self):
+    return None
+
+  def getDirectory(self):
+    return "."
+
+  def getMaxVersions(self):
+    return 1
+
+
+class _PseudoVersionedBad(_PseudoVersionedGood):
+  """
+  Used to mock VersionedFile
+  """
+
+  def undo(self):
+    raise RuntimeError()
+
+  def redo(self):
+    raise RuntimeError()
+
+
 class TestUITableSheetCommands(TestCase):
 
   def setUp(self):
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        2, 10, 0.3, prob_detach=0.2)
+    self.mock_dict = {}
+    self.cmd_dict = {
+                     'target': "Sheet",
+                     'command': None,
+                     'table_name': None,
+                     'column_name': None,
+                     'column_index': -1,
+                     'row_index': None,
+                     'args': [],
+                     'value': None,
+                    }
+
+  def _evaluateMockedResponse(self, success=True, is_save=True):
+    self.assertTrue(_evaluateMockedResponse(self.table,
+        self.cmd_dict, success=success, is_save=is_save))
+
+  def testExport(self):
     if IGNORE_TEST:
       return
+
+    def pseudoExportGood(function_name="x",
+        inputs=None, outputs=None, user_directory=None):
+      self.mock_dict["pseudoExport"] = True
+      return None
+    def pseudoExportBad(function_name="x",
+        inputs=None, outputs=None, user_directory=None):
+      self.mock_dict["pseudoExport"] = True
+      return "Error"
+    def _getNodes(count):
+      nodes = []
+      while len(nodes) < count:
+        excludes = list(nodes)
+        node = _getNode(self.table, "Column", excludes=excludes)
+        if not Table.isNameColumn(node):
+          nodes.append(node)
+      return nodes
+
+    nodes = [n.getName(is_global_name=False) for n in _getNodes(4)]
+    inputs = nodes[:2]
+    outputs = nodes[2:]
+    function_name = 'my_func'
+    self.cmd_dict["command"] = "Export"
+    args = [function_name, ', '.join(inputs), ', '.join(outputs)]
+    self.cmd_dict["args"] = args
+    # Successful export
+    self.table.export = pseudoExportGood  # Mock the export function
+    self._evaluateMockedResponse(success=True, is_save=True)
+    # Unsuccessful export
+    self.table.export = pseudoExportBad  # Mock the export function
+    self._evaluateMockedResponse(success=False, is_save=False)
+
+  def testRedo(self):
+    if IGNORE_TEST:
+      return
+    self.cmd_dict["command"] = "Redo"
+    self.table.setVersionedFile(_PseudoVersionedGood())
+    self._evaluateMockedResponse(success=True, is_save=False)
+    self.table.setVersionedFile(_PseudoVersionedBad())
+    self._evaluateMockedResponse(success=False, is_save=False)
+
+  def testUnhide(self):
+    if IGNORE_TEST:
+      return
+    node = _getNode(self.table, "Column")
+    self.table.hideChildren([node])
+    self.assertTrue(self.table.isHiddenChild(node))
+    self.cmd_dict["command"] = "Unhide"
+    self._evaluateMockedResponse(success=True, is_save=True)
+    self.assertFalse(self.table.isHiddenChild(node))
+
+  def testUndo(self):
+    if IGNORE_TEST:
+      return
+    self.cmd_dict["command"] = "Undo"
+    self.table.setVersionedFile(_PseudoVersionedGood())
+    self._evaluateMockedResponse(success=True, is_save=False)
+    self.table.setVersionedFile(_PseudoVersionedBad())
+    self._evaluateMockedResponse(success=False, is_save=False)
+
+
+class TestUITableCommandsRow(TestCase):
+
+  def setUp(self):
     self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
-        NROW, NCOL, 0.3, prob_detach=0.2)
-    
+        4, 10, 0.3, prob_detach=0.2)
+    self.row_index = 1
+    self.num_rows = self.table.numRows()
+    self.cmd_dict = {
+                     'target':  'Row',
+                     'command': None,
+                     'table_name': None,
+                     'column_name': NAME_COLUMN_STR,
+                     'column_index': None,
+                     'args': [self.row_index],
+                     'row_index': self.row_index,
+                     'value': None,
+                   }
+    self.row_index_values = self.table.getRow(row_index=self.row_index)
+
+  def _evaluateMockedResponse(self, success=True, is_save=True):
+    self.assertTrue(_evaluateMockedResponse(self.table,
+        self.cmd_dict, success=success, is_save=is_save))
+
+  def testSimpleCommands(self):
+    if IGNORE_TEST:
+      return
+    def pseudoRenameRow(row_index, new_name):
+      return None
+    def pseudoDeleteRow(rows):
+      return None
+    def pseudoAddRow(row, row_index):
+      return None
+
+    mocks = {"Move": [pseudoRenameRow, 'renameRow'],
+             "Delete": [pseudoDeleteRow, 'deleteRow'],
+             "Insert": [pseudoAddRow, 'addRow'],
+             "Append": [pseudoAddRow, 'addRow'],
+            }
+    for command in mocks.keys():
+      self.cmd_dict["command"] = command
+      # Insert the mocks
+      setattr(self.table, mocks[command][1], mocks[command][0])
+      self._evaluateMockedResponse(success=True, is_save=True)
+
 
 if __name__ == '__main__':
     unittest.man()
