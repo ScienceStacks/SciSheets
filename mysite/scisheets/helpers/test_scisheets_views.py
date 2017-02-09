@@ -139,16 +139,6 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(response.context.keys().issuperset(expected_keys))
 
   ''' TESTS '''
-     
-  def testExtractDataFromRequest(self):
-    if IGNORE_TEST:
-       return
-    url = self._createURL(values=[0, "one"])
-    request = self._URL2Request(url)
-    value = sv.extractDataFromRequest(request, "var0", convert=True)
-    self.assertEqual(value, 0)
-    value = sv.extractDataFromRequest(request, "var1")
-    self.assertEqual(value, "one")
 
   def _testCreateCommandDict(self, cmd_names, values):
     url = self._createURL(names=cmd_names, values=values)

@@ -70,6 +70,8 @@ class CommandDict(dict):
   """
 
   def __init__(self, request):
+    if request is None:
+      return
     self['command'] = _extractDataFromRequest(request, 'command')
     self['target'] = _extractDataFromRequest(request, 'target')
     self['table_name'] = _extractDataFromRequest(request, 'table')
@@ -89,6 +91,13 @@ class CommandDict(dict):
         convert=True)
     if self['row_index'] == -1:
       raise InternalError("Invalid row_index: %d" % self['row_index'])
+
+  @classmethod
+  def createCommandDict(cls, a_dict):
+    cmd_dict = CommandDict(None)
+    for key in a_dict.keys():
+      cmd_dict[key] = a_dict[key]
+    return cmd_dict
 
   def getFirstArgument(self):
     """

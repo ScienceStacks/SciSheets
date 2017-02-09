@@ -5,6 +5,7 @@ from scisheets.core.helpers.serialize_deserialize import serialize,  \
     deserialize
 from scisheets.core.column import Column
 from scisheets.core.table import NAME_COLUMN_STR, Table
+from scisheets.helpers.command_dict import CommandDict
 from mysite.helpers.named_tree import GLOBAL_SEPARATOR
 from ui_table import UITable
 from django.test import TestCase  # Provides mocks
@@ -83,14 +84,14 @@ class TestUITableCommandsCell(TestCase):
     column_name = column.getName(is_global_name=False)
     ROW_INDEX = 2
     NEW_VALUE = 9999
-    cmd_dict = {
+    cmd_dict = CommandDict.createCommandDict({
                 'target':  'Cell',
                 'command': 'Update',
                 'table_name': None,
                 'column_name': column_name,
                 'row_index': ROW_INDEX,
                 'value': NEW_VALUE
-               }
+               })
     table.processCommand(cmd_dict)
     self.assertEqual(int(table.getCell(ROW_INDEX, column_name)),
       NEW_VALUE)
@@ -106,7 +107,7 @@ class TestUITableCommandsCell(TestCase):
 class TestUITableCommandsTableAndColumn(TestCase):
 
   def setUp(self):
-    self.cmd_dict = {
+    self.cmd_dict = CommandDict.createCommandDict({
                     'target':  None,
                     'command': None,
                     'table_name': None,
@@ -114,7 +115,7 @@ class TestUITableCommandsTableAndColumn(TestCase):
                     'column_index': -1,
                     'row_index': None,
                     'value': None,
-                   }
+                   })
 
   def _testAppendAndInsert(self, target, command):
     """
@@ -451,7 +452,7 @@ class TestUITableSheetCommands(TestCase):
     self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
         2, 10, 0.3, prob_detach=0.2)
     self.mock_dict = {}
-    self.cmd_dict = {
+    self.cmd_dict = CommandDict.createCommandDict({
                      'target': "Sheet",
                      'command': None,
                      'table_name': None,
@@ -460,7 +461,7 @@ class TestUITableSheetCommands(TestCase):
                      'row_index': None,
                      'args': [],
                      'value': None,
-                    }
+                    })
 
   def _evaluateMockedResponse(self, success=True, is_save=True):
     self.assertTrue(_evaluateMockedResponse(self.table,
@@ -537,7 +538,7 @@ class TestUITableCommandsRow(TestCase):
         4, 10, 0.3, prob_detach=0.2)
     self.row_index = 1
     self.num_rows = self.table.numRows()
-    self.cmd_dict = {
+    self.cmd_dict = CommandDict.createCommandDict({
                      'target':  'Row',
                      'command': None,
                      'table_name': None,
@@ -546,7 +547,7 @@ class TestUITableCommandsRow(TestCase):
                      'args': [self.row_index],
                      'row_index': self.row_index,
                      'value': None,
-                   }
+                   })
     self.row_index_values = self.table.getRow(row_index=self.row_index)
 
   def _evaluateMockedResponse(self, success=True, is_save=True):

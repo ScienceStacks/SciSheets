@@ -123,6 +123,12 @@ class TestScisheetsViews(TestCase):
     value = _extractDataFromRequest(request, "var1")
     self.assertEqual(value, "one")
 
+  def testCreateCommandDict(self):
+    a_dict = {'a': 1, 'b': 2}
+    cmd_dict = CommandDict.createCommandDict(a_dict)
+    self.assertEqual(cmd_dict['a'], a_dict['a'])
+    self.assertEqual(cmd_dict['b'], a_dict['b'])
+
 
 if __name__ == '__main__':
     unittest.main()
