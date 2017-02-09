@@ -58,6 +58,10 @@ SciSheets.prototype.utilMenuProcessor = function (eleId, oArgs, target) {
   } else if (cmd.command === 'Rename') {
     this.utilPromptForInput(cmd, "New " + target + " name",
         ep.columnLabel);
+  } else if (cmd.command === 'Tablize') {
+    // Change the dialog prompt
+    newPrompt = "Name of subtable: ";
+    this.utilPromptForInput(cmd, newPrompt, "");
   } else if (cmd.command === 'Unhide') {
     this.utilSendAndReload(cmd);
   } else {

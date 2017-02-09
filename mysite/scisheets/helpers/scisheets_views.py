@@ -7,6 +7,7 @@ from scisheets.core.helpers.api_util import readObjectFromFile, \
     writeObjectToFile, getFileNameWithoutExtension
 from scisheets.ui.dt_table import DTTable
 import mysite.helpers.util as ut
+from command_dict import CommandDict
 import mysite.settings as settings
 import json
 import os
@@ -17,88 +18,9 @@ USE_DEFAULT_FILE = True
 EMPTY_TABLE_FILE = "_empty_table"
 
 
-# ******************** Helper Functions *****************
-def extractDataFromRequest(request, key, convert=False, listvar=False):
-  """
-  Returns the value of the key
-  """
-  if request.GET.has_key(key):
-    if listvar:
-      return request.GET.getlist(key)
-    elif convert:
-      return ut.ConvertType(request.GET.get(key))
-    else:
-      return request.GET.get(key)
-  else:
-    return None
-
-def createCommandDict(request):
-  """
-  Creates a dictionary from the fields in the request
-  that constitute the JSON structure sent in the command
-  from AJAX.
-  Input: request - HTML request object
-  Output: cmd_dict - dictionary of the command
-   TARGET  COMMAND   DESCRIPTION
-    Sheet   Delete   Delete the sheet file and switch to the
-                     using a random file
-    Sheet   Export   Export the table into python
-    Sheet   ListSheetFiles Returns a list of the table files
-    Sheet   New      Opens a new blank table
-    Sheet   OpenSheetFile Change the current Table file to
-                     what is specified in the args list
-    Sheet   Redo     Revert an undo
-    Sheet   SaveAs   Save the sheet to the specified file file
-    Sheet   Unhide   Make all tables and columns visible
-    Sheet   Undo     Revert to previous version
-    Table   Delete   Delete the table
-    Table   Epilogue Update the epilogue code for the table
-    Table   Hide     Hide the table
-    Table   Move     Reposition the table
-    Table   Prologue Update the prologue code for the table
-    Table   Rename   Change the table name. Must be a valid python name
-    Table   Trim     Remove None rows from the end of the table
-    Table   Unhide   Make all columns of the Table visible
-    Column  Append   Add a new column to the right of the current
-    Column  Hide     Hide the columns
-    Column  Insert   Add a new column to the left of the current
-    Column  Delete   Delete the column
-    Column  Formula  Change the column's formula
-    Column  Move     Move the column to another position
-                       The name LAST is used for last column
-    Column  Refactor Rename the column and change formulas to use
-                     the new name
-    Column  Rename   Rename the column
-    Column  Unhide   Unhide the column
-    Row     Append   Add a new row after the current row
-    Row     Insert   Add a new row before the current row
-    Row     Move     Move the row to the specified position
-    Cell    Update   Update the specified cell
-  Handles the conversion from the HTML name to the python name
-  for a column.
-  """
-  cmd_dict = {}
-  cmd_dict['command'] = extractDataFromRequest(request, 'command')
-  cmd_dict['target'] = extractDataFromRequest(request, 'target')
-  cmd_dict['table_name'] = extractDataFromRequest(request, 'table')
-  cmd_dict['args'] = extractDataFromRequest(request, 'args[]', listvar=True)
-  if cmd_dict['args'] is not None:
-    python_name = DTTable.fromHTMLToPythonName(cmd_dict['args'][0])
-    cmd_dict['args'][0] = python_name
-  html_name = extractDataFromRequest(request, 'columnName')
-  python_name = DTTable.fromHTMLToPythonName(html_name)
-  cmd_dict['column_name'] = DTTable.fromHTMLToPythonName(python_name)
-  row_name = extractDataFromRequest(request, 'row')
-  if row_name is not None and len(str(row_name)) > 0:
-    cmd_dict['row_index'] = DTTable.rowIndexFromName(row_name)
-  else:
-    cmd_dict['row_index'] = None  # Handles case where "row" is absent
-  cmd_dict['value'] = extractDataFromRequest(request, 'value',
-      convert=True)
-  if cmd_dict['row_index'] == -1:
-    raise InternalError("Invalid row_index: %d" % cmd_dict['row_index'])
-  return cmd_dict
-
+############################################################
+# Helper Functions
+############################################################
 def _makeAjaxResponse(data, success):
   return {'data': data, 'success': success}
 
@@ -200,7 +122,9 @@ def saveTable(request, table):
   writeObjectToFile(table)
 
 
-# ******************** Command Processing *****************
+################################################################
+# Command Processing
+################################################################
 def scisheets(request, ncol, nrow):
   """
   Creates a new table with the specified number of columns and rows
@@ -232,7 +156,7 @@ def scisheets_command0(request):
   Input: request - includes command structure in the GET
   Output returned - HTTP response
   """
-  cmd_dict = createCommandDict(request)
+  cmd_dict = CommandDict(request)
   command_result = _processUserEnvrionmentCommand(request, cmd_dict)
   if command_result is None:
     # Use table processing command

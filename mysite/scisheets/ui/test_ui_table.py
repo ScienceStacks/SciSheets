@@ -5,6 +5,7 @@ from scisheets.core.helpers.serialize_deserialize import serialize,  \
     deserialize
 from scisheets.core.column import Column
 from scisheets.core.table import NAME_COLUMN_STR, Table
+from mysite.helpers.named_tree import GLOBAL_SEPARATOR
 from ui_table import UITable
 from django.test import TestCase  # Provides mocks
 import json
@@ -273,6 +274,36 @@ a = 5
         NROW, NCOL, 0.3, prob_detach=0.2)
     self._testRename("Table")
     self._testRename("Column")
+
+  def _testTablize(self, target):
+    node = _getNode(self.table, target)
+    table_name = "%s_%d" % (node.getName(is_global_name=False),
+        random.randint(1, 1000))
+    if node.getParent() != node.getRoot():
+      full_table_name = "%s%s%s" % (node.getParent().getName(),
+          GLOBAL_SEPARATOR, table_name)
+    else:
+      full_table_name = table_name
+    self.cmd_dict['target'] = target
+    self.cmd_dict['command'] = 'Tablize'
+    self.cmd_dict['column_name'] = node.getName()
+    self.cmd_dict['args'] = [table_name]
+    expected = len(self.table.getAllNodes()) + 2
+    self.table.processCommand(self.cmd_dict)
+    self.assertEqual(len(self.table.getAllNodes()), expected)
+    new_table = self.table.childFromName(full_table_name)
+    self.assertIsNotNone(new_table)
+    new_node = new_table.childFromName(node.getName(is_global_name=False))
+    self.assertTrue(node.isEquivalent(new_node, is_exception=True))
+
+  def testTablize(self):
+    if IGNORE_TEST:
+      return
+    self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+        NROW, NCOL, 0.3, prob_detach=0.2)
+    for _ in range(1):
+      self._testTablize("Table")
+      self._testTablize("Column")
 
 
 class TestUITableFunctions(TestCase):

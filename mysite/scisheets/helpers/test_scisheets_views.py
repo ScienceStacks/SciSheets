@@ -153,7 +153,7 @@ class TestScisheetsViews(TestCase):
   def _testCreateCommandDict(self, cmd_names, values):
     url = self._createURL(names=cmd_names, values=values)
     request = self._URL2Request(url)
-    result = sv.createCommandDict(request)
+    result = sv.CommandDict(request)
     test_values = list(values)
     self.assertTrue(
         result['column_name'].find(dt.HTML_SEPARATOR) < 0)

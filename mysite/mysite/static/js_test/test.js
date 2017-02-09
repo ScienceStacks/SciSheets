@@ -102,6 +102,7 @@ QUnit.test("sheet_setup", function (assert) {
                     1,  // Move
                     1,  // Refactor
                     1, // Rename
+                    1, // Tablize
                     1, // Trim
                     1]; // Unhide
   /* Do Later: Need a nested table to test this
@@ -124,6 +125,7 @@ QUnit.test("sheet_setup", function (assert) {
     1, // Move
     1,  // Refactor
     1,  // Rename
+    1,  // Tablize
     1  // Unhide
   ];
   // The following tests fail in batch mode

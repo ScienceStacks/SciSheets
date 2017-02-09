@@ -244,6 +244,24 @@ class UITable(Table):
         return result, error
     return result, None
 
+  def _commandTablize(self, cmd_dict):
+    """
+    Inserts a Table above the current column or table.
+    :param CommandDict cmd_dict:
+    :return str error:
+    """
+    proposed_name = cmd_dict['args'][0]
+    table = UITable("temporary")
+    error = table.setName(proposed_name)
+    if error is None:
+      child = self.childFromName(cmd_dict["column_name"], is_all=True)
+      parent = child.getParent()
+      position = child.getPosition()
+      child.removeTree()
+      parent.addChild(table, position)
+      table.addChild(child)
+    return error
+
   def _tableCommand(self, cmd_dict):
     # TODO: Test
     # Processes a UI request for a Table
@@ -254,14 +272,8 @@ class UITable(Table):
     table = self.childFromName(cmd_dict["column_name"], is_all=True)
     is_save = True
     error = None
-    response = self._createResponse(error)
     command = cmd_dict["command"]
-    if "args" in cmd_dict:
-      args = cmd_dict["args"]
-      if isinstance(args, list):
-        argument = cmd_dict["args"][0]
-    else:
-      argument = None
+    argument = cmd_dict.getFirstArgument()
     versioned = self.getVersionedFile()
     if (command == "Append") or (command == "Insert"):
       error = self._commandAppendAndInsert(table, target, command, argument)
@@ -270,7 +282,6 @@ class UITable(Table):
     elif command == "Epilogue":
       epilogue = cmd_dict['args'][0]
       error = table.setEpilogue(epilogue)
-      response = self._createResponse(error)
     elif command == "Hide":
       UITable._versionCheckpoint(versioned, target, command)
       self.hideChildren([table])
@@ -284,16 +295,16 @@ class UITable(Table):
       except Exception:
         import pdb; pdb.set_trace()
         error = "%s does not exists." % dest_child_name
-        response = self._createResponse(error)
     elif command == "Prologue":
       prologue = cmd_dict['args'][0]
       error = table.setPrologue(prologue)
-      response = self._createResponse(error)
     elif command == "Rename":
       UITable._versionCheckpoint(versioned, target, command)
       proposed_name = cmd_dict['args'][0]
       error = table.setName(proposed_name)
-      response = self._createResponse(error)
+    elif command == "Tablize":
+      UITable._versionCheckpoint(versioned, target, command)
+      error = self._commandTablize(cmd_dict)
     elif command == "Trim":
       UITable._versionCheckpoint(versioned, target, command)
       table.trimRows()
@@ -303,6 +314,7 @@ class UITable(Table):
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
+    response = self._createResponse(error)
     return response, is_save
 
   def _sheetCommand(self, cmd_dict):
@@ -436,10 +448,7 @@ class UITable(Table):
     column = self.childFromName(cmd_dict["column_name"],
         is_relative=False)
     versioned = self.getVersionedFile()
-    if "args" in cmd_dict:
-      argument = cmd_dict["args"][0]
-    else:
-      argument = None
+    argument = cmd_dict.getFirstArgument()
     if (command == "Append") or (command == "Insert"):
       error = self._commandAppendAndInsert(column, target, command, argument)
     elif command == "Delete":
@@ -486,6 +495,9 @@ class UITable(Table):
         is_error = True
       if is_error:
         error = "%s is a duplicate column name." % proposed_name
+    elif command == "Tablize":
+      UITable._versionCheckpoint(versioned, target, command)
+      error = self._commandTablize(cmd_dict)
     elif command == "Unhide":
       self.unhideChildren([column])
     else:
