@@ -1,9 +1,9 @@
 '''Tests for scisheets_views'''
 
 from mysite import settings as st
+from helpers_test import HelperHTTP, COLUMN_INDEX
 import mysite.helpers.util as ut
-from django.test import TestCase, RequestFactory
-from django.contrib.sessions.middleware import SessionMiddleware
+from django.test import TestCase
 from scisheets.core.table import Table
 import scisheets.ui.dt_table as dt
 from scisheets.core.helpers_test import TableFileHelper, TEST_DIR,  \
@@ -26,109 +26,43 @@ NCOL = 3
 NROW = 4
 BASE_URL = "http://localhost:8000/scisheets/"
 TABLE_PARAMS = [NCOL, NROW]
-TARGET = 'Cell'
-COMMAND = 'Update'
-VALUE = 'XXX'
-ROW_INDEX = 1
-COLUMN_INDEX = 3
-COLUMN_NAME = 'Col_2'
-TABLE_NAME = 'XYZ'
 IGNORE_TEST = False
 
 
 class TestScisheetsViews(TestCase):
  
   def setUp(self):
-    self.factory = RequestFactory()
-  
-  ''' Helper Methods '''
-
-  def _addSessionToRequest(self, request):
-    middleware = SessionMiddleware()
-    middleware.process_request(request)
-    request.session.save()
-
-  def _ajaxCommandFactory(self):
-    ajax_cmd = {}
-    ajax_cmd['target'] = TARGET
-    ajax_cmd['command'] = COMMAND
-    ajax_cmd['value'] = VALUE
-    ajax_cmd['row'] = ROW_INDEX
-    ajax_cmd['columnName'] = COLUMN_NAME
-    ajax_cmd['table'] = TABLE_NAME
-    ajax_cmd['args[]'] = None
-    return ajax_cmd
+    self._helper_http = HelperHTTP()
 
   def _createBaseTable(self, params=TABLE_PARAMS):
     # Create the table
     # Output - response from command
-    create_table_url = self._createBaseURL(params=params)
+    create_table_url = self._helper_http.createBaseURL(params=params)
     return self.client.get(create_table_url)
 
-  def _createBaseURL(self, params=None):
-    # Creates the base URL to construct a table
-    # Input: params
-    #         0 - number of columns
-    #         1 - number of rows
-    # Output: URL
-    if params is None:
-      client_url = BASE_URL
+  def _getTableFromResponse(self, response):
+    table_filepath = response.client.session[sv.TABLE_FILE_KEY]
+    return readObjectFromFile(table_filepath)
+
+  def _findColumnWithType(self, table, val):
+    """
+    :param Table table:
+    :param object val:
+    :return Column:
+    Assumes that the columns are either str or a number
+    """
+    def notIsStrs(vals):
+      return not cell_types.isStrs(vals)
+
+    if cell_types.isStr(val):
+      func = cell_types.isStrs
     else:
-      ncol = params[0]
-      nrow = params[1]
-      client_url = "%s%d/%d/" % (BASE_URL, ncol, nrow)
-    return client_url
-
-  def _createURL(self, address="dummy", count=None, values=None, names=None):
-    # Input: count - number of variables
-    #        names - variable names
-    #        values - values to use for each variable
-    #        address - URL address
-    # Returns - a URL string with variables in the GET format
-    url = address
-    count = 0
-    if values is not None:
-      count = len(values)
-    if names is None:
-      names = []
-      for n in range(count):
-        names.append("var%d" % n)
-    for n in range(count):
-      if n == 0:
-        url += "command?"
-      else:
-        url += "&"
-      if values is None:
-        url += "%s=%d" % (names[n], n)
-      else:
-        if cell_types.isStr(values[n]):
-          url += "%s=%s" % (names[n], values[n])
-        elif isinstance(values[n], int):
-          url += "%s=%d" % (names[n], values[n])
-        elif cell_types.isFloats([n]):
-          url += "%s=%f" % (names[n], values[n])
-        elif values[n] is None:
-          url += "%s=%s" % (names[n], None)
-        elif isinstance(values[n], list):
-          url += "%s=%s" % (names[n], values[n])
-        else:
-          import pdb; pdb.set_trace()
-          UNKNOWN_TYPE
-    return url
-
-  def _createURLFromAjaxCommand(self, ajax_cmd, address=None):
-    # Input: ajax_cmd - command dictionary from commandFactory
-    # Output: URL
-    names = ajax_cmd.keys()
-    values = []
-    for name in names:
-      values.append(ajax_cmd[name])
-    return self._createURL(values=values, names=names, address=address)
-
-  def _URL2Request(self, url):
-    # Input: url - URL string
-    # Returns - request with count number of parameters
-    return self.factory.get(url)
+      func = notIsStrs
+    for column in table.getColumns():
+      if Table.isNameColumn(column):
+        continue
+      if func(column.getCells()):
+        return column
 
   def _verifyResponse(self, response, checkSessionid=True):
     self.assertEqual(response.status_code, 200)
@@ -137,44 +71,13 @@ class TestScisheetsViews(TestCase):
     expected_keys = ['column_hierarchy', 'response_schema', 
         'table_id', 'table_caption', 'data']
     self.assertTrue(response.context.keys().issuperset(expected_keys))
-
-  ''' TESTS '''
-
-  def _testCreateCommandDict(self, cmd_names, values):
-    url = self._createURL(names=cmd_names, values=values)
-    request = self._URL2Request(url)
-    result = sv.CommandDict(request)
-    test_values = list(values)
-    self.assertTrue(
-        result['column_name'].find(dt.HTML_SEPARATOR) < 0)
-    for n in range(len(DICT_NAMES)):
-      if result[DICT_NAMES[n]] is None:
-        continue
-      if DICT_NAMES[n] == "column_name":
-        continue
-      elif DICT_NAMES[n] == 'row_index':
-        test_values[n] -= 1  # Adjust for row index
-      self.assertEqual(result[DICT_NAMES[n]], test_values[n])
-
-  def testCreateCommandDict(self):
-    if IGNORE_TEST:
-       return
-    values = ["Update", "Column", "dummy",
-              4,           9999, "Col_1"]
-    self._testCreateCommandDict(AJAX_NAMES, values)  # All values are present
-    values = ["Update", "Column", "dummy",
-              4,           9999, "Col_1-Col_1"]
-    self._testCreateCommandDict(AJAX_NAMES, values)  # All values are present
-    for n in range(len(AJAX_NAMES)):
-      new_values = list(values)
-      new_values[n] = ''
-      self._testCreateCommandDict(AJAX_NAMES, new_values)
   
   def testSaveAndGetTable(self):
     if IGNORE_TEST:
        return
-    request = self._URL2Request(self._createURL(count=1))  # a request
-    self._addSessionToRequest(request)
+    request = self._helper_http.URL2Request(
+        self._helper_http.createURL(count=1))  # a request
+    self._helper_http.addSessionToRequest(request)
     self.assertEqual(sv.getTable(request), None)
     table = Table("test")
     sv.saveTable(request, table)
@@ -183,7 +86,7 @@ class TestScisheetsViews(TestCase):
     self.assertEqual(new_table.getName(is_global_name=False), 
         table.getName(is_global_name=False))
 
-  def test(self):
+  def testRandomTable(self):
     if IGNORE_TEST:
        return
     # Test creation of the initial random table
@@ -195,7 +98,7 @@ class TestScisheetsViews(TestCase):
        return
     self._createBaseTable()
     # Do the refresh
-    refresh_url = self._createBaseURL()
+    refresh_url = self._helper_http.createBaseURL()
     response = self.client.get(refresh_url)
     self._verifyResponse(response, checkSessionid=False)
 
@@ -211,14 +114,14 @@ class TestScisheetsViews(TestCase):
       column = self._findColumnWithType(table, val)
       column_name = column.getName()
     # Do the cell update
-    create_table_url = self._createBaseURL()
-    ajax_cmd = self._ajaxCommandFactory()
+    create_table_url = self._helper_http.createBaseURL()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Cell'
     ajax_cmd['command'] = 'Update'
     ajax_cmd['row'] = table._rowNameFromIndex(row_index)
     ajax_cmd['columnName'] = column_name
     ajax_cmd['value'] = val
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=create_table_url)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=create_table_url)
     response = self.client.get(command_url)
     table = self._getTableFromResponse(response)
     content = json.loads(response.content)
@@ -254,33 +157,33 @@ class TestScisheetsViews(TestCase):
   def testCommandCellUpdate(self):
     if IGNORE_TEST:
        return
-    ROW_INDEX = NROW - 1
-    self._testCommandCellUpdate(ROW_INDEX, 9999)
-    self._testCommandCellUpdate(ROW_INDEX, "aaa")
-    self._testCommandCellUpdate(ROW_INDEX, "aaa bb")
+    row_index = NROW - 1
+    self._testCommandCellUpdate(row_index, 9999)
+    self._testCommandCellUpdate(row_index, "aaa")
+    self._testCommandCellUpdate(row_index, "aaa bb")
 
   def testCommandCellUpdateWithColumnListData(self):
     if IGNORE_TEST:
        return
-    ROW_INDEX = NROW - 1
+    row_index = NROW - 1
     response = self._createBaseTable()
     table = self._getTableFromResponse(response)
     column = table.columnFromIndex(1)
     column_name = column.getName()
-    table.updateCell([1,2,3], ROW_INDEX, column_name)
+    table.updateCell([1,2,3], row_index, column_name)
     writeObjectToFile(table)
-    self._testCommandCellUpdate(ROW_INDEX, 2, valid=False, 
+    self._testCommandCellUpdate(row_index, 2, valid=False, 
         table=table, column_name=column_name)
 
   def testCommandCellUpdateWithValueAsList(self):
     if IGNORE_TEST:
        return
-    ROW_INDEX = NROW - 1
+    row_index = NROW - 1
     value = [1, 2]
     column_index = 1
-    table = self._testCommandCellUpdate(ROW_INDEX, value, 
+    table = self._testCommandCellUpdate(row_index, value, 
         column_index=column_index, check_value=False)
-    self.assertEqual(table.getCell(ROW_INDEX, column_index),
+    self.assertEqual(table.getCell(row_index, column_index),
         str(value))
 
   def _getTableFromResponse(self, response):
@@ -296,11 +199,11 @@ class TestScisheetsViews(TestCase):
     # Do the column delete
     column = table.columnFromIndex(COLUMN_INDEX)
     column_name = column.getName(is_global_name=False)
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Column'
     ajax_cmd['command'] = 'Delete'
     ajax_cmd['column_name'] = column_name
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=base_url)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=base_url)
     response = self.client.get(command_url)
     # Check the table
     table = self._getTableFromResponse(response)
@@ -330,12 +233,12 @@ class TestScisheetsViews(TestCase):
     column_index = 2
     column = table.columnFromIndex(column_index)
     column_name = column.getName(is_global_name=False)
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Column'
     ajax_cmd['command'] = command
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = new_name.replace(' ', '+')
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=base_url)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=base_url)
     response = self.client.get(command_url)
     returned_data = json.loads(response.getvalue())
     # Check the table
@@ -370,22 +273,22 @@ class TestScisheetsViews(TestCase):
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
     # Change the formula
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
     ajax_cmd['columnName'] =  column_name
     ajax_cmd['args[]'] = refactor_name
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
     # Refactor the name 
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Refactor"
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = refactor_name
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     # Check the response
@@ -430,12 +333,12 @@ class TestScisheetsViews(TestCase):
     rplIdx.append(0)
     new_row_name = table._rowNameFromIndex(table.numRows())
     # Do the cell update
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Row'
     ajax_cmd['command'] = 'Move'
     ajax_cmd['row'] = 1
     ajax_cmd['args[]'] = new_row_name
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Check the table
     new_table = self._getTableFromResponse(response)
@@ -459,11 +362,11 @@ class TestScisheetsViews(TestCase):
     rplIdx = range(num_rows)
     del rplIdx[ROW_IDX - 1]
     # Do the cell update
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Row'
     ajax_cmd['command'] = 'Delete'
     ajax_cmd['row'] = ROW_IDX
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Check the table
     new_table = self._getTableFromResponse(response)
@@ -485,11 +388,11 @@ class TestScisheetsViews(TestCase):
     num_columns = table.numColumns()
     row_name = table._rowNameFromIndex(cur_idx)
     # Do the cell update
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Row'
     ajax_cmd['command'] = command
     ajax_cmd['row'] = row_name
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Check the table
     new_table = self._getTableFromResponse(response)
@@ -532,12 +435,12 @@ class TestScisheetsViews(TestCase):
     num_rows = table.numRows()
     num_columns = table.numColumns()
     # Do the cell update
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Column'
     ajax_cmd['command'] = command
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = 'Yet_Another_Column'
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Check the table
     new_table = self._getTableFromResponse(response)
@@ -579,12 +482,12 @@ class TestScisheetsViews(TestCase):
     dest_column = table.columnFromName(dest_column_name)
     expected_index = table.indexFromColumn(dest_column)
     # Do the cell update
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Move"
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = dest_column_name
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Check the table
     new_table = self._getTableFromResponse(response)
@@ -621,12 +524,12 @@ class TestScisheetsViews(TestCase):
     column_name = column.getName(is_global_name=False)
     old_formula = column.getFormula()
     # Reset the formula
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = formula
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
@@ -658,12 +561,12 @@ class TestScisheetsViews(TestCase):
     column = table.columnFromIndex(col_idx)
     column_name = column.getName(is_global_name=False)
     # Change the formula
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = formula
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
@@ -692,14 +595,14 @@ class TestScisheetsViews(TestCase):
     FUNC_NAME = "ss_export_test"
     self._evaluateTable(FORMULA, True)
     # Do the export
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Sheet"
     ajax_cmd['command'] = "Export"
     inputs = "Col_1"
     outputs = "Col_%d, Col_%d" % (NCOL-1, NCOL-2)
     arg_list = [FUNC_NAME, inputs, outputs]
     ajax_cmd['args[]'] = arg_list
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
@@ -709,18 +612,18 @@ class TestScisheetsViews(TestCase):
     table = self._getTableFromResponse(base_response)
     row_name = table._rowNameFromIndex(row_idx)
     # Add the row
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Row'
     ajax_cmd['command'] = 'Append'
     ajax_cmd['row'] = row_name
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Do the trim
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
     ajax_cmd['columnName'] = table.getName()
     ajax_cmd['command'] = 'Trim'
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Check the table
     new_table = self._getTableFromResponse(response)
@@ -737,12 +640,12 @@ class TestScisheetsViews(TestCase):
     table = self._getTableFromResponse(base_response)
     old_name = table.getName(is_global_name=False)
     # Rename the table
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Table'
     ajax_cmd['command'] = 'Rename'
     ajax_cmd['columnName'] = table.getName()
     ajax_cmd['args[]'] = new_name
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     # Check the result
     new_table = self._getTableFromResponse(response)
@@ -774,10 +677,10 @@ class TestScisheetsViews(TestCase):
     helper.create()
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Sheet'
     ajax_cmd['command'] = 'ListSheetFiles'
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue("success" in content)
@@ -792,11 +695,11 @@ class TestScisheetsViews(TestCase):
     filename = "dummy"
     helper = TableFileHelper(filename, st.SCISHEETS_USER_TBLDIR)
     helper.create()
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Sheet'
     ajax_cmd['command'] = 'OpenSheetFile'
     ajax_cmd['args[]'] = filename
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue("success" in content)
@@ -810,12 +713,12 @@ class TestScisheetsViews(TestCase):
     """
     base_response = self._createBaseTable()
     table = self._getTableFromResponse(base_response)
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Sheet'
     ajax_cmd['command'] = 'SaveAs'
     ajax_cmd['columnName'] = table.getName()
     ajax_cmd['args[]'] = filename
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue("success" in content)
@@ -839,10 +742,10 @@ class TestScisheetsViews(TestCase):
     _ = self._createBaseTable()
     helper.create()
     self._tableSave(filename)
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Sheet'
     ajax_cmd['command'] = 'Delete'
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue("success" in content)
@@ -856,10 +759,10 @@ class TestScisheetsViews(TestCase):
        return
     filename = st.SCISHEETS_DEFAULT_TABLEFILE
     _ = self._createBaseTable()
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = 'Sheet'
     ajax_cmd['command'] = 'New'
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue("success" in content)
@@ -885,13 +788,13 @@ class TestScisheetsViews(TestCase):
     column = table.columnFromIndex(column_idx)
     column_name = column.getName(is_global_name=False)
     # Change the formula
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
     ajax_cmd['columnName'] = column_name
     num_rows = 2*NROW
     ajax_cmd['args[]'] = "range(%d)" % num_rows
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
@@ -911,12 +814,12 @@ class TestScisheetsViews(TestCase):
     """
     column = table.columnFromIndex(column_idx)
     column_name = column.getName(is_global_name=False)
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = formula
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
@@ -966,12 +869,12 @@ for x in Col_2:
     column = table.columnFromIndex(column_idx)
     column_name = column.getName(is_global_name=False)
     # Reset the formula
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = "Column"
     ajax_cmd['command'] = "Formula"
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = formula
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
@@ -989,12 +892,12 @@ for x in Col_2:
     """
     column = table.columnFromIndex(colidx)
     column_name = column.getName(is_global_name=False)
-    ajax_cmd = self._ajaxCommandFactory()
+    ajax_cmd = self._helper_http.ajaxCommandFactory()
     ajax_cmd['target'] = target
     ajax_cmd['command'] = command
     ajax_cmd['columnName'] = column_name
     ajax_cmd['args[]'] = args
-    command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+    command_url = self._helper_http.createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
     response = self.client.get(command_url)
     content = json.loads(response.content)
     self.assertTrue(content.has_key("success"))
@@ -1052,12 +955,13 @@ for x in Col_2:
     for command in ["Prologue", "Epilogue"]:
       base_response = self._createBaseTable()
       table = self._getTableFromResponse(base_response)
-      ajax_cmd = self._ajaxCommandFactory()
+      ajax_cmd = self._helper_http.ajaxCommandFactory()
       ajax_cmd['target'] = "Table"
       ajax_cmd['command'] = command
       ajax_cmd['columnName'] = table.getName()
       ajax_cmd['args[]'] = formula
-      command_url = self._createURLFromAjaxCommand(ajax_cmd, address=BASE_URL)
+      command_url = self._helper_http.createURLFromAjaxCommand(
+          ajax_cmd, address=BASE_URL)
       response = self.client.get(command_url)
       content = json.loads(response.content)
       self.assertTrue(content.has_key("success"))
