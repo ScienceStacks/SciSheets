@@ -25,7 +25,7 @@
         0.21,
         0.22,
         0.21,
-        0.24
+        0.23
       ],
       "_formula": null,
       "_name": "V"
@@ -53,7 +53,7 @@
         4.76,
         4.55,
         4.76,
-        4.17
+        4.35
       ],
       "_formula": "np.round(1/V,2)",
       "_name": "INV_V"
@@ -62,7 +62,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        4.358
+        4.4
       ],
       "_formula": "import scipy.stats as ss\nSLOPE, INTERCEPT, _, _, _ = ss.linregress(INV_S, INV_V)\nSLOPE = np.round(SLOPE, 3)\nINTERCEPT = np.round(INTERCEPT, 3)",
       "_name": "INTERCEPT"
@@ -80,12 +80,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.229,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        0.227
       ],
       "_formula": "np.round(1/INTERCEPT,3)",
       "_name": "V_MAX"
