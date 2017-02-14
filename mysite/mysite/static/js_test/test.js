@@ -55,7 +55,7 @@ function clickTester(clickEle,
     $(selectEle).trigger("click");
     isOk = sciSheets.ajaxCallCount >= expectedAjaxCalls[idx];
     if (!isOk) {
-      alert("Not ok");
+      alert("Not ok for " + MenuId + " " + selectEle.innerText);
     }
     assert.ok(isOk, "clickTester");
   }
@@ -91,7 +91,7 @@ QUnit.test("sheet_setup", function (assert) {
                     1, // SaveAs
                     1, // Trim
                     1, // Undo
-                    1]; // Unhide
+                    1]; // UnhideAll
   clickTester(caption, "SheetClickMenu", -1, assert,
       expectAjaxCalls);
   /* Table Tests */

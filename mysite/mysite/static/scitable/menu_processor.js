@@ -32,7 +32,7 @@ SciSheets.prototype.utilMenuProcessor = function (eleId, oArgs, target) {
   cmd.command = eleId;
   cmd.columnName = ep.columnName;
   cmd.target = target;
-  simpleCommands = ['Delete', 'Hide', 'Trim', 'Unhide'];
+  simpleCommands = ['Delete', 'Hide', 'Trim', 'Unhide', 'UnhideAll'];
   if (simpleCommands.indexOf(cmd.command) > -1) {
     this.utilSendAndReload(cmd);
   } else if (cmd.command === 'Append') {

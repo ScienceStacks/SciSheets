@@ -511,15 +511,35 @@ class TestUITableSheetCommands(TestCase):
     self.table.setVersionedFile(_PseudoVersionedBad())
     self._evaluateMockedResponse(success=False, is_save=False)
 
+  def _testUnhide(self, target):
+    #if IGNORE_TEST:
+    #  return
+    self.table.unhideAllChildren()
+    self.cmd_dict["command"] = "Unhide"
+    if target == "Column":
+      node = _getNode(self.table, target)
+      self.cmd_dict["target"] = "Column"
+      self.cmd_dict["column_name"] = node.getName()
+    elif target == "Table":
+      node = _getNode(self.table, target)
+      self.cmd_dict["target"] = target
+      self.cmd_dict["column_name"] = node.getName()
+    else:
+      # Sheet
+      self.cmd_dict["target"] = "Sheet"
+      node = _getNode(self.table, "Column")
+      self.cmd_dict["command"] = "UnhideAll"
+    self.table.hideChildren([node])
+    self.assertTrue(self.table.isHiddenChild(node))
+    self._evaluateMockedResponse(success=True, is_save=True)
+    self.assertFalse(self.table.isHiddenChild(node))
+
   def testUnhide(self):
     if IGNORE_TEST:
       return
-    node = _getNode(self.table, "Column")
-    self.table.hideChildren([node])
-    self.assertTrue(self.table.isHiddenChild(node))
-    self.cmd_dict["command"] = "Unhide"
-    self._evaluateMockedResponse(success=True, is_save=True)
-    self.assertFalse(self.table.isHiddenChild(node))
+    self._testUnhide("Column")
+    self._testUnhide("Table")
+    self._testUnhide("Sheet")
 
   def testUndo(self):
     if IGNORE_TEST:

@@ -77,12 +77,13 @@ class UITable(Table):
     if versioned is not None:
       versioned.checkpoint(id="%s/%s" % (target, command))
 
-  def _createResponse(self, error):
-    # Returns a response of the desired type
-    # Input: error - result of processing a command
-    #                (may be None)
-    # _Response
-    if error is None:
+  def _createResponse(self, error, is_evaluate=True):
+    """
+    :param str error: result of command processing
+    :param bool is_evaluate: evaluate the spreadsheet
+    :return _Response:
+    """
+    if error is None and is_evaluate:
       new_error = self.evaluate(user_directory=settings.SCISHEETS_USER_PYDIR)
     else:
       new_error = error
@@ -272,6 +273,7 @@ class UITable(Table):
     table = self.childFromName(cmd_dict["column_name"], is_all=True)
     is_save = True
     error = None
+    is_evaluate = True
     command = cmd_dict["command"]
     argument = cmd_dict.getFirstArgument()
     versioned = self.getVersionedFile()
@@ -285,6 +287,7 @@ class UITable(Table):
     elif command == "Hide":
       UITable._versionCheckpoint(versioned, target, command)
       self.hideChildren([table])
+      is_evaluate = False
     elif command == "Move":
       UITable._versionCheckpoint(versioned, target, command)
       dest_child_name = argument
@@ -293,8 +296,8 @@ class UITable(Table):
       try:
        self.moveChildToOtherchild(table, dest_child)
       except Exception:
-        import pdb; pdb.set_trace()
         error = "%s does not exists." % dest_child_name
+      is_evaluate = False
     elif command == "Prologue":
       prologue = cmd_dict['args'][0]
       error = table.setPrologue(prologue)
@@ -305,16 +308,18 @@ class UITable(Table):
     elif command == "Tablize":
       UITable._versionCheckpoint(versioned, target, command)
       error = self._commandTablize(cmd_dict)
+      is_evaluate = False
     elif command == "Trim":
       UITable._versionCheckpoint(versioned, target, command)
       table.trimRows()
     elif command == "Unhide":
       UITable._versionCheckpoint(versioned, target, command)
       self.unhideChildren([table])
+      is_evaluate = False
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    response = self._createResponse(error)
+    response = self._createResponse(error, is_evaluate=is_evaluate)
     return response, is_save
 
   def _sheetCommand(self, cmd_dict):
@@ -326,9 +331,11 @@ class UITable(Table):
     target = "Sheet"
     is_save = True
     error = None
+    is_evaluate = True
     command = cmd_dict["command"]
     versioned = self.getVersionedFile()
     if command == "Export":
+      is_evaluate = False
       args_list = cmd_dict['args']
       # TODO: Create correct format for argument in test
       if isinstance(args_list, list):
@@ -348,14 +355,12 @@ class UITable(Table):
                               user_directory=settings.SCISHEETS_USER_PYDIR)
       if error is not None:
         is_save = False
-      response = self._createResponse(error)
     elif command == "Redo":
       try:
         versioned.redo()
         error = None
       except Exception as err:
         error = str(err)
-      response = self._createResponse(error)
       is_save = False
     elif command == "Undo":
       try:
@@ -363,15 +368,15 @@ class UITable(Table):
         error = None
       except Exception as err:
         error = str(err)
-      response = self._createResponse(error)
       is_save = False
-    elif command == "Unhide":
+    elif command == "UnhideAll":
       UITable._versionCheckpoint(versioned, target, command)
       self.unhideAllChildren()
-      response = self._createResponse(error)
+      is_evaluate = False
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
+    response = self._createResponse(error, is_evaluate=is_evaluate)
     return response, is_save
 
   def _cellCommand(self, cmd_dict):
@@ -443,6 +448,7 @@ class UITable(Table):
     # Input: cmd_dict - dictionary with the keys
     # Output: response - response to user
     error = None
+    is_evaluate = True
     target = "Column"
     command = cmd_dict["command"]
     column = self.childFromName(cmd_dict["column_name"],
@@ -451,20 +457,22 @@ class UITable(Table):
     argument = cmd_dict.getFirstArgument()
     if (command == "Append") or (command == "Insert"):
       error = self._commandAppendAndInsert(column, target, command, argument)
+      is_evaluate = False
     elif command == "Delete":
       UITable._versionCheckpoint(versioned, target, command)
+      self.unhideChildren([column])
       column.removeTree()
-      self._cleanHiddenChildren()
     elif command == "Formula":
       UITable._versionCheckpoint(versioned, target, command)
       formula = argument
-      if len(formula.strip()) == 0:
+      if (formula is None) or len(formula.strip()) == 0:
         error = column.setFormula(None)
       else:
         error = column.setFormula(formula)
     elif command == "Hide":
       if not column in self.getHiddenNodes():
         self.hideChildren([column])
+      is_evaluate = False
     elif command == "Move":
       UITable._versionCheckpoint(versioned, target, command)
       dest_column_name = argument
@@ -474,6 +482,7 @@ class UITable(Table):
        self.moveChildToOtherchild(cur_column, dest_column)
       except Exception:
         error = "Column %s does not exists." % dest_column_name
+      is_evaluate = False
     elif command == "Refactor":
       UITable._versionCheckpoint(versioned, target, command)
       proposed_name = argument
@@ -498,12 +507,14 @@ class UITable(Table):
     elif command == "Tablize":
       UITable._versionCheckpoint(versioned, target, command)
       error = self._commandTablize(cmd_dict)
+      is_evaluate = False
     elif command == "Unhide":
       self.unhideChildren([column])
+      is_evaluate = False
     else:
       msg = "Unimplemented %s command: %s." % (target, command)
       raise NotYetImplemented(msg)
-    response = self._createResponse(error)
+    response = self._createResponse(error, is_evaluate=is_evaluate)
     return response
 
   def _rowCommand(self, cmd_dict):

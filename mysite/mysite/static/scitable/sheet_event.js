@@ -107,7 +107,7 @@ SciSheetsSheet.prototype.click = function (oArgs) {
     } else {
       cmd.target = "Sheet";
       /* Sheet command */
-      simpleCommands = ['Delete', 'New', 'Redo', 'Undo', 'Unhide'];
+      simpleCommands = ['Delete', 'New', 'Redo', 'Undo', 'UnhideAll'];
       if (simpleCommands.indexOf(cmd.command) > -1) {
         scisheet.utilSendAndReload(cmd);
       } else if (cmd.command === 'Export') {

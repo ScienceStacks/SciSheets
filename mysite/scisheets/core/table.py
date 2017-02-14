@@ -526,10 +526,10 @@ class Table(ColumnContainer):
 
   def isColumnPresent(self, column_name):
     """
-    :param str column_name:
+    :param str column_name: local column name
     :return bool: True if column is present
     """
-    return any([c.getName() == column_name 
+    return any([c.getName(is_global_name=False) == column_name 
                 for c in self.getColumns(is_attached=False)])
 
   def isEquivalent(self, other_table, is_exception=False):

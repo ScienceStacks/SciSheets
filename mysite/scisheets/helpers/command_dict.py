@@ -38,7 +38,7 @@ class CommandDict(dict):
                      what is specified in the args list
     Sheet   Redo     Revert an undo
     Sheet   SaveAs   Save the sheet to the specified file file
-    Sheet   Unhide   Make all tables and columns visible
+    Sheet   UnhideAll Make all tables and columns visible
     Sheet   Undo     Revert to previous version
     Table   Delete   Delete the table
     Table   Epilogue Update the epilogue code for the table
@@ -106,7 +106,8 @@ class CommandDict(dict):
     """
     argument = None
     if "args" in self:
-      args = self["args"]
-      if isinstance(args, list):
-        argument = self["args"][0]
+      arguments = self["args"]
+      if isinstance(arguments, list):
+        if len(arguments) > 0:
+          argument = arguments[0]
     return argument
