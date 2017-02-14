@@ -81,7 +81,11 @@ from scisheets.core import api as api
     executer = ProgramExecuter("ProgramRunner._createAPIObject", program, 
         namespace)
     result = executer.execute()
-    namespace[API_OBJECT] = executer.getNamespace()[API_OBJECT]
+    try:
+      namespace[API_OBJECT] = executer.getNamespace()[API_OBJECT]
+    except Exception as e:
+      import pdb; pdb.set_trace()
+      pass
     return result
 
   def execute(self, create_API_object=False):

@@ -1,16 +1,14 @@
 {
   "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-  "_attached": true,
+  "_attached": false,
   "_children": [
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        46,
-        68,
-        81,
-        20,
-        35
+        99,
+        33,
+        8
       ],
       "_formula": null,
       "_name": "node_1"
@@ -19,11 +17,9 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        78,
-        31,
-        75,
-        90,
-        68
+        11,
+        37,
+        49
       ],
       "_formula": null,
       "_name": "node_3"
@@ -36,11 +32,9 @@
           "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
           "_asis": false,
           "_cells": [
-            71,
-            10,
-            45,
-            26,
-            58
+            38,
+            67,
+            48
           ],
           "_formula": null,
           "_name": "node_4"
@@ -49,11 +43,9 @@
           "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
           "_asis": false,
           "_cells": [
-            94,
-            48,
-            27,
-            67,
-            52
+            1,
+            23,
+            25
           ],
           "_formula": null,
           "_name": "node_17"
@@ -70,28 +62,35 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        84,
-        94,
-        40,
-        59,
-        79
+        91,
+        18,
+        30
+      ],
+      "_formula": null,
+      "_name": "node_7"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        25,
+        6,
+        52
       ],
       "_formula": null,
       "_name": "node_8"
     },
     {
       "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-      "_attached": false,
+      "_attached": true,
       "_children": [
         {
           "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
           "_asis": false,
           "_cells": [
-            27,
-            59,
-            89,
-            84,
-            76
+            74,
+            72,
+            59
           ],
           "_formula": null,
           "_name": "node_9"
@@ -108,31 +107,49 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        72,
-        94,
-        48,
-        44,
-        79
+        74,
+        24,
+        0
       ],
       "_formula": null,
       "_name": "node_12"
     },
     {
       "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-      "_attached": false,
+      "_attached": true,
       "_children": [
         {
           "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
           "_asis": false,
           "_cells": [
-            70,
-            46,
-            4,
-            35,
-            42
+            0,
+            62,
+            61
           ],
           "_formula": null,
           "_name": "node_13"
+        },
+        {
+          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+          "_asis": false,
+          "_cells": [
+            20,
+            77,
+            29
+          ],
+          "_formula": null,
+          "_name": "node_22"
+        },
+        {
+          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+          "_asis": false,
+          "_cells": [
+            87,
+            11,
+            32
+          ],
+          "_formula": null,
+          "_name": "node_23"
         }
       ],
       "_epilogue_formula": "# Epilogue\n",
@@ -146,11 +163,9 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        96,
-        87,
-        4,
-        4,
-        68
+        46,
+        21,
+        21
       ],
       "_formula": null,
       "_name": "node_16"
@@ -159,40 +174,35 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        7,
-        0,
-        3,
-        28,
-        41
+        71,
+        32,
+        56
       ],
       "_formula": null,
       "_name": "node_18"
     },
     {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        50,
-        96,
-        11,
-        12,
-        48
+      "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+      "_attached": false,
+      "_children": [
+        {
+          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+          "_asis": false,
+          "_cells": [
+            29,
+            22,
+            56
+          ],
+          "_formula": null,
+          "_name": "node_19"
+        }
       ],
-      "_formula": null,
-      "_name": "node_19"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        23,
-        37,
-        40,
-        97,
-        37
-      ],
-      "_formula": null,
-      "_name": "node_7"
+      "_epilogue_formula": "# Epilogue\n",
+      "_filepath": null,
+      "_hidden_children": [],
+      "_is_evaluate_formulas": true,
+      "_name": "node_20",
+      "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
     }
   ],
   "_epilogue_formula": "# Epilogue\n",

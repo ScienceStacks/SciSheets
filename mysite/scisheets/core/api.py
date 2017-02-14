@@ -80,8 +80,8 @@ class API(object):
                if not cv._column.isRoot()}
     if colnms is None:
       colnms = [c.getName()
-                for c in self._table.getColumns(is_attached=False)
-                if not self._table.isNameColumn(c)]
+          for c in self._table.getDataColumns(is_attached=False, 
+              is_recursive=True)]
     for colnm in colnms:
       column = self._table.childFromName(colnm, is_relative=False)
       if column is None:
