@@ -46,8 +46,10 @@ class UITable(Table):
       instance = UITable(serialization_dict["_name"])
     super(UITable, cls).deserialize(serialization_dict,
         instance=instance)
-    hidden_columns = [instance.columnFromName(n) for n in  \
-                      serialization_dict["_hidden_columns"]]
+    hidden_columns = []
+    if "_hidden_columns" in serialization_dict:
+      hidden_columns = [instance.columnFromName(n) for n in  \
+                        serialization_dict["_hidden_columns"]]
     instance.hideColumns(hidden_columns)
     return instance
 
