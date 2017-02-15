@@ -1,214 +1,38 @@
 {
   "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-  "_attached": false,
+  "_attached": true,
   "_children": [
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        99,
-        33,
-        8
-      ],
-      "_formula": null,
-      "_name": "node_1"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        11,
-        37,
-        49
-      ],
-      "_formula": null,
-      "_name": "node_3"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-      "_attached": true,
-      "_children": [
-        {
-          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-          "_asis": false,
-          "_cells": [
-            38,
-            67,
-            48
-          ],
-          "_formula": null,
-          "_name": "node_4"
-        },
-        {
-          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-          "_asis": false,
-          "_cells": [
-            1,
-            23,
-            25
-          ],
-          "_formula": null,
-          "_name": "node_17"
-        }
-      ],
-      "_epilogue_formula": "# Epilogue\n",
-      "_filepath": null,
-      "_hidden_children": [],
-      "_is_evaluate_formulas": true,
-      "_name": "node_5",
-      "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        91,
-        18,
-        30
-      ],
-      "_formula": null,
-      "_name": "node_7"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
+        1,
         25,
         6,
-        52
+        99,
+        4
       ],
       "_formula": null,
-      "_name": "node_8"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-      "_attached": true,
-      "_children": [
-        {
-          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-          "_asis": false,
-          "_cells": [
-            74,
-            72,
-            59
-          ],
-          "_formula": null,
-          "_name": "node_9"
-        }
-      ],
-      "_epilogue_formula": "# Epilogue\n",
-      "_filepath": null,
-      "_hidden_children": [],
-      "_is_evaluate_formulas": true,
-      "_name": "node_10",
-      "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+      "_name": "Col_0"
     },
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        74,
-        24,
-        0
+        "KZVBQ",
+        "lisHx",
+        "jdUUQ",
+        "RVQxe",
+        "NfGpi"
       ],
       "_formula": null,
-      "_name": "node_12"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-      "_attached": true,
-      "_children": [
-        {
-          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-          "_asis": false,
-          "_cells": [
-            0,
-            62,
-            61
-          ],
-          "_formula": null,
-          "_name": "node_13"
-        },
-        {
-          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-          "_asis": false,
-          "_cells": [
-            20,
-            77,
-            29
-          ],
-          "_formula": null,
-          "_name": "node_22"
-        },
-        {
-          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-          "_asis": false,
-          "_cells": [
-            87,
-            11,
-            32
-          ],
-          "_formula": null,
-          "_name": "node_23"
-        }
-      ],
-      "_epilogue_formula": "# Epilogue\n",
-      "_filepath": null,
-      "_hidden_children": [],
-      "_is_evaluate_formulas": true,
-      "_name": "node_14",
-      "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        46,
-        21,
-        21
-      ],
-      "_formula": null,
-      "_name": "node_16"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        71,
-        32,
-        56
-      ],
-      "_formula": null,
-      "_name": "node_18"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
-      "_attached": false,
-      "_children": [
-        {
-          "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-          "_asis": false,
-          "_cells": [
-            29,
-            22,
-            56
-          ],
-          "_formula": null,
-          "_name": "node_19"
-        }
-      ],
-      "_epilogue_formula": "# Epilogue\n",
-      "_filepath": null,
-      "_hidden_children": [],
-      "_is_evaluate_formulas": true,
-      "_name": "node_20",
-      "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+      "_name": "Col_1"
     }
   ],
   "_epilogue_formula": "# Epilogue\n",
   "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/scisheet_table.scish",
   "_hidden_children": [],
   "_is_evaluate_formulas": true,
-  "_name": "node_0",
+  "_name": "Demo",
   "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
 }

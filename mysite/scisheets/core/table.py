@@ -725,6 +725,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
   def setEpilogue(self, epilogue_formula):
     """
     :param str epilogue_formula: New value for the Epilogue formula
+    :return str: Error or None
     """
     self._epilogue = FormulaStatement(epilogue_formula, EPILOGUE_NAME)
     return self._epilogue.do()
@@ -740,8 +741,8 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     Finds the table with the specified name or None.
     Note that Columns must be leaves in the Tree.
-    :param name: name of the column
-    :return: column - column object or None if not found
+    :param str name: name of the column
+    :return NamedTree:
     """
     leaf = self.childFromName(name, is_relative=is_relative)
     if Table.isTable(leaf):
