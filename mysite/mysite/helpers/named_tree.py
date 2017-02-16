@@ -13,35 +13,67 @@ FLATTEN_SEPARATOR = "__"
 NamedElement = namedtuple('NamedElement', 'tree position')
 
 
-class NamedTree(PositionTree):
-  '''
-  A NamedTree knows about names in a PositionTree
-  These are paths from the root. 
-  A name is either relative to a NamedTree or 
-  a global name that specifies a path from the root.
-  The name does not include the name of the root table and so
-  the global name for the root is ''.
-  '''
+class NodeName(object):
+  """
+  Name for a node in a Tree.
+  """
 
-  def __init__(self, name):
-    super(NamedTree, self).__init__(name)
-    self.setName(name)
+  def __init__(self, node):
+    self._node = node
 
-  def createGlobalName(self, child):
+  def get(self, is_global=True):
     """
     Creates a global name
-    :param PositionTree child:
+    A name is either relative to a NamedTree or 
+    a global name that specifies a path from the root.
+    The name does not include the name of the root table and so
+    the global name for the root is ''.
+    :param bool is_global: return a global name
     :return str:
     """
-    path = child.findPathFromRoot()
+    if not is_global:
+      return self._node._name
+    path = self._node.findPathFromRoot()
     del path[0]
     if len(path) > 1:
       result = GLOBAL_SEPARATOR.join(path)
     elif len(path) == 1:
       result = path[0]
     else:
-      result = ""  # Root container
+      result = ROOT_NAME
     return result
+
+  def getParsedFlattenedName(self):
+    """
+    Parses the components of a flattened name.
+    :return list-of-str
+    """
+    parsed_name = self._node._name.split(FLATTEN_SEPARATOR)
+    return parsed_name
+
+  @classmethod
+  def factory(cls, node, is_global=True):
+    return cls(node).get(is_global=is_global)
+
+  @classmethod
+  def createFlattenedName(cls, path):
+    """
+    Creates a flattened name from a path
+    :param list-of-str path:
+    :return str:
+    """
+    return FLATTEN_SEPARATOR.join(path)
+
+
+class NamedTree(PositionTree):
+  '''
+  A NamedTree knows about names in a PositionTree
+  These are paths from the root. 
+  '''
+
+  def __init__(self, name):
+    super(NamedTree, self).__init__(name)
+    self.setName(name)
 
   @staticmethod
   def pathFromGlobalName(global_name):
@@ -52,42 +84,27 @@ class NamedTree(PositionTree):
     """
     return global_name.split(GLOBAL_SEPARATOR)
 
-  def globalName(self, name, is_relative=True):
-    """
-    Converts a name relative to the current node to an absolute name. 
-    :param str is_relative:
-    :param bool is_relative: is a relative name
-    :return str: global name
-    """
-    if not is_relative:
-      return name
-    current_node_name = self.createGlobalName(self)
-    if len(current_node_name) > 0:
-      result = GLOBAL_SEPARATOR.join([current_node_name, name])
-    else:
-      result = name
-    return result
-
   def childFromName(self, name, is_relative=True, is_all=False):
     """
     Finds a child with the specified name or None.
-    Note that Columns must be leaves in the Tree.
-    :param name: name of the column
-    :param bool is_relative: name is relative to the current name
-       (as opposed to a global name)
+    :param name: node name
+    :param bool is_relative: relative name (not global)
     :param bool is_all: include the root
-    :return list-of-PositionTree:
+    :return PositionTree:
     """
-    global_name = self.globalName(name, 
-        is_relative=is_relative)
     nodes = self.getChildren(is_recursive=True)
     if is_all:
       nodes.insert(0, self)
-    for child in nodes:
-      global_child_name = self.createGlobalName(child)
-      if global_name == global_child_name:
-        return child
-    return None
+    matching_children = [n for n in nodes 
+        if n.getName(is_global_name=(not is_relative))==name]
+    if len(matching_children) == 0:
+      child = None
+    elif len(matching_children) == 1:
+      child = matching_children[0]
+    else:
+      import pdb; pdb.set_trace()
+      raise RuntimeError("Found multiple identical names")
+    return child
 
   def copy(self, instance=None):
     """
@@ -116,16 +133,7 @@ class NamedTree(PositionTree):
                                 if false, node name
     :return str:
     """
-    if not is_global_name:
-      return super(NamedTree, self).getName()
-    parent = self.getParent()
-    if parent is None:
-      name = ROOT_NAME
-    else:
-      child = self
-      node_name = super(NamedTree, child).getName()
-      name = parent.globalName(node_name, is_relative=True)
-    return name
+    return NodeName.factory(self, is_global=is_global_name)
 
   def setName(self, name):
     """
@@ -253,7 +261,8 @@ class NamedTree(PositionTree):
     """
     def addChildByFlattenedName(root, flat_child, position=None):
       """
-      Adds one child to the tree based on its flattened name
+      Adds one child to the tree based on its flattened name.
+      The flattened name should not include the root's name.
       :param Tree root: Tree into which child is to be added
       :param Tree flat_child: flattened child node
       :param int/None position:
@@ -262,40 +271,51 @@ class NamedTree(PositionTree):
       cur_node = root
       tree_cls = type(root)
       name = flat_child.getName(is_global_name=False)
-      parsed_name = name.split(flatten_separator)
-      nonleaf_names = parsed_name[:-1]
+      parsed_name = NodeName(flat_child).getParsedFlattenedName()
       leaf_name = parsed_name[-1]
+      # Delete root and leaf
+      nonleaf_names = parsed_name[:-1]
+      # Create the non-leaves required
       for name in nonleaf_names:
-        if name == cur_node.getName(is_global_name=False):
-          nonleaf = cur_node
-        else:
+        next_node = [n for n in cur_node.getChildren()
+                     if n.getName(is_global_name=False)==name]
+        if len(next_node) == 1:
+          cur_node = next_node[0]
+        elif len(next_node) == 0:
           nonleaf = cur_node.childFromName(name)
           if nonleaf is None:
             nonleaf = tree_cls(name)
             cur_node.addChild(nonleaf)
           cur_node = nonleaf
+        else:
+          raise RuntimeError("Duplicate name: %s" % name)
       leaf_node = cur_node.childFromName(leaf_name)
       if leaf_node is None:
-        leaf_node = child.copy()
+        leaf_node = flat_child.copy()
         leaf_node.setName(leaf_name)
       cur_node.addChild(leaf_node, position=position)
       return leaf_node
 
     root = None
+    first = True
     for element in elements:
       tree = element.tree
       tree.validateTree()
       tree_cls = type(tree)
       new_tree = tree_cls(tree.getName(is_global_name=False))
-      if tree == elements[0].tree:
+      if first:
         # Attached tree
         new_tree.setIsAttached(True)
         root = new_tree
+        first = False
       else:
         # Detached tree
-        parsed_name = tree.getName(is_global_name=False).split(flatten_separator)
+        parsed_name = NodeName(tree).getParsedFlattenedName()
         if parsed_name[0] != root.getName(is_global_name=False):
           raise RuntimeError("Invalid name for a detached tree")
+        del parsed_name[0]
+        new_flattened_name = NodeName.createFlattenedName(parsed_name)
+        new_tree.setName(new_flattened_name)
         new_tree = addChildByFlattenedName(root, new_tree, 
             position=element.position)
         new_tree.setIsAttached(False)

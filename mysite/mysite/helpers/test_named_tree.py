@@ -1,6 +1,7 @@
 '''Tests for ColumnContainer'''
 
-from named_tree import NamedTree, ROOT_NAME, FLATTEN_SEPARATOR
+from named_tree import NamedTree, ROOT_NAME, FLATTEN_SEPARATOR,  \
+    NodeName, GLOBAL_SEPARATOR
 import unittest
 
 
@@ -16,81 +17,59 @@ PARENT = 'DUMMY'
 IGNORE_TEST = False
 
 
+def _setup(o):
+  """
+  root(DUMMY):
+    root_child(DUMMY1_CHILD)
+    (DUMMY2_CHILD)
+    (DUMMY3_CHILD)
+    subparent(Subparent)
+      subparent_child(DUMMY4_CHILD)
+  """
+  o.root = NamedTree(PARENT)
+  o.root_child = NamedTree(CHILD1)
+  o.root.addChild(o.root_child)
+  o.root.addChild(NamedTree(CHILD2))
+  o.root.addChild(NamedTree(CHILD3))
+  o.subparent = NamedTree(SUBPARENT)
+  o.root.addChild(o.subparent)
+  o.subparent_child = NamedTree(CHILD4)
+  o.subparent.addChild(o.subparent_child)
+  o.subparent_child_name = CHILD4
+  o.children = o.root.getChildren()
+
+
 #############################
 # Tests
 #############################
-# pylint: disable=W0212,C0111,R0904
-class TestNamedTree(unittest.TestCase):
+class TestNodeNode(unittest.TestCase):
 
   def setUp(self):
-    """
-    root(DUMMY):
-      root_child(DUMMY1_CHILD)
-      (DUMMY2_CHILD)
-      (DUMMY3_CHILD)
-      subparent(Subparent)
-        subparent_child(DUMMY4_CHILD)
-    """
-    self.root = NamedTree(PARENT)
-    self.root_child = NamedTree(CHILD1)
-    self.root.addChild(self.root_child)
-    self.root.addChild(NamedTree(CHILD2))
-    self.root.addChild(NamedTree(CHILD3))
-    self.subparent = NamedTree(SUBPARENT)
-    self.root.addChild(self.subparent)
-    self.subparent_child = NamedTree(CHILD4)
-    self.subparent.addChild(self.subparent_child)
-    self.subparent_child_name = CHILD4
-    self.children = self.root.getChildren()
-
-  def testCreateGlobalName(self):
-    if IGNORE_TEST:
-     return
-    global_name = self.root.createGlobalName(self.root_child)
-    self.assertEqual(global_name, CHILD1)
-    global_name = self.root.createGlobalName(self.subparent_child)
-    expected_name = ".".join([SUBPARENT, self.subparent_child_name])
-    self.assertEqual(global_name, expected_name)
+    _setup(self)
 
   def testGlobalName(self):
     if IGNORE_TEST:
      return
-    global_name = self.root.globalName(SUBPARENT, is_relative=True)
-    self.assertEqual(global_name, SUBPARENT)
-    global_name = self.root.globalName(SUBPARENT, is_relative=False)
-    self.assertEqual(global_name, SUBPARENT)
-    global_name = self.subparent.globalName(self.subparent_child_name,
-                                            is_relative=True)
-    expected = ".".join([SUBPARENT, self.subparent_child_name])
-    self.assertEqual(global_name, expected)
-    global_name = self.subparent.globalName(global_name,
-                                            is_relative=False)
-    self.assertEqual(global_name, expected)
-    
+    root_node_name = NodeName(self.root)
+    self.assertEqual(root_node_name.get(), ROOT_NAME)
+    self.assertEqual(root_node_name.get(is_global=False),  self.root._name)
+    subparent_node_name = NodeName(self.subparent)
+    self.assertEqual(subparent_node_name.get(), SUBPARENT)
+    child4_node_name = NodeName(self.subparent_child)
+    expected = "%s%s%s" % (SUBPARENT, GLOBAL_SEPARATOR, CHILD4)
+    self.assertEqual(child4_node_name.get(), expected)
 
-  def testRelativeNameToGlobalName(self):
-    if IGNORE_TEST:
-      return
-    global_name =  \
-        self.root.globalName(self.subparent_child.getName(), 
-                                             is_relative=True)
-    expected_name = self.subparent_child.getName()
-    self.assertEqual(global_name, expected_name)
-    global_name = self.root.globalName(global_name, is_relative=False)
-    expected_name = self.subparent_child.getName()
-    self.assertEqual(global_name, expected_name)
+  def testFactory(self):
+    child4_node_str = NodeName.factory(self.subparent_child)
+    expected = "%s%s%s" % (SUBPARENT, GLOBAL_SEPARATOR, CHILD4)
+    self.assertEqual(child4_node_str, expected)
 
-  def testChildFromName(self):
-    if IGNORE_TEST:
-     return
-    global_name = self.root.createGlobalName(self.subparent_child)
-    child = self.root.childFromName(global_name, is_relative=False)
-    self.assertEqual(child, self.subparent_child)
-    subparent = self.root.childFromName(SUBPARENT, is_relative=True)
-    self.assertTrue(subparent, self.subparent)
-    child = self.subparent.childFromName(self.subparent_child_name, 
-                                      is_relative=True)
-    self.assertEqual(child, self.subparent_child)
+
+# pylint: disable=W0212,C0111,R0904
+class TestNamedTree(unittest.TestCase):
+
+  def setUp(self):
+    _setup(self)
 
   def testGetName(self):
     if IGNORE_TEST:
@@ -241,7 +220,8 @@ class TestNamedTree(unittest.TestCase):
     self.subparent.setIsAttached(False)
     elements = self.root.flatten()
     new_tree = NamedTree.unflatten(elements)
-    self.assertTrue(self.root.isEquivalent(new_tree))
+    self.assertTrue(self.root.isEquivalent(new_tree,
+        is_exception=True))
 
   def testUnflattenManyTrees(self):
     if IGNORE_TEST:

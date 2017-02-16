@@ -9,9 +9,9 @@ The API consists of these parts:
 The API is intended to be sparse in that it focuses on table manipulation.
 Plugins may use the API to do data manipulation and calculations.
 
-The argument to many API methods are column variables, such as
-ExtendedArray. Column variables must have a public name property,
-which is the column name.
+Two types of names are used:
+    colnm: the name of the python variable for the column
+    nodnm: the (global) name of the column in the tree for the Table
 """
 
 from column import Column
@@ -64,10 +64,10 @@ class API(object):
       if cv._column.getParent() is None:
         import pdb; pdb.set_trace()
 
-  def setColumnVariables(self, colnms=None):
+  def setColumnVariables(self, nodenms=None):
     """
-    Creates ColumnVariables for each column in the table
-    :param list-of-str colnms: If not None, then only set
+    Creates ColumnVariables for each column specified.
+    :param list-of-str nodenms: If not None, then only set
                                the named ColumnVariables
     """
     # No Table
@@ -78,12 +78,14 @@ class API(object):
     cv_dict = {cv._column.getName(): cv 
                for cv in self._column_variables
                if not cv._column.isRoot()}
-    if colnms is None:
-      colnms = [c.getName()
+    if nodenms is None:
+      nodenms = [c.getName()
           for c in self._table.getDataColumns(is_attached=False, 
-              is_recursive=True)]
-    for colnm in colnms:
-      column = self._table.childFromName(colnm, is_relative=False)
+          is_recursive=True)]
+    for nodenm in nodenms:
+      column = self._table.childFromName(nodenm, is_relative=False)
+      if not isinstance(column, Column):
+        import pdb; pdb.set_trace()
       if column is None:
         import pdb; pdb.set_trace()
       if column.getParent() is None:
