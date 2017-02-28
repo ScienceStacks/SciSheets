@@ -471,15 +471,20 @@ class Tree(Node):
     nodes.reverse() 
     return nodes
 
-  def getRoot(self):
+  # TODO: Changed
+  def getRoot(self, is_attached=True):
     """
     Returns the root of the trees
+    :param bool is_attached: True if want root of attached Tree
     :return Tree:
     """
-    if self.getParent() is None:
-      return self
+    if is_attached and not self.isAttached():
+      node = self
+    elif self.getParent() is None:
+      node = self
     else:
-      return self.getParent().getRoot()
+      node = self.getParent().getRoot()
+    return node
 
   def getUniqueName(self):
     """

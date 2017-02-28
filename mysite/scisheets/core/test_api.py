@@ -18,7 +18,7 @@ TRUTH_COLUMNS = ['A', 'B']
 COLUMN1_VALUES = range(10)
 TEST_FILE1 = "test_api_1"
 
-IGNORE_TEST = False
+IGNORE_TEST = True
 
 #############################
 # Tests
@@ -31,7 +31,7 @@ class TestAPI(unittest.TestCase):
     self.api._table = ht.createTable("test", column_name=COLUMN1)
     self.column1 = self.api._table.columnFromName(COLUMN1)
     self.column1.addCells(COLUMN1_VALUES, replace=True)
-    self.api.setColumnVariables(colnms=[COLUMN1])
+    self.api.setColumnVariables(nodenms=[COLUMN1])
     ht.setupTableInitialization(self)
 
   def testGetColumnValues(self):
@@ -87,7 +87,7 @@ class TestAPI(unittest.TestCase):
     self.api.setColumnVariables()
     old_cv_dict = {cv.getName(): cv 
         for cv in self.api.getColumnVariables()}
-    self.api.setColumnVariables(colnms=[COLUMN1])
+    self.api.setColumnVariables(nodenms=[COLUMN1])
     cv_names = [cv.getName() for cv in self.api.getColumnVariables()]
     self.assertTrue(COLUMN1 in cv_names)
     for cv_name in cv_names:
@@ -193,33 +193,27 @@ class TestAPIFormulas(unittest.TestCase):
                for n in range(num)])
       self.assertTrue(b)
 
-  def testAddColumnsToDataframeMissingTable(self):
-    if IGNORE_TEST:
-      return
-    try:
-      table = self.api.getTable()
-      df, names = Table.getCapture(TEST_FILE1)
-      column_names = [c.getName() for c in table.getColumns()]
-      for name in names:
-        self.assertFalse(name in column_names)
-      self.api.addColumnsToTableFromDataframe(df, names=names)
-      column_names = [c.getName() for c in table.getColumns()]
-      for name in names:
-        self.assertTrue(name in column_names)
-        column = table.columnFromName(name)
-        self.assertIsNotNone(column.getParent())
-    except AttributeError as err:
-      # Can't handle the captured pickle file
-      pass
-    return
-
-  def _testAddFromDataframe(self, prefix="", names=None):
-    df = self._createDataframe(prefix=prefix, names=names)
+  def _testAddColumnsToTableFromDataframe(self, table):
+    df_col1 = 'A'
+    df_col2 = 'B'
+    data = range(10)
+    df = pd.DataFrame({df_col1: data, df_col2: data})
+    self.api = API()
+    self.api.setTable(table)
+    names = [df_col2]
     self.api.addColumnsToTableFromDataframe(df, names=names)
-    num = len(df.columns)
-    if names is None:
-      names = list(df.columns)
-    self._TableContainsDataframe(self.api._table, df, names=names)
+    column_names = [c.getName() for c in self.table.getColumns()]
+    for name in names:
+      self.assertTrue(name in column_names)
+      column = self.table.columnFromName(name)
+      self.assertIsNotNone(column.getParent())
+
+  def testAddColumnsToTableFromDataframe(self):
+    #if IGNORE_TEST:
+    #  return
+    ht.setupTableInitialization(self)
+    self._testAddColumnsToTableFromDataframe(self.table)
+    self._testAddColumnsToTableFromDataframe(self.subtable)
 
   def testAddFromDataframe(self):
     if IGNORE_TEST:

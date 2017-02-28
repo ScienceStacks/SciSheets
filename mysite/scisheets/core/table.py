@@ -369,7 +369,11 @@ class Table(ColumnContainer):
     if len(self.getColumns()) < 1:
       raise er.InternalError("Table %s has no columns." % self._name)
     # Verify that all columns have the same number of cells
-    name_column = self.columnFromName(NAME_COLUMN_STR)
+    try:
+      name_column = [c for c in self.getChildren() 
+                     if c.getName(is_global_name=False) == NAME_COLUMN_STR][0]
+    except Exception as e:
+      import pdb; pdb.set_trace()
     if name_column is None:
       import pdb; pdb.set_trace()
     num_rows = self.numRows()

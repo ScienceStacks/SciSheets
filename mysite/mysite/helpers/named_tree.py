@@ -95,12 +95,12 @@ class NamedTree(PositionTree):
     nodes = self.getChildren(is_recursive=True)
     if is_all:
       nodes.insert(0, self)
-    matching_children = [n for n in nodes 
+    matches = [n for n in nodes 
         if n.getName(is_global_name=(not is_relative))==name]
-    if len(matching_children) == 0:
+    if len(matches) == 0:
       child = None
-    elif len(matching_children) == 1:
-      child = matching_children[0]
+    elif len(matches) == 1:
+      child = matches[0]
     else:
       import pdb; pdb.set_trace()
       raise RuntimeError("Found multiple identical names")
