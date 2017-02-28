@@ -2,9 +2,9 @@
 Classes for controlling table evaluation and export.
 """
 
-import helpers.api_util as api_util
-from helpers.program_generator import API_OBJECT, ProgramGenerator
-from helpers.program_runner import ProgramRunner
+import scisheets.core.helpers.api_util as api_util
+from scisheets.core.helpers.program_generator import API_OBJECT, ProgramGenerator
+from scisheets.core.helpers.program_runner import ProgramRunner
 import sys
 import os
 import numpy as np

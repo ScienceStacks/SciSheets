@@ -6,9 +6,9 @@
 from mysite import settings as settings
 from mysite.helpers.versioned_file import VersionedFile
 from mysite.helpers.named_tree import NamedTree
-from column import Column
-import errors as er
-import column as cl
+from scisheets.core.column import Column
+import scisheets.core.errors as er
+import scisheets.core.column as cl
 
 
 class ColumnContainer(NamedTree):

@@ -5,11 +5,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        4,
-        81,
-        65,
-        81,
-        37
+        "wvcoT",
+        "StuSo",
+        "DgnmL",
+        "kGDOy",
+        "ioIQN",
+        "ItgLL"
       ],
       "_formula": null,
       "_name": "Col_0"
@@ -18,11 +19,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        11,
-        91,
-        48,
-        31,
-        92
+        68,
+        87,
+        66,
+        80,
+        7,
+        8
       ],
       "_formula": null,
       "_name": "Col_1"
@@ -31,11 +33,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "PSoKR",
-        "oDbgo",
-        "NbxgU",
-        "YXOQV",
-        "DzBzX"
+        1,
+        76,
+        88,
+        34,
+        76,
+        69
       ],
       "_formula": null,
       "_name": "Col_2"
@@ -44,18 +47,19 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "mXzcB",
-        "VxGFA",
-        "ujdWb",
-        "pYFdJ",
-        "spakr"
+        "qujwy",
+        "IYcZa",
+        "bVDHL",
+        "kUuki",
+        "txczh",
+        "KMMfG"
       ],
       "_formula": null,
       "_name": "Col_3"
     }
   ],
   "_epilogue_formula": "# Epilogue\n",
-  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/scisheet_table.scish",
+  "_filepath": "/Users/Fluids/Documents/SciSheets/mysite/user/guest/tables/scisheet_table.scish",
   "_hidden_columns": [],
   "_is_evaluate_formulas": true,
   "_name": "Demo",

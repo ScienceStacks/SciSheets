@@ -2,7 +2,7 @@
 Eliminate extraneous "null" values, either None or np.nan
 """
 
-from is_null import isNan, isNull
+from scisheets.core.helpers.is_null import isNan, isNull
 import collections
 import numpy as np
 

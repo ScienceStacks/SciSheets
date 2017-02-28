@@ -4,10 +4,10 @@
 
 
 from mysite.helpers.named_tree import NamedTree
-from helpers.formula_statement import FormulaStatement
-from helpers.extended_array import ExtendedArray
-from helpers.prune_nulls import pruneNulls
-import helpers.cell_types as cell_types
+from scisheets.core.helpers.formula_statement import FormulaStatement
+from scisheets.core.helpers.extended_array import ExtendedArray
+from scisheets.core.helpers.prune_nulls import pruneNulls
+import scisheets.core.helpers.cell_types as cell_types
 import collections
 import numpy as np
 

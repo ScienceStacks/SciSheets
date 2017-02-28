@@ -3,9 +3,9 @@ Runs a program created from SciSheets formulas. This creates
 creating the API object and managing associated resources (e.g., table files).
 """
 
-import api_util
-from program_executer import ProgramExecuter
-from program_generator import API_OBJECT
+from scisheets.core.helpers import api_util
+from scisheets.core.helpers.program_executer import ProgramExecuter
+from scisheets.core.helpers.program_generator import API_OBJECT
 from mysite import settings
 import os
 import sys

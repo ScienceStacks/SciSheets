@@ -5,14 +5,14 @@ from mysite import settings
 import mysite.helpers.util as ut
 from mysite.helpers.data_capture import DataCapture
 from mysite.helpers.versioned_file import VersionedFile
-from helpers.formula_statement import FormulaStatement
-from helpers.is_null import isNull
-from column import Column
-from column_container import ColumnContainer
-from table_evaluator import TableEvaluator
-from helpers.serialize_deserialize import deserialize
-import errors as er
-import column as cl
+from scisheets.core.helpers.formula_statement import FormulaStatement
+from scisheets.core.helpers.is_null import isNull
+from scisheets.core.column import Column
+from scisheets.core.column_container import ColumnContainer
+from scisheets.core.table_evaluator import TableEvaluator
+from scisheets.core.helpers.serialize_deserialize import deserialize
+import scisheets.core.errors as er
+import scisheets.core.column as cl
 import json
 import numpy as np
 import os

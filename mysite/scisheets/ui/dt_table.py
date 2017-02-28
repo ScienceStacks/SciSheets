@@ -9,7 +9,7 @@ import mysite.settings as settings
 from scisheets.core.helpers.api_util import getFileNameWithoutExtension
 from scisheets.core.helpers.cell_types import isFloats, isStr
 from scisheets.core.column import Column
-from ui_table import UITable
+from scisheets.ui.ui_table import UITable
 from mysite import settings as st
 from mysite.helpers import util as ut
 import collections

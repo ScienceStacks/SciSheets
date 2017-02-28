@@ -1,11 +1,11 @@
 '''Evaluates formulas in a Table.'''
 
 from mysite.helpers.versioned_file import VersionedFile
-from serialize_deserialize import serialize, deserialize
+from scisheets.core.helpers.serialize_deserialize import serialize, deserialize
 import mysite.settings as settings
 import mysite.helpers.util as ut
-import cell_types
-from prune_nulls import pruneNulls
+import scisheets.core.helpers.cell_types
+from scisheets.core.helpers.prune_nulls import pruneNulls
 
 import collections
 import numpy as np

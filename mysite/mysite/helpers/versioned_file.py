@@ -8,7 +8,7 @@ of a file. Core concepts:
         present when an undo operation was done
 """
 
-from file_stack import FileStack
+from mysite.helpers.file_stack import FileStack
 import os
 
 

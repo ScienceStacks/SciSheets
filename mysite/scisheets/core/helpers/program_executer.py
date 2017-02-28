@@ -3,8 +3,9 @@ Runs a program, checking syntax. Does not depend on
 the SciSheets context.
 """
 
-from block_execution_controller import BlockExecutionController
-from statement_accumulator import StatementAccumulator
+from scisheets.core.helpers.block_execution_controller import BlockExecutionController
+from scisheets.core.helpers.statement_accumulator import StatementAccumulator
+
 import exceptions
 
 CONTROLLER = "_program_executer_controller"

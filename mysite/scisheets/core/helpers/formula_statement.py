@@ -2,9 +2,9 @@
   Implements manager of formula statements
 '''
 
-import cell_types as cell_types
-from program_executer import ProgramExecuter
-import api_util as api_util
+import scisheets.core.helpers.cell_types as cell_types
+from scisheets.core.helpers.program_executer import ProgramExecuter
+import scisheets.core.helpers.api_util as api_util
 import collections
 import inspect
 import sys
