@@ -535,7 +535,7 @@ class TestScisheetsViews(TestCase):
     self.assertTrue(content.has_key("success"))
     # Check the table
     new_table = self._getTableFromResponse(response)
-    new_column = new_table.childFromName(column_name)
+    new_column = new_table.childFromName(column_name, is_relative=False)
     if isValid:
       self.assertTrue(content["success"])
       self.assertEqual(formula, new_column.getFormula())

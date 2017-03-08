@@ -67,12 +67,11 @@ class TestColumnContainer(unittest.TestCase):
   def testColumnFromName(self):
     if IGNORE_TEST:
       return
-    global_name = self.table.createGlobalName(self.subtable_column)
+    global_name = self.subtable_column.getName()
     column = self.table.columnFromName(global_name, is_relative=False)
     self.assertTrue(column.isEquivalent(self.subtable_column))
     column = self.table.columnFromName(COLUMN5, is_relative=True)
     self.assertTrue(column.isEquivalent(self.column5))
-    self.assertIsNone(self.table.columnFromName(SUBTABLE, is_relative=True))
 
   def testGetColumnNames(self):
     if IGNORE_TEST:

@@ -173,7 +173,7 @@ class API(object):
       if column.getParent() is None:
         import pdb; pdb.set_trace()
         pass
-    root_table = table.getRoot()
+    root_table = table.getRoot(is_attached=False)
     root_table.adjustColumnLength()
     self.setColumnVariables()
     return names
@@ -301,7 +301,7 @@ class API(object):
       colnms = [c.getName() for c in self._table.getDataColumns()]
     dataframe = pd.DataFrame()
     for name in colnms:
-      column = self.columnFromColnm(name)
+      column = self._table.columnFromName(name, is_relative=False)
       if column is None:
         raise ValueError("Column %s does not exist in table %s" %  \
             (name, self._table.getName()))
@@ -366,7 +366,7 @@ class APIFormulas(API):
     """
     if tablenm is None:
       tablenm = self._table.getName()
-    table = self.childFromName(tablenm)
+    table = self._table.childFromName(tablenm)
     return self._createColumn(colnm, 
                               index=index,
                               asis=asis,
@@ -432,7 +432,7 @@ class APIPlugin(APIFormulas):
     :param object values:
     :return bool: True if successful comparison
     """
-    column = self.columnFromName(colnm)
+    column = self._table.columnFromName(colnm)
     return api_util.compareIterables(column.getCells(), values)
 
 

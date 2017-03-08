@@ -305,18 +305,21 @@ class Tree(Node):
         is_recursive=is_recursive)
     return [n for n in nodes if n.getName() == name]
 
-  def findPathFromRoot(self):
+  def findPathFromRoot(self, is_attached=True):
     """
     A path is a list of member names traversed
+    :param bool is_attached: Want nodes in the attached Tree
     :return list-of-str:
     """
-    return [n._name for n in self.findNodesFromRoot()]
+    return [n._name for n in self.findNodesFromRoot(
+              is_attached=is_attached)]
 
-  def findNodesFromAncestor(self, tree):
+  def findNodesFromAncestor(self, tree, is_attached=True):
     """
     Finds the list of nodes from the current node to the tree.
     If tree is not an ancestor, None is returned.
-    :param Tree tree;
+    :param Tree tree:
+    :param bool is_attached: Want nodes in the attached Tree
     :return list-of-Tree or None:
     """
     found = False
@@ -328,7 +331,8 @@ class Tree(Node):
         found = True
         break
       parent = cur.getParent()
-      if parent is None:
+      if parent == None:
+        found = True
         break
       cur = parent
     if found:
@@ -337,22 +341,27 @@ class Tree(Node):
       path = None
     return path
 
-  def findNodesFromRoot(self):
+  def findNodesFromRoot(self, is_attached=True):
     """
     Finds the list of nodes from the root.
+    :param bool is_attached: Want nodes in the attached Tree
     :return list-of-Tree:
     """
-    return self.findNodesFromAncestor(self.getRoot())
+    nodes = self.findNodesFromAncestor(self.getRoot(
+        is_attached=is_attached))
+    return nodes
 
-  def getChildren(self, is_from_root=False, is_recursive=False):
+  def getChildren(self, is_from_root=False, is_recursive=False,
+      is_attached=True):
     """
     Returns descendent nodes in depth first order.
     :param bool is_from_root: start with the root
     :param bool is_recursive: proceed recursively
+    :param bool is_attached: Want nodes in the attached Tree
     :return list-of-Tree:
     """
     if is_from_root:
-      node = self.getRoot()
+      node = self.getRoot(is_attached=is_attached)
     else:
       node = self
     if not is_recursive:
@@ -372,13 +381,15 @@ class Tree(Node):
     return [n.getName() for n in self.getChildren(  \
         is_from_root=is_from_root, is_recursive=is_recursive)]
 
-  def getChildrenBreadthFirst(self, excludes=None, includes=None):
+  def getChildrenBreadthFirst(self, excludes=None, includes=None,
+          is_attached=True):
     """
     Returns nodes in a breadth-first dictionary structure starting
     with the current node.
     :param list-of-Tree excludes: list of nodes to exclude from list
     :param list-of-Tree includes: list of nodes to include from list
         If None, then include all unless excluded
+    :param bool is_attached: Want nodes in the attached Tree
     :return ChildrenDict - recursive dictionary structure: 
         keys = {node, children}
     """
@@ -387,7 +398,7 @@ class Tree(Node):
     if includes is None:
       includes = self.getChildren(is_from_root=True,
           is_recursive=True)
-      includes.append(self.getRoot())
+      includes.append(self.getRoot(is_attached=is_attached))
     result = {}
     if self in excludes:
       return result
@@ -404,13 +415,14 @@ class Tree(Node):
     result["children"] = result_children
     return result
 
-  def getAllNodes(self, is_from_root=False):
+  def getAllNodes(self, is_from_root=False, is_attached=True):
     """
     :param bool is_from_root: start with the root
+    :param bool is_attached: Want nodes in the attached Tree
     :return list-of-Tree:
     """
     if is_from_root:
-      start_node = self.getRoot()
+      start_node = self.getRoot(is_attached=is_attached)
     else:
       start_node = self
     nodes = []
@@ -462,16 +474,21 @@ class Tree(Node):
   def getParent(self):
     return self._parent
 
-  def getReverseOrderListOfNodes(self, is_from_root=False):
+  def getReverseOrderListOfNodes(self, is_from_root=False, 
+      is_attached=True):
+    """
+    :param bool is_from_root: start with the root
+    :param bool is_attached: only return leaves attached to the Tree
+    :return list-of-Tree:
+    """
     if is_from_root:
-      start_node = self.getRoot()
+      start_node = self.getRoot(is_attached=is_attached)
     else:
       start_node = self
     nodes = [n for n in start_node]
     nodes.reverse() 
     return nodes
 
-  # TODO: Changed
   def getRoot(self, is_attached=True):
     """
     Returns the root of the trees
@@ -483,7 +500,7 @@ class Tree(Node):
     elif self.getParent() is None:
       node = self
     else:
-      node = self.getParent().getRoot()
+      node = self.getParent().getRoot(is_attached=is_attached)
     return node
 
   def getUniqueName(self):
@@ -599,7 +616,7 @@ class Tree(Node):
 
     sa = StatementAccumulator()
     for node in self.getAllNodes():  # Depth first order
-      indent = len(node.findPathFromRoot()) - 1
+      indent = len(node.findPathFromRoot(is_attached=False)) - 1
       sa.indent(indent, is_incremental=False)
       sa.add(nodeString(node))
     return sa.get()
@@ -609,7 +626,7 @@ class Tree(Node):
     Verifies that this is a tree.
     """
     nodes_found = []
-    pending_nodes = [self.getRoot()]
+    pending_nodes = [self.getRoot(is_attached=False)]
     while len(pending_nodes) > 0:
       node = pending_nodes[0]
       del pending_nodes[0]

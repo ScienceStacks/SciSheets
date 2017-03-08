@@ -10,6 +10,10 @@ class TestParam(unittest.TestCase):
 
   def setUp(self):
     ht.setupTableInitialization(self)
+    # Param assumes assumes unique column names
+    subtable = self.table.childFromName(ht.SUBTABLE_NAME)
+    subtable.removeTree()
+    #
     self.api = api.APIFormulas(self.table)
 
   def testParam(self):

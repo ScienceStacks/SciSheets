@@ -160,14 +160,6 @@ class DTTable(UITable):
       result = DTTable._formatStringForJS(formula)
     return result
 
-  def _makeColumnDefinitions(self):
-    """
-    Creates the column definition text string
-    :return JSON str:
-    """
-    last_node = self.getRoot()
-    #for nodes in self.getVisibleNodes():
-
   def _getExcludedNameColumns(self):
     """
     Returns a list of name columns that are to be excluded from
@@ -177,7 +169,7 @@ class DTTable(UITable):
     for column in self.getColumns():
       if not column.getParent().isAttached():
         continue
-      if column.getParent() == column.getRoot():
+      if column.getParent() == column.getRoot(is_attached=False):
         continue
       if DTTable.isNameColumn(column):
         result.append(column)
@@ -199,7 +191,7 @@ class DTTable(UITable):
     if excludes is None:
       excludes = []
     node = children_dict["node"]
-    if node == node.getRoot():
+    if node == node.getRoot(is_attached=False):
       key = node.getName(is_global_name=False)
       label_dict[key] = key
     else:

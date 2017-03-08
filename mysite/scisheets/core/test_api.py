@@ -9,6 +9,7 @@ import table_evaluator as te
 import numpy as np
 import os
 import pandas as pd
+import random
 import unittest
 
 COLUMN1 = "Col_1"
@@ -18,7 +19,7 @@ TRUTH_COLUMNS = ['A', 'B']
 COLUMN1_VALUES = range(10)
 TEST_FILE1 = "test_api_1"
 
-IGNORE_TEST = True
+IGNORE_TEST = False
 
 #############################
 # Tests
@@ -29,7 +30,8 @@ class TestAPI(unittest.TestCase):
   def setUp(self):
     self.api = API()
     self.api._table = ht.createTable("test", column_name=COLUMN1)
-    self.column1 = self.api._table.columnFromName(COLUMN1)
+    self.column1 = self.api._table.columnFromName(COLUMN1,
+        is_relative=False)
     self.column1.addCells(COLUMN1_VALUES, replace=True)
     self.api.setColumnVariables(nodenms=[COLUMN1])
     ht.setupTableInitialization(self)
@@ -53,7 +55,8 @@ class TestAPI(unittest.TestCase):
     if IGNORE_TEST:
       return
     names = ['row']
-    column = self.api._table.columnFromName(names[0])
+    column = self.api._table.columnFromName(names[0],
+        is_relative=False)
     self.assertEqual(len(self.api._table._hidden_children), 0)
     self.api.setColumnVisibility(names, is_visible=False)
     self.assertEqual(len(self.api._table._hidden_children), 1)
@@ -178,7 +181,7 @@ class TestAPIFormulas(unittest.TestCase):
       names = list(set(dataframe.columns).union(  \
            table.getColumnNames()))
     for name in dataframe.columns:
-      column = table.columnFromName(name)
+      column = table.columnFromName(name, is_relative=False)
       self.assertTrue([dataframe[name].tolist() == column.getCells()])
 
   def testCreateFromDataframe(self):
@@ -188,59 +191,54 @@ class TestAPIFormulas(unittest.TestCase):
     table = self.api.dataframeToTable("NewTable", df)
     num = len(df.columns)
     for name in df.columns:
-      column = table.columnFromName(name)
+      column = table.columnFromName(name, is_relative=False)
       b = all([df[name][n] == column.getCells()[n]  \
                for n in range(num)])
       self.assertTrue(b)
 
   def _testAddColumnsToTableFromDataframe(self, table):
-    df_col1 = 'A'
-    df_col2 = 'B'
+    df_col1 = 'A%d' % random.randint(1,100)
+    df_col2 = 'B%d' % random.randint(1,100)
     data = range(10)
     df = pd.DataFrame({df_col1: data, df_col2: data})
     self.api = API()
     self.api.setTable(table)
-    names = [df_col2]
+    names = [df_col2, df_col1]
     self.api.addColumnsToTableFromDataframe(df, names=names)
-    column_names = [c.getName() for c in self.table.getColumns()]
+    column_names = [c.getName(is_global_name=False) 
+                    for c in self.table.getColumns()]
     for name in names:
       self.assertTrue(name in column_names)
-      column = self.table.columnFromName(name)
+      column = self.api.getTable().columnFromName(name)
       self.assertIsNotNone(column.getParent())
 
   def testAddColumnsToTableFromDataframe(self):
-    #if IGNORE_TEST:
-    #  return
+    if IGNORE_TEST:
+      return
     ht.setupTableInitialization(self)
     self._testAddColumnsToTableFromDataframe(self.table)
     self._testAddColumnsToTableFromDataframe(self.subtable)
 
-  def testAddFromDataframe(self):
-    if IGNORE_TEST:
-      return
-    self._testAddFromDataframe()  # Name conflicts
-    self._testAddFromDataframe(names=['DUMMY1_COLUMN'])
-    self._testAddFromDataframe(prefix="D")  # No name conflicts
-    self._testAddFromDataframe(prefix="D", 
-        names=['DDUMMY1_COLUMN', 'DDUMMY2_COLUMN'])
-
-  def _testToDataframe(self, names=None):
-    df = self.api.tableToDataframe(columns=names)
+  def _testAddToDataframe(self, names=None):
+    df = self.api.tableToDataframe(colnms=names)
     if names is None:
       columns = self.api.getTable().getDataColumns()
     else:
-      columns = [self.api.getTable().columnFromName(n) for n in names]
+      columns =   \
+          [self.api.getTable().columnFromName(n, is_relative=False) 
+           for n in names]
     self.assertEqual(len(df.columns), len(columns))
     for name in df.columns:
-      column = self.api.getTable().columnFromName(name)
+      column = self.api.getTable().columnFromName(name,
+          is_relative=False)
       self.assertTrue(list(df[name]) == column.getCells())
 
-  def testToDataframe(self):
+  def testAddToDataframe(self):
     if IGNORE_TEST:
       return
     self.api._table = self.table
-    self._testToDataframe()
-    self._testToDataframe(names=['DUMMY1_COLUMN'])
+    self._testAddToDataframe()
+    self._testAddToDataframe(names=['DUMMY1_COLUMN'])
     
 
 # pylint: disable=W0212,C0111,R0904

@@ -7,6 +7,7 @@ from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
 from scisheets.core.helpers.cell_types import getType
 from mysite import settings as settings
+from mysite.helpers.named_tree import ROOT_NAME
 import collections
 import numpy as np
 import os
@@ -255,7 +256,8 @@ class UITable(Table):
     table = UITable("temporary")
     error = table.setName(proposed_name)
     if error is None:
-      child = self.childFromName(cmd_dict["column_name"], is_all=True)
+      child = self.childFromName(cmd_dict["column_name"], 
+        is_relative=False, is_all=True)
       parent = child.getParent()
       position = child.getPosition()
       child.removeTree()
@@ -270,7 +272,8 @@ class UITable(Table):
     # Output: response, is_save - response to user
     #         is_save - bool (if should save table)
     target = "Table"
-    table = self.childFromName(cmd_dict["column_name"], is_all=True)
+    table = self.childFromName(cmd_dict["column_name"], 
+        is_relative=False, is_all=True)
     is_save = True
     error = None
     is_evaluate = True
@@ -291,8 +294,10 @@ class UITable(Table):
     elif command == "Move":
       UITable._versionCheckpoint(versioned, target, command)
       dest_child_name = argument
-      dest_child = self.childFromName(dest_child_name, is_relative=False)
-      table = self.childFromName(cmd_dict["column_name"])
+      dest_child = self.childFromName(dest_child_name, 
+          is_relative=False)
+      table = self.childFromName(cmd_dict["column_name"],
+        is_relative=False)
       try:
        self.moveChildToOtherchild(table, dest_child)
       except Exception:
@@ -391,7 +396,7 @@ class UITable(Table):
     if command == "Update":
       UITable._versionCheckpoint(versioned, target, command)
       name = cmd_dict["column_name"]
-      column = self.childFromName(name)
+      column = self.childFromName(name, is_relative=False)
       if column.getTypeForCells() == object:
         error = "Cannot update cells for the types in column %s"  \
            % column.getName()
@@ -477,7 +482,8 @@ class UITable(Table):
       UITable._versionCheckpoint(versioned, target, command)
       dest_column_name = argument
       dest_column = self.childFromName(dest_column_name, is_relative=False)
-      cur_column = self.childFromName(cmd_dict["column_name"])
+      cur_column = self.childFromName(cmd_dict["column_name"],
+        is_relative=False)
       try:
        self.moveChildToOtherchild(cur_column, dest_column)
       except Exception:

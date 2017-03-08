@@ -106,7 +106,7 @@ class TestTable(unittest.TestCase):
   def testAddRow1(self):
     if IGNORE_TEST:
       return
-    column = self.table.columnFromName(ht.COLUMN2)
+    column = self.table.columnFromName(ht.COLUMN2, is_relative=True)
     self.assertEqual(np.array(column.getCells()).dtype,
         np.float64)  # pylint: disable=E1101
     row = self.table.getRow()
@@ -158,7 +158,7 @@ class TestTable(unittest.TestCase):
     if IGNORE_TEST:
       return
     num_col = self.table.numColumns()
-    column = self.table.columnFromName(ht.COLUMN2)
+    column = self.table.columnFromName(ht.COLUMN2, is_relative=True)
     column.removeTree()
     self.assertEqual(num_col-1, self.table.numColumns())
 
@@ -238,7 +238,7 @@ class TestTable(unittest.TestCase):
     self.table.moveRow(1, 2)
     new_row = self.table.getRow(row_index=2)
     for k in cur_row.keys():
-      column = self.table.columnFromName(k)
+      column = self.table.columnFromName(k, is_relative=False)
       if not tb.Table.isNameColumn(column):
         if k != 'row':
           if cur_row[k] != new_row[k]:
@@ -309,7 +309,7 @@ class TestTable(unittest.TestCase):
         self.assertEqual(expected_array, column.getCells())
     for name in old_table_data:
       expected_array = [old_table_data[name][n] for n in rpl_idx]
-      column = self.table.columnFromName(name)
+      column = self.table.columnFromName(name, is_relative=False)
       if not tb.Table.isNameColumn(column):
         is_equal = expected_array == column.getCells()
         if not is_equal:
@@ -319,7 +319,8 @@ class TestTable(unittest.TestCase):
   def testRenameColumn(self):
     if IGNORE_TEST:
       return
-    column = self.table.columnFromName(ht.COLUMN1)
+    column = self.table.columnFromName(ht.COLUMN1,
+        is_relative=True)
     is_equal = self.table.renameColumn(column, ht.COLUMN1)
     self.assertFalse(is_equal)
     new_name = "%s_extra" % ht.COLUMN1
@@ -345,10 +346,10 @@ class TestTable(unittest.TestCase):
       return
     table = ht.createTable("test", 
         column_name=[ht.COLUMN1, ht.COLUMN2, ht.COLUMN3])
-    column1 = table.columnFromName(ht.COLUMN1)
+    column1 = table.columnFromName(ht.COLUMN1, is_relative=True)
     formula1 = "range(5)"
     column1.setFormula(formula1)
-    column2 = table.columnFromName(ht.COLUMN2)
+    column2 = table.columnFromName(ht.COLUMN2, is_relative=True)
     formula2 = "%s = [5*x for x in %s]" % (ht.COLUMN2, ht.COLUMN1)
     column2.setFormula(formula2)
     table.evaluate(user_directory=ht.TEST_DIR)
@@ -358,7 +359,7 @@ class TestTable(unittest.TestCase):
     new_name = "%s_new" % ht.COLUMN1
     table.refactorColumn(ht.COLUMN1, new_name)
     table.evaluate(user_directory=ht.TEST_DIR)
-    column = table.columnFromName(new_name)
+    column = table.columnFromName(new_name, is_relative=True)
     self.assertIsNotNone(column)
     expected_values = range(5)
     actual_values = [x for x in column.getCells()]
@@ -372,7 +373,8 @@ class TestTable(unittest.TestCase):
     self.assertTrue(self.table.isEquivalent(new_table, 
         is_exception=True))
     column = new_table.columnFromIndex(1)
-    this_column = self.table.columnFromName(column.getName())
+    this_column = self.table.columnFromName(column.getName(),
+        is_relative=False)
     column = new_table.columnFromIndex(1)
     cell = column.getCell(0)
     new_cell = "New%s" % str(cell)
@@ -396,12 +398,12 @@ class TestTable(unittest.TestCase):
     if IGNORE_TEST:
       return
     table = ht.createTable("test", column_name=[ht.COLUMN1, ht.COLUMN2])
-    column1 = table.columnFromName(ht.COLUMN1)
+    column1 = table.columnFromName(ht.COLUMN1, is_relative=True)
     self.assertEqual(len(table.getFormulaColumns()), 0)
     formula1 = "range(5)"
     column1.setFormula(formula1)
     self.assertEqual(len(table.getFormulaColumns()), 1)
-    column2 = table.columnFromName(ht.COLUMN2)
+    column2 = table.columnFromName(ht.COLUMN2, is_relative=True)
     formula2 = "[2*x for x in %s]" % ht.COLUMN1
     column2.setFormula(formula2)
     self.assertEqual(len(table.getFormulaColumns()), 2)

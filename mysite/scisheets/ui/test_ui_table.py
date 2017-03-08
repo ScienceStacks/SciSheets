@@ -17,11 +17,11 @@ import random
 COLUMN_NAMES = ['A', 'B', 'C']
 DATA = [[1, 2, 3], [10, 20, 30], [100, 200, 300]]
 DATA_STRING = ['AA', 'BB', 'CC']
-IGNORE_TEST = False
 LARGE_NUMBER = 1000
 NCOL = 30
 NROW = 3
 TABLE_NAME = "MY_TABLE"
+IGNORE_TEST = False
 
 
 ########################################################
@@ -48,6 +48,8 @@ def _getNode(table, target, excludes=None):
   for _ in range(LARGE_NUMBER):
     index = random.randint(0,len(nodes)-1)
     node = nodes[index]
+    if table.isNameColumn(node):
+      continue
     if isinstance(node, cls):
       if not node in excludes:
         return node
@@ -136,7 +138,7 @@ class TestUITableCommandsTableAndColumn(TestCase):
       expected_position = node.getPosition()
     self.table.processCommand(self.cmd_dict)
     self.assertEqual(self.table.numColumns(), expected_columns)
-    new_node = self.table.childFromName(new_name)
+    new_node = self.table.childFromName(new_name, is_relative=False)
     self.assertIsNotNone(new_node)
     self.assertEqual(new_node.getPosition(), expected_position)
 
@@ -247,8 +249,8 @@ a = 5
     self.assertEqual(source.getParent(), expected_parent)
 
   def testMove(self):
-    if IGNORE_TEST:
-      return
+    #if IGNORE_TEST:
+    #  return
     self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
         NROW, NCOL, 0.3, prob_detach=0.2)
     self._testMove("Table")
@@ -265,7 +267,7 @@ a = 5
     num_columns = self.table.numColumns()
     self.table.processCommand(self.cmd_dict)
     self.assertEqual(self.table.numColumns(), num_columns)
-    new_node = self.table.childFromName(new_name)
+    new_node = self.table.childFromName(new_name, is_relative=False)
     self.assertIsNotNone(new_name)
 
   def testRename(self):
@@ -280,7 +282,7 @@ a = 5
     node = _getNode(self.table, target)
     table_name = "%s_%d" % (node.getName(is_global_name=False),
         random.randint(1, 1000))
-    if node.getParent() != node.getRoot():
+    if node.getParent() != node.getRoot(is_attached=False):
       full_table_name = "%s%s%s" % (node.getParent().getName(),
           GLOBAL_SEPARATOR, table_name)
     else:
@@ -292,14 +294,15 @@ a = 5
     expected = len(self.table.getAllNodes()) + 2
     self.table.processCommand(self.cmd_dict)
     self.assertEqual(len(self.table.getAllNodes()), expected)
-    new_table = self.table.childFromName(full_table_name)
+    new_table = self.table.childFromName(full_table_name,
+        is_relative=False)
     self.assertIsNotNone(new_table)
     new_node = new_table.childFromName(node.getName(is_global_name=False))
     self.assertTrue(node.isEquivalent(new_node, is_exception=True))
 
   def testTablize(self):
-    if IGNORE_TEST:
-      return
+    #if IGNORE_TEST:
+    #  return
     self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
         NROW, NCOL, 0.3, prob_detach=0.2)
     for _ in range(1):

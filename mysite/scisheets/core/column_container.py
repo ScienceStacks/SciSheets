@@ -40,12 +40,13 @@ class ColumnContainer(NamedTree):
     Note that Columns must be leaves in the Tree.
     :param name: name of the column
     :return: column - column object or None if not found
+    :raises ValueError: name not found
     """
     leaf = self.childFromName(name, is_relative=is_relative)
     if ColumnContainer.isColumn(leaf):
       return leaf
     else:
-      raise RuntimeError("Column is not a leaf.")
+      raise ValueError("Column is not a leaf.")
 
   def copy(self, instance=None):
     """

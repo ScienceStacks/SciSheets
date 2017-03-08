@@ -323,7 +323,7 @@ class Table(ColumnContainer):
     """
     Makes sure that row names are strings
     """
-    column = self.columnFromName(NAME_COLUMN_STR)
+    column = self.columnFromName(NAME_COLUMN_STR, is_relative=False)
     if column is None:
       import pdb; pdb.set_trace()
     values = [str(v) for v in column.getCells()]
@@ -485,7 +485,8 @@ class Table(ColumnContainer):
     # Create an object if none provided
     if instance is None:
       instance = Table(self.getName(is_global_name=False))
-    name_column = instance.columnFromName(NAME_COLUMN_STR)
+    name_column = instance.columnFromName(NAME_COLUMN_STR,
+        is_relative=False)
     name_column.removeTree()  # Avoid duplicate
     # Copy everything required from inherited classes
     super(Table, self).copy(instance=instance)
@@ -640,7 +641,7 @@ class Table(ColumnContainer):
       else:
         return None
 
-    column = self.columnFromName(cur_colnm)
+    column = self.columnFromName(cur_colnm, is_relative=True)
     if column is None:
       raise ValueError("Column %s does not exist." % cur_colnm)
     column.setName(new_colnm)
@@ -697,7 +698,8 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     :param row_index: index of the row to change
     :param proposed_name: string of a number
     """
-    name_column = self.columnFromName(NAME_COLUMN_STR)
+    name_column = self.columnFromName(NAME_COLUMN_STR,
+        is_relative=False)
     names = name_column.getCells()
     try:
       names[row_index] = str(proposed_name)
@@ -771,7 +773,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
           del row[column.getName()]
       delete_row = True
       for name in row.keys():
-        column = self.columnFromName(name)
+        column = self.columnFromName(name, is_relative=False)
         if not isNull(row[name]):
           delete_row = False
       if delete_row:
@@ -812,7 +814,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
     for name in row:
-      column = self.columnFromName(name)
+      column = self.columnFromName(name, is_relative=False)
       if not Table.isNameColumn(column):
         column.updateCell(row[name], index)
     self.adjustColumnLength()

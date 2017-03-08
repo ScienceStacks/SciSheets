@@ -62,21 +62,18 @@ class TestImportExcel(unittest.TestCase):
       pairs = zip(names, indicies)
       for name, index in pairs:
         self.assertTrue(table.isColumnPresent(name))
-        column = table.columnFromName(name)
+        column = table.columnFromName(name, is_relative=True)
         if column is None:
           import pdb; pdb.set_trace()
         imported_values = column.getCells()
         expected_values = DATA[name]
         self.assertTrue(imported_values == expected_values)
         # Check the column position
-        old_column = old_table.columnFromName(name)
+        old_column = old_table.columnFromName(name, is_relative=True)
         if old_column is not None:
           expected_index = old_table.indexFromColumn(old_column)
-        elif column_position is None:
-          expected_index = old_table.numColumns() + index
         else:
-          ref_column = old_table.columnFromName(column_position)
-          expected_index = old_table.indexFromColumn(ref_column) + index
+          expected_index = old_table.numColumns() + index
         column_index = table.indexFromColumn(column)
         if column_index != expected_index:
           import pdb; pdb.set_trace()

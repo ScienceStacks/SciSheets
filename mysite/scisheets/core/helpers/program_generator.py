@@ -356,7 +356,8 @@ if __name__ == '__main__':
     else:
       columns = []
       for name in only_includes:
-        columns.append(self._table.columnFromName(name))
+        columns.append(self._table.columnFromName(name,
+            is_relative=False))
     if excludes is None:
       excludes = []
     return [c for c in columns 

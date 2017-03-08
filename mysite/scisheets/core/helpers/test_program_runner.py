@@ -114,7 +114,8 @@ class TestProgramRunner(unittest.TestCase):
                            self.table,
                            user_directory=TEST_DIR,
                            program_filename=TEST_PROGRAM_FILE)
-    column = self.table.columnFromName("VALID_FORMULA")
+    column = self.table.columnFromName("VALID_FORMULA",
+        is_relative=False)
     column.setFormula(TEST_PROGRAM)
     error = runner.execute(create_API_object=True)
     self._evaluateRunnerExecution(error)

@@ -33,7 +33,7 @@ class NodeName(object):
     """
     if not is_global:
       return self._node._name
-    path = self._node.findPathFromRoot()
+    path = self._node.findPathFromRoot(is_attached=False)
     del path[0]
     if len(path) > 1:
       result = GLOBAL_SEPARATOR.join(path)
@@ -88,11 +88,13 @@ class NamedTree(PositionTree):
     """
     Finds a child with the specified name or None.
     :param name: node name
-    :param bool is_relative: relative name (not global)
+    :param bool is_relative: relative name;
+        not a global name and only look at immediate children
     :param bool is_all: include the root
     :return PositionTree:
     """
-    nodes = self.getChildren(is_recursive=True)
+    is_recursive = not is_relative
+    nodes = self.getChildren(is_recursive=is_recursive)
     if is_all:
       nodes.insert(0, self)
     matches = [n for n in nodes 
@@ -133,7 +135,8 @@ class NamedTree(PositionTree):
                                 if false, node name
     :return str:
     """
-    return NodeName.factory(self, is_global=is_global_name)
+    #return NodeName(self).get(is_global=is_global_name)
+    return NodeName(self).get(is_global=is_global_name)
 
   def setName(self, name):
     """
@@ -157,7 +160,7 @@ class NamedTree(PositionTree):
     :param bool is_skip_first: Don't include the first node
         in the path
     """
-    path = self.findPathFromRoot()
+    path = self.findPathFromRoot(is_attached=False)
     if is_skip_first:
       del path[0]
     name = flatten_separator.join(path)
@@ -312,6 +315,7 @@ class NamedTree(PositionTree):
         # Detached tree
         parsed_name = NodeName(tree).getParsedFlattenedName()
         if parsed_name[0] != root.getName(is_global_name=False):
+          import pdb; pdb.set_trace()
           raise RuntimeError("Invalid name for a detached tree")
         del parsed_name[0]
         new_flattened_name = NodeName.createFlattenedName(parsed_name)

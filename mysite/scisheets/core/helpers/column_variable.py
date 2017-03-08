@@ -32,7 +32,8 @@ class ColumnVariable(object):
 
   def getNamespaceValue(self):
     # TODO: This won't work with nested columns - consider namespaces
-    return self._column.getRoot().getNamespace()[self._column.getName(is_global_name=False)]
+    root = self._column.getRoot(is_attached=False)
+    return root.getNamespace()[self._column.getName(is_global_name=False)]
 
   def getColumn(self):
     return self._column
@@ -48,7 +49,7 @@ class ColumnVariable(object):
     """
     Establishes the value of the variable in the namespace.
     """
-    table = self._column.getRoot()
+    table = self._column.getRoot(is_attached=False)
     # TODO: This won't work with nested columns - consider namespaces
     table.getNamespace()[self._column.getName(is_global_name=False)] =  \
         api_util.coerceValuesForColumn(self._column, 
