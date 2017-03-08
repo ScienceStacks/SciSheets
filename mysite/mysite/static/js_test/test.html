@@ -25,7 +25,6 @@ caption {
 
 
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yui.min.js"></script>
-<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/yui/yuiapi.min.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/external/jquery/jquery.js"></script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/jquery-ui/jquery-ui.js"></script>
@@ -148,10 +147,10 @@ height: auto;
   <option>Select a Table file</option>	
 </select> 	
 
-<ul style="width:100px;display:none" id="TableClickMenu">
+<ul style="width:100px;display:none" id="SheetClickMenu">
 	<li id="delete" >Delete</li>
-	<li id="export" >Export</li>
 	<li id="epilogue" >Epilogue</li>
+	<li id="export" >Export</li>
 	<li id="new" >New</li>
 	<li id="open" >Open</li>
 	<li id="prologue" >Prologue</li>
@@ -160,6 +159,20 @@ height: auto;
 	<li id="saveas">SaveAs</li>
 	<li id="trim">Trim</li>
 	<li id="undo">Undo</li>
+	<li id="unhideall">UnhideAll</li>
+</ul>
+
+<ul style="width:100px;display:none" id="TableClickMenu">
+	<li id="append">Append</li>
+	<li id="delete" >Delete</li>
+	<li id="hide" >Hide</li>
+	<li id="insert">Insert</li>
+	<li id="move">Move</li>
+	<li id="refactor">Refactor</li>
+	<li id="rename">Rename</li>
+	<li id="trim">Tablize</li>
+	<li id="trim">Trim</li>
+	<li id="unhide">Unhide</li>
 </ul>
 
 <ul style="width:100px;display:none" id="ColumnClickMenu">
@@ -171,6 +184,8 @@ height: auto;
 	<li id="move">Move</li>
 	<li id="refactor">Refactor</li>
 	<li id="rename">Rename</li>
+	<li id="tablize">Tablize</li>
+	<li id="unhide" >Unhide</li>
 </ul>
 
 <ul style="width:100px;display:none" id="NameColumnClickMenu">
@@ -272,7 +287,7 @@ Formula...
 <div id="TagReplacedByJS"></div>
 
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/scisheets.js"> </script>
-// Insert before table_setup.js
+// Insert before sheet_setup.js
 <script src="/home/ubuntu/SciSheets/mysite/mysite/static/js_test/test_data.js" type="text/javascript"></script>
 <div id="qunit">QUnit</div>
 <div id="qunit-fixture"></div>
@@ -281,11 +296,14 @@ Formula...
 <script>
   sciSheets.mockAjax = true;
 </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/menu_processor.js"> </script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/table_event.js"> </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/sheet_event.js"> </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/column_event.js"> </script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/column_event.js"> </script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/row_event.js"> </script>
 <script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/cell_event.js"> </script>
-<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/table_setup.js"> </script>
+<script type="text/javascript" src="/home/ubuntu/SciSheets/mysite/mysite/static/scitable/sheet_setup.js"> </script>
 <script src="/home/ubuntu/SciSheets/mysite/mysite/static/js_test/test_data.js" type="text/javascript"></script>
 <div id="qunit">QUnit</div>
 <div id="qunit-fixture"></div>

@@ -18,12 +18,11 @@ function SciSheetsRow(scisheet) {
 
 SciSheetsRow.prototype.click = function (oArgs) {
   "use strict";
-  var ep, scisheet;
-  scisheet = this.scisheet;
-  ep = new SciSheetsUtilEvent(this.scisheet, oArgs);
-  $(ep.target).effect("highlight", 1000000);
-  $(ep.target).toggle("highlight");
-  scisheet.utilClick("RowClickMenu", oArgs.event, function (eleId) {
+  var ep, scisheet, processClick, scisheetRow;
+  scisheetRow = this;
+  scisheet = scisheetRow.scisheet;
+
+  processClick = function (eleId) {
     var msg, cmd, ele;
     msg = "Row '" + ep.rowIndex + "' clicked.";
     msg += " Selected " + eleId + ".";
@@ -31,6 +30,7 @@ SciSheetsRow.prototype.click = function (oArgs) {
     cmd = scisheet.createServerCommand();
     cmd.command = eleId;
     cmd.row = ep.rowIndex;
+    cmd.columnName = ep.columnName;
     cmd.target = "Row";
     if (cmd.command === 'Insert') {
       scisheet.utilSendAndReload(cmd);
@@ -70,7 +70,10 @@ SciSheetsRow.prototype.click = function (oArgs) {
     if (cmd.command === 'Delete') {
       scisheet.utilSendAndReload(cmd);
     }
-  });
+  };
+
+  ep = new SciSheetsUtilEvent(scisheet, oArgs);
+  $(ep.target).effect("highlight", 1000000);
+  $(ep.target).toggle("highlight");
+  scisheet.utilClick("RowClickMenu", oArgs, processClick);
 };
-
-

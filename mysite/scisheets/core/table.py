@@ -12,11 +12,11 @@ from column_container import ColumnContainer
 from table_evaluator import TableEvaluator
 from helpers.serialize_deserialize import deserialize
 import errors as er
-import column as cl
 import json
 import numpy as np
 import os
 import pandas as pd
+import random
 
 NAME_COLUMN_STR = "row"
 NAME_COLUMN_IDX = 0
@@ -53,11 +53,89 @@ class Table(ColumnContainer):
     super(Table, self).__init__(name)
     self._namespace = {}  # Namespace for formula evaluation
     self._createNameColumn()
-    self._prologue = self._formulaStatementFromFile(PROLOGUE_FILEPATH,
-        PROLOGUE_NAME)
-    self._epilogue = self._formulaStatementFromFile(EPILOGUE_FILEPATH,
-        EPILOGUE_NAME)
+    if self.getParent() is None:
+      self._prologue = self._formulaStatementFromFile(PROLOGUE_FILEPATH,
+          PROLOGUE_NAME)
+      self._epilogue = self._formulaStatementFromFile(EPILOGUE_FILEPATH,
+          EPILOGUE_NAME)
+    else:
+      self._prologue = None
+      self._epilogue = None
     self._is_evaluate_formulas = True
+
+  @classmethod
+  def createRandomTable(cls, name, nrow, ncol, ncolstr=0,
+        low_int=0, hi_int=100, table_cls=None):
+    """
+    Creates a table with random integers as values
+    Input: name - name of the table
+           nrow - number of rows
+           ncol - number of columns
+           ncolstr - number of columns with strings
+           low_int - smallest integer
+           hi_int - largest integer
+           table_cls - Table class to use; default is Table
+    """
+    if table_cls is None:
+      table_cls = cls
+    ncol = int(ncol)
+    nrow = int(nrow)
+    table = cls(name)
+    ncolstr = min(ncol, ncolstr)
+    ncolint = ncol - ncolstr
+    c_list = range(ncol)
+    random.shuffle(c_list)
+    for n in range(ncol):
+      column = Column("Col_" + str(n))
+      if c_list[n] <= ncolint - 1:
+        values = np.random.randint(low_int, hi_int, nrow)
+        values_ext = values.tolist()
+      else:
+        values_ext = ut.randomWords(nrow)
+      #values_ext.append(None)
+      column.addCells(np.array(values_ext))
+      table.addColumn(column)
+    table.setFilepath(settings.SCISHEETS_DEFAULT_TABLEFILE)
+    return table
+
+  @classmethod
+  def createRandomHierarchicalTable(cls, name, nrow, num_nodes, 
+      prob_child, ncolstr=0, low_int=0, hi_int=100, prob_detach=0,
+      table_cls=None):
+    """
+    Creates a table with random integers as values
+    :param str name: name of the table
+    :param int nrow: number of rows
+    :param float prob_child: probability that next node is a child
+    :param str ncolstr: number of columns with strings
+    :param int low_int: smallest integer
+    :param int hi_int: largest integer
+    :param float prob_detach: probability that a subtree is detached
+    :parm Type table_cls: Table class to use; default is Table
+    :return table_cls:
+    """
+    if table_cls is None:
+      table_cls = cls
+    # Create the schema for the Hierarchical Table
+    htable = super(Table, cls).createRandomNamedTree(num_nodes, 
+        prob_child, leaf_cls=Column, prob_detach=prob_detach, 
+        nonleaf_cls=table_cls)
+    leaves = [c for c in htable.getLeaves() 
+              if c.getName(is_global_name=False) != NAME_COLUMN_STR]
+    num_leaves = len(htable.getLeaves()) -1  # Don't include the name column
+    # Create the values for the leaves of the Hierarchical Table
+    flat_table = Table.createRandomTable(name, nrow, num_leaves, ncolstr=ncolstr,
+        low_int=low_int, hi_int=hi_int, table_cls=table_cls)
+    data_columns = flat_table.getDataColumns()
+    pairs = zip(leaves, data_columns)
+    # Populate the leaves of the Hierarchical Table
+    [l.getParent().addCells(l, d.getCells(), replace=True) for l, d in pairs]
+    # Validate the table
+    if NAME_COLUMN_STR in  \
+        [n.getName(is_global_name=False) for n in htable.getNonLeaves()]:
+      import pdb; pdb.set_trace()
+    htable.setFilepath(settings.SCISHEETS_DEFAULT_TABLEFILE)
+    return htable
 
   def getSerializationDict(self, class_variable):
     """
@@ -77,6 +155,7 @@ class Table(ColumnContainer):
         "_epilogue_formula": self.getEpilogue().getFormula(),
         "_is_evaluate_formulas": self.getIsEvaluateFormulas(),
         "_filepath": filepath,
+        "_attached": self.isAttached(),
         }
     serialization_dict.update(more_dict)
     _children = []
@@ -102,6 +181,8 @@ class Table(ColumnContainer):
     table.setPrologue(serialization_dict["_prologue_formula"])
     table.setEpilogue(serialization_dict["_epilogue_formula"])
     table.setIsEvaluateFormulas(serialization_dict["_is_evaluate_formulas"])
+    if "_attached" in serialization_dict.keys():
+      table.setIsAttached(serialization_dict["_attached"])
     if "_children" in serialization_dict.keys():
       child_dicts = serialization_dict["_children"]
     elif "_columns" in serialization_dict.keys():
@@ -120,10 +201,12 @@ class Table(ColumnContainer):
   # The following methods are used in debugging
 
   def d(self):
-    return [(c.getName(), c.getCells()) for c in self.getColumns()]
+    return [(c.getName(), c.getCells()) for c 
+            in self.getLeaves()]
 
   def f(self):
-    return [(c.getName(), c.getFormula()) for c in self.getColumns()]
+    return [(c.getName(), c.getFormula()) 
+            for c in self.getColumns(is_attached=False)]
 
   def setCapture(self, filename, data):
     dc = DataCapture(filename)
@@ -146,7 +229,7 @@ class Table(ColumnContainer):
     names = []
     for row_num in range(nrows_table):
       names.append(Table._rowNameFromIndex(row_num))
-    for column in self.getLeaves():
+    for column in self.getLeaves(is_attached=True):
       if Table.isNameColumn(column):
         column.addCells(list(names), replace=True)
 
@@ -163,11 +246,12 @@ class Table(ColumnContainer):
     return FormulaStatement(statements, name)
 
   # Data columns are those that have user data. The "row" column is excluded.
-  def getDataColumns(self):
+  def getDataColumns(self, is_recursive=True, is_attached=True):
     """
     Returns the columns other than the name column
     """
-    return [c for c in self.getColumns() if not Table.isNameColumn(c)]
+    return [c for c in self.getColumns(is_recursive=is_recursive, 
+            is_attached=is_attached) if not Table.isNameColumn(c)]
 
   def getNameColumn(self):
     """
@@ -184,8 +268,7 @@ class Table(ColumnContainer):
     """
     :return dict: keys are global column names
     """
-    return {c.getName(): list(c.getCells())
-            for c in self.getColumns(is_recursive=True)
+    return {c.getName(): list(c.getCells()) for c in self.getColumns()
             if not Table.isNameColumn(c)}
 
   def getEpilogue(self):
@@ -198,7 +281,8 @@ class Table(ColumnContainer):
     """
     :return list-of-Column:
     """
-    result = [c for c in self.getColumns() if c.getFormula() is not None]
+    result = [c for c in self.getColumns(is_attached=False) 
+              if c.getFormula() is not None]
     return result
 
   def getRow(self, row_index=None):
@@ -208,7 +292,7 @@ class Table(ColumnContainer):
     :return: Row object
     """
     row = Row()
-    for column in self.getColumns(is_recursive=True):
+    for column in self.getColumns():
       if row_index is None:
         if column.isFloats():
           row[column.getName()] = np.nan  # pylint: disable=E1101
@@ -239,7 +323,7 @@ class Table(ColumnContainer):
     """
     Makes sure that row names are strings
     """
-    column = self.columnFromName(NAME_COLUMN_STR)
+    column = self.columnFromName(NAME_COLUMN_STR, is_relative=False)
     if column is None:
       import pdb; pdb.set_trace()
     values = [str(v) for v in column.getCells()]
@@ -285,7 +369,11 @@ class Table(ColumnContainer):
     if len(self.getColumns()) < 1:
       raise er.InternalError("Table %s has no columns." % self._name)
     # Verify that all columns have the same number of cells
-    name_column = self.columnFromName(NAME_COLUMN_STR)
+    try:
+      name_column = [c for c in self.getChildren() 
+                     if c.getName(is_global_name=False) == NAME_COLUMN_STR][0]
+    except Exception as e:
+      import pdb; pdb.set_trace()
     if name_column is None:
       import pdb; pdb.set_trace()
     num_rows = self.numRows()
@@ -348,12 +436,12 @@ class Table(ColumnContainer):
       error = "**%s is a duplicate name" % column.getName()
       return error
     else:
-      error = cl.Column.isPermittedName(  \
+      error = Column.isPermittedName(  \
           column.getName(is_global_name=False))
       if error is not None:
         return error
     if index is None:
-      index = len(self.getColumns())
+      index = len(self.getColumns(is_attached=False))
     # Handle the different cases of adding a column
     self.addChild(column, position=index)
     # Case 1: First column after name column
@@ -376,7 +464,7 @@ class Table(ColumnContainer):
     else:
       proposed_name = Table._rowNameFromIndex(row_index)
     # Assign values to the last row of each column cells
-    for column in self.getColumns(is_recursive=True):
+    for column in self.getColumns():
       if column.getName(is_global_name=False) != NAME_COLUMN_STR:
         cur_name = column.getName()
         if cur_name in row:
@@ -397,8 +485,9 @@ class Table(ColumnContainer):
     # Create an object if none provided
     if instance is None:
       instance = Table(self.getName(is_global_name=False))
-    name_column = instance.columnFromName(NAME_COLUMN_STR)
-    instance.deleteColumn(name_column)  # Avoid duplicate
+    name_column = instance.columnFromName(NAME_COLUMN_STR,
+        is_relative=False)
+    name_column.removeTree()  # Avoid duplicate
     # Copy everything required from inherited classes
     super(Table, self).copy(instance=instance)
     instance._coerceNameColumnToStr()
@@ -408,14 +497,6 @@ class Table(ColumnContainer):
     instance.setIsEvaluateFormulas(self.getIsEvaluateFormulas())
     self.adjustColumnLength()
     return instance
-
-  def deleteColumn(self, column):
-    """
-    Deletes a column from the table.
-    :param column: column obj to delete
-    """
-    self.removeColumn(column)
-    column.setTable(None)
 
   def deleteRows(self, indicies):
     """
@@ -450,36 +531,40 @@ class Table(ColumnContainer):
 
   def isColumnPresent(self, column_name):
     """
-    :param str column_name:
+    :param str column_name: local column name
     :return bool: True if column is present
     """
-    return any([c.getName() == column_name for c in self.getColumns()])
+    return any([c.getName(is_global_name=False) == column_name 
+                for c in self.getColumns(is_attached=False)])
 
-  def isEquivalent(self, other_table):
+  def isEquivalent(self, other_table, is_exception=False):
     """
     Checks that the tables have the same values of their properties,
     excluding the VersionedFile.
     :param Table other_table:
+    :param bool is_exception: generate an AssertionError if false
     :returns bool:
     """
-    local_debug = True # Breaks on specifc reasons for non-equiv
+    msg = None
     if not isinstance(other_table, self.__class__):
-      if local_debug:
-        import pdb; pdb.set_trace()
+      msg = "Table is not equivalent to a non-table."
+    elif not (self.getName(is_global_name=False) == other_table.getName(is_global_name=False)):
+      msg = "Table has a different name."
+    elif not (self.numColumns() == other_table.numColumns()):
+      msg = "Table has a different number of columns."
+    elif not (self.getPrologue().isEquivalent(other_table.getPrologue())):
+      msg = "Table has a different Prologue."
+    elif not  (self.getEpilogue().isEquivalent(other_table.getEpilogue())):
+      msg = "Table has a different Epilogue."
+    elif not super(Table, self).isEquivalent(other_table,
+        is_exception=is_exception):
+      msg = "Differs because of ancestor of Table."
+    if msg is None:
+      return True
+    elif is_exception:
+      raise AssertionError(msg)
+    else:
       return False
-    is_same_properties = (self.getName(is_global_name=False) == other_table.getName(is_global_name=False)) and  \
-        (self.numColumns() == other_table.numColumns()) and  \
-        (self.getPrologue().isEquivalent(other_table.getPrologue())) and  \
-        (self.getEpilogue().isEquivalent(other_table.getEpilogue()))
-    if not is_same_properties:
-      if local_debug:
-        import pdb; pdb.set_trace()
-      return False
-    if not super(Table, self).isEquivalent(other_table):
-      if local_debug:
-        import pdb; pdb.set_trace()
-      return False
-    return True
 
   @staticmethod
   def isNameColumn(column):
@@ -490,6 +575,14 @@ class Table(ColumnContainer):
     """
     path = column.pathFromGlobalName(column.getName())
     return path[-1] == NAME_COLUMN_STR
+
+  @classmethod
+  def isTable(cls, child):
+    """
+    :param NamedTree child:
+    :return bool: True if is a Column
+    """
+    return isinstance(child, Table)
     
   def insertRow(self, row, index=None):
     """
@@ -501,7 +594,7 @@ class Table(ColumnContainer):
     idx = index
     if idx is None:
       idx = self.numRows()
-    for child in self.getLeaves():
+    for child in self.getLeaves(is_attached=True):
       if ColumnContainer.isColumn(child):
         name = child.getName(is_global_name=False)
         if name in row.keys():
@@ -523,7 +616,8 @@ class Table(ColumnContainer):
     """
     Returns the number of rows in the table
     """
-    return max([c.numCells() for c in self.getColumns()])
+    attached_leaves = self.getAttachedNodes(self.getColumns())
+    return max([c.numCells() for c in attached_leaves])
 
   # TODO: This won't work with nested columns
   def refactorColumn(self, cur_colnm, new_colnm):
@@ -547,11 +641,11 @@ class Table(ColumnContainer):
       else:
         return None
 
-    column = self.columnFromName(cur_colnm)
+    column = self.columnFromName(cur_colnm, is_relative=True)
     if column is None:
       raise ValueError("Column %s does not exist." % cur_colnm)
     column.setName(new_colnm)
-    columns = self.getColumns()
+    columns = self.getColumns(is_attached=False)
     changed_columns = []
     try:
       # Do the Columns
@@ -601,13 +695,11 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     Renames the row so that it is an integer value
     that creates the row ordering desired.
-    Handles subtrees by making their name columns
-    the same length as the root.
     :param row_index: index of the row to change
     :param proposed_name: string of a number
     """
-    root = self.getRoot()
-    name_column = root.columnFromName(NAME_COLUMN_STR)
+    name_column = self.columnFromName(NAME_COLUMN_STR,
+        is_relative=False)
     names = name_column.getCells()
     try:
       names[row_index] = str(proposed_name)
@@ -624,7 +716,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
         column.replaceCells(list(new_names))
     self._updateNameColumn()
     # Update the order of values in each column
-    for column in self.getLeaves():
+    for column in self.getLeaves(is_attached=True):
       if not Table.isNameColumn(column):
         data = column.getCells()
         new_data = [data[n] for n in sel_index]
@@ -639,6 +731,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
   def setEpilogue(self, epilogue_formula):
     """
     :param str epilogue_formula: New value for the Epilogue formula
+    :return str: Error or None
     """
     self._epilogue = FormulaStatement(epilogue_formula, EPILOGUE_NAME)
     return self._epilogue.do()
@@ -649,6 +742,17 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     self._prologue = FormulaStatement(prologue_formula, PROLOGUE_NAME)
     return self._prologue.do()
+        
+  def tableFromName(self, name, is_relative=True):
+    """
+    Finds the table with the specified name or None.
+    Note that Columns must be leaves in the Tree.
+    :param str name: name of the column
+    :return NamedTree:
+    """
+    leaf = self.childFromName(name, is_relative=is_relative)
+    if Table.isTable(leaf):
+      return leaf
 
   def trimRows(self):
     """
@@ -669,7 +773,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
           del row[column.getName()]
       delete_row = True
       for name in row.keys():
-        column = self.columnFromName(name)
+        column = self.columnFromName(name, is_relative=False)
         if not isNull(row[name]):
           delete_row = False
       if delete_row:
@@ -677,14 +781,17 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
       else:
         break
 
-  def updateCell(self, value, row_index, column_index):
+  def updateCell(self, value, row_index, column_id):
     """
     Changes the value of the identified cell
-    :param value: new value for the cell
-    :param row_index: 0-based index of the row
-    :param column_index: 0-based index of the column
+    :param obj value: new value for the cell
+    :param int row_index: 0-based index of the row
+    :param int/str column_id: 0-based index of the column or its name
     """
-    column = self.columnFromIndex(column_index)
+    if isinstance(column_id, int):
+      column = self.columnFromIndex(column_id)
+    else:
+      column = self.childFromName(column_id, is_relative=False)
     column.updateCell(value, row_index)
 
   def updateColumn(self, column, cells):
@@ -707,7 +814,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
     for name in row:
-      column = self.columnFromName(name)
+      column = self.columnFromName(name, is_relative=False)
       if not Table.isNameColumn(column):
         column.updateCell(row[name], index)
     self.adjustColumnLength()

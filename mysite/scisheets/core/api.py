@@ -9,9 +9,10 @@ The API consists of these parts:
 The API is intended to be sparse in that it focuses on table manipulation.
 Plugins may use the API to do data manipulation and calculations.
 
-The argument to many API methods are column variables, such as
-ExtendedArray. Column variables must have a public name property,
-which is the column name.
+Two types of names are used:
+    colnm: the name of the python variable for the column
+    nodnm: the (global) name of the column in the tree for the Table.
+           By a global name is meant a complete path in the Table tree.
 """
 
 from column import Column
@@ -59,66 +60,90 @@ class API(object):
 
   def _dbgCheckColumnVariables(self):
     for cv in self._column_variables:
-      if cv._column.getTable() is None:
+      if cv._column is None:
+        import pdb; pdb.set_trace()
+      if cv._column.getParent() is None:
         import pdb; pdb.set_trace()
 
-  def setColumnVariables(self, colnms=None):
+  def setColumnVariables(self, nodenms=None):
     """
-    Creates ColumnVariables for each column in the table
-    :param list-of-str colnms: If not None, then only set
+    Creates ColumnVariables for each column specified.
+    :param list-of-str nodenms: If not None, then only set
                                the named ColumnVariables
     """
+    if nodenms is None:
+      # Gets the nodenm for all data containing columns
+      nodenms = []
+      if self._table is not None:
+        nodenms = [c.getName()
+            for c in self._table.getDataColumns(is_attached=False, 
+            is_recursive=True)]
     # No Table
     if self._table is None:
       self._column_variables = []
       return
     # Table present
-    cv_dict = {}
-    for column in  self._table.getColumns():
-      name = column.getName(is_global_name=False)
-      cv = self.getColumnVariable(name)
-      cv_dict[name] = cv
-    if colnms is None:
-      colnms = [c.getName(is_global_name=False) 
-                for c in self._table.getColumns()]
-    for colnm in colnms:
-      column = self._table.columnFromName(colnm)
+    cv_dict = {cv._column.getName(): cv 
+               for cv in self._column_variables
+               if not cv._column.isRoot()}
+    for nodenm in nodenms:
+      column = self._table.childFromName(nodenm, is_relative=False)
       if column is None:
         import pdb; pdb.set_trace()
-      if column.getTable() is None:
+      if not isinstance(column, Column):
         import pdb; pdb.set_trace()
-      cv_dict[colnm] = ColumnVariable(column)
+      if column.isRoot():
+        import pdb; pdb.set_trace()
+      cv_dict[nodenm] = ColumnVariable(column)
     self._column_variables = cv_dict.values()
     self._dbgCheckColumnVariables()
   
   def getColumnVariable(self, colnm):
-    for cv in self._column_variables:
-      if cv.getColumn().getName(is_global_name=False) == colnm:
-        return cv
-    return None
+    column_variables = [cv for cv in self._column_variables
+         if cv.getColumn().getName(is_global_name=False) == colnm]
+    if len(column_variables) == 0:
+      raise RuntimeError("Column variable not found for %s" % colnm)
+    elif len(column_variables) == 1:
+      return column_variables[0]
+    else:
+      raise RuntimeError("Multiple column variable found for %s" % colnm)
+
+  def _columnFromColnm(self, colnm):
+    """
+    Returns to Column corresponding to the column name.
+    :param str colnm:
+    :return Column:
+    """
+    cv = self.getColumnVariable(colnm)
+    return cv.getColumn()
 
   def getColumnVariables(self):
     return self._column_variables
 
-  def updateColumnFromColumnVariables(self, colnms=None):
+  # TODO: Test
+  def updateColumnFromColumnVariables(self, nodenms=None):
     """
     Updates the column variables that have changed.
+    :parm list-of-str nodenms: Global names of nodes corresponding
+        to the ColumnVariables
     :param list-of-str colnms:
     """
-    if colnms is None:
-      colnms = [cv.getName() 
+    if nodenms is None:
+      nodenms = [cv.getName() 
                 for cv in self._column_variables]
     for cv in self._column_variables:
-      if cv.getName() in colnms:
+      if cv.getName() in nodenms:
         if not cv.isNamespaceValueEquivalentToBaselineValue():
           cv.setColumnValue()
 
+  # TODO: Test - can specify a table to which data are added
   def addColumnsToTableFromDataframe(self, 
                                      dataframe, 
                                      names=None, 
-                                     column_position=None):
+                                     column_position=None,
+                                     table=None):
     """
-    Adds columns from a dataframe to the table. If a column of the same
+    Adds columns from a dataframe to a table. If a column of the same
     name exists, its data is replaced.
     :param pandas.DataFrame dataframe:
     :param list-of-str names: names of columns in the dataframe
@@ -126,27 +151,30 @@ class API(object):
     :param str column_position: name of the column to place after
     :return list-of-str names: names of columns added to the table
     """
+    if table is None:
+      table = self._table
     self.updateColumnFromColumnVariables()  # Make sure table is current
     if names is None:
       names = list(dataframe.columns)
-    if column_position is None:
-      index = self._table.numColumns()
-    else:
-      column = self._table.columnFromName(column_position)
-      index = self._table.indexFromColumn(column) + 1
+    index = table.numColumns()  # Where to insert new columns
+    if column_position is not None:
+      column = table.columnFromName(column_position)
+      index = table.indexFromColumn(column) + 1
     for name in names:
-      if self._table.isColumnPresent(name):
-        column = self._table.columnFromName(name)
+      if table.isColumnPresent(name):
+        column = table.columnFromName(name)
       else:
         if "." in name:
           import pdb; pdb.set_trace()
         column = Column(name)
-        self._table.addColumn(column, index=index)
+        table.addColumn(column, index=index)
         index += 1
       column.addCells(dataframe[name], replace=True)
-      if column.getTable() is None:
+      if column.getParent() is None:
         import pdb; pdb.set_trace()
         pass
+    root_table = table.getRoot(is_attached=False)
+    root_table.adjustColumnLength()
     self.setColumnVariables()
     return names
 
@@ -169,19 +197,19 @@ class API(object):
       table.addColumn(column)
     return table 
 
-  def coerceValues(self, column_name, values):
+  def coerceValues(self, colnm, values):
     """
     Coerces the values to the type appropriate for the column
-    :param str column_name: name of the column
+    :param str colnm: global name of the column
     :return: type appropriate for column
     :raises: ValueError
     """
-    column = self.getColumn(column_name)
+    column = self.getColumn(colnm)
     return api_util.coerceValuesForColumn(column, values)
 
   def getColumn(self, column_id, validate=True):
     """
-    :param column_id: either the name of the column or
+    :param column_id: either the global column name or
                       its 1-based index after the name ('row') column
     :param bool validate: Validates the columns present if True
     :return: column object
@@ -190,7 +218,7 @@ class API(object):
     if isinstance(column_id, int):
       column = self._table.columnFromIndex(column_id)
     elif cell_types.isStr(column_id):
-      column = self._table.columnFromName(column_id)
+      column = self._columnFromColnm(column_id)
     else:
       column = None
     if column is None and validate:
@@ -200,66 +228,59 @@ class API(object):
 
   def getColumnNames(self):
     """
-    :return list-of-str:
+    :return list-of-colnm: 
     """
     return [c.getName(is_global_name=False) 
-            for c in self._table.getColumns()]
+            for c in self._table.getDataColumns()]
 
-  def _getColumnValue(self, column_name):
+  def getColumnValue(self, colnm):
     """
-    :param str column_name: name of the column
+    :param str colnm: name of the column
     :return: iterable of object
     :raises: ValueError
     """
-    column = self.getColumn(column_name)
-    return api_util.coerceValuesForColumn(column, column.getCells())
-
-  def getColumnValue(self, column_name):
-    """
-    :param str column_name: name of the column
-    :return: iterable of object
-    :raises: ValueError
-    """
-    column = self.getColumn(column_name)
+    column = self.getColumn(colnm)
     return api_util.coerceValuesForColumn(column, column.getCells())
 
   def getTable(self):
     return self._table
 
   #TODO: Eliminate column_name since have an ExtendedArray
-  def setColumnVisibility(self, column_names=None, is_visible=True):
+  # TODO: Changed
+  def setColumnVisibility(self, nodenms=None, is_visible=True):
     """
-    Sets whether the column is visible
-    :param list-of-str column_names: default is all columns
+    Sets whether the column is visible based on its node name.
+    :param list-of-str nodenms: default is all columns
     :param bool is_visible: set to unhidden if True; otherwise hidden
     :raises ValueError: column name not found
     """
-    if column_names is None:
-      column_names = [c.getName() for c in self._table.getColumns()]
+    if nodenms is None:
+      nodenms = [c.getName() for c in self._table.getColumns()]
     columns = []
-    for name in column_names:
+    for name in nodenms:
       column = self._table.columnFromName(name)
       if column is None:
         raise ValueError("Column %s not found" % name)
       columns.append(column)
     if is_visible:
-      self._table.unhideColumns(columns)
+      self._table.unhideChildren(columns)
     else:
-      self._table.hideColumns(columns)
+      self._table.hideChildren(columns)
 
-  def setColumnValue(self, column_name, values):
+  # TODO: Changed
+  def setColumnValue(self, colnm, values):
     """
-    :param str column_name: name of the column
+    :param str colnm: name of the column
     :param iterable-of-object values:
     :raises: ValueError
     """
-    if column_name in self._exclude_column_update:
+    if colnm in self._exclude_column_update:
       return
-    if not self._table.isColumnPresent(column_name):
+    if not colnm in self.getColumnNames():
       return
-    column = self._table.columnFromName(column_name)
+    column = self._columnFromColnm(colnm)
     if column is None:
-      raise ValueError("Column name not found: %s" % column_name)
+      raise ValueError("Column name not found: %s" % colnm)
     if isinstance(values, list):
       list_values = values
     elif "tolist" in dir(values):
@@ -268,19 +289,19 @@ class API(object):
       list_values = list(values)
     self._table.updateColumn(column, list_values)
 
-  def tableToDataframe(self, columns=None):
+  def tableToDataframe(self, colnms=None):
     """
     Creates a dataframe from columns in the table.
-    :param list-of-str columns: column columns to include. Default is all.
+    :param list-of-str colnms: column names to include. Default is all.
     :return pandas.DataFrame:
     :raises ValueError: invalid column name
     Does not export the "name column"
     """
-    if columns is None:
-      columns = [c.getName() for c in self._table.getDataColumns()]
+    if colnms is None:
+      colnms = [c.getName() for c in self._table.getDataColumns()]
     dataframe = pd.DataFrame()
-    for name in columns:
-      column = self._table.columnFromName(name)
+    for name in colnms:
+      column = self._table.columnFromName(name, is_relative=False)
       if column is None:
         raise ValueError("Column %s does not exist in table %s" %  \
             (name, self._table.getName()))
@@ -308,36 +329,48 @@ class APIFormulas(API):
         debug=debug)
     self.setTable(table)
 
-  def _createColumn(self, column_name, index=None, asis=False):
+  # TODO: Changed
+  def _createColumn(self, colnm, index=None, 
+      asis=False, table=None):
     """
     Creates a new column, either just to the right of the
     current column (index=None) are at a specific index.
-    :param str column_name: name of the column to create
+    :param str colnm: name of the column to create
     :param int index: index where the column is to be placed
     :param bool asis: Column data should not be coerced
+    :param Table table: Table on which operation is performed
     :return: column object
     :raises: ValueError if invalid name for column
     """
-    if self._table.isColumnPresent(column_name):
-      return self._table.columnFromName(column_name)
+    if table is None:
+      table = self._table
+    if table.isColumnPresent(colnm):
+      return table.columnFromName(colnm)
     # Create the column
-    column = Column(column_name, asis=asis)
-    error = self._table.addColumn(column, index)
+    column = Column(colnm, asis=asis)
+    error = table.addColumn(column, index)
     if error is not None:
       raise ValueError(error)
+    self.setColumnVariables(nodenms=[column.getName()])
     return column
 
-  def createColumn(self, column_name, index=None, asis=False):
+  # TODO: Changed
+  def createColumn(self, colnm, index=None, asis=False, tablenm=None):
     """
     Creates a new column, either just to the right of the
     current column (index=None) are at a specific index.
-    :param str column_name: name of the column to create
+    :param str colnm: name of the column to create
     :param int index: index where the column is to be placed
+    :param str tablenm: global name of the table for the Column
     :return: column object
     """
-    return self._createColumn(column_name, 
+    if tablenm is None:
+      tablenm = self._table.getName()
+    table = self._table.childFromName(tablenm)
+    return self._createColumn(colnm, 
                               index=index,
-                              asis=asis)
+                              asis=asis,
+                              table=table)
 
   def deleteColumn(self, column_id):
     """
@@ -347,9 +380,10 @@ class APIFormulas(API):
     """
     column = self.getColumn(column_id, validate=False)
     if column is not None:
-      _  = self._table.deleteColumn(column)
+      _  = column.removeTree()
       self.setColumnVariables()
 
+  # TODO: Changed
   def updateTableCellsAndColumnVariables(self, excludes):
     """
     Updates data in tables based on the values of the corresponding
@@ -358,13 +392,13 @@ class APIFormulas(API):
     :param list-of-str excludes: table columns that are not updated
     """
     namespace = self._table.getNamespace()
-    for column in self._table.getColumns():
+    for column in self._table.getDataColumns():
       name = column.getName(is_global_name=False)
       if not name in excludes:
         if name in namespace:
           self.setColumnValue(name, namespace[name])
         else:
-          namespace[name] = self._getColumnValue(name)
+          namespace[name] = self.getColumnValue(name)
 
 class APIPlugin(APIFormulas):
   """
@@ -390,14 +424,15 @@ class APIPlugin(APIFormulas):
     self.setTable(table)
     self.controller.setTable(self._table)
 
-  def compareToColumnValues(self, column_name, values):
+  # TODO: Changed
+  def compareToColumnValues(self, colnm, values):
     """
     Compares the values to those in the column.
-    :param str column_name:
+    :param str colnm:
     :param object values:
     :return bool: True if successful comparison
     """
-    column = self._table.columnFromName(column_name)
+    column = self._table.columnFromName(colnm)
     return api_util.compareIterables(column.getCells(), values)
 
 

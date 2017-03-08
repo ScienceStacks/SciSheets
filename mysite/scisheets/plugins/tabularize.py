@@ -64,7 +64,7 @@ def tabularize(s,
   """
   # Initializations
   colnms = [new_category_colnm, values_colnm]
-  s.updateColumnFromColumnVariables(colnms=colnms)
+  s.updateColumnFromColumnVariables(nodenms=colnms)
   updated_colnms = list(colnms)
   if new_category_colnm is None:
     new_category_colnm = "New%s" % category_colnm
@@ -101,4 +101,4 @@ def tabularize(s,
   s.setColumnValue(new_category_colnm, 
                     col_dict[new_category_colnm])
   updated_colnms.append(new_category_colnm)
-  s.setColumnVariables(colnms=updated_colnms)
+  s.setColumnVariables(nodenms=updated_colnms)

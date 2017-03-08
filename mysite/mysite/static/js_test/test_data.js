@@ -15,22 +15,53 @@
 /* Creates data objects used elsewhere. Codes is templated. */
 function DataSource() {
   "use strict";
-  var sciSheets = new SciSheets();
-  this.tableId = "scitable";
-  this.tableCaption = "New table";
-  this.columnNames = ["row", "name", "address", "salary"];
-  this.columnDefs = [
-    {key: "row", formatter: sciSheets.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor()},
-    {key: "name", formatter: sciSheets.formatColumn("name"), editor:  new YAHOO.widget.TextareaCellEditor()},
-    {key: "address", formatter: sciSheets.formatColumn("address"), editor:  new YAHOO.widget.TextareaCellEditor()},
-    {key: "salary", formatter: sciSheets.formatColumn("salary"), editor:  new YAHOO.widget.TextareaCellEditor()}
-  ];
+  this.tableCaption = 'New table';
+  this.tableId = 'scitable';
+  this.responseSchema = ['row', 'name', 'address', 'dollars', 'yen'];
+  this.columnHierarchy = [{name: 'row', children: []},
+      {name: 'name', children: []},
+      {name: 'address', children: []},
+      {name: 'salary', children: [
+      {name: 'dollars', children: []},
+      {name: 'yen', children: []}
+    ]}
+    ];
   this.dataSource = [
-    {row: "1", name: "John A. Smith", address: "1236 Some Street", salary: "12.33"},
-    {row: "2", name: "Joan B. Jones", address: "3271 Another Ave", salary: "34556"},
-    {row: "3", name: "Bob C. Uncle", address: "9996 Random Road", salary: "893"},
-    {row: "4", name: "John D. Smith", address: "1623 Some Street", salary: "0.092"},
-    {row: "5", name: "Joan E. Jones", address: "3217 Another Ave", salary: "23456"}
+    ['1', 'John A. Smith', '1236 Some Street', '12.33', '50'],
+    ['2', 'Joan B. Jones', '3271 Another Ave', '34556', '50'],
+    ['3', 'Bob C. Uncle', '9996 Random Road', '893', '50'],
+    ['4', 'John D. Smith', '1623 Some Street', '0.092', '50'],
+    ['5', 'Joan E. Jones', '3217 Another Ave', '23456', '50']
   ];
-  this.formulas = {row: "", name: "", address: "", salary: ""};
+  this.epilogue = '# Epilogue ';
+  this.prologue = '# Prologue';
+  this.tableFile = 'scisheet_table';
+  this.formulas = {row: '', name: '', address: '', salary: '',
+      dollars: '', yen: ''};
+}
+
+
+
+function newDataSource() {
+  "use strict";
+  var sciSheets;
+  sciSheets = new SciSheets();
+  this.tableCaption = "Demo";
+  this.tableId = "scitable";
+  this.responseSchema = ["Col_0", "Col_1"];
+  this.columnDefs = [ {key: "row", formatter: sciSheets.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor(),
+    children: [
+      {key: "Col_0", formatter: sciSheets.formatColumn("Col_0"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "Col_1", formatter: sciSheets.formatColumn("Col_1"), editor:  new YAHOO.widget.TextareaCellEditor()}
+    ]}
+     ];
+  this.dataSource = [
+    ['PPHYr', '1'],
+    ['FftSf', '82'],
+    ['nAuVf', '48']
+  ];
+  this.epilogue = "# Epilogue ";
+  this.prologue = "# Prologue";
+  this.tableFile = 'scisheet_table';
+  this.formulas = { "Col_0": '', "Col_1": '', "row": '', "dummy_key": "dummy_value"};
 }

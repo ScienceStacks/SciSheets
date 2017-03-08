@@ -1,7 +1,9 @@
 '''Tests for Tree'''
 
 import unittest
-from tree import Node, Tree, PositionTree
+from tree import Node, Tree, PositionTree, TreeIterator
+from scisheets.core.table import Table
+from scisheets.core.column import Column
 from data_capture import DataCapture
 from named_tree import NamedTree
 import json
@@ -14,8 +16,9 @@ NAME3 = "NAME3"
 NAME4 = "NAME4"
 NAME5 = "NAME5"
 NEW_NAME = "XXYY"
+COMPLEX_TREE_LIST = [NAME2, NAME4, NAME3]
 
-IGNORE_TEST = False
+IGNORE_TEST = True
 
 #############################
 # Helper Functions
@@ -23,6 +26,23 @@ IGNORE_TEST = False
 def getCapture(filename):
   dc = DataCapture(filename)
   return dc.getData()
+
+def _verifyComplexTreeDepthFirstList(dfl, root_name=NEW_NAME):
+  """
+  Verifies that the depth first list for a complex tree
+  produced by _createComplexTree
+  :param list-of-str dfl: depth first list
+  :param str root_name: name of the root
+  """
+  names = [root_name]
+  names.extend(COMPLEX_TREE_LIST)
+  last_pos = -1
+  for name in names:
+    pos = dfl.index(name)
+    if not last_pos < pos:
+      import pdb; pdb.set_trace()
+    if not (last_pos < pos):
+      raise Exception("Does not verify for position %d" % pos)
 
 
 #############################
@@ -53,16 +73,20 @@ class TestTree(unittest.TestCase):
     self.root.addChild(new_tree)
     return new_tree
 
-  def _createComplexTree(self):
+  def _createComplexTree(self, root_name=NAME):
     """
     Creates the following tree
-      NAME1->NAME2->NAME4
-      NAME1->NAME3
+      NAME1
+        NAME2
+          NAME4
+        NAME3
+    :param str root_name: name of the root node
     """
     self.tree2 = self._AddChild(NAME2)
     self.tree3 = self._AddChild(NAME3)
     self.tree4 = Tree(NAME4)
     self.tree2.addChild(self.tree4)
+    self.root.setName(root_name)
 
   def testConstructor(self):
     if IGNORE_TEST:
@@ -85,6 +109,21 @@ class TestTree(unittest.TestCase):
       return
     self._createComplexTree()
     self.assertTrue(self.tree4 in self.tree2.getChildren())
+
+  def testGetAllNodes(self):
+    """
+      NAME1->NAME2->NAME4
+      NAME1->NAME3
+    """
+    if IGNORE_TEST:
+      return
+    root = Tree(NEW_NAME)
+    nodes = root.getAllNodes()
+    self.assertEqual(len(nodes), 1)
+    self.assertEqual(nodes[0]._name, NEW_NAME)
+    self._createComplexTree()
+    names = [n._name for n in self.root.getAllNodes()]
+    _verifyComplexTreeDepthFirstList(names, root_name=NAME)
 
   def testRemoveChildSimple(self):
     if IGNORE_TEST:
@@ -129,13 +168,24 @@ class TestTree(unittest.TestCase):
     self.assertTrue(self.tree4 in children)
 
   def testGetChildrenFromSelf(self):
+    """
+    NAME1:
+      NAME2
+        NAME4
+          NAME4.1
+          NAME4.2
+      NAME3
+    """
     if IGNORE_TEST:
       return
     self._createComplexTree()
-    children = self.tree2.getChildren(is_from_root=False)
+    self.tree4.addChild(Tree(NAME4 + ".1"))
+    self.tree4.addChild(Tree(NAME4 + ".2"))
+    children = self.tree2.getChildren(is_from_root=False,
+        is_recursive=True)
     grandchildren = self.tree4.getChildren(is_from_root=False)
-    self.assertEqual(len(children), 1)
-    self.assertEqual(len(grandchildren), 0)
+    self.assertEqual(len(children), 3)
+    self.assertEqual(len(grandchildren), 2)
     self.assertTrue(self.tree4 in children)
 
   def testFindPathFromRoot(self):
@@ -174,10 +224,9 @@ class TestTree(unittest.TestCase):
     if IGNORE_TEST:
       return
     self._createComplexTree()
+    self.root.setName(NEW_NAME)
     print_string = self.root.toString()
-    self.assertTrue("%s->%s" % (NAME, NAME3) in print_string)
-    self.assertTrue("%s->%s" % (NAME, NAME2) in print_string)
-    self.assertTrue("%s->%s" % (NAME2, NAME4) in print_string)
+    _verifyComplexTreeDepthFirstList(print_string)
 
   def testIsAlwaysLeaf(self):
     if IGNORE_TEST:
@@ -188,8 +237,111 @@ class TestTree(unittest.TestCase):
   def testCopy(self):
     if IGNORE_TEST:
       return
+    self._createComplexTree()
     new_tree = self.root.copy()
     self.assertTrue(self.root.isEquivalent(new_tree))
+
+  def testComplexCopy(self):
+    if IGNORE_TEST:
+      return
+    tree = Tree.createRandomTree(100, 0.8)
+    new_tree = tree.copy()
+    self.assertTrue(tree.isEquivalent(new_tree))
+
+  def testGetReverseOrderListOfNodes(self):
+    if IGNORE_TEST:
+      return
+    self._createComplexTree()
+    reverse_nodes = self.root.getReverseOrderListOfNodes()
+    forward_nodes = [n for n in self.root]
+    forward_nodes.reverse()
+    self.assertEqual(forward_nodes, reverse_nodes)
+
+  def _testRandomTrees(self, leaf_cls=None, nonleaf_cls=None,
+      tree_test=lambda x: True):
+    num_nodes = [3, 100, 20, 1]
+    branching_probabilities = [0.5, 0.2, 0.8]
+    for nn in num_nodes:
+      for pp in branching_probabilities:
+         tree = Tree.createRandomTree(nn, pp, seed=0.3,
+             leaf_cls=leaf_cls, nonleaf_cls=nonleaf_cls)
+         nodes = [n for n in tree]
+         diff = abs(len(nodes) - nn)
+         if diff > 1:
+           import pdb; pdb.set_trace()
+         self.assertTrue(diff < 2)
+         if not tree_test(tree):
+           import pdb; pdb.set_trace()
+         self.assertTrue(tree_test(tree))
+
+  def testRandomTrees(self):
+    if IGNORE_TEST:
+      return
+    self._testRandomTrees()
+
+  def testRandomTreeWithTableAndColumns(self):
+    if IGNORE_TEST:
+      return
+    tree_test = lambda x: all([isinstance(l, Column) 
+                               for l in x.getLeaves()])
+    self._testRandomTrees(nonleaf_cls=Table, leaf_cls=Column,
+        tree_test=tree_test)
+    self._testRandomTrees(leaf_cls=Column)
+    self._testRandomTrees(leaf_cls=Table)
+    self._testRandomTrees(nonleaf_cls=Table)
+
+  def testGetUniqueName(self):
+    if IGNORE_TEST:
+      return
+    self._createComplexTree()
+    unique_name = self.tree4.getUniqueName()
+    self.assertEqual(unique_name, 'NAME1.NAME2.NAME4')
+
+  def testGetChldrenAsDict(self):
+    if IGNORE_TEST:
+      return
+    self._createComplexTree()
+    children_dict = self.root.getChildrenBreadthFirst()
+    self.assertEqual(children_dict["node"], self.root)
+    self.assertEqual(len(children_dict["children"]), 2)
+    #
+    children_dict = self.root.getChildrenBreadthFirst(
+        excludes=[self.tree2])
+    self.assertEqual(children_dict["node"], self.root)
+    self.assertEqual(len(children_dict["children"]), 1)
+    #
+    children_dict = self.root.getChildrenBreadthFirst(
+        includes=[self.root, self.tree2])
+    self.assertEqual(children_dict["node"], self.root)
+    self.assertEqual(len(children_dict["children"]), 1)
+    #
+    children_dict = self.root.getChildrenBreadthFirst(
+        includes=[self.tree2])
+    self.assertEqual(len(children_dict.keys()), 0)
+
+  def testGetAttachedLeaves(self):
+    """
+      NAME1
+        NAME2
+          NAME4
+        NAME3
+    """
+    if IGNORE_TEST:
+      return
+    # All leaves
+    self._createComplexTree()
+    all_leaves = self.root.getLeaves()
+    leaves = self.root.getAttachedLeaves(all_leaves)
+    self.assertEqual(set(leaves),
+        set([self.tree4, self.tree3]))
+    # Eliminate NAME4
+    self.tree2.setIsAttached(False)
+    leaves = self.root.getAttachedLeaves(all_leaves)
+    self.assertEqual(leaves, [self.tree3])
+    # Detaching the root shouldn't matter
+    self.root.setIsAttached(False)
+    leaves = self.root.getAttachedLeaves(all_leaves)
+    self.assertEqual(leaves, [self.tree3])
 
 
 class TestPositionTree(unittest.TestCase):
@@ -211,7 +363,7 @@ class TestPositionTree(unittest.TestCase):
     """
     self.tree2 = self._AddChild(NAME2, position=1)
     self.tree3 = self._AddChild(NAME3, position=0)
-    self.tree4 = Tree(NAME4)
+    self.tree4 = PositionTree(NAME4)
     self.tree2.addChild(self.tree4)
 
   def testAddChild(self):
@@ -261,14 +413,41 @@ class TestPositionTree(unittest.TestCase):
     self.root.moveChildToPosition(tree5, new_position)
     self.assertEqual(self.root._children[0], tree5)
 
-  def testToString(self):
+  def testMoveChildToOtherchild(self):
+    """
+    Existing tree
+      NAME1
+        NAME3
+        NAME2
+          NAME4
+    New tree
+      NAME1
+        NAME4
+        NAME3
+        NAME2
+    """
     if IGNORE_TEST:
-      return
-    tree5 = PositionTree(NAME5)
-    self.root.addChild(tree5)
-    result = self.root.toString()
-    self.assertTrue("2: ->NAME5" in result)
-    self.assertEqual(result.count('->'), 4)
+     return
+    self.root.moveChildToOtherchild(self.tree4, self.tree3)
+    self.assertEqual(self.root.getChildAtPosition(0), self.tree4)
+
+  def testMoveChildToOtherchild2(self):
+    """
+    Existing tree
+      NAME1
+        NAME3
+        NAME2
+          NAME4
+    New tree
+      NAME1
+        NAME2
+          NAME4
+        NAME3
+    """
+    if IGNORE_TEST:
+     return
+    self.root.moveChildToOtherchild(self.tree3, self.tree2)
+    self.assertEqual(self.root.getChildAtPosition(0), self.tree2)
 
   def testIsRoot(self):
     if IGNORE_TEST:
@@ -279,18 +458,67 @@ class TestPositionTree(unittest.TestCase):
     self.assertFalse(new_tree.isRoot())
     self.assertTrue(self.root.isRoot())
 
-  # TODO: Delete since this is testing Table?
-  def testIsEquivalent(self):
+  def testValidateTree(self):
     if IGNORE_TEST:
       return
-    [table, other_table] = getCapture("test_table_1")
-    result = super(NamedTree, table).isEquivalent(other_table)
-    self.assertTrue(result)
-
-  def testValidateTree(self):
     self.tree2 = self._AddChild(NEW_NAME)
     with self.assertRaises(RuntimeError):
       self.tree2 = self._AddChild(NEW_NAME)
+
+  def testIter(self):
+    if IGNORE_TEST:
+      return
+    self.assertTrue(isinstance(iter(self.root), TreeIterator))
+    iterator = iter(self.root)
+    self.assertTrue(isinstance(next(iterator), Tree))
+
+  def testCreateRandomTree(self):
+    if IGNORE_TEST:
+      return
+    num_nodes = 5
+    tree = Tree.createRandomTree(num_nodes, 0.1)
+    self.assertEqual(len(tree.getAllNodes()), num_nodes)
+    self.assertEqual(len(tree.getChildren()), num_nodes-1)
+    tree = Tree.createRandomTree(1, 0.1)
+    self.assertEqual(len(tree.getAllNodes()), 1)
+    tree = Tree.createRandomTree(2, 0.1)
+    self.assertEqual(len(tree.getAllNodes()), 2)
+    tree = Tree.createRandomTree(num_nodes, 0.99)
+    self.assertEqual(len(tree.getAllNodes()), num_nodes)
+    num_nodes = 500
+    tree = Tree.createRandomTree(num_nodes, 0.1)
+    tree.validateTree()
+
+  def testFindLeavesInNodes(self):
+    num_nodes = 50
+    tree1 = Tree.createRandomTree(num_nodes, 0.2)
+    tree2 = Tree.createRandomTree(num_nodes, 0.2)
+    expected = tree1.getLeaves()
+    expected.extend(tree2.getLeaves())
+    expected = set(expected)
+    nodes = tree1.getAllNodes()
+    nodes.extend(tree2.getAllNodes())
+    actual = set(Tree.findLeavesInNodes(nodes))
+    self.assertEqual(expected.difference(actual),
+        actual.difference(expected))
+
+  def testFindRootsInNodes(self):
+    num_nodes = 5
+    tree1 = Tree.createRandomTree(num_nodes, 0.2)
+    tree2 = Tree.createRandomTree(num_nodes, 0.2)
+    nodes = tree1.getAllNodes()
+    nodes.extend(tree2.getAllNodes())
+    roots = Tree.findRootsInNodes(nodes)
+    self.assertEqual(len(roots), 2)
+    for tree in [tree1, tree2]:
+      self.assertTrue(tree in roots)
+    tree1.addChild(tree2)
+    roots = Tree.findRootsInNodes(nodes)
+    self.assertEqual(roots, [tree1])
+    nodes.remove(tree1)
+    roots = Tree.findRootsInNodes(nodes)
+    expected = tree1.getChildren()
+    self.assertEqual(roots, expected)
 
     
 

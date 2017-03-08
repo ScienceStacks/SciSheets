@@ -4,7 +4,7 @@ Compiles Python statements that evaluate formulas in a Table.
 
 from mysite import settings
 import api_util
-from statement_accumulator import StatementAccumulator
+from mysite.helpers.statement_accumulator import StatementAccumulator
 import os
 import numpy as np
 
@@ -186,7 +186,7 @@ if %s.controller.getException() is not None:
     :return str statements:
     """
     sa = StatementAccumulator()
-    for column in self._table.getColumns():
+    for column in self._table.getColumns(is_attached=False):
       statement = """print ('%%s =  %%s' %% ("%s", str(%s))) """ %  \
           (column.getName(), column.getName())
       sa.add(statement)
@@ -322,8 +322,7 @@ if __name__ == '__main__':
     :param str import_path: path for the import
     :return str: import statements for files in the user directory
     """
-    formulas = [c.getFormula() for c in self._table.getColumns()
-                   if not (c.getFormula() is None)]
+    formulas = [c.getFormula() for c in self._getFormulaColumns()]
     formulas.append(self._table.getPrologue().getFormula())
     formulas.append(self._table.getEpilogue().getFormula())
     python_filenames = self._findFilenames(directory)
@@ -353,11 +352,12 @@ if __name__ == '__main__':
     are initialized
     """
     if only_includes is None:
-      columns = self._table.getColumns()
+      columns = self._table.getColumns(is_attached=False)
     else:
       columns = []
       for name in only_includes:
-        columns.append(self._table.columnFromName(name))
+        columns.append(self._table.columnFromName(name,
+            is_relative=False))
     if excludes is None:
       excludes = []
     return [c for c in columns 
@@ -410,11 +410,11 @@ if __name__ == '__main__':
       sa.add(statement)
     return sa.get()
 
-  def _formulaColumns(self):
+  def _getFormulaColumns(self):
     """
     :return: list of columns that have a formula
     """
-    return [fc for fc in self._table.getColumns()
+    return [fc for fc in self._table.getColumns(is_attached=False)
             if fc.getFormula() is not None]
 
   def _makePrologue(self, **kwargs):
@@ -460,7 +460,7 @@ if __name__ == '__main__':
     """
     # Initializations
     sa = StatementAccumulator()
-    formula_columns = self._formulaColumns()
+    formula_columns = self._getFormulaColumns()
     num_formulas = len(formula_columns)
     if num_formulas == 0:
       return []
