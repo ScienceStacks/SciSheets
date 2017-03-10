@@ -1,0 +1,85 @@
+{
+  "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+  "_columns": [
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": true,
+      "_cells": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "_formula": null,
+      "_name": "row"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        30,
+        39,
+        86,
+        3
+      ],
+      "_formula": null,
+      "_name": "Col_0"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        0.0,
+        0.5,
+        1.0,
+        1.5
+      ],
+      "_formula": "Col_1 = []\nfor x in Col_2:\n  Col_1.append(np.average(x))\n",
+      "_name": "Col_1"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        [
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "_formula": "xx = range(1,5)\nCol_2 = []\nfor x in xx:\n  Col_2.append(range(x))\n",
+      "_name": "Col_2"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        "nCtNt",
+        "Gnklw",
+        "tDKrp",
+        "JURUr"
+      ],
+      "_formula": null,
+      "_name": "Col_3"
+    }
+  ],
+  "_epilogue_formula": "",
+  "_filepath": null,
+  "_hidden_columns": [],
+  "_is_evaluate_formulas": true,
+  "_name": "Demo",
+  "_prologue_formula": ""
+}

@@ -1,0 +1,68 @@
+{
+  "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+  "_columns": [
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": true,
+      "_cells": [
+        "1",
+        "2",
+        "3"
+      ],
+      "_formula": null,
+      "_name": "row"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        20,
+        51,
+        28
+      ],
+      "_formula": null,
+      "_name": "Col_0"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        72,
+        95,
+        48
+      ],
+      "_formula": null,
+      "_name": "Col_1"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        51,
+        86,
+        82
+      ],
+      "_formula": null,
+      "_name": "Col_2"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        16,
+        75,
+        66
+      ],
+      "_formula": null,
+      "_name": "Col_3"
+    }
+  ],
+  "_epilogue_formula": "# Epilogue\n",
+  "_filepath": "/home/ubuntu/SciSheets/mysite/scisheets/core/test_dir/testcase_3.sci",
+  "_hidden_columns": [
+    "row"
+  ],
+  "_is_evaluate_formulas": true,
+  "_name": "MY TABLE",
+  "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+}

@@ -1,0 +1,119 @@
+{
+  "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+  "_columns": [
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": true,
+      "_cells": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "_formula": null,
+      "_name": "row"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        67.0,
+        75.0,
+        58.0,
+        96.0,
+        79.0,
+        69.0,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "_formula": null,
+      "_name": "Col_0"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        "kiONI",
+        "QcdOR",
+        "agkTt",
+        "dcLdo",
+        "HKnAY",
+        "HARlq",
+        null,
+        null,
+        null,
+        null
+      ],
+      "_formula": null,
+      "_name": "Col_1"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        "hFrcC",
+        "nHRNM",
+        "HXHgt",
+        "Iaqob",
+        "SWCDq",
+        "NlPUI",
+        null,
+        null,
+        null,
+        null
+      ],
+      "_formula": null,
+      "_name": "Col_2"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        79.0,
+        51.0,
+        32.0,
+        7.0,
+        51.0,
+        90.0,
+        NaN,
+        NaN,
+        NaN,
+        NaN
+      ],
+      "_formula": null,
+      "_name": "Col_3"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "_formula": "range(10)",
+      "_name": "Col_4"
+    }
+  ],
+  "_epilogue_formula": "",
+  "_filepath": null,
+  "_hidden_columns": [],
+  "_is_evaluate_formulas": true,
+  "_name": "Demo",
+  "_prologue_formula": ""
+}
