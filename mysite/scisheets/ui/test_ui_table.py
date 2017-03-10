@@ -3,8 +3,8 @@
 from mysite import settings
 from scisheets.core.helpers.serialize_deserialize import serialize,  \
     deserialize
-from dt_table import DTTable
-import ui_table as ui
+from scisheets.ui.dt_table import DTTable
+import scisheets.ui.ui_table as ui
 from django.test import TestCase  # Provides mocks
 import json
 

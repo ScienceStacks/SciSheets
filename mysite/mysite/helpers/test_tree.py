@@ -1,9 +1,9 @@
 '''Tests for Tree'''
 
 import unittest
-from tree import Node, Tree, PositionTree
-from data_capture import DataCapture
-from named_tree import NamedTree
+from mysite.helpers.tree import Node, Tree, PositionTree
+from mysite.helpers.data_capture import DataCapture
+from mysite.helpers.named_tree import NamedTree
 import json
 import os
 

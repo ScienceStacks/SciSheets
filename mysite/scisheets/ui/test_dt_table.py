@@ -10,7 +10,7 @@ from scisheets.core.helpers.api_util  \
 from scisheets.core.helpers.serialize_deserialize import serialize,  \
     deserialize
 from scisheets.core.helpers_test import TEST_DIR
-import dt_table as dt
+import scisheets.ui.dt_table as dt
 from django.test import TestCase  # Provides mocks
 import ast
 import json

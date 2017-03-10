@@ -1,12 +1,12 @@
 '''Tests for table_evaluator'''
 
-from table_evaluator import TableEvaluator
+from scisheets.core.table_evaluator import TableEvaluator
 import mysite.settings as settings
-import helpers.api_util as api_util
-from helpers_test import createTable, stdoutIO, TableFileHelper, \
+import scisheets.core.helpers.api_util as api_util
+from scisheets.core.helpers_test import createTable, stdoutIO, TableFileHelper, \
     TEST_DIR, augmentPythonPath, runProcess
 import os
-import column as cl
+import scisheets.core.column as cl
 import numpy as np
 from os.path import join
 import shutil

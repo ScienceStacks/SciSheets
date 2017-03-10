@@ -1,11 +1,11 @@
 '''Tests for formulas API'''
 
-from api import API, APIFormulas, APIPlugin, APIAdmin
-from column import Column
-from table import Table
-import helpers_test as ht
+from scisheets.core.api import API, APIFormulas, APIPlugin, APIAdmin
+from scisheets.core.column import Column
+from scisheets.core.table import Table
+import scisheets.core.helpers_test as ht
 #from helpers.trinary import Trinary
-import table_evaluator as te
+import scisheets.core.table_evaluator as te
 import numpy as np
 import os
 import pandas as pd

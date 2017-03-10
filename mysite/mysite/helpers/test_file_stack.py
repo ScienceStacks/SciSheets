@@ -1,7 +1,7 @@
 '''Tests for FileStack'''
 
 import unittest
-from file_stack import FileStack
+from mysite.helpers.file_stack import FileStack
 import os
 import shutil
 

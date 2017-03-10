@@ -5,9 +5,9 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        57,
-        29,
-        83
+        19,
+        50,
+        86
       ],
       "_formula": "Col_1 = 'x'",
       "_name": "Col_0"
@@ -16,9 +16,9 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        33,
-        15,
-        23
+        73,
+        4,
+        53
       ],
       "_formula": null,
       "_name": "Col_1"
@@ -27,9 +27,9 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        30,
-        68,
-        62
+        40,
+        15,
+        22
       ],
       "_formula": null,
       "_name": "Col_2"
@@ -38,9 +38,9 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        38,
-        4,
-        59
+        25,
+        19,
+        42
       ],
       "_formula": null,
       "_name": "Col_3"

@@ -7,7 +7,7 @@ from scisheets.core import helpers_test as ht
 import mysite.settings as settings
 from mysite.helpers.util import stripFileExtension
 from scisheets.core.helpers_test import TEST_DIR
-import api_util as api_util
+import scisheets.core.api_util as api_util
 from extended_array import ExtendedArray
 import numpy as np
 import os

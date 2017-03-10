@@ -1,12 +1,12 @@
 """ Tests for table """
 
 from mysite import settings
-from helpers.serialize_deserialize import CLASS_VARIABLE
-import helpers.cell_types as cell_types
-import table as tb
-import column as cl
-import errors as er
-import helpers_test as ht
+from scisheets.core.helpers.serialize_deserialize import CLASS_VARIABLE
+import scisheets.core.helpers.cell_types as cell_types
+import scisheets.core.table as tb
+import scisheets.core.column as cl
+import scisheets.core.errors as er
+import scisheets.core.helpers_test as ht
 import numpy as np
 import os
 import pandas as pd

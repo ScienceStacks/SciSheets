@@ -1,12 +1,12 @@
 '''Tests for column'''
 
-import column as cl
+import scisheets.core.column as cl
 from mysite.helpers.named_tree import NamedTree
-from table import Table
+from scisheets.core.table import Table
 import unittest
 import numpy as np
-from helpers_test import createColumn, compareValues
-from helpers.extended_array import ExtendedArray
+from scisheets.core.helpers_test import createColumn, compareValues
+from scisheets.core.helpers.extended_array import ExtendedArray
 
 # Constants
 COLUMN_NAME = "DUMMY"

@@ -1,10 +1,10 @@
 '''Tests for ColumnContainer'''
 
-from column_container import ColumnContainer
-from table import Table
-import column as cl
-import errors as er
-from helpers_test import createTable
+from scisheets.core.column_container import ColumnContainer
+from scisheets.core.table import Table
+import scisheets.core.column as cl
+import scisheets.core.errors as er
+from scisheets.core.helpers_test import createTable
 import numpy as np
 import unittest
 

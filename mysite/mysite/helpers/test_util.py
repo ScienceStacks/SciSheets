@@ -1,7 +1,7 @@
 '''Tests for utility routines.'''
 
 import unittest
-import util as ut
+import mysite.helpers.util as ut
 
 
 class TestFunctions(unittest.TestCase):

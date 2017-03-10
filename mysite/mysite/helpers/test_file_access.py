@@ -2,7 +2,7 @@
 
 from mysite import settings
 import unittest
-import file_access as fa
+import mysite.helpers.file_access as fa
 import json
 import os
 

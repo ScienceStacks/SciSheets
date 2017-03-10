@@ -1,6 +1,6 @@
 '''Tests for ColumnContainer'''
 
-from named_tree import NamedTree, ROOT_NAME
+from mysite.helpers.named_tree import NamedTree, ROOT_NAME
 import unittest
 
 

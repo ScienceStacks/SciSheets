@@ -2,7 +2,7 @@ from mysite import settings
 from mysite.helpers.db_access import DBAccess
 from mysite.helpers import testhelpers as th
 import unittest
-import file_to_db as f2d
+import mysite.helpers.file_to_db as f2d
 import os
 import sqlite3
 

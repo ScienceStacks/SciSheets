@@ -1,8 +1,8 @@
 '''Tests for VersionedFile'''
 
 import unittest
-from versioned_file import VersionedFile
-from test_file_stack import writeFile, checkFilepathValue
+from mysite.helpers.versioned_file import VersionedFile
+from mysite.helpers.test_file_stack import writeFile, checkFilepathValue
 import os
 import shutil
 

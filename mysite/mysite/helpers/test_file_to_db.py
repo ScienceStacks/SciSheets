@@ -7,7 +7,7 @@ from mysite.helpers.db_access import DBAccess
 from scisheets.models import UploadedFiles
 from mysite.helpers.file_to_db import (FileTable, SQLType)
 import unittest
-#import file_to_db as f2d
+#import mysite.helpers.file_to_db as f2d
 import sqlite3
 import os
 
