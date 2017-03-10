@@ -59,7 +59,7 @@ class ProgramRunner(object):
         file_handle.write(self._program)
     except IOError as err:
       return str(err)
-    if write_table:
+    if write_table and self._table.getVersionedFile() is not None:
       api_util.copyTableToFile(self._table, 
                                self._program_filename, 
                                self._user_directory)
@@ -81,7 +81,11 @@ from scisheets.core import api as api
     executer = ProgramExecuter("ProgramRunner._createAPIObject", program, 
         namespace)
     result = executer.execute()
-    namespace[API_OBJECT] = executer.getNamespace()[API_OBJECT]
+    try:
+      namespace[API_OBJECT] = executer.getNamespace()[API_OBJECT]
+    except Exception as e:
+      import pdb; pdb.set_trace()
+      pass
     return result
 
   def execute(self, create_API_object=False):

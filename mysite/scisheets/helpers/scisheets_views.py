@@ -7,6 +7,7 @@ from scisheets.core.helpers.api_util import readObjectFromFile, \
     writeObjectToFile, getFileNameWithoutExtension
 from scisheets.ui.dt_table import DTTable
 import mysite.helpers.util as ut
+from command_dict import CommandDict
 import mysite.settings as settings
 import json
 import os
@@ -17,73 +18,9 @@ USE_DEFAULT_FILE = True
 EMPTY_TABLE_FILE = "_empty_table"
 
 
-# ******************** Helper Functions *****************
-def extractDataFromRequest(request, key, convert=False, listvar=False):
-  """
-  Returns the value of the key
-  """
-  if request.GET.has_key(key):
-    if listvar:
-      return request.GET.getlist(key)
-    elif convert:
-      return ut.ConvertType(request.GET.get(key))
-    else:
-      return request.GET.get(key)
-  else:
-    return None
-
-def createCommandDict(request):
-  """
-  Creates a dictionary from the fields in the request
-  that constitute the JSON structure sent in the command
-  from AJAX.
-  Input: request - HTML request object
-  Output: cmd_dict - dictionary of the command
-   TARGET  COMMAND   DESCRIPTION
-    Table   Delete   Delete the table file and switch to the
-                     using a random file
-    Table   Epilogue Update the epilogue code for the table
-    Table   Export   Export the table into python
-    Table   ListTableFiles Returns a list of the table files
-    Table   New      Opens a new blank table
-    Table   OpenTableFile Change the current Table file to
-                     what is specified in the args list
-    Table   Prologue Update the prologue code for the table
-    Table   Rename   Change the table name. Must be a valid python name
-    Table   SaveAs   Save the table to the specified table file
-    Table   Trim     Remove None rows from the end of the table
-    Cell    Update   Update the specified cell
-    Column  Append   Add a new column to the right of the current
-    Column  Insert   Add a new column to the left of the current
-    Column  Delete   Delete the column
-    Column  Formula  Change the column's formula
-    Column  Move     Move the column to another position
-                       The name LAST is used for last column
-    Column  Refactor Rename the column and change formulas to use
-                     the new name
-    Column  Rename   Rename the column
-    Row     Append   Add a new row after the current row
-    Row     Insert   Add a new row before the current row
-    Row     Move     Move the row to the specified position
-  """
-  cmd_dict = {}
-  cmd_dict['command'] = extractDataFromRequest(request, 'command')
-  cmd_dict['target'] = extractDataFromRequest(request, 'target')
-  cmd_dict['table_name'] = extractDataFromRequest(request, 'table')
-  cmd_dict['args'] = extractDataFromRequest(request, 'args[]', listvar=True)
-  cmd_dict['column_index'] = extractDataFromRequest(request,
-      'column', convert=True)
-  row_name = extractDataFromRequest(request, 'row')
-  if row_name is not None and len(str(row_name)) > 0:
-    cmd_dict['row_index'] = DTTable.rowIndexFromName(row_name)
-  else:
-    cmd_dict['row_index'] = None  # Handles case where "row" is absent
-  cmd_dict['value'] = extractDataFromRequest(request, 'value',
-      convert=True)
-  if cmd_dict['row_index'] == -1:
-    raise InternalError("Invalid row_index: %d" % cmd_dict['row_index'])
-  return cmd_dict
-
+############################################################
+# Helper Functions
+############################################################
 def _makeAjaxResponse(data, success):
   return {'data': data, 'success': success}
 
@@ -185,17 +122,27 @@ def saveTable(request, table):
   writeObjectToFile(table)
 
 
-# ******************** Command Processing *****************
+################################################################
+# Command Processing
+################################################################
 def scisheets(request, ncol, nrow):
   """
   Creates a new table with the specified number of columns and rows
-  considering the number of rows with strings
+  considering the number of rows with strings. 
+  Renders a hierarchical table if ncol < 0.
   """
   ncol = int(ncol)
   nrow = int(nrow)
   ncolstr = int(ncol/2)
-  table = DTTable.createRandomTable("Demo", nrow, ncol,
-      ncolstr=ncolstr)
+  if ncol < 0:  # Test for hierarchical table
+    num_nodes = 2*abs(ncol)
+    prob_child = 0.5
+    table = DTTable.createRandomHierarchicalTable("HDemo", nrow,
+      num_nodes, prob_child, prob_detach=0.5,
+      ncolstr=ncolstr, table_cls=DTTable)
+  else:
+    table = DTTable.createRandomTable("Demo", nrow, ncol,
+        ncolstr=ncolstr)
   _setTableFilepath(request, table, 
       settings.SCISHEETS_DEFAULT_TABLEFILE,
       verify=False)
@@ -209,7 +156,7 @@ def scisheets_command0(request):
   Input: request - includes command structure in the GET
   Output returned - HTTP response
   """
-  cmd_dict = createCommandDict(request)
+  cmd_dict = CommandDict(request)
   command_result = _processUserEnvrionmentCommand(request, cmd_dict)
   if command_result is None:
     # Use table processing command
@@ -245,16 +192,16 @@ def _processUserEnvrionmentCommand(request, cmd_dict):
   command_result = None
   table = getTable(request)
   target = cmd_dict["target"]
-  if target == 'Table':
+  if target == 'Sheet':
     if cmd_dict['command'] == "Delete":
       current_file_path = _getTableFilepath(request)
       os.remove(current_file_path)
       command_result = _makeNewTable(request)
-    elif cmd_dict['command'] == "ListTableFiles":
+    elif cmd_dict['command'] == "ListSheetFiles":
       command_result = _listTableFiles()
     elif cmd_dict['command'] == "New":
       command_result = _makeNewTable(request)
-    elif cmd_dict['command'] == "OpenTableFile":
+    elif cmd_dict['command'] == "OpenSheetFile":
       filename = cmd_dict['args'][0]
       table_filepath = _createTableFilepath(filename)
       table = readObjectFromFile(table_filepath, verify=False)

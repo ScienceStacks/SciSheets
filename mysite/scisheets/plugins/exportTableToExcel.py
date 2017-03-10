@@ -38,5 +38,5 @@ def exportTableToExcel(s, filepath, worksheet=None, columns=None):
   :param list-of-str columns: columns of columns added
   :raises ValueError:
   """
-  df = s.tableToDataframe(columns=columns)
+  df = s.tableToDataframe(colnms=columns)
   _exportDataframeToExcel(df, filepath, worksheet=worksheet)

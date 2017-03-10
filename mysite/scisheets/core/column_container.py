@@ -25,7 +25,7 @@ class ColumnContainer(NamedTree):
 
   def __init__(self, name):
     super(ColumnContainer, self).__init__(name)
-    self._name = name
+    self.setName(name)
     self._versioned_file = None
 
   def columnFromIndex(self, index):
@@ -40,10 +40,13 @@ class ColumnContainer(NamedTree):
     Note that Columns must be leaves in the Tree.
     :param name: name of the column
     :return: column - column object or None if not found
+    :raises ValueError: name not found
     """
     leaf = self.childFromName(name, is_relative=is_relative)
     if ColumnContainer.isColumn(leaf):
       return leaf
+    else:
+      raise ValueError("Column is not a leaf.")
 
   def copy(self, instance=None):
     """
@@ -52,19 +55,24 @@ class ColumnContainer(NamedTree):
     """
     # Create an object if one is not provided
     if instance is None:
-      instance = ColumnContainer(self.getName())
+      instance = ColumnContainer(self.getName(is_global_name=False))
     super(ColumnContainer, self).copy(instance=instance)
     # Set properties specific to this class
     if self.getVersionedFile() is not None:
       instance.setVersionedFile(self.getVersionedFile())
-    instance.setName(self.getName())
+    instance.setName(self.getName(is_global_name=False))
     return instance
 
-  def getCell(self, row_index, column_index):
+  def getCell(self, row_index, column_id):
     """
+    :param int row_index:
+    :param int/str column_id: either the column index or its name
     :return: the numpy array of the cells in the column
     """
-    child = self.getChildAtPosition(column_index)
+    if isinstance(column_id, int):
+      child = self.getChildAtPosition(column_id)
+    else:
+      child = self.childFromName(column_id, is_relative=False)
     if ColumnContainer.isColumn(child):
       return child.getCells()[row_index]
     else:
@@ -78,15 +86,18 @@ class ColumnContainer(NamedTree):
     return [c.getName() for c in self.getLeaves()  \
             if ColumnContainer.isColumn(c)]
 
-  def getColumns(self, is_recursive=True):
+  def getColumns(self, is_recursive=True, is_attached=True):
     """
     :param bool is_recursive: finds all columns from current node
+    :param bool is_attached: only return attached columns
     :return: list with the column objects in sequence
     """
     if is_recursive:
       candidates = self.getLeaves()
     else:
       candidates = self.getChildren()
+    if is_attached:
+      candidates = self.getAttachedNodes(candidates)
     return [c for c in candidates if ColumnContainer.isColumn(c)]
 
   def getFilepath(self):
@@ -120,8 +131,14 @@ class ColumnContainer(NamedTree):
     """
     return isinstance(child, Column)
 
-  def isEquivalent(self, other):
-    return super(ColumnContainer, self). isEquivalent(other)
+  def isEquivalent(self, other, is_exception=False):
+    """
+    :param ColumnContainer other:
+    :param bool is_exception: generate an AssertionError if false
+    :return bool:
+    """
+    return super(ColumnContainer, self). isEquivalent(other,
+        is_exception=is_exception)
 
   def moveChild(self, child, new_idx):
     """
@@ -131,10 +148,10 @@ class ColumnContainer(NamedTree):
     """
     self.moveChildToPosition(child, new_idx+1)
 
-  def moveColumn(self, column, new_idx):
+  def moveColumn(self, column, new_column_id):
     """
     Moves the column to after the specified index
-    :param column: column to move
+    :param NamedTree column: column to move
     :param new_idx: new index for column
     """
     self.moveChildToPosition(column, new_idx+1)
@@ -144,18 +161,6 @@ class ColumnContainer(NamedTree):
     Returns the number of columns in the table
     """
     return len(self.getColumns())
-
-  def removeChild(self, child):
-    """
-    Removes the chld object from the table
-    """
-    child.removeTree()
-
-  def removeColumn(self, column):
-    """
-    Removes the column object from the table
-    """
-    self.removeChild(column)
 
   def setColumns(self, columns):
     [self.addChild(c) for c in columns]
@@ -171,6 +176,7 @@ class ColumnContainer(NamedTree):
     self.setVersionedFile(versioned_file)
 
   def setVersionedFile(self, versioned_file):
-    if not self.isRoot():
-      raise RuntimeError("Should not set VersionedFile for non-root.")
-    self._versioned_file = versioned_file
+    if self.isRoot():
+      self._versioned_file = versioned_file
+    else:
+      self._versioned_file = None

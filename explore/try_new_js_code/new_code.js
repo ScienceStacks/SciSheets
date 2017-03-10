@@ -9,42 +9,35 @@
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
-/*
-  TBD:
-  1. Make cells editable by default if they are data columns (not formulas)
-  2. Assign own click handlers for:
-     column: double click - change name
-             right click - context menu
-     mouseout: detect value change   
-   look at http://yuiblog.com/blog/2007/09/26/satyam-datatable-2/
-*/
 
-
-/*
-  This file sets up the table and event handlers.
-  The table objects are: Table, Column, Row, and Cell. They are specified
-  as follows:
-    Table - GUID
-    Column - name
-    Row - number
-    Cell - column ID, row ID
-
-  This code provides the following:
-    1. Determines when there is a left or right click on the a table object and record
-       its identity.
-    2. Perform simple local actions and report what is done to the server. This includes
-       - Update a data value
-       - Change the name of a Table or Column
-       - Change a row number
-*/
+function DataSource() {
+  "use strict";
+  var sciSheets;
+  sciSheets = new SciSheets();
+  this.tableCaption = "Demo";
+  this.tableId = "scitable";
+  this.responseSchema = ["Col_0", "Col_1"];
+  this.columnDefs = [ {key: "row", formatter: sciSheets.formatColumn("row"), editor:  new YAHOO.widget.TextareaCellEditor(),
+    children: [
+      {key: "Col_0", formatter: sciSheets.formatColumn("Col_0"), editor:  new YAHOO.widget.TextareaCellEditor()},
+      {key: "Col_1", formatter: sciSheets.formatColumn("Col_1"), editor:  new YAHOO.widget.TextareaCellEditor()}
+    ]}
+     ];
+  this.dataSource = [
+    ['PPHYr', '1'],
+    ['FftSf', '82'],
+    ['nAuVf', '48']
+  ];
+  this.epilogue = "# Epilogue ";
+  this.prologue = "# Prologue";
+  this.tableFile = 'scisheet_table';
+  this.formulas = { "Col_0": '', "Col_1": '', "row": '', "dummy_key": "dummy_value"};
+}
 
 YAHOO.util.Event.addListener(window, "load", function () {
   "use strict";
   // Reload the page if it's not the base URL.
   // The server knows the current table
-  if (window.location.href !== sciSheets.baseURL) {
-    sciSheets.utilReload();
-  }
   YAHOO.example.InlineCellEditing = (function () {
     var myDataTable, highlightEditableCell, myDataSource, tableHeader,
       id, tableElement, d, captionElement, div_ele;
@@ -57,7 +50,7 @@ YAHOO.util.Event.addListener(window, "load", function () {
     myDataSource = new YAHOO.util.DataSource(d.dataSource);
     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
     myDataSource.responseSchema = {
-      fields: d.columnDefs
+      fields: d.responseSchema
     };
     tableHeader = d.tableCaption + " (Table File: " + d.tableFile + ")";
     myDataTable = new YAHOO.widget.DataTable(d.tableId, d.columnDefs, myDataSource,

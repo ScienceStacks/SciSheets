@@ -41,9 +41,9 @@ class TestColumnContainer(unittest.TestCase):
     column1 = cl.Column(COLUMN1)
     column1.addCells(COLUMN1_CELLS)
     self.table.addColumn(column1)
-    column2 = cl.Column(COLUMN2)
-    column2.addCells(COLUMN2_CELLS)
-    error = self.table.addColumn(column2)
+    self.column2 = cl.Column(COLUMN2)
+    self.column2.addCells(COLUMN2_CELLS)
+    error = self.table.addColumn(self.column2)
     if error is not None:
       import pdb; pdb.set_trace()
     self.column5 = cl.Column(COLUMN5)
@@ -67,12 +67,11 @@ class TestColumnContainer(unittest.TestCase):
   def testColumnFromName(self):
     if IGNORE_TEST:
       return
-    global_name = self.table.createGlobalName(self.subtable_column)
+    global_name = self.subtable_column.getName()
     column = self.table.columnFromName(global_name, is_relative=False)
     self.assertTrue(column.isEquivalent(self.subtable_column))
     column = self.table.columnFromName(COLUMN5, is_relative=True)
     self.assertTrue(column.isEquivalent(self.column5))
-    self.assertIsNone(self.table.columnFromName(SUBTABLE, is_relative=True))
 
   def testGetColumnNames(self):
     if IGNORE_TEST:
@@ -89,6 +88,14 @@ class TestColumnContainer(unittest.TestCase):
     self.assertTrue(not self.subtable in table_columns)
     columns = self.table.getColumns(is_recursive=False)
     self.assertEqual(len(columns) + 1, len(table_columns))
+
+  def testGetCell(self):
+    column_index = self.table.indexFromColumn(self.column2)
+    cell_index = 0
+    cell = self.table.getCell(cell_index, column_index)
+    self.assertEqual(cell, self.column2.getCells()[cell_index])
+    cell = self.table.getCell(cell_index, self.column2.getName())
+    self.assertEqual(cell, self.column2.getCells()[cell_index])
     
 
 if __name__ == '__main__':

@@ -84,7 +84,14 @@ class TestColumnVariable(unittest.TestCase):
       self.assertFalse(cv.isNamespaceValueEquivalentToIterationStartValue())
       cv.setIterationStartValue()
       self.assertTrue(cv.isNamespaceValueEquivalentToIterationStartValue())
-      
+
+  def testCreateVariableForSubtable(self):
+    colnm = "SubtableColumn"
+    subtable = ht.createTable("Subtable", column_name=colnm)
+    self.table.addChild(subtable)
+    column = subtable.childFromName(colnm)
+    cv = ColumnVariable(column)
+    self.assertEqual(cv.getColumnValue(), column.getCells())
     
 
 if  __name__ == '__main__':

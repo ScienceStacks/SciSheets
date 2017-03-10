@@ -15,6 +15,10 @@ import unittest
 
 TEST_TABLE_1 = os.path.join(settings.SCISHEETS_TEST_DIR,
     "test_table_1")
+NEW_SUBTABLE = "ANOTHER_SUBTABLE"
+TABLE_NAME = "My_Table"
+NCOL = 10
+NROW = 3
 
 IGNORE_TEST = False
 
@@ -102,7 +106,7 @@ class TestTable(unittest.TestCase):
   def testAddRow1(self):
     if IGNORE_TEST:
       return
-    column = self.table.columnFromName(ht.COLUMN2)
+    column = self.table.columnFromName(ht.COLUMN2, is_relative=True)
     self.assertEqual(np.array(column.getCells()).dtype,
         np.float64)  # pylint: disable=E1101
     row = self.table.getRow()
@@ -143,6 +147,7 @@ class TestTable(unittest.TestCase):
   def testCopy(self):
     if IGNORE_TEST:
      return
+    self.subtable._checkParentChild()
     new_table = self.table.copy()
     self.assertEqual(self.table.numRows(), new_table.numRows())
     self.assertEqual(self.table.numColumns(), new_table.numColumns())
@@ -153,9 +158,36 @@ class TestTable(unittest.TestCase):
     if IGNORE_TEST:
       return
     num_col = self.table.numColumns()
-    column = self.table.columnFromName(ht.COLUMN2)
-    self.table.deleteColumn(column)
+    column = self.table.columnFromName(ht.COLUMN2, is_relative=True)
+    column.removeTree()
     self.assertEqual(num_col-1, self.table.numColumns())
+
+  def testDeleteSubtable(self):
+    if IGNORE_TEST:
+      return
+    old_table = self.table.copy()
+    self._makeThreeLevelTable()
+    self.assertFalse(old_table.isEquivalent(self.table))
+    first_subtable = self.table.tableFromName(ht.SUBTABLE_NAME)
+    second_subtable = first_subtable.tableFromName(NEW_SUBTABLE)
+    second_subtable.removeTree()
+    self.assertTrue(old_table.isEquivalent(self.table))
+
+  def testComplexDeleteAndAdd(self):
+    """
+    Creates a three level subtable. Deletes the middle table
+    and then adds it back.
+    """
+    if IGNORE_TEST:
+      return
+    self._makeThreeLevelTable()
+    original_table = self.table.copy()
+    first_subtable = self.table.tableFromName(ht.SUBTABLE_NAME)
+    original_first_subtable = first_subtable.copy()
+    first_subtable.removeTree()
+    self.assertFalse(original_table.isEquivalent(self.table))
+    self.table.addChild(original_first_subtable)
+    self.assertTrue(original_table.isEquivalent(self.table))
 
   def testDeleteRows(self):
     if IGNORE_TEST:
@@ -206,7 +238,7 @@ class TestTable(unittest.TestCase):
     self.table.moveRow(1, 2)
     new_row = self.table.getRow(row_index=2)
     for k in cur_row.keys():
-      column = self.table.columnFromName(k)
+      column = self.table.columnFromName(k, is_relative=False)
       if not tb.Table.isNameColumn(column):
         if k != 'row':
           if cur_row[k] != new_row[k]:
@@ -218,10 +250,9 @@ class TestTable(unittest.TestCase):
       return
     new_value = "onee"
     row_index = 0
-    self.table.updateCell("onee", row_index, ht.COLUMN2_INDEX)
-    columns = self.table.getColumns()
-    self.assertEqual(columns[ht.COLUMN2_INDEX].getCells()[row_index],
-        new_value)
+    column2 = self.table.childFromName(ht.COLUMN2)
+    self.table.updateCell("onee", row_index, column2.getName())
+    self.assertEqual(column2.getCells()[row_index], new_value)
 
   def testUpdateRow(self):
     if IGNORE_TEST:
@@ -278,7 +309,7 @@ class TestTable(unittest.TestCase):
         self.assertEqual(expected_array, column.getCells())
     for name in old_table_data:
       expected_array = [old_table_data[name][n] for n in rpl_idx]
-      column = self.table.columnFromName(name)
+      column = self.table.columnFromName(name, is_relative=False)
       if not tb.Table.isNameColumn(column):
         is_equal = expected_array == column.getCells()
         if not is_equal:
@@ -288,7 +319,8 @@ class TestTable(unittest.TestCase):
   def testRenameColumn(self):
     if IGNORE_TEST:
       return
-    column = self.table.columnFromName(ht.COLUMN1)
+    column = self.table.columnFromName(ht.COLUMN1,
+        is_relative=True)
     is_equal = self.table.renameColumn(column, ht.COLUMN1)
     self.assertFalse(is_equal)
     new_name = "%s_extra" % ht.COLUMN1
@@ -314,10 +346,10 @@ class TestTable(unittest.TestCase):
       return
     table = ht.createTable("test", 
         column_name=[ht.COLUMN1, ht.COLUMN2, ht.COLUMN3])
-    column1 = table.columnFromName(ht.COLUMN1)
+    column1 = table.columnFromName(ht.COLUMN1, is_relative=True)
     formula1 = "range(5)"
     column1.setFormula(formula1)
-    column2 = table.columnFromName(ht.COLUMN2)
+    column2 = table.columnFromName(ht.COLUMN2, is_relative=True)
     formula2 = "%s = [5*x for x in %s]" % (ht.COLUMN2, ht.COLUMN1)
     column2.setFormula(formula2)
     table.evaluate(user_directory=ht.TEST_DIR)
@@ -327,7 +359,7 @@ class TestTable(unittest.TestCase):
     new_name = "%s_new" % ht.COLUMN1
     table.refactorColumn(ht.COLUMN1, new_name)
     table.evaluate(user_directory=ht.TEST_DIR)
-    column = table.columnFromName(new_name)
+    column = table.columnFromName(new_name, is_relative=True)
     self.assertIsNotNone(column)
     expected_values = range(5)
     actual_values = [x for x in column.getCells()]
@@ -338,19 +370,25 @@ class TestTable(unittest.TestCase):
      return
     new_table = self.table.copy()
     self.assertTrue(self.table.isEquivalent(new_table))
+    self.assertTrue(self.table.isEquivalent(new_table, 
+        is_exception=True))
     column = new_table.columnFromIndex(1)
-    this_column = self.table.columnFromName(column.getName())
+    this_column = self.table.columnFromName(column.getName(),
+        is_relative=False)
     column = new_table.columnFromIndex(1)
     cell = column.getCell(0)
     new_cell = "New%s" % str(cell)
     column.updateCell(new_cell, 0)
     self.assertFalse(self.table.isEquivalent(new_table))
+    with self.assertRaises(AssertionError):
+      self.assertFalse(self.table.isEquivalent(new_table,
+          is_exception=True))
     this_column.updateCell(new_cell, 0)
     self.assertTrue(self.table.isEquivalent(new_table))
-    self.table.deleteColumn(this_column)
+    this_column.removeTree()
     self.assertFalse(self.table.isEquivalent(new_table))
 
-  def testIsEquivalent(self):
+  def testIsEquivalent2(self):
     if IGNORE_TEST:
      return
     [table, other] = ht.getCapture("test_table_2")
@@ -360,12 +398,12 @@ class TestTable(unittest.TestCase):
     if IGNORE_TEST:
       return
     table = ht.createTable("test", column_name=[ht.COLUMN1, ht.COLUMN2])
-    column1 = table.columnFromName(ht.COLUMN1)
+    column1 = table.columnFromName(ht.COLUMN1, is_relative=True)
     self.assertEqual(len(table.getFormulaColumns()), 0)
     formula1 = "range(5)"
     column1.setFormula(formula1)
     self.assertEqual(len(table.getFormulaColumns()), 1)
-    column2 = table.columnFromName(ht.COLUMN2)
+    column2 = table.columnFromName(ht.COLUMN2, is_relative=True)
     formula2 = "[2*x for x in %s]" % ht.COLUMN1
     column2.setFormula(formula2)
     self.assertEqual(len(table.getFormulaColumns()), 2)
@@ -382,6 +420,7 @@ class TestTable(unittest.TestCase):
     self.assertTrue(all(is_presents))
     excludes = ['_prologue_formula', 
                 '_epilogue_formula', 
+                '_attached',
                 '_filepath', 
                 CLASS_VARIABLE,
                ]
@@ -389,10 +428,28 @@ class TestTable(unittest.TestCase):
       if not key in excludes:
         self.assertTrue(key in self.table.__dict__.keys(), "%s"% key)
 
-  # TODO: Add test where there is a child that is a Table
   def testDeserialize(self):
     if IGNORE_TEST:
       return
+    serialization_dict = self.table.getSerializationDict(CLASS_VARIABLE)
+    table = tb.Table.deserialize(serialization_dict)
+    self.assertTrue(table.isEquivalent(self.table))
+
+  def _makeThreeLevelTable(self):
+    """
+    Updtes self.table to add "SUBTABLE" under "DUMMY_SUBTABLE"
+    """
+    first_subtable = self.table.tableFromName(ht.SUBTABLE_NAME)
+    second_subtable = ht.createTable(NEW_SUBTABLE)
+    column = cl.Column(ht.COLUMN)
+    column.addCells(ht.COLUMN1_CELLS)
+    second_subtable.addColumn(column)
+    first_subtable.addChild(second_subtable)
+
+  def testComplexDeserialize(self):
+    if IGNORE_TEST:
+      return
+    self._makeThreeLevelTable
     serialization_dict = self.table.getSerializationDict(CLASS_VARIABLE)
     table = tb.Table.deserialize(serialization_dict)
     self.assertTrue(table.isEquivalent(self.table))
@@ -406,6 +463,34 @@ class TestTable(unittest.TestCase):
       if not tb.Table.isNameColumn(column):
         num += 1
     self.assertEqual(len(columns), num)
+
+  def testCreateRandomTable(self):
+    table = tb.Table.createRandomTable(TABLE_NAME,
+        NROW, NCOL)
+    self.assertEqual(table.numRows(), NROW)
+    self.assertEqual(table.numColumns(), NCOL+1)  # Include name col
+    NCOLSTR = min(2, NCOL)
+    new_table = tb.Table.createRandomTable(TABLE_NAME,
+        NROW, NCOL, ncolstr=NCOLSTR)
+    num_str_col = 0
+    for n in range(1, NCOL+1):  # Added the name column
+      cell = new_table.getColumns()[n].getCells()[0]
+      if isinstance(cell, str):
+        num_str_col += 1
+    self.assertEqual(num_str_col, NCOLSTR)
+    self.assertEqual(new_table.numColumns(), NCOL + 1)  # Include the 'row' column
+    self.assertEqual(new_table.numRows(), NROW)
+
+  def testCreateRandomHierarchicalTable(self):
+    if IGNORE_TEST:
+      return
+    num_nodes = 10
+    num_rows = 5
+    table = tb.Table.createRandomHierarchicalTable('HTable', num_rows,
+         num_nodes, 0.5)
+    self.assertEqual(len(table.getAllNodes()), num_nodes)
+    self.assertTrue(all([l.numCells() == num_rows
+                         for l in table.getLeaves()]))
       
 
 if __name__ == '__main__':

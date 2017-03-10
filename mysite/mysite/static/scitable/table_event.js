@@ -5,7 +5,7 @@
 /*jshint yui: true */
 /*jslint plusplus: true */
 /*jshint onevar: false */
-/*global SciSheets, $, alert, YAHOO */
+/*global SciSheets, $, alert, YAHOO, SciSheetsUtilEvent, SciSheetsColumn */
 /*jslint unparam: true*/
 /*jslint browser: true */
 /*jslint indent: 2 */
@@ -16,128 +16,27 @@ function SciSheetsTable(scisheet) {
   this.scisheet = scisheet;
 }
 
-SciSheetsTable.prototype.utilSelectFile = function (fileNames) {
-  // Inputs: fileNames - array of file names to select
-  "use strict";
-  var options, n, ele, name, selMenu, scisheet, cmd, selFunction;
-  // List of selection options
-  selMenu = $("#select-file");
-  selFunction = function () {
-    cmd = scisheet.createServerCommand();
-    cmd.target = "Table";
-    cmd.args = [this.id];
-    cmd.command = "OpenTableFile";
-    $(selMenu).css("display", "none");
-    scisheet.utilSendAndReload(cmd);
-  };
-  scisheet = this.scisheet;
-  // Function performed on the user selection
-  // Set the id of each option to the file name
-  options = "";
-  for (n = 0; n <  fileNames.length; n++) {
-    name = fileNames[n];
-    options = options + "<option id='" + name + "'>"
-              + name + "</option>";
-  }
-  $(selMenu).append(options);
-  for (n = 0; n < fileNames.length; n++) {
-    ele = "#" + fileNames[n];
-    $(ele).click(selFunction);
-  }
-  $(selMenu).dialog({
-    autoOpen: true,
-    modal: true,
-    closeOnEscape: true,
-    dialogClass: "dlg-no-close",
-    close: function (event, ui) {
-      scisheet.utilReload();
-    }
-  });
-  $(selMenu).dialog("option", "width", 80);
-  $(selMenu).dialog("option", "height", 80);
-  $(selMenu).parent().find(".ui-dialog-titlebar").hide();
-};
-
-SciSheetsTable.prototype.utilExportDialog = function (cmd) {
-  // Inputs: cmd - command to process
-  "use strict";
-  var scisheet = this.scisheet;
-  if (scisheet.mockAjax) {
-    scisheet.ajaxCallCount += 1;  // Count as an Ajax call
-  }
-  $("#export-dialog").css("display", "block");
-  $("#export-dialog").draggable();
-  //leftPos = evObj.pageX1+30;
-  //topPos = 10;
-  //$("#export-dialog").css({left: leftPos, top: topPos});
-  $(document).keydown(function (e) {
-    if (e.keyCode === 27) {
-      $("#export-dialog").css("display", "none");
-    }
-  });
-  $("#export-dialog-submit").click(function () {
-    cmd.args = [$("#export-dialog-function-name").val()];
-    cmd.args.push($("#export-dialog-inputs").val());
-    cmd.args.push($("#export-dialog-outputs").val());
-    $("#export-dialog").css("display", "none");
-    scisheet.utilSendAndReload(cmd);
-  });
-  $("#export-dialog-cancel").click(function () {
-    $("#export-dialog").css("display", "none");
-    scisheet.utilReload();
-  });
-};
-
 SciSheetsTable.prototype.click = function (oArgs) {
   "use strict";
-  var scisheet, scisheetTable;
+  var ep, scisheet, scisheetTable, scisheetColumn, processClick;
   scisheetTable = this;
-  scisheet = this.scisheet;
-  this.scisheet.utilClick("TableClickMenu", oArgs, function (eleId) {
-    var cmd;
-    console.log("Table click. Selected " + eleId + ".");
-    cmd = scisheet.createServerCommand();
-    cmd.command = eleId;
-    cmd.target = "Table";
-    if (cmd.command === 'Delete') {
-      scisheet.utilSendAndReload(cmd);
-    }
-    if (cmd.command === 'Epilogue') {
-      scisheet.utilUpdateFormula(cmd, cmd.command,
-          scisheet.epilogue, 1, oArgs);
-    }
-    if (cmd.command === 'Export') {
-      scisheetTable.utilExportDialog(cmd);
-    }
-    if (cmd.command === 'New') {
-      scisheet.utilSendAndReload(cmd);
-    }
-    if (cmd.command === 'Open') {
-      cmd.command = 'ListTableFiles';
-      scisheet.sendServerCommand(cmd, function (names) {
-        // User selects the file to open
-        scisheetTable.utilSelectFile(names);
-      });
-    }
-    if (cmd.command === 'Prologue') {
-      scisheet.utilUpdateFormula(cmd, cmd.command,
-          scisheet.prologue, 1, oArgs);
-    }
-    if (cmd.command === 'Redo') {
-      scisheet.utilSendAndReload(cmd);
-    }
-    if (cmd.command === 'Rename') {
-      scisheet.utilPromptForInput(cmd, "New table name",
-          scisheet.tableCaption);
-    }
-    if (cmd.command === 'SaveAs') {
-      scisheet.utilPromptForInput(cmd, "Table file name", scisheet.tableFile);
-    }
-    if (cmd.command === 'Trim') {
-      scisheet.utilSendAndReload(cmd);
-    }
-    if (cmd.command === 'Undo') {
-      scisheet.utilSendAndReload(cmd);
-    }
-  });
+  scisheet = scisheetTable.scisheet;
+
+  processClick = function (eleId) {
+    /* Processes a click on a Table menu */
+    /* Input: eleId - menu item selection */
+    scisheet.utilMenuProcessor(eleId, oArgs, "Table");
+  };
+
+  ep = new SciSheetsUtilEvent(scisheet, oArgs);
+  $(ep.target).effect("highlight", 1000000);
+  $(ep.target).toggle("highlight");
+  if (scisheet.responseSchema.indexOf(ep.columnName) > -1) {
+    /* Check if this is a Column instead of a Table */
+    scisheetColumn = new SciSheetsColumn(scisheet);
+    scisheetColumn.click(oArgs);
+  } else {
+    /* Is a table command. */
+    scisheet.utilClick("TableClickMenu", oArgs, processClick);
+  }
 };

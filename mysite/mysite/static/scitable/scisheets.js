@@ -50,29 +50,35 @@ SciSheetsBlinker.prototype.stop = function () {
 
 /* --------------- SciSheets Objects ------------------*/
 
-/* Create the SciSheets namespace. Values are assigned in table_setup.js */
+/* Create the SciSheets namespace. Values are assigned in sheet_setup.js */
 function SciSheets() {
   "use strict";
   this.baseURL = "http://localhost:8000/scisheets/";
-  this.dataTable = null;  // dataTable for this SciSheet
+  this.dataTable = null;  // dataTable for this Sheet
   this.mockAjax = false;
   this.ajaxCallCount = 0;
   this.formulas = null;  // Dictionary by column name of formulas
   this.epilogue = null;
   this.prologue = null;
+  this.responseSchema = [];
   this.tableFile = null;  // No file specified for the table
   this.blinker = new SciSheetsBlinker($("#notification-working"));
   this.tableName = null;
+  this.ROWNAME = "row";
 }
 
 // Setup
-SciSheets.prototype.setup = function (dataTable) {
+SciSheets.prototype.setup = function (dataTable, responseSchema) {
   "use strict";
-  var ele;
+  var ele, i;
   this.dataTable = dataTable;
   // Handle caption
   ele = document.getElementsByTagName("caption")[0];
   $(ele).css("font-size", "14px");
+  this.responseSchema = [];
+  for (i = 0; i < responseSchema.length; i++) {
+    this.responseSchema.push(responseSchema[i].key);
+  }
 };
 
 // Data and column setup
@@ -80,8 +86,35 @@ SciSheets.prototype.formatColumn = function (name) {
   "use strict";
   var localName = name;
   return function (elCell, oRecord, oColumn, oData) {
-    elCell.innerHTML = "<pre class=\"" + localName + "\">" + YAHOO.lang.escapeHTML(oData) + "</pre>";
+    var stringData = YAHOO.lang.escapeHTML(String(oData));
+    elCell.innerHTML = "<pre class=\"" + localName + "\">"
+          + stringData + "</pre>";
   };
+};
+
+// Create the column definitions from the column free
+// Input: treeList - List of nested object with 
+//                   values "key" and "children"
+// Output: YAHOO DataTable ColumnDefinitions
+// The names "<" and ">" are separators for detached tables.
+SciSheets.prototype.createColumnDefinitions = function (treeList) {
+  "use strict";
+  var columnDefinitions = [], i, thisDefinition, child, children;
+  for (i = 0; i < treeList.length; i++) {
+    child = treeList[i];
+    if (child.name !== "<" && child.name !== ">") {
+      thisDefinition = {key: child.name,
+        label: child.label,
+        formatter: this.formatColumn(child.name),
+        editor: new YAHOO.widget.TextareaCellEditor()};
+      children = this.createColumnDefinitions(child.children);
+      if (children.length > 0) {
+        thisDefinition.children = children;
+      }
+      columnDefinitions = columnDefinitions.concat([thisDefinition]);
+    }
+  }
+  return columnDefinitions;
 };
 
 // Factory to create SeverCommand objects (a JSON structure)
@@ -91,35 +124,13 @@ SciSheets.prototype.createServerCommand = function () {
   return {command: null,
           target: null,  // Part of table targeted
           table: null,   // Table name
-          column: null,
+          columnName: null,
           row: null,
           args: [],
           value: null
          };
 };
 
-/* --------------------------------------------------------------- 
-  Sends a ServerCommand object to the sever
-   Assumes that a JSON object is returned from the server.
-      success: boolean that indicates if processing was successful
-      data: string returned from server
-   Input: serverCommand - a ServerCommand object
-          successFunction - function to execute if successful
-            The function has a single argument that is the
-            string value returned from the server.
-   Usage example:
-      var scisheets = new SciSheets();
-      var data = scisheets.createServerCommand();
-      data.command = "delete";
-      data.table = "my table";
-      data.column = "-3";
-      var aSuccessFunction = function (return_data) {
-        "use strict";
-        alert(return_data);
-        window.console.log('Successful');
-      };
-      scisheets.sendServerCommand(data, aSuccessFunction);
---------------------------------------------------------------- */
 SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction) {
   "use strict";
   this.ajaxCallCount += 1;
@@ -152,12 +163,12 @@ SciSheets.prototype.sendServerCommand = function (serverCommand, successFunction
 //   this.scisheet - the scisheet processed
 //   this.oArgs - the arguments provided
 //   this.target - target of click
-//   this.columnName - name of the column clicked
-//   this.columnIndex - index of the column clicked
+//   this.columnName - key of the column clicked
+//   this.columnLabel - label of the column clicked
 //   this.rowIndex - index of the row clicked
 function SciSheetsUtilEvent(scisheet, oArgs) {
   "use strict";
-  var table;
+  var table, column;
   this.scisheet = scisheet;
   this.oArgs = oArgs;
   table = scisheet.dataTable;
@@ -165,8 +176,18 @@ function SciSheetsUtilEvent(scisheet, oArgs) {
     console.log("***Could not process oArgs.");
   } else {
     this.target = oArgs.target;
-    this.columnName = table.getColumn(this.target).field;
-    this.columnIndex = oArgs.target.cellIndex;
+    column = table.getColumn(this.target);
+    if (column === null) {
+      this.columnLabel = "";
+      this.columnName = "";
+    } else {
+      this.columnName = column.field;
+      if (column.label === undefined) {
+        this.columnLabel = column.field;
+      } else {
+        this.columnLabel = column.label;
+      }
+    }
     this.rowIndex = table.getRecordIndex(this.target) + 1;
   }
   this.rowIndex = table.getRecordIndex(this.target) + 1;
@@ -197,7 +218,6 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
   $("#formula-textarea").linedtextarea({selectedLine: linePosition});
   leftPos = evObj.pageX1 + 30;
   topPos = 10;
-  // evObj.pageX1, evObj.pageY
   $("#formula-dialog").css({left: leftPos, top: topPos});
   $("#formula-dialog-submit").click(function () {
     cmd.args = [eleTextarea.value];
@@ -221,17 +241,20 @@ SciSheets.prototype.utilUpdateFormula = function (cmd, formulaLocation, formula,
 
 // Generic click handle for a popup menu
 // Input: eleId - ID of the popup menu to use
-//        evObj - event object
+//        oArgs - arguments provided to event handler
 //        selectedEleFunc - function that processes the selected element
 //            argument - ID of the selected element
 // Output: establishes the click handlers
-SciSheets.prototype.utilClick = function (eleId, evObj, selectedEleFunc) {
+SciSheets.prototype.utilClick = function (eleId, oArgs, selectedEleFunc) {
   "use strict";
-  var clickMenu, selected, scisheet;
+  var clickMenu, selected, scisheet, evObj;
   selected = false;
   scisheet = this;
   clickMenu = document.getElementById(eleId);
-  $(clickMenu).css({left: evObj.pageX, top: evObj.pageY});
+  if (oArgs.event !== undefined) {
+    evObj = oArgs.event;
+    $(clickMenu).css({left: evObj.pageX, top: evObj.pageY});
+  }
   $(clickMenu).menu(
     {
       role: "listbox",
@@ -294,6 +317,7 @@ SciSheets.prototype.utilPromptForInput = function (cmd, newPrompt, defaultValue)
     scisheet.utilReload();
   }
 };
+
 
 /* Setup the global variable */
 var sciSheets = new SciSheets();

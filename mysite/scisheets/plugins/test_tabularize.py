@@ -50,7 +50,7 @@ class TestTabularize(unittest.TestCase):
     for sfx in SFX_NAMES:
       expected_name = "%s%s" % (values_colnm_prefix, sfx)
       self.assertTrue(table.isColumnPresent(expected_name))
-      column = table.columnFromName(expected_name)
+      column = table.columnFromName(expected_name, is_relative=True)
       cells = [x for x in column.getCells() if not isNan(x)]
       size = len(VALUES)/len(SFX_NAMES)
       self.assertEqual(len(cells), size)

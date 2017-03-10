@@ -53,9 +53,9 @@ function clickTester(clickEle,
     $(clickEle).trigger('click');
     selectEle = clickMenu.children[idx];
     $(selectEle).trigger("click");
-    isOk = sciSheets.ajaxCallCount === expectedAjaxCalls[idx];
+    isOk = sciSheets.ajaxCallCount >= expectedAjaxCalls[idx];
     if (!isOk) {
-      alert("Not ok");
+      alert("Not ok for " + MenuId + " " + selectEle.innerText);
     }
     assert.ok(isOk, "clickTester");
   }
@@ -63,15 +63,23 @@ function clickTester(clickEle,
 
 // These tests only verify that there is no exception
 // when clicking through the menu options
-QUnit.test("table_setup", function (assert) {
+QUnit.test("sheet_setup", function (assert) {
   "use strict";
   var caption, ele2, ele3, data_table, cell_1_1, cell_1_2,
-    expectAjaxCalls;
+    expectAjaxCalls,
+    treeColumns = [{
+      "name": "root",
+      "children": [
+        {"name": "child1", "children": []},
+        {"name": "child2", "children": []}
+      ]
+    }],
+    columnDefinitions;
   /* Mock Ajax */
   sciSheets.mockAjax = true;
-  /* Table Tests */
+  /* Sheet Tests */
   caption = document.getElementsByTagName("caption")[0];
-  assert.ok(caption !== null, "Verify table caption");
+  assert.ok(caption !== null, "Verify sheet caption");
   expectAjaxCalls = [1,  // Delete
                     1,  // Epilogue
                     1,  // Export
@@ -80,25 +88,45 @@ QUnit.test("table_setup", function (assert) {
                     1,  // Prologue
                     1,  // Redo
                     1, // Rename
-                    1, // Save
+                    1, // SaveAs
                     1, // Trim
-                    1]; // Undo
+                    1, // Undo
+                    1]; // UnhideAll
+  clickTester(caption, "SheetClickMenu", -1, assert,
+      expectAjaxCalls);
+  /* Table Tests */
+  expectAjaxCalls = [1,  // Append
+                    1,  // Delete
+                    1,  // Hide
+                    1,  // Insert
+                    1,  // Move
+                    1,  // Refactor
+                    1, // Rename
+                    1, // Tablize
+                    1, // Trim
+                    1]; // Unhide
+  /* Do Later: Need a nested table to test this
   clickTester(caption, "TableClickMenu", -1, assert,
       expectAjaxCalls);
+  */
   // Column Tests
-  ele2 = document.getElementById("yui-dt4-th-row");
+  // If the number of columns is changed from n to m, 
+  // must change dt<n> to dt<m>.
+  ele2 = document.getElementById("yui-dt6-th-row");
   assert.ok(ele2 !== null, "Verify click element for name row");
-  ele3 = document.getElementById("yui-dt4-th-name");
+  ele3 = document.getElementById("yui-dt6-th-name");
   assert.ok(ele3 !== null, "Verify click element for menu");
   expectAjaxCalls = [
     1, // Append
     1,  // Delete
     1, // Formula
-    0, // Hide
+    1, // Hide
     1, // Insert
     1, // Move
     1,  // Refactor
-    1  // Rename
+    1,  // Rename
+    1,  // Tablize
+    1  // Unhide
   ];
   // The following tests fail in batch mode
   clickTester(ele3, "ColumnClickMenu", -1, assert,
@@ -120,4 +148,7 @@ QUnit.test("table_setup", function (assert) {
   cell_1_2 = data_table.getElementsByTagName("pre")[1];
   assert.ok(cell_1_2.innerHTML === CELL_1_2, "Verfiy cell 1,2");
   $(cell_1_2).trigger('click');
+  // Function tests
+  columnDefinitions = sciSheets.createColumnDefinitions(treeColumns);
+  assert.ok(columnDefinitions.length > 0);
 });
