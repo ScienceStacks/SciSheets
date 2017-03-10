@@ -3,7 +3,7 @@ Compiles Python statements that evaluate formulas in a Table.
 """
 
 from mysite import settings
-import scisheets.core.helpers.api_util
+from scisheets.core.helpers import api_util 
 from scisheets.core.helpers.statement_accumulator import StatementAccumulator
 import os
 import numpy as np
