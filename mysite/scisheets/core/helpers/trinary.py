@@ -7,8 +7,8 @@ Trinary objects use the operators:
   - for NOT
 """
 
-import api_util
-import cell_types
+import scisheets.core.helpers.api_util as api_util
+import scisheets.core.helper.cell_types as cell_types
 
 
 AND_TRUTHTABLE = {(None, None): None, (None, False): False, (None, True): None,

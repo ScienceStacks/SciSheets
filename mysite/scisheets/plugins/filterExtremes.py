@@ -2,8 +2,8 @@
 Construct removes deletes from a list
 """
 
-from selectExtremes import selectExtremes
-from filterList import filterList
+from scisheets.plugins.selectExtremes import selectExtremes
+from scisheets.plugins.filterList import filterList
 
 def filterExtremes(values, max_std, min_size=1):
   """"

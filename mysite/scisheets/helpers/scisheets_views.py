@@ -7,7 +7,7 @@ from scisheets.core.helpers.api_util import readObjectFromFile, \
     writeObjectToFile, getFileNameWithoutExtension
 from scisheets.ui.dt_table import DTTable
 import mysite.helpers.util as ut
-from command_dict import CommandDict
+from scisheets.helpers.command_dict import CommandDict
 import mysite.settings as settings
 import json
 import os

@@ -7,7 +7,7 @@ from mysite.helpers.data_capture import DataCapture
 from mysite import settings
 from scisheets.ui.dt_table import DTTable
 from scisheets.core.helpers import api_util
-import column as cl
+import scisheets.core.column as cl
 import contextlib
 import numpy as np
 import os

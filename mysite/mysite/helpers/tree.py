@@ -9,7 +9,7 @@ Implements three classes:
          the relationship is a linear order.
 """
 
-from statement_accumulator import StatementAccumulator
+from mysite.helpers.statement_accumulator import StatementAccumulator
 import random
 
 

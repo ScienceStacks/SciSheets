@@ -15,14 +15,14 @@ Two types of names are used:
            By a global name is meant a complete path in the Table tree.
 """
 
-from column import Column
-from table import Table, NAME_COLUMN_STR
-import helpers.api_util as api_util
-from helpers.column_variable import ColumnVariable
-from helpers.block_execution_controller import BlockExecutionController
-import helpers.cell_types as cell_types
-from helpers.extended_array import ExtendedArray
-from helpers.combinatoric_list import CombinatoricList
+from scisheets.core.column import Column
+from scisheets.core.table import Table, NAME_COLUMN_STR
+import scisheets.core.helpers.api_util as api_util
+from scisheets.core.helpers.column_variable import ColumnVariable
+from scisheets.core.helpers.block_execution_controller import BlockExecutionController
+import scisheets.core.helpers.cell_types as cell_types
+from scisheets.core.helpers.extended_array import ExtendedArray
+from scisheets.core.helpers.combinatoric_list import CombinatoricList
 import collections
 import os
 import numpy as np

@@ -1,6 +1,6 @@
 '''Tests for Trinary'''
 
-from trinary import Trinary
+from scisheets.core.helpers.trinary import Trinary
 import unittest
 
 

@@ -4,8 +4,8 @@
    period that the underlying column is static.
 """
 
-import api_util
-import cell_types
+import scisheets.core.helpers.api_util
+import scisheets.core.helpers.cell_types
 
 
 class ColumnVariable(object):

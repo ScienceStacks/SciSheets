@@ -2,7 +2,7 @@
 Utility to change the extension of a file
 """
 
-from util import changeFileExtension, getFileExtension
+from mysite.helpers.util import changeFileExtension, getFileExtension
 import os
 
 CUR_EXT = "sci"

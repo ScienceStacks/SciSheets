@@ -2,7 +2,7 @@
   Computes the y intercept for a univariate least squares regression.
 '''
 
-from pruneNulls import pruneNulls
+from scisheets.plugins.pruneNulls import pruneNulls
 import numpy as np
 import scipy as sp
 import scipy.stats as ss
