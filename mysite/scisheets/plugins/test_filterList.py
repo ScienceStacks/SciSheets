@@ -1,6 +1,6 @@
 """ Tests for filterList """
 
-from filterList import filterList
+from scisheets.plugins.filterList import filterList
 import unittest
 
 

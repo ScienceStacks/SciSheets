@@ -1,6 +1,6 @@
 '''Tests for BlockExecutionController'''
 
-from block_execution_controller import BlockExecutionController
+from scisheets.core.helpers.block_execution_controller import BlockExecutionController
 from scisheets.core import api as api
 from mysite import settings
 from scisheets.core.helpers.api_util import readObjectFromFile

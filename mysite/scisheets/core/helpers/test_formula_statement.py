@@ -1,6 +1,6 @@
 '''Tests for FormulaStatement'''
 
-from formula_statement import FormulaStatement
+from scisheets.core.helpers.formula_statement import FormulaStatement
 from scisheets.core.helpers_test import createColumn, compareValues
 import unittest
 

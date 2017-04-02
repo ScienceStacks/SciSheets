@@ -1,8 +1,8 @@
 '''Tests for cell_types.'''
 
-from extended_array import ExtendedArray
+from scisheets.core.helpers.extended_array import ExtendedArray
 import numpy as np
-import cell_types
+import scisheets.core.helpers.cell_types as cell_types
 import unittest
 
 

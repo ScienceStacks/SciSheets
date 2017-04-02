@@ -1,6 +1,6 @@
 """ Tests for selectExtremes """
 
-from selectExtremes import selectExtremes
+from scisheets.plugins.selectExtremes import selectExtremes
 import unittest
 import numpy as np
 

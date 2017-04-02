@@ -1,6 +1,6 @@
 """ Tests for roundValues. """
 
-from roundValues import roundValues
+from scisheets.plugins.roundValues import roundValues
 import unittest
 import pandas as pd
 

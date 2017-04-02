@@ -2,7 +2,7 @@
 Tests for intercept
 """
 
-from intercept import intercept
+from scisheets.plugins.intercept import intercept
 import unittest
 import numpy as np
 import scipy as sp

@@ -1,6 +1,6 @@
 '''Tests for Combinatoric Lists'''
 
-from combinatoric_list import CombinatoricList
+from scisheets.core.helpers.combinatoric_list import CombinatoricList
 import unittest
 
 

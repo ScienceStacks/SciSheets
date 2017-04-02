@@ -1,7 +1,7 @@
 """ Tests for pruneNulls. """
 
 import numpy as np
-from prune_nulls import pruneNulls
+from scisheets.core.helpers.prune_nulls import pruneNulls
 import unittest
 
 

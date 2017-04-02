@@ -1,7 +1,7 @@
 '''Tests for ExtendedArray.'''
 
 import numpy as np
-from extended_array import ExtendedArray
+from scisheets.core.helpers.extended_array import ExtendedArray
 import unittest
 
 

@@ -2,9 +2,9 @@
 Tests exportExcelToTable
 """
 
-from exportTableToExcel import exportTableToExcel,  \
+from schisheets.plugins.exportTableToExcel import exportTableToExcel,  \
     _exportDataframeToExcel
-from importExcelToTable import importExcelToTable,  \
+from scisheets.plugins.importExcelToTable import importExcelToTable,  \
     _importExcelToDataframe
 from scisheets.core import api as api
 from scisheets.core import helpers_test as ht

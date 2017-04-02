@@ -2,7 +2,7 @@
 
 from scisheets.core.helpers_test import createColumn,  \
     setupTableInitialization
-import serialize_deserialize as sd
+import scisheets.core.helpers.serialize_deserialize as sd
 import numpy as np
 import json
 import unittest

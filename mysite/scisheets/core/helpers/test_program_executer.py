@@ -1,6 +1,6 @@
 '''Tests for Program Executer.'''
 
-from program_executer import ProgramExecuter, CONTROLLER
+from scisheets.core.helpers.program_executer import ProgramExecuter, CONTROLLER
 import os
 import unittest
 

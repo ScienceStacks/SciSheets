@@ -2,7 +2,7 @@
 Tests importCSV
 """
 
-from importCSV import importCSV
+from scisheets.plugins.importCSV import importCSV
 from scisheets.core import api as api
 from scisheets.core import helpers_test as ht
 import os

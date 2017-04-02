@@ -1,7 +1,7 @@
 '''Tests for scisheets_views'''
 
 from mysite import settings as st
-from helpers_test import HelperHTTP, COLUMN_INDEX
+from scisheets.helpers.helpers_test import HelperHTTP, COLUMN_INDEX
 import mysite.helpers.util as ut
 from django.test import TestCase
 from scisheets.core.table import Table
@@ -10,7 +10,7 @@ from scisheets.core.helpers_test import TableFileHelper, TEST_DIR,  \
     compareTableData
 from scisheets.core.helpers.api_util import readObjectFromFile, writeObjectToFile
 import scisheets.core.helpers.cell_types as cell_types
-import scisheets_views as sv
+import scisheets.helpers.scisheets_views as sv
 import json
 import numpy as np
 import os

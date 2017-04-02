@@ -2,7 +2,7 @@
 Tests for statement accumulator.
  '''
 
-from statement_accumulator import StatementAccumulator
+from mysite.helpers.statement_accumulator import StatementAccumulator
 from scisheets.core import helpers_test as ht
 import unittest
 

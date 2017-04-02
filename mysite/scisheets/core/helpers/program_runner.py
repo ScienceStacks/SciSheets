@@ -75,9 +75,10 @@ class ProgramRunner(object):
     namespace = self._table.getNamespace()
     namespace['_table'] = self._table
     program = """
-from scisheets.core import api as api
-%s = api.APIFormulas(_table, is_logging=True, debug=%s)
-""" % (API_OBJECT, self.debug)
+        from scisheets.core import api as api
+        %s = api.APIFormulas(_table, is_logging=True, debug=%s)
+        % (API_OBJECT, self.debug)
+        """
     executer = ProgramExecuter("ProgramRunner._createAPIObject", program, 
         namespace)
     result = executer.execute()

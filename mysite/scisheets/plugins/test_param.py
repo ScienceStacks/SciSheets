@@ -1,6 +1,6 @@
 """ Tests for param. """
 
-from param import param
+from scisheets.plugins.param import param
 from scisheets.core import api as api
 from scisheets.core import helpers_test as ht
 import unittest

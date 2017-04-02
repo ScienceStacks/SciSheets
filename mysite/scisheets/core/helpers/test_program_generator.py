@@ -1,11 +1,11 @@
 '''Tests for program_generator'''
 
-import program_generator as pg
+import scisheets.core.helpers.program_generator as pg
 import mysite.settings as settings
 from scisheets.core.helpers_test import createTable,  \
     stdoutIO, TableFileHelper, TEST_DIR
 from scisheets.core import column as cl
-from api_util import writeObjectToFile
+from scisheets.core.helpers.api_util import writeObjectToFile
 import os
 import numpy as np
 import shutil

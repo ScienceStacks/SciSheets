@@ -2,7 +2,7 @@
 Tests for slope
 """
 
-from slope import slope
+from scisheets.plugins.slope import slope
 import unittest
 import numpy as np
 import scipy as sp

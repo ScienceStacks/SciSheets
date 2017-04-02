@@ -1,6 +1,6 @@
 '''Tests for ColumnVariable.'''
 
-from column_variable import ColumnVariable
+from scisheets.core.helpers.column_variable import ColumnVariable
 from scisheets.core import helpers_test as ht
 from scisheets.core.column import Column
 from is_null import isNull

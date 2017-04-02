@@ -1,8 +1,8 @@
 """ Tests for groupBy. """
 
 from scisheets.core.helpers_test import TEST_DIR
-from groupBy import groupBy
-from roundValues import roundValues
+from scisheets.plugins.groupBy import groupBy
+from scisheets.plugins.roundValues import roundValues
 import os
 import pandas as pd
 import numpy as np

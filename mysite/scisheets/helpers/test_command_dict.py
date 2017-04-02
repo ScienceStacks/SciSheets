@@ -1,9 +1,9 @@
 '''Tests for CommandDict.'''
 
-from command_dict import CommandDict, _extractDataFromRequest
+from scisheets.helpers.command_dict import CommandDict, _extractDataFromRequest
 import scisheets.core.helpers.cell_types as cell_types
 from django.test import TestCase, RequestFactory
-from helpers_test import HelperHTTP
+from scisheets.helpers.helpers_test import HelperHTTP
 
 NCOL = 3
 NROW = 4

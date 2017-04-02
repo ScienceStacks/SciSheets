@@ -1,10 +1,10 @@
 '''Tests for program runner.'''
 
-from ...core import column as cl
-from program_runner import ProgramRunner
-from ..helpers_test import createTable, stdoutIO, TableFileHelper, \
+from scisheets.core import column as cl
+from scisheets.core.helpers.program_runner import ProgramRunner
+from scisheets.core.helpers_test import createTable, stdoutIO, TableFileHelper, \
     TEST_DIR, augmentPythonPath
-from api_util import writeObjectToFile
+from scisheets.core.helpers.api_util import writeObjectToFile
 import numpy as np
 import os
 import shutil
