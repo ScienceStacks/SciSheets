@@ -17,7 +17,8 @@ Two types of names are used:
 
 from scisheets.core.column import Column
 from scisheets.core.table import Table, NAME_COLUMN_STR
-import scisheets.core.helpers.api_util as api_util
+from scisheets.core.helpers import api_util as api_util
+#import scisheets.core.helpers.api_util as api_util
 from scisheets.core.helpers.column_variable import ColumnVariable
 from scisheets.core.helpers.block_execution_controller import BlockExecutionController
 import scisheets.core.helpers.cell_types as cell_types

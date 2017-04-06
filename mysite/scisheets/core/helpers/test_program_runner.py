@@ -1,6 +1,7 @@
 '''Tests for program runner.'''
 
-from scisheets.core import column as cl
+import ...core.column as cl
+import scisheets.core.column as cl
 from scisheets.core.helpers.program_runner import ProgramRunner
 from scisheets.core.helpers_test import createTable, stdoutIO, TableFileHelper, \
     TEST_DIR, augmentPythonPath

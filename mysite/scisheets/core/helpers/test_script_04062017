@@ -1,0 +1,2 @@
+from scisheets.core import api as api
+s = api.APIFormulas(_table, is_logging=True, debug=False)

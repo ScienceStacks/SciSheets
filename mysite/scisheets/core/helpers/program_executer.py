@@ -62,6 +62,7 @@ except Exception as exc:
     # Check for syntax errors
     error = None
     wrapped_program = self._wrapProgram()
+    import pdb; pdb.set_trace()
     try:
       exec wrapped_program in self._namespace
     except Exception as exc:

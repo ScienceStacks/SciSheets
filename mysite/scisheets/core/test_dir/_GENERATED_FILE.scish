@@ -6,51 +6,46 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        59,
-        11,
-        14
+        0,
+        1,
+        2,
+        3,
+        4
       ],
-      "_formula": "Col_1 = 'x'",
-      "_name": "Col_0"
+      "_formula": null,
+      "_name": "DUMMY1_COLUMN"
     },
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        20,
-        34,
-        39
+        0,
+        2,
+        4,
+        6,
+        8
       ],
       "_formula": null,
-      "_name": "Col_1"
+      "_name": "DUMMY2_COLUMN"
     },
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        36,
-        26,
-        24
+        NaN,
+        NaN,
+        NaN,
+        NaN,
+        NaN
       ],
-      "_formula": null,
-      "_name": "Col_2"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        10,
-        32,
-        64
-      ],
-      "_formula": null,
-      "_name": "Col_3"
+      "_formula": "np.sin(DUMMY1_COLUMN)",
+      "_name": "Formula_Column"
     }
   ],
   "_epilogue_formula": "# Epilogue\n",
   "_filepath": "/Users/Fluids/Documents/SciSheets/mysite/scisheets/core/test_dir/_GENERATED_FILE.scish",
   "_hidden_children": [],
   "_is_evaluate_formulas": true,
-  "_name": "MY TABLE",
+  "_name": "TEST",
   "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
 }
