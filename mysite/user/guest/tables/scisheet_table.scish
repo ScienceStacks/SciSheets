@@ -6,10 +6,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        45,
-        64,
-        67,
-        43
+        33,
+        77,
+        15,
+        10
       ],
       "_formula": null,
       "_name": "Col_0"
@@ -18,10 +18,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        43,
-        50,
-        73,
-        89
+        1,
+        48,
+        36,
+        75
       ],
       "_formula": null,
       "_name": "Col_1"

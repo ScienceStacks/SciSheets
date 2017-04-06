@@ -11,7 +11,8 @@ echo "*scisheets.ui"
 python manage.py test scisheets.ui
 echo "*scisheets.plugins"
 python manage.py test scisheets.plugins
-scisheets/core/tt
+python manage.py test scisheets.core
+python manage.py test scisheets.core.helpers
 echo "**********************************"
 echo "*********** mysite ***************"
 echo "**********************************"
