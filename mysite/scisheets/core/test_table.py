@@ -388,12 +388,6 @@ class TestTable(unittest.TestCase):
     this_column.removeTree()
     self.assertFalse(self.table.isEquivalent(new_table))
 
-  def testIsEquivalent2(self):
-    if IGNORE_TEST:
-     return
-    [table, other] = ht.getCapture("test_table_2")
-    #self.assertTrue(table.isEquivalent(other))
-
   def testGetColumnFormula(self):
     if IGNORE_TEST:
       return
