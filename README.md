@@ -55,4 +55,6 @@ To install on a virgin VM:
 
 7. bash setup.sh
 
+8. Make sure that ~/SciSheets/bin is in your PATH
+
 Note that you will also need to install pandas if you want to make use of its python packages.
