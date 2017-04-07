@@ -57,4 +57,5 @@ To install on a virgin VM:
 
 8. Make sure that ~/SciSheets/bin is in your PATH
 
-Note that you will also need to install pandas if you want to make use of its python packages.
+Note that you will also need to install pandas if you want to make use of its python packages. Also, SciSheets currently
+runs only in python 2.7.
