@@ -3,7 +3,7 @@
 
 SITE=$HOME/SciSheets/mysite/mysite
 cp $SITE/templates/scitable.html test1.html
-sed 's/.{% static "/"\/home\/ubuntu\/SciSheets\/mysite\/mysite\/static\//' <test1.html >test2.html
+sed 's/.{% static "/"..\//' <test1.html >test2.html
 sed 's/ %}.//' <test2.html >test3.html
 sed '/scisheets.js/r insert_mock.html' < test3.html > test4.html
 sed '/sheet_setup.js/r insert.html' < test4.html > test5.html
