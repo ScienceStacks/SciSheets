@@ -14,7 +14,7 @@ import numpy as np
 
 class Column(NamedTree):
   """
-  Representation of a column in a table. A column is a ctonainer
+  Representation of a column in a table. A column is a container
   of cells.
   """
 
