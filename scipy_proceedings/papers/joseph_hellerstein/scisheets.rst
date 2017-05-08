@@ -8,7 +8,7 @@
 :corresponding:
 
 --------------------------------------------------------------------------------------------------------------------
-Experience with Data Science for the Programming Impaired: Analysis of Biological Data Using Spreadsheets and Python
+SciSheets: Delivering the Power of Programming With The Simplicity of Spreadsheets
 --------------------------------------------------------------------------------------------------------------------
 
 .. class:: abstract
@@ -23,6 +23,10 @@ Introduction
 ------------
 
 - Short history of spreadsheets
+
+  - Separate world of spreadsheet users, including competitions for top proficiency (e.g., Modeloff http://www.modeloff.com/the-legend/). 
+  - Estimate 800M professionals users of excel worldwide. (modeloff)
+  - Estimate 18M profession software developers worldwide in 2017 (http://www.computerworld.com/article/2483690/it-careers/india-to-overtake-u-s--on-number-of-developers-by-2017.html)
 
 - Appeal of spreadsheets for scientists
 
