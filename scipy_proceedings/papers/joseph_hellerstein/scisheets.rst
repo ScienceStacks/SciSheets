@@ -39,43 +39,59 @@ Despite their appeal, today's spreadsheet based calculations have many shortcomi
 - poor readability because formulas must be expressions (not scripts) and any cell may have a formula; and
 - limited ability to express calculations because formulas are limited to using a few hundred or so functions provided by the spreadsheet system (or specially coded macros).
 
-This paper introduces SciSheets, a new spreadsheet system that is intended to
-to deliver the power of programming with the simplicity of spreadsheets. 
-To date, our focus has been on a simple environment
-for spreadsheet users to do calculations not the many other features of spreadsheets such as formating and plotting (although we
-discuss our plans for handling graphics in the future work setting).
-The core features of SciSheets are:
-(a) formulas that are Python expressions or scripts to improve
-expressiveness and provide access to complex computations in 
-Python packages;
-(b) exporting spreadsheets as standalone Python programs to improve 
-scalability and enable reuse of spreadsheet calculations 
-in other spreadsheets and in programs; and
-(c) nested tables and cells that may have multiple 
-values to handle complex data such as n-to-m relationships.
+This paper introduces SciSheets ref?? githubURL, a new spreadsheet system with the goal of delivering
+the power of programming with the simplicity of spreadsheets. 
+Our target users are technical professionals, such as scientists and finanical engineers,
+who do complex calculations on structured data.
+To date, our focus has been on calculations,
+not features such as formatting.
 
-Issues associated with spreadsheet programming have been largely ignored in the computer science academic literature.
-However, there have been other spreadhseet systems introduced that address some of issues considered by SciSheets.
-Systems such as Mathematica ref?? and SPSS ref?? provide a grid view of data, but not spreadsheet formulats
-or automated recalculations as is expected by spreadsheet users.
-SciSheets use of column formulas is not unique (e.g.,
-Google Fusion Tables ref??),
-an approach that
-eliminates the need to copy formulas as rows are added/deleted from a table.
-However, unlike existing approaches to column formulas,
-SciSheets formulas can be scripts, not just expressions.
-This enhancement greatly extends the computation expressiveness of the spreadsheet, but it also creates challenges,
-such as localizing programming errors to aid in debugging.
-The Stencila ref? and Pyspread ref?? projects are spreadsheet systems that, like SciSheets, use python as the formula language. 
-SciSheets differs from these projects in that SciSheets provides a way to structure complex data using column hierarchies.
-Doing so has many benefits, including the ability to express n-to-m relationships (which is very
-difficult in a simple table).
-Last, SciSheets allows for the export of a spreadsheet as a standalone python program, a feature that we have not seen
-in any existing system.
-This features has numerous benefits, including: program reuse, scalability, and enhanced collaboration with software engineers.
+The shortcomings of spreadsheet applications, especially the very high error rates, are widely documented.
+A dramatic example is the spreadsheet error that caused the $6B "London Whale" disaster ref??
+http://www.businessinsider.com/excel-partly-to-blame-for-trading-loss-2013-2.
+ref?? Panko presents data from user studies indicating excess of a 90% error rate in many real world
+spreadsheet calculations.
+Despite the seriousness of these problems, spreadsheets
+have been
+largely ignored in the computer science academic literature.
+However, many spreadhseet systems have introduced in an attempt to address these problems.
+Google Fusion Tables ref?? uses column formulas to avoid a common source of errors,
+the need to copy formulas as rows are added/deleted from a table.
+The Pyspread ref?? project uses Python as the formula language, which increases the expressiveness of the
+formulas.
+A more radical approach is taken by
+the Stencila system ref??, which
+provides a document structure that includes cells that execute formulas, including the display of of data tables;
+cells may execute statements from many languages including Python and R.
 
-Biological Data and Use Cases
------------------------------
+Despite the aforementioned innovations in spreadsheets, 
+serious shortcoming remain.
+First, the expressiveness of formulas 
+is limited because formulas are restricted to being expressions, not scripts (although Stencila does provide a limited form of scripting).
+Second, none of these systems ease of burden of dealing with complex data relationships,
+such as n-to-m relationships.
+Third, none of the innovations address code sharing and reuse between spreadsheet users or between
+spreadsheet users and software engineers.
+Last, very little has been done to address the performance problems with scaling spreadsheets.
+
+SciSheets addresses the aforementioned problems with by introducing several novel features.
+
+- *Formulas can be Python scripts, not just expressions.*
+  This increases the expressiveness of formulas.
+- *Tables can have nested columns (columns within columns).*
+  This provides a conceptually simple way to express
+  complex data relationships, such as n-to-m relationships.
+- *Spreadsheets can be exported as standalone Python programs.*
+  This provides for sharing and reuse since the exported codes
+  can be used by other SciSheets spreadsheets or by
+  python programs.
+  This feature also improves scalability since
+  calculations can be executed without the overhead of the spreadsheet system.
+
+The remainder of this paper is organized as follows.
+
+Motivating Examples and Use Cases
+---------------------------------
 
 SciSheets Design
 ----------------
