@@ -43,7 +43,7 @@ Even with the
 seriousness of these shortcomings, spreadsheets
 have been
 largely ignored in the computer science academic literature.
-However, many innovative spreadsheet systems have introduced.
+However, many innovative spreadsheet systems have been introduced.
 Google Fusion Tables ref?? uses column formulas to avoid a common source of errors,
 the need to copy formulas as rows are added/deleted from a table.
 The Pyspread ref?? project uses Python as the formula language, which increases the expressiveness of formulas.
