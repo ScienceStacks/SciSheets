@@ -22,9 +22,15 @@ Short abstract.
 Introduction
 ------------
 
-Digital spreadsheets are the "killer app" that ushered in the PC revolution. This is largely because spreadsheets provide a conceptually simple way to do calculations that avoids the mental burdens of programming, especially considerations of control flow, data dependencies, and data structures. Spreadsheets are likely the most popular computational environment on the planet (Scaffidi et al., IEEE Symposium on Visual Languages and Human-Centric Computing, 2005).
+Digital spreadsheets are the "killer app" that ushered in the PC revolution. 
+This is largely because spreadsheets provide a conceptually simple way to do calculations that avoids the mental burdens of programming, 
+especially considerations of control flow, data dependencies, and data structures. 
+Recent estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
+ref?? http://www.modeloff.com/the-legend/), which is about 50 times the number
+of software developers world wide
+ref?? (http://www.computerworld.com/article/2483690/it-careers/india-to-overtake-u-s--on-number-of-developers-by-2017.html).
 
-However, today's spreadsheet systems have many shortcomings. In particular, spreadsheets suffer from:
+Despite their appeal, today's spreadsheet based calculations have many shortcomings:
    
 - poor scalability because executing formulas within the spreadsheet system has high overhead;
 - great difficulty with reuse because there is no concept of encapsulation (and even different length data are problematic);
@@ -34,12 +40,12 @@ However, today's spreadsheet systems have many shortcomings. In particular, spre
 - limited ability to express calculations because formulas are limited to using a few hundred or so functions provided by the spreadsheet system (or specially coded macros).
 
 This paper introduces SciSheets, a new spreadsheet system that is intended to
-to deliver the power of programming with the simplicity of spreadsheets. To date, our focus has been on a simple environment
+to deliver the power of programming with the simplicity of spreadsheets. 
+To date, our focus has been on a simple environment
 for spreadsheet users to do calculations not the many other features of spreadsheets such as formating and plotting (although we
 discuss our plans for handling graphics in the future work setting).
 The core features of SciSheets are:
-
-(i) formulas that are Python expressions or scripts to improve
+(a) formulas that are Python expressions or scripts to improve
 expressiveness and provide access to complex computations in 
 Python packages;
 (b) exporting spreadsheets as standalone Python programs to improve 
@@ -67,23 +73,6 @@ difficult in a simple table).
 Last, SciSheets allows for the export of a spreadsheet as a standalone python program, a feature that we have not seen
 in any existing system.
 This features has numerous benefits, including: program reuse, scalability, and enhanced collaboration with software engineers.
-
-Some notes
-
-  - Separate world of spreadsheet users, including competitions for top proficiency (e.g., Modeloff http://www.modeloff.com/the-legend/). 
-  - Estimate 800M professionals users of excel worldwide. (modeloff)
-  - Estimate 18M profession software developers worldwide in 2017 (http://www.computerworld.com/article/2483690/it-careers/india-to-overtake-u-s--on-number-of-developers-by-2017.html)
-
-- Appeal of spreadsheets for scientists
-
-- Shortcomings of spreadsheets
-
-  - London Whale error - http://www.businessinsider.com/excel-partly-to-blame-for-trading-loss-2013-2
-
-- Scisheets principles
-
-- Problem domain for evaluating scisheets
-
 
 Biological Data and Use Cases
 -----------------------------
