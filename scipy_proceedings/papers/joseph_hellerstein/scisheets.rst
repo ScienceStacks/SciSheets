@@ -19,8 +19,8 @@ Short abstract.
 
    software engineering
 
-Introduction
-------------
+1. Introduction
+---------------
 
 Digital spreadsheets are the "killer app" that ushered in the PC revolution. 
 This is largely because spreadsheets provide a conceptually simple way to do calculations that avoids the mental burdens of programming, 
@@ -86,16 +86,67 @@ several novel features.
 
 The remainder of this paper is organized as follows.
 
-Motivating Examples and Use Cases
----------------------------------
+2. Use Cases
+------------
 
-SciSheets Design
-----------------
+1. Michaelis-Menten
 
-User Experiences
-----------------
+   a. Background. Common processing of biochemical assays to compute key characteristics of enzymes
+   b. Use cases
 
-- Screenshots
+      a) Writing formulas - script vs. expression
+      b) Iteration - requires copy (and re-copy when add/delete rows)
+      c) Code reuse - None
+
+2. Co-evolution data hierarchy
+
+   a. Background - describe the data
+   b. Use cases
+
+      a) Organizing tables in different hierarchies (multiple tabs, copies?)
+      b) Viewing data together - have to navigate many tabs or make copies
+
+3. Design
+---------
+
+1. Externals
+
+   a. Elements - sheet, tables, columns, rows, cells (Fig)
+   b. Popup menus
+   c. Execution model: prologue, formula evaluations, epilogue. (Dependency checking is not possible
+      because users can employ "eval" statement.)
+
+2. Internals
+
+   a. Client-Server architecture
+
+      i. Client (JS) - Simple UI handling (popups, render table, convey user inputs via AJAX)
+      ii. Server (python) - table storage, formula evaluation
+
+   b. Dependencies: Django, JS packages
+   c. Class hierarchy
+   d. Table evaluation - code generation
+
+4. User Experiences
+-------------------
+
+1. Michaelis-Menten
+
+   a. Symbolic formulas
+   b. Iteration is implicit for row
+   c. Export sheet
+
+      i. Exported code
+      ii. Tests
+
+   d. Code reuse
+
+2. Co-evolution data hierarchy
+
+   a. Need tables spread across multiples
+   b. Different hierarchies requires table copies
+
+3. Screenshots
 
 Future Work
 -----------
