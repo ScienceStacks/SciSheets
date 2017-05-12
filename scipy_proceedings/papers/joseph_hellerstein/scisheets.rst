@@ -26,9 +26,9 @@ Digital spreadsheets are the "killer app" that ushered in the PC revolution.
 This is largely because spreadsheets provide a conceptually simple way to do calculations that avoids the mental burdens of programming,
 especially considerations of control flow, data dependencies, and data structures.
 Recent estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
-ref?? http://www.modeloff.com/the-legend/), which is about 50 times the number
-of software developers world wide
-ref?? (http://www.computerworld.com/article/2483690/it-careers/india-to-overtake-u-s--on-number-of-developers-by-2017.html).
+[MODE2017],
+which is about 50 times the number
+of software developers world wide [Thib2013].
 
 Despite their appeal, spreadsheets have severe shortcomings.
 
@@ -44,11 +44,11 @@ seriousness of these shortcomings, spreadsheets
 have been
 largely ignored in the computer science academic literature.
 However, many innovative spreadsheet systems have been introduced.
-Google Fusion Tables ref?? uses column formulas to avoid a common source of errors,
+Google Fusion Tables [Gonz2010] uses column formulas to avoid a common source of errors,
 the need to copy formulas as rows are added/deleted from a table.
-The Pyspread ref?? project uses Python as the formula language, which increases the expressiveness of formulas.
+The Pyspread [PySpread] project uses Python as the formula language, which increases the expressiveness of formulas.
 A more radical approach is taken by
-the Stencila system ref??, which
+the Stencila system [Stencila], which
 provides a document structure that includes cells that execute formulas, including the display of of data tables;
 cells may execute statements from many languages including Python and R.
 
@@ -62,7 +62,7 @@ serious deficiencies remain.
    spreadsheet users or between spreadsheet users and software engineers.
 4. Very little has been done to address the performance problems that occur as spreadsheets scale.
 
-This paper introduces SciSheets ref?? githubURL, a new spreadsheet system with the goal of delivering
+This paper introduces SciSheets [SciSheets], a new spreadsheet system with the goal of delivering
 the power of programming with the simplicity of spreadsheets.
 Our target users are technical professionals, such as scientists and financial engineers,
 who do complex calculations on structured data.
@@ -164,5 +164,13 @@ Future Work
 
 References
 ----------
-.. [Atr03] P. Atreides. *How to catch a sandworm*,
-           Transactions on Terraforming, 21(3):261-300, August 2003.
+.. [MODE2017] *MODELOFF - Financial Modeling World Championships*,
+              http://www.modeloff.com/the-legend/.
+.. [Thib2013] Thibodeau, Patrick. 
+              *India to overtake U.S. on number of developers by 2017*, 
+              COMPUTERWORLD, Jul 10, 2013.
+.. [Gonz2010] *Google Fusion Tables: Web-Centered Data Management
+              and Collaboration*, Hector Gonzalez et al., SIGMOD, 2010.
+.. [PySpread] Manns, M. *PYSPREAD*, http://github.com/manns/pyspread.
+.. [Stencila] *Stencila*, https://stenci.la/.
+.. [SciSheet] *SciSheets*, https://github.com/ScienceStacks/SciSheets.
