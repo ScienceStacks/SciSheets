@@ -1,0 +1,50 @@
+{
+  "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+  "_attached": true,
+  "_children": [
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        "THDPA.csv",
+        "Glu.csv"
+      ],
+      "_formula": "K_M = []\nV_MAX = []\nfor csv_file in CSV_FILE:\n  df = pd.read_csv(csv_file)\n  s_val = df['S']\n  v_val = df['V']\n  k_m, v_max = michaelis(s_val, v_val)\n  K_M.append(k_m)\n  V_MAX.append(v_max)",
+      "_name": "CSV_FILE"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        [
+          0.229
+        ],
+        [
+          0.568
+        ]
+      ],
+      "_formula": null,
+      "_name": "K_M"
+    },
+    {
+      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+      "_asis": false,
+      "_cells": [
+        [
+          0.011
+        ],
+        [
+          5.179
+        ]
+      ],
+      "_formula": null,
+      "_name": "V_MAX"
+    }
+  ],
+  "_epilogue_formula": "",
+  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/process_files.scish",
+  "_hidden_children": [],
+  "_is_evaluate_formulas": true,
+  "_name": "ProcessFiles",
+  "_prologue_formula": "import pandas as pd\nCSV_FILE = ['THDPA.csv', 'Glu.csv']\nK_M = []\nV_MAX = []"
+}

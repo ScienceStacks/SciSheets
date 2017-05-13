@@ -116,7 +116,7 @@
     }
   ],
   "_epilogue_formula": "# Epilogue\n",
-  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/michaelis_menten_demo.scish",
+  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/python/michaelis.scish",
   "_hidden_children": [],
   "_is_evaluate_formulas": true,
   "_name": "MichaelisMenten",
