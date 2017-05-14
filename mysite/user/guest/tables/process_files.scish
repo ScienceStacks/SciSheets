@@ -6,10 +6,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
+        "Glu.csv",
+        "LL-DAP.csv",
         "THDPA.csv",
-        "Glu.csv"
+        "THDPA_copy.csv"
       ],
-      "_formula": "K_M = []\nV_MAX = []\nfor csv_file in CSV_FILE:\n  df = pd.read_csv(csv_file)\n  s_val = df['S']\n  v_val = df['V']\n  k_m, v_max = michaelis(s_val, v_val)\n  K_M.append(k_m)\n  V_MAX.append(v_max)",
+      "_formula": null,
       "_name": "CSV_FILE"
     },
     {
@@ -17,13 +19,19 @@
       "_asis": false,
       "_cells": [
         [
-          0.229
+          5.179
         ],
         [
-          0.568
+          0.929
+        ],
+        [
+          0.011
+        ],
+        [
+          0.011
         ]
       ],
-      "_formula": null,
+      "_formula": "# Compute K_M and V_MAX for each CSV file\nK_M = []\nV_MAX = []\nfor csv_file in CSV_FILE:\n  df = pd.read_csv(join(PATH, csv_file))\n  s_val = df['S']\n  v_val = df['V']\n  v_max, k_m = michaelis(s_val, v_val)\n  K_M.append(k_m)\n  V_MAX.append(v_max)",
       "_name": "K_M"
     },
     {
@@ -31,10 +39,16 @@
       "_asis": false,
       "_cells": [
         [
-          0.011
+          0.568
         ],
         [
-          5.179
+          23.81
+        ],
+        [
+          0.229
+        ],
+        [
+          0.229
         ]
       ],
       "_formula": null,
@@ -46,5 +60,5 @@
   "_hidden_children": [],
   "_is_evaluate_formulas": true,
   "_name": "ProcessFiles",
-  "_prologue_formula": "import pandas as pd\nCSV_FILE = ['THDPA.csv', 'Glu.csv']\nK_M = []\nV_MAX = []"
+  "_prologue_formula": "import pandas as pd\nfrom os import listdir\nfrom os.path import join\n\nPATH = \"./csv_files\"\nCSV_FILE = [f for f in listdir(PATH)]\nCSV_FILE.sort()"
 }
