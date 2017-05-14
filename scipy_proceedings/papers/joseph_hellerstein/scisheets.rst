@@ -89,6 +89,10 @@ The remainder of this paper is organized as follows.
 2. Use Cases
 ------------
 
+.. figure:: ExistingSpreadSheet.png
+
+   Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig1`
+
 1. Michaelis-Menten
 
    a. Background. Common processing of biochemical assays to compute key characteristics of enzymes

@@ -3,19 +3,121 @@
   "_attached": true,
   "_children": [
     {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        "empty table"
+      "SciSheets_Class": "<class 'scisheets.ui.ui_table.UITable'>",
+      "_attached": true,
+      "_children": [
+        {
+          "SciSheets_Class": "<class 'scisheets.ui.ui_table.UITable'>",
+          "_attached": true,
+          "_children": [
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "Student"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "GPA"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "Top"
+            }
+          ],
+          "_epilogue_formula": "# Epilogue\n",
+          "_filepath": null,
+          "_hidden_children": [],
+          "_is_evaluate_formulas": true,
+          "_name": "Chem",
+          "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+        },
+        {
+          "SciSheets_Class": "<class 'scisheets.ui.ui_table.UITable'>",
+          "_attached": true,
+          "_children": [
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "Student"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "GPA"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "Top"
+            }
+          ],
+          "_epilogue_formula": "# Epilogue\n",
+          "_filepath": null,
+          "_hidden_children": [],
+          "_is_evaluate_formulas": true,
+          "_name": "CSE",
+          "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+        },
+        {
+          "SciSheets_Class": "<class 'scisheets.ui.ui_table.UITable'>",
+          "_attached": true,
+          "_children": [
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "Student"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "GPA"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [],
+              "_formula": null,
+              "_name": "Top"
+            }
+          ],
+          "_epilogue_formula": "# Epilogue\n",
+          "_filepath": null,
+          "_hidden_children": [],
+          "_is_evaluate_formulas": true,
+          "_name": "Bio",
+          "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+        }
       ],
-      "_formula": null,
-      "_name": "CSV_FILE"
+      "_epilogue_formula": "# Epilogue\n",
+      "_filepath": null,
+      "_hidden_children": [],
+      "_is_evaluate_formulas": true,
+      "_name": "Eng",
+      "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
     }
   ],
-  "_epilogue_formula": "",
+  "_epilogue_formula": "# Epilogue\n",
   "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/scisheet_table.scish",
   "_hidden_children": [],
   "_is_evaluate_formulas": true,
-  "_name": "ProcessFiles",
-  "_prologue_formula": ""
+  "_name": "Demo",
+  "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
 }
