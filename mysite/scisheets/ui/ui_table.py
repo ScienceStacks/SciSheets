@@ -510,6 +510,9 @@ class UITable(Table):
         is_error = True
       if is_error:
         error = "%s is a duplicate column name." % proposed_name
+    elif command == "Sort":
+      UITable._versionCheckpoint(versioned, target, command)
+      column.sortCells()
     elif command == "Tablize":
       UITable._versionCheckpoint(versioned, target, command)
       error = self._commandTablize(cmd_dict)
