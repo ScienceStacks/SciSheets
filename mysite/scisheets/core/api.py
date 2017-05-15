@@ -301,7 +301,7 @@ class API(object):
       colnms = [c.getName() for c in self._table.getDataColumns()]
     dataframe = pd.DataFrame()
     for name in colnms:
-      column = self._table.columnFromName(name, is_relative=False)
+      column = self._table.childFromName(name, is_relative=False)
       if column is None:
         raise ValueError("Column %s does not exist in table %s" %  \
             (name, self._table.getName()))

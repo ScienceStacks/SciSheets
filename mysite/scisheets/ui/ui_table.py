@@ -241,7 +241,7 @@ class UITable(Table):
     #         error - error string or None
     result = re.findall(r'(?ms)\W*(\w+)', list_as_str)
     for name in result:
-      if self.columnFromName(name) is None:
+      if self.childFromName(name) is None:
         error = "Unknown column name: %s" % name
         return result, error
     return result, None
@@ -535,7 +535,7 @@ class UITable(Table):
     target = "Row"
     command = cmd_dict["command"]
     column_name = cmd_dict["column_name"]
-    column = self.columnFromName(column_name)
+    column = self.childFromName(column_name, is_relative=False)
     table = column.getParent()
     row_index = cmd_dict['row_index']
     versioned = self.getVersionedFile()

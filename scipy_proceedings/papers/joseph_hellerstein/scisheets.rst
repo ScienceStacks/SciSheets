@@ -102,16 +102,15 @@ The remainder of this paper is organized as follows.
       b) Iteration - requires copy (and re-copy when add/delete rows)
       c) Code reuse - None
 
-2. Co-evolution data hierarchy
+2. Hierarchical data
 
-   a. Background - describe the data
-   b. Use cases
-
-      a) Organizing tables in different hierarchies (multiple tabs, copies?)
-      b) Viewing data together - have to navigate many tabs or make copies
 
 3. Design
 ---------
+
+.. figure:: SciSheetFormula.png
+
+   Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig1`
 
 1. Externals
 

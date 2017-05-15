@@ -641,7 +641,7 @@ class Table(ColumnContainer):
       else:
         return None
 
-    column = self.columnFromName(cur_colnm, is_relative=True)
+    column = self.childFromName(cur_colnm, is_relative=True)
     if column is None:
       raise ValueError("Column %s does not exist." % cur_colnm)
     column.setName(new_colnm)
@@ -698,8 +698,8 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     :param row_index: index of the row to change
     :param proposed_name: string of a number
     """
-    name_column = self.columnFromName(NAME_COLUMN_STR,
-        is_relative=False)
+    name_column = self.childFromName(NAME_COLUMN_STR,
+        is_relative=True)
     names = name_column.getCells()
     try:
       names[row_index] = str(proposed_name)
@@ -766,14 +766,14 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
       row = self.getRow(row_index=index)
       # Delete all of the name columns
       for colnm in row.keys():
-        column = self.columnFromName(colnm, is_relative=False)
+        column = self.childFromName(colnm, is_relative=False)
         if column is None:
           import pdb; pdb.set_trace()
         if Table.isNameColumn(column):
           del row[column.getName()]
       delete_row = True
       for name in row.keys():
-        column = self.columnFromName(name, is_relative=False)
+        column = self.childFromName(name, is_relative=False)
         if not isNull(row[name]):
           delete_row = False
       if delete_row:
@@ -814,7 +814,7 @@ Changed formulas in columns %s.''' % (cur_colnm, new_colnm,
     """
     row[NAME_COLUMN_STR] = Table._rowNameFromIndex(index)
     for name in row:
-      column = self.columnFromName(name, is_relative=False)
+      column = self.childFromName(name, is_relative=False)
       if not Table.isNameColumn(column):
         column.updateCell(row[name], index)
     self.adjustColumnLength()
