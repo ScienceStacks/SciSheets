@@ -59,6 +59,7 @@ class CommandDict(dict):
     Column  Refactor Rename the column and change formulas to use
                      the new name
     Column  Rename   Rename the column
+    Column  Sort     Sort the column
     Column  Tablize  Create a subtable that contains this column
     Column  Unhide   Unhide the column
     Row     Append   Add a new row after the current row
