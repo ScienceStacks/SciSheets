@@ -8,8 +8,6 @@ def michaelis(S, V):
   s.initialize()
   _table = s.getTable()
   
-  
-  
   s.controller.startBlock('Prologue')
   # Prologue
   import math as mt
@@ -19,7 +17,6 @@ def michaelis(S, V):
   import pandas as pd
   import scipy as sp
   from numpy import nan  # Must follow sympy import
-  
   s.controller.endBlock()
   
   # Formula evaluation loop

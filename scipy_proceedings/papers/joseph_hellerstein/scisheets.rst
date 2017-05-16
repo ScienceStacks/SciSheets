@@ -89,11 +89,22 @@ The remainder of this paper is organized as follows.
 2. Use Cases
 ------------
 
+1. User profiles
+
+   a. Calculators - no knowledge of data types or control flow. Mental model is a calculator.
+
+   b. Scripter - Writes scripts, saving them in a file. Can do if-then, for-loop, and list data types.
+
+   c. Programmer - Knows about functions and modules.
+
+Our hope is to elevate the capabilities of the first two groups, introducing calculators to the power of scripting and
+scripting to the power of programming.
+
 .. figure:: ExistingSpreadSheet.png
 
    Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig-excel1`
 
-1. Michaelis-Menten
+2. Michaelis-Menten
 
    a. Background. Common processing of biochemical assays to compute key characteristics of enzymes
    b. Use cases
@@ -105,7 +116,7 @@ The remainder of this paper is organized as follows.
 
    Student grade data from two departments in the school of engineering. :label:`fig-excel2`
 
-2. Managing multiple tables
+3. Managing multiple tables
 
    a. Background. Multiple departments in the school of engineering, 
       keeping records in slightly different ways.
@@ -158,6 +169,11 @@ The remainder of this paper is organized as follows.
 4. Design
 ---------
 
+
+.. figure:: SciSheetsCoreClasses.png
+
+   SciSheets core classes. :label:`fig-coreclasses`
+
 1. Client-Server architecture
 
    a. Client (JS) - Simple UI handling 
@@ -165,8 +181,120 @@ The remainder of this paper is organized as follows.
    b. Server (python) - table storage, formula evaluation
 
 2. Dependencies - Django, JS packages
+
 3. Class hierarchy
-4. Table evaluation - code generation
+
+4. SciSheet export
+
+Function definition
+
+.. code-block:: python
+
+   def michaelis(S, V):
+     from scisheets.core import api as api
+     s = api.APIPlugin('michaelis.scish')
+     s.initialize()
+     _table = s.getTable()
+
+Prologue
+
+.. code-block:: python
+
+   s.controller.startBlock('Prologue')
+   # Prologue
+   import math as mt
+   import numpy as np
+   from os import listdir
+   from os.path import isfile, join
+   import pandas as pd
+   import scipy as sp
+   from numpy import nan  # Must follow sympy import
+   s.controller.endBlock()
+
+Loop initialization
+
+.. code-block:: python
+  
+   # Formula evaluation loop
+   s.controller.initializeLoop()
+   while not s.controller.isTerminateLoop():
+     s.controller.startAnIteration()
+
+Formula evaluation
+
+.. code-block:: python
+
+   #
+     try:
+       # Column INV_S
+       s.controller.startBlock('INV_S')
+       INV_S = 1/S
+       s.controller.endBlock()
+       INV_S = s.coerceValues('INV_S', INV_S)
+     except Exception as exc:
+       s.controller.exceptionForBlock(exc)
+      
+     try:
+       # Column INV_V
+       s.controller.startBlock('INV_V')
+       INV_V = np.round(1/V,2)
+       s.controller.endBlock()
+       INV_V = s.coerceValues('INV_V', INV_V)
+     except Exception as exc:
+       s.controller.exceptionForBlock(exc)
+
+Close of function
+
+.. code-block:: python
+    
+   #
+     s.controller.endAnIteration()
+   
+   if s.controller.getException() is not None:
+     raise Exception(s.controller.formatError(
+         is_absolute_linenumber=True))
+   
+   s.controller.startBlock('Epilogue')
+   # Epilogue
+   s.controller.endBlock()
+   
+   return V_MAX,K_M
+
+Tests
+
+.. code-block:: python
+
+   from scisheets.core import api as api
+   from michaelis import michaelis
+   import unittest
+   
+   #############################
+   # Tests
+   #############################
+   # pylint: disable=W0212,C0111,R0904
+   class Testmichaelis(unittest.TestCase):
+   
+     def setUp(self):
+       from scisheets.core import api as api
+       self.s = api.APIPlugin('michaelis.scish')
+       self.s.initialize()
+       _table = self.s.getTable()
+       
+     def testBasics(self):
+       # Assign column values to program variables.
+       S = self.s.getColumnValue('S')
+       V = self.s.getColumnValue('V')
+       V_MAX,K_M = michaelis(S,V)
+       self.assertTrue(
+           self.s.compareToColumnValues('V_MAX', V_MAX))
+       self.assertTrue(
+           self.s.compareToColumnValues('K_M', K_M))
+   
+   if __name__ == '__main__':
+     unittest.main()
+
+  
+
 5. Logging and performance
 
 5. Future Work
