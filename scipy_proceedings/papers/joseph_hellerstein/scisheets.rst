@@ -91,9 +91,11 @@ The remainder of this paper is organized as follows.
 
 1. User profiles
 
-   a. Calculators - no knowledge of data types or control flow. Mental model is a calculator.
+   a. Calcers - no knowledge of data types or control flow. 
+      Doesn't think about data dependencies. 
+      Mental model is a calculator.
 
-   b. Scripter - Writes scripts, saving them in a file. Can do if-then, for-loop, and list data types.
+   b. Scripter - Writes scripts, saving them in a file. Can do if-then, for-loop, and list data types and pandas DataFrames.
 
    c. Programmer - Knows about functions and modules.
 
@@ -129,9 +131,18 @@ scripting to the power of programming.
 3. Addressing the Use Cases
 ---------------------------
 
-.. figure:: SciSheetFormula.png
+.. figure:: ColumnPopup.png
 
-   Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig-formulas`
+   Column popup menu in a scisheet for the Michaelis-Menten calculation. :label:`fig-columnpopup`
+
+.. figure:: SimpleFormula.png
+   :scale: 50 %
+
+   Formula for computing the inverse of the input value S. :label:`fig-simpleformula`
+
+.. figure:: ComplexFormula.png
+
+   Formula for computing the slope and intercept of a regression line for the Michaelis-Menten calculation. Note that One column assigns values to another column and that a script is used. label:`fig-simpleformula`
 
 1. UI structure
 
@@ -146,9 +157,14 @@ scripting to the power of programming.
 
 2. Code re-use through export
 
-.. figure:: ProcessCSVFiles.png
+.. figure:: ProcessFiles.png
+   :scale: 50 %
 
-   A column formula with a script that uses a previously exported table. :label:`fig-script`
+   A scisheet that processes many CSV files. :label:`fig-processfiles`
+
+.. figure:: ProcessFilesScript.png
+
+   Column formula that is a script to process CSV files. :label:`fig-processfiles`
 
 3. Formulas can be scripts
 
@@ -171,6 +187,7 @@ scripting to the power of programming.
 
 
 .. figure:: SciSheetsCoreClasses.png
+   :scale: 30 %
 
    SciSheets core classes. :label:`fig-coreclasses`
 
@@ -180,11 +197,23 @@ scripting to the power of programming.
       (popups, render table, convey user inputs via AJAX)
    b. Server (python) - table storage, formula evaluation
 
-2. Dependencies - Django, JS packages
+2. Software Dependencies - Django, JS packages
 
 3. Class hierarchy
 
 4. SciSheet export
+
+5. Implications of requirements
+
+   a. Requirements
+
+      a.) User doesn't think about data dependencies between columns.
+      b.) User can write arbitrary python scripts.
+
+   b. Implications
+
+      a.) Cannot do static dependency determination. Solution - execute until convergence.
+      b.) Syntax and runtime errors must be isolated within the line in the column, not just to the column.
 
 Function definition
 
@@ -300,7 +329,7 @@ Tests
 5. Future Work
 --------------
 
-- Realizing the full power of hierarchies
+- Realizing the full power of hierarchies - reuse with "copy" action but with different technical semantics.
 
 - Graphics
 

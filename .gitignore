@@ -3,6 +3,7 @@ json/
 mysite/db.sqlite3
 mysite/test_db.sqlite3
 openpyxl
+scipy_proceedings/output
 *.csv
 .*.swp
 .*.swo
