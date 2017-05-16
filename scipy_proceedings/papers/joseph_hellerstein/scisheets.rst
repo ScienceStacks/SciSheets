@@ -91,7 +91,7 @@ The remainder of this paper is organized as follows.
 
 .. figure:: ExistingSpreadSheet.png
 
-   Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig1`
+   Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig-excel1`
 
 1. Michaelis-Menten
 
@@ -99,70 +99,87 @@ The remainder of this paper is organized as follows.
    b. Use cases
 
       a) Writing formulas - script vs. expression
-      b) Iteration - requires copy (and re-copy when add/delete rows)
-      c) Code reuse - None
+      b) Code reuse - None
 
-2. Hierarchical data
+.. figure:: ExcelMultiTable.png
+
+   Student grade data from two departments in the school of engineering. :label:`fig-excel2`
+
+2. Managing multiple tables
+
+   a. Background. Multiple departments in the school of engineering, 
+      keeping records in slightly different ways.
+   b. Use cases
+ 
+      a) View data side-by-side, but still manage as separate tables
+         in terms of insert/delete
 
 
-3. Design
----------
+3. Addressing the Use Cases
+---------------------------
 
 .. figure:: SciSheetFormula.png
 
-   Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig1`
+   Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig-formulas`
 
-1. Externals
+1. UI structure
 
    a. Elements - sheet, tables, columns, rows, cells (Fig)
    b. Popup menus
    c. Execution model: prologue, formula evaluations, epilogue. (Dependency checking is not possible
       because users can employ "eval" statement.)
 
-2. Internals
+.. figure:: TableExport.png
 
-   a. Client-Server architecture
+   Menu to export a table as a standalone python program. :label:`fig-export`
 
-      i. Client (JS) - Simple UI handling (popups, render table, convey user inputs via AJAX)
-      ii. Server (python) - table storage, formula evaluation
+2. Code re-use through export
 
-   b. Dependencies: Django, JS packages
-   c. Class hierarchy
-   d. Table evaluation - code generation
+.. figure:: ProcessCSVFiles.png
 
-4. User Experiences
--------------------
+   A column formula with a script that uses a previously exported table. :label:`fig-script`
 
-1. Michaelis-Menten
+3. Formulas can be scripts
 
-   a. Symbolic formulas
-   b. Iteration is implicit for row
-   c. Export sheet
+.. figure:: Multitable.png
 
-      i. Exported code
-      ii. Tests
+   A table with two subtables. :label:`fig-subtables`
 
-   d. Code reuse
+.. figure:: PopupForHierarchicalRowInsert.png
 
-2. Co-evolution data hierarchy
+   Menu to insert a row in one subtable. :label:`fig-subtable-insert`
 
-   a. Need tables spread across multiples
-   b. Different hierarchies requires table copies
+.. figure:: AfterHierarchicalRowInsert.png
 
-3. Screenshots
+   Result of inserting a row in one subtable. :label:`fig-subtable-after`
 
-Future Work
------------
+4. Managing multiple tables
 
-- Local scopes in hierarchial tables and the implications for copy
+4. Design
+---------
+
+1. Client-Server architecture
+
+   a. Client (JS) - Simple UI handling 
+      (popups, render table, convey user inputs via AJAX)
+   b. Server (python) - table storage, formula evaluation
+
+2. Dependencies - Django, JS packages
+3. Class hierarchy
+4. Table evaluation - code generation
+5. Logging and performance
+
+5. Future Work
+--------------
+
+- Realizing the full power of hierarchies
 
 - Graphics
 
-- Replay log
-
-- Multiple languages (R)
-
 - Version control
+
+6. Conclusions
+--------------
 
 
 References

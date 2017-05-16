@@ -1,0 +1,109 @@
+{
+  "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+  "_attached": true,
+  "_children": [
+    {
+      "SciSheets_Class": "<class 'scisheets.ui.ui_table.UITable'>",
+      "_attached": true,
+      "_children": [
+        {
+          "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+          "_attached": false,
+          "_children": [
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [
+                "C1113",
+                "C1163",
+                null,
+                "C1344",
+                "C1711",
+                "C1579"
+              ],
+              "_formula": "import random\nr = random.Random()\nr.seed(\"CSE\")\nbio_range = range(5)\n#ScholarID = [\"C\" + str(r.randint(1000, 2000)) for _ in bio_range]\n#GradePtAvg = [0.1*r.randint(28, 40) for _ in bio_range]",
+              "_name": "ScholarID"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [
+                3.9000000000000004,
+                3.5,
+                NaN,
+                3.3000000000000003,
+                3.9000000000000004,
+                2.8000000000000003
+              ],
+              "_formula": null,
+              "_name": "GradePtAvg"
+            }
+          ],
+          "_epilogue_formula": "# Epilogue\n",
+          "_filepath": null,
+          "_hidden_children": [],
+          "_is_evaluate_formulas": true,
+          "_name": "CSE",
+          "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+        },
+        {
+          "SciSheets_Class": "<class 'scisheets.ui.dt_table.DTTable'>",
+          "_attached": false,
+          "_children": [
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [
+                "B1414",
+                "B1830",
+                "B1716"
+              ],
+              "_formula": "import random\nr = random.Random()\nr.seed(\"Biology\")\nbio_range = range(3)\n#StudentNo = [\"B\" + str(r.randint(1000, 2000)) for _ in bio_range]\norigin_codes = ['A', 'B', 'C']\n#Origin = [origin_codes[r.randint(0, 2)] for _ in bio_range]\n#GPA = [0.1*r.randint(20, 40) for _ in bio_range]\n",
+              "_name": "StudentNo"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [
+                "A",
+                "B",
+                "C"
+              ],
+              "_formula": null,
+              "_name": "Track"
+            },
+            {
+              "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
+              "_asis": false,
+              "_cells": [
+                3.4000000000000004,
+                2.3000000000000003,
+                3.7
+              ],
+              "_formula": null,
+              "_name": "GPA"
+            }
+          ],
+          "_epilogue_formula": "# Epilogue\n",
+          "_filepath": null,
+          "_hidden_children": [],
+          "_is_evaluate_formulas": true,
+          "_name": "Biology",
+          "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+        }
+      ],
+      "_epilogue_formula": "# Epilogue\n",
+      "_filepath": null,
+      "_hidden_children": [],
+      "_is_evaluate_formulas": true,
+      "_name": "Engineering",
+      "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+    }
+  ],
+  "_epilogue_formula": "# Epilogue\n",
+  "_filepath": "/home/ubuntu/SciSheets/mysite/user/guest/tables/scipy_hierarchy.scish",
+  "_hidden_children": [],
+  "_is_evaluate_formulas": true,
+  "_name": "SchoolAdmin",
+  "_prologue_formula": "# Prologue\nimport math as mt\nimport numpy as np\nfrom os import listdir\nfrom os.path import isfile, join\nimport pandas as pd\nimport scipy as sp\nfrom numpy import nan  # Must follow sympy import \n"
+}
