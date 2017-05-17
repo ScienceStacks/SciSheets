@@ -112,42 +112,31 @@ The remainder of this paper is organized as follows.
 2. Use Cases
 ------------
 
-1. User profiles
-
-   a. Calcers - no knowledge of data types or control flow. 
-      Doesn't think about data dependencies. 
-      Mental model is a calculator.
-
-   b. Scripter - Writes scripts, saving them in a file. Can do if-then, for-loop, and list data types and pandas DataFrames.
-
-   c. Programmer - Knows about functions and modules.
-
-Our hope is to elevate the capabilities of the first two groups, introducing calculators to the power of scripting and
-scripting to the power of programming.
+We present our driving use cases by giving examples of spreadsheet uses.
 
 .. figure:: ExistingSpreadSheet.png
 
    Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig-excel1`
 
-2. Michaelis-Menten
+1. Michaelis-Menten calculation of enzyme activity.
 
    a. Background. Common processing of biochemical assays to compute key characteristics of enzymes
    b. Use cases
 
-      a) Writing formulas - script vs. expression
-      b) Code reuse - None
+      a.) UC1: Writing formulas - limited expressive power of expressions and the vendor supplied spreadsheet functions
+      b.) UC2: Code reuse - impossible in existing spreadsheets
 
 .. figure:: ExcelMultiTable.png
 
    Student grade data from two departments in the school of engineering. :label:`fig-excel2`
 
-3. Managing multiple tables
+2. Managing multiple tables
 
    a. Background. Multiple departments in the school of engineering, 
       keeping records in slightly different ways.
    b. Use cases
  
-      a) View data side-by-side, but still manage as separate tables
+      a) UC3: View data side-by-side, but still manage as separate tables
          in terms of insert/delete
 
 
@@ -167,7 +156,7 @@ scripting to the power of programming.
 
    Formula for computing the slope and intercept of a regression line for the Michaelis-Menten calculation. Note that One column assigns values to another column and that a script is used. label:`fig-simpleformula`
 
-1. UI structure
+1. SciSheets UI structure
 
    a. Elements - sheet, tables, columns, rows, cells (Fig)
    b. Popup menus
@@ -178,18 +167,7 @@ scripting to the power of programming.
 
    Menu to export a table as a standalone python program. :label:`fig-export`
 
-2. Code re-use through export
-
-.. figure:: ProcessFiles.png
-   :scale: 50 %
-
-   A scisheet that processes many CSV files. :label:`fig-processfiles`
-
-.. figure:: ProcessFilesScript.png
-
-   Column formula that is a script to process CSV files. :label:`fig-processfiles`
-
-3. Formulas can be scripts
+2. UC1: Formulas can be scripts
 
 .. figure:: Multitable.png
 
@@ -203,40 +181,53 @@ scripting to the power of programming.
 
    Result of inserting a row in one subtable. :label:`fig-subtable-after`
 
-4. Managing multiple tables
+3. UC2: Code re-use through export
+
+.. figure:: ProcessFiles.png
+   :scale: 50 %
+
+   A scisheet that processes many CSV files. :label:`fig-processfiles`
+
+.. figure:: ProcessFilesScript.png
+
+   Column formula that is a script to process CSV files. :label:`fig-processfiles`
+
+4. UC3: Managing multiple tables
 
 4. Design
 ---------
 
+To enable a zero-install deployment and leverage the rapid pace
+of UI innovation happening with web technologies, SciSheets is a client-server
+application in which the front end uses HTML and Javascript;
+tables are rendered using YUI DataTables ref??.
+The backend handles the bulk of the computing tasks (e.g., formula evaluation).
+We connect the frontend and backend using Django ref??.
 
 .. figure:: SciSheetsCoreClasses.png
    :scale: 30 %
 
    SciSheets core classes. :label:`fig-coreclasses`
 
-1. Client-Server architecture
+Fig ?? displays the relationships between core classes in the SciSheets backend.
 
-   a. Client (JS) - Simple UI handling 
-      (popups, render table, convey user inputs via AJAX)
-   b. Server (python) - table storage, formula evaluation
+UC1-UC3 pose several challenges.
+Prominent among these are that:
+(a) the user need not be aware of data dependencies between columns and
+(b) column formulas may be arbitrary Python scripts.
+In particular,
 
-2. Software Dependencies - Django, JS packages
+1. Automated detection of data dependencies is not possible since there made be code with
+"eval" statements or calls to external python functions.
 
-3. Class hierarchy
+2. Error localization must be more sophisticated than identify the column in which
+a syntax error occurred since the column formula may be a lengthy script.
 
-4. SciSheet export
+We begin with (1), our inability to use automated dependency detection.
+Our solution here is ...
 
-5. Implications of requirements
-
-   a. Requirements
-
-      a.) User doesn't think about data dependencies between columns.
-      b.) User can write arbitrary python scripts.
-
-   b. Implications
-
-      a.) Cannot do static dependency determination. Solution - execute until convergence.
-      b.) Syntax and runtime errors must be isolated within the line in the column, not just to the column.
+Concern (2), localizing errors, seques into a broader discussion of how spreadsheets are executed.
+This must be done in a way so that the column formulas run in a standalone program.
 
 
 .. code-block:: python
