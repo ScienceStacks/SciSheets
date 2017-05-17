@@ -138,8 +138,8 @@ We present our driving use cases by giving examples of spreadsheet uses.
    a. Background. Common processing of biochemical assays to compute key characteristics of enzymes
    b. Use cases
 
-      a.) UC1: Writing formulas - limited expressive power of expressions and the vendor supplied spreadsheet functions
-      b.) UC2: Code reuse - impossible in existing spreadsheets
+      a.) *Expressivity*: limited ability specify calculations as expressions
+      b.) *Reuse*: Cannot reuse (robustly) formulas in other spreadsheets or in software systems
 
 .. figure:: ExcelMultiTable.png
 
@@ -151,8 +151,9 @@ We present our driving use cases by giving examples of spreadsheet uses.
       keeping records in slightly different ways.
    b. Use cases
  
-      a) UC3: View data side-by-side, but still manage as separate tables
-         in terms of insert/delete
+      a) *Complex data*: Cannot easily manipulate complex data, such as nested tables. 
+         Examples include of manipulations: View data side-by-side, but still manage as separate tables
+         in terms of insert/delete.
 
 
 3. How SciSheets Addresses the Use Cases
@@ -182,7 +183,7 @@ We present our driving use cases by giving examples of spreadsheet uses.
 
    Menu to export a table as a standalone python program. :label:`fig-export`
 
-2. UC1: Formulas can be scripts
+2. Expressivity: Formulas can be scripts
 
 .. figure:: Multitable.png
 
@@ -196,7 +197,7 @@ We present our driving use cases by giving examples of spreadsheet uses.
 
    Result of inserting a row in one subtable. :label:`fig-subtable-after`
 
-3. UC2: Code re-use through export
+3. Reuse: Code re-use through export
 
 .. figure:: ProcessFiles.png
    :scale: 50 %
@@ -207,7 +208,7 @@ We present our driving use cases by giving examples of spreadsheet uses.
 
    Column formula that is a script to process CSV files. :label:`fig-processfiles`
 
-4. UC3: Managing multiple tables
+4. Complex data: managing multiple tables
 
 4. SciSheets Design
 -------------------
@@ -224,7 +225,8 @@ We connect the frontend and backend using Django ref??.
 
    SciSheets core classes. :label:`fig-coreclasses`
 
-Fig ?? displays the relationships between core classes in the SciSheets backend.
+Fig :ref:`fig-coreclasses` displays the relationships between core 
+classes used in the SciSheets backend.
 
 UC1-UC3 pose several challenges.
 Prominent among these are that:
