@@ -30,7 +30,22 @@ Recent estimates suggest that over 800M professionals author spreadsheet formula
 which is about 50 times the number
 of software developers world wide [Thib2013].
 
-Despite their appeal, spreadsheets have severe shortcomings.
+Our experience is that there are three types of spreadsheet users.
+
+ - **Calcers** want to evaluate one or more equations.
+   Spreadsheet formulas work well for Calcers since: (a) they do not have to structure
+   calculations based on data dependencies; (b) they can use "copy" and "paste" for iteration; and (c) the only
+   data structures are rectangular blocks (more commonly a single cell), which is easily visualized.
+ - **Scripters** feel comfortable with expressing calculations algorithmically using for-loops and if-then
+   statements, and they can use simple data structures such as lists and dataframes (which are like spreadsheets).
+   However, they rarely encapsulate code into functions, preferring to copy code to get reuse.
+ - **Programmers** know about advanced data structures, modularization, and testing. 
+
+We find that the bulk of spreadsheet users who employ formulas are Calcers and then Scripters. 
+Programmers are more likely to use a mix of formulas and macros (e.g., Visual Basic for Microsoft Excel or
+AppScript in Google Sheets).
+
+Despite their appeal, the use of spreadsheet formulas has severe shortcomings.
 
 - poor scalability because executing formulas within the spreadsheet system has high overhead;
 - great difficulty with reuse because there is no concept of encapsulation (and even different length data are problematic);
@@ -39,11 +54,15 @@ Despite their appeal, spreadsheets have severe shortcomings.
 - poor readability because formulas must be expressions (not scripts) and any cell may have a formula; and
 - limited ability to express calculations because formulas are limited to using a few hundred or so functions provided by the spreadsheet system (or specially coded macros).
 
-Even with the
-seriousness of these shortcomings, spreadsheets
-have been
-largely ignored in the computer science academic literature.
-However, many innovative spreadsheet systems have been introduced.
+Academic computer science has recognized the growing importance
+of end-user programming (EUP) [BURN2009], and
+spreadsheets are likely the most pervasiveness example of EUP.
+However,
+even with the
+seriousness of shortcomings of spreadsheets, 
+there is a virtual absence of academic literature about addressing
+these shortcomings.
+On the other hand, there has been significant commercial interest.
 Google Fusion Tables [Gonz2010] uses column formulas to avoid a common source of errors,
 the need to copy formulas as rows are added/deleted from a table.
 The Pyspread [PySpread] project uses Python as the formula language, which increases the expressiveness of formulas.
@@ -215,10 +234,10 @@ scripting to the power of programming.
       a.) Cannot do static dependency determination. Solution - execute until convergence.
       b.) Syntax and runtime errors must be isolated within the line in the column, not just to the column.
 
-Function definition
 
 .. code-block:: python
 
+   # Function definition
    def michaelis(S, V):
      from scisheets.core import api as api
      s = api.APIPlugin('michaelis.scish')
@@ -228,7 +247,8 @@ Function definition
 Prologue
 
 .. code-block:: python
-
+   
+   # Prologue code
    s.controller.startBlock('Prologue')
    # Prologue
    import math as mt
@@ -240,8 +260,6 @@ Prologue
    from numpy import nan  # Must follow sympy import
    s.controller.endBlock()
 
-Loop initialization
-
 .. code-block:: python
   
    # Formula evaluation loop
@@ -249,11 +267,9 @@ Loop initialization
    while not s.controller.isTerminateLoop():
      s.controller.startAnIteration()
 
-Formula evaluation
-
 .. code-block:: python
 
-   #
+   # Formula evaluation blocks
      try:
        # Column INV_S
        s.controller.startBlock('INV_S')
@@ -272,11 +288,10 @@ Formula evaluation
      except Exception as exc:
        s.controller.exceptionForBlock(exc)
 
-Close of function
 
 .. code-block:: python
     
-   #
+   # Close of function
      s.controller.endAnIteration()
    
    if s.controller.getException() is not None:
@@ -341,27 +356,29 @@ Tests
 .. table:: Summary of the problems in current spreadsheets and how SciSheets features address
            these problems. Items in italics are not yet implemented. :label:`fig-benefits`
 
-   +----------------+--------------------------+
-   | Problems       |      Solutions           |
-   +================+==========================+
-   | expressiveness | - formulas can be scripts|
-   |                | - python formulas        |
-   +----------------+--------------------------+
-   | reuse          | - export as a program    |
-   |                | - copy with local scope  |
-   +----------------+--------------------------+
-   | scalability    | - export as a program    |
-   +----------------+--------------------------+
-   | version        | - embedded version       |
-   | control        |   control                |
-   +----------------+--------------------------+
-   | debuggable     | - localized exception    |
-   |                |   handling               |
-   +----------------+--------------------------+
+   +---------------------+--------------------------+
+   | Problems            |      Solutions           |
+   +=====================+==========================+
+   | - expressiveness    | - python formulas        |
+   |                     | - formulas can be scripts|
+   +---------------------+--------------------------+
+   | - reuse             | - export as a program    |
+   |                     | - *copy with local scope*|
+   +---------------------+--------------------------+
+   | - scalability       | - export as a program    |
+   +---------------------+--------------------------+
+   | - reproducible      | - *embedded version      |
+   |                     |   control*               |
+   +---------------------+--------------------------+
+   | - debuggable        | - localized exception    |
+   |                     |   handling               |
+   +---------------------+--------------------------+
 
 
 References
 ----------
+.. [BURN2009] Burnett, M. *What is end-user software engineering and why does
+              it matter?*, Lecture Notes in Computer Science, 2009
 .. [MODE2017] *MODELOFF - Financial Modeling World Championships*,
               http://www.modeloff.com/the-legend/.
 .. [Thib2013] Thibodeau, Patrick. 
