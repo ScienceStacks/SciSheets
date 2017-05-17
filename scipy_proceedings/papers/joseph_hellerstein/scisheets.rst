@@ -343,20 +343,20 @@ Tests
 
    +----------------+--------------------------+
    | Problems       |      Solutions           |
-   +================+=+========================+
-   | expressiveness | -formulas can be scripts |
-   |                | -use python packages     |
+   +================+==========================+
+   | expressiveness | - formulas can be scripts|
+   |                | - python formulas        |
    +----------------+--------------------------+
-   | reuse          | -export as a program     |
-   |                | -copy with local scope   |
+   | reuse          | - export as a program    |
+   |                | - copy with local scope  |
    +----------------+--------------------------+
-   | scalability    | -export as a program     |
+   | scalability    | - export as a program    |
    +----------------+--------------------------+
-   | version        | -embedded version        |
-   | control        |  control                 |
+   | version        | - embedded version       |
+   | control        |   control                |
    +----------------+--------------------------+
-   | debuggable     | -localized exception     |
-   |                |  handling                |
+   | debuggable     | - localized exception    |
+   |                |   handling               |
    +----------------+--------------------------+
 
 
