@@ -32,10 +32,12 @@ of software developers world wide [Thib2013].
 
 Our experience is that there are three types of spreadsheet users.
 
- - **Calcers** want to evaluate one or more equations.
-   Spreadsheet formulas work well for Calcers since: (a) they do not have to structure
-   calculations based on data dependencies; (b) they can use "copy" and "paste" for iteration; and (c) the only
-   data structures are rectangular blocks (more commonly a single cell), which is easily visualized.
+ - **Calcers** want to evaluate equations.
+   Spreadsheet formulas work well for Calcers since: (a) they can
+   ignore data dependencies;
+   (b) they can avoid flow control by using
+   "copy" and "paste" for iteration; 
+   and (c) data structures are "visual" (e.g., rectangular blocks).
  - **Scripters** feel comfortable with expressing calculations algorithmically using for-loops and if-then
    statements, and they can use simple data structures such as lists and dataframes (which are like spreadsheets).
    However, they rarely encapsulate code into functions, preferring to copy code to get reuse.
@@ -49,36 +51,44 @@ Despite their appeal, the use of spreadsheet formulas has severe shortcomings.
 
 - poor scalability because executing formulas within the spreadsheet system has high overhead;
 - great difficulty with reuse because there is no concept of encapsulation (and even different length data are problematic);
-- great difficulty with transitioning from a spreadsheet to a program to facilitate integration into software systems and improve scalability;
-- limited ability to handle complex data because there is no concept of structured data;
-- poor readability because formulas must be expressions (not scripts) and any cell may have a formula; and
-- limited ability to express calculations because formulas are limited to using a few hundred or so functions provided by the spreadsheet system (or specially coded macros).
+- great difficulty with transitioning from a spreadsheet to a 
+  program to facilitate integration into software systems;
+- limited ability to handle complex data because 
+  there is no concept of structured data;
+- poor readability because formulas must be expressions 
+  (not scripts) and any cell may have a formula; and
+- limited ability to express calculations because formulas 
+  are restricted to using a few hundred or so functions 
+  provided by the spreadsheet system (or specially coded macros).
 
 Academic computer science has recognized the growing importance
-of end-user programming (EUP) [BURN2009], and
-spreadsheets are likely the most pervasiveness example of EUP.
-However,
-even with the
-seriousness of shortcomings of spreadsheets, 
+of end-user programming (EUP) [BURN2009].
+Even though
+spreadsheets are likely the most pervasiveness example of EUP,
 there is a virtual absence of academic literature about addressing
-these shortcomings.
-On the other hand, there has been significant commercial interest.
+the shortcomings of spreadsheets.
+Outside of academia there has been significant 
+interest in innovating spreadsheets.
 Google Fusion Tables [Gonz2010] uses column formulas to avoid a common source of errors,
 the need to copy formulas as rows are added/deleted from a table.
-The Pyspread [PySpread] project uses Python as the formula language, which increases the expressiveness of formulas.
+The Pyspread [PySpread] project uses Python as the formula language, which increases the expressivity of formulas.
 A more radical approach is taken by
 the Stencila system [Stencila], which
 provides a document structure that includes cells that execute formulas, including the display of of data tables;
 cells may execute statements from many languages including Python and R.
 
-Sadly, even with the aforementioned innovations in spreadsheets,
-serious deficiencies remain.
+Even with these innovations,
+serious deficiencies remain in spreadsheets:
 
-1. The expressiveness of formulas is limited because formulas are restricted to being expressions, not scripts (although Stencila does provide a limited form of scripting).
-2. None of the innovations ease the burden of
-   dealing with complex data relationships, such as n-to-m relationships.
-3. None of the innovations address code sharing and reuse between
-   spreadsheet users or between spreadsheet users and software engineers.
+1. The expressivity of formulas is limited because formulas are 
+   restricted to being expressions, not scripts (although 
+   Stencila does provide a limited form of scripting).
+2. It is almost impossible to reuse spreadsheet
+   formulas, especially to allow software systems
+   to reuse calculations done in spreadsheets.
+3. It remains burdensome to deal
+   with complex data relationships in spreadsheets, such as
+   hierarchically structured data.
 4. Very little has been done to address the performance problems that occur as spreadsheets scale.
 
 This paper introduces SciSheets [SciSheets], a new spreadsheet system with the goal of delivering
@@ -107,7 +117,12 @@ Further, SciSheets seeks to improve the programming skills of its users.
 It is hoped that Calcers will start using scripts, and that Scripters will gain
 better insight into modularization and testing.
 
-The remainder of this paper is organized as follows.
+The remainder of the paper is organized as follows.
+Section 2 presents the use cases that we consider, and
+section 3 describes how SciSheets addresses these use cases.
+The design of SciSheets is discussed in Section 4.
+Section 5 discusses features planned for SciSheets.
+Our conclusions are presented in Section 6.
 
 2. Use Cases
 ------------
@@ -140,8 +155,8 @@ We present our driving use cases by giving examples of spreadsheet uses.
          in terms of insert/delete
 
 
-3. Addressing the Use Cases
----------------------------
+3. How SciSheets Addresses the Use Cases
+----------------------------------------
 
 .. figure:: ColumnPopup.png
 
@@ -194,8 +209,8 @@ We present our driving use cases by giving examples of spreadsheet uses.
 
 4. UC3: Managing multiple tables
 
-4. Design
----------
+4. SciSheets Design
+-------------------
 
 To enable a zero-install deployment and leverage the rapid pace
 of UI innovation happening with web technologies, SciSheets is a client-server
@@ -242,62 +257,66 @@ This must be done in a way so that the column formulas run in a standalone progr
 Prologue
 
 .. code-block:: python
-   
-   # Prologue code
-   s.controller.startBlock('Prologue')
-   # Prologue
-   import math as mt
-   import numpy as np
-   from os import listdir
-   from os.path import isfile, join
-   import pandas as pd
-   import scipy as sp
-   from numpy import nan  # Must follow sympy import
-   s.controller.endBlock()
+
+   #
+     s.controller.startBlock('Prologue')
+     # Begin Prologue
+     import math as mt
+     import numpy as np
+     from os import listdir
+     from os.path import isfile, join
+     import pandas as pd
+     import scipy as sp
+     from numpy import nan  # Must follow sympy import
+     # End Prologue
+     s.controller.endBlock()
 
 .. code-block:: python
   
-   # Formula evaluation loop
-   s.controller.initializeLoop()
-   while not s.controller.isTerminateLoop():
-     s.controller.startAnIteration()
+   # 
+     # Loop initialization
+     s.controller.initializeLoop()
+     while not s.controller.isTerminateLoop():
+       s.controller.startAnIteration()
 
 .. code-block:: python
-
-   # Formula evaluation blocks
-     try:
-       # Column INV_S
-       s.controller.startBlock('INV_S')
-       INV_S = 1/S
-       s.controller.endBlock()
-       INV_S = s.coerceValues('INV_S', INV_S)
-     except Exception as exc:
-       s.controller.exceptionForBlock(exc)
-      
-     try:
-       # Column INV_V
-       s.controller.startBlock('INV_V')
-       INV_V = np.round(1/V,2)
-       s.controller.endBlock()
-       INV_V = s.coerceValues('INV_V', INV_V)
-     except Exception as exc:
-       s.controller.exceptionForBlock(exc)
+  
+   #
+       # Formula evaluation blocks
+       try:
+         # Column INV_S
+         s.controller.startBlock('INV_S')
+         INV_S = 1/S
+         s.controller.endBlock()
+         INV_S = s.coerceValues('INV_S', INV_S)
+       except Exception as exc:
+         s.controller.exceptionForBlock(exc)
+        
+       try:
+         # Column INV_V
+         s.controller.startBlock('INV_V')
+         INV_V = np.round(1/V,2)
+         s.controller.endBlock()
+         INV_V = s.coerceValues('INV_V', INV_V)
+       except Exception as exc:
+         s.controller.exceptionForBlock(exc)
 
 
 .. code-block:: python
     
-   # Close of function
-     s.controller.endAnIteration()
-   
-   if s.controller.getException() is not None:
-     raise Exception(s.controller.formatError(
-         is_absolute_linenumber=True))
-   
-   s.controller.startBlock('Epilogue')
-   # Epilogue
-   s.controller.endBlock()
-   
-   return V_MAX,K_M
+   #
+       # Close of function
+       s.controller.endAnIteration()
+     
+     if s.controller.getException() is not None:
+       raise Exception(s.controller.formatError(
+           is_absolute_linenumber=True))
+     
+     s.controller.startBlock('Epilogue')
+     # Epilogue
+     s.controller.endBlock()
+     
+     return V_MAX,K_M
 
 Tests
 
@@ -332,9 +351,6 @@ Tests
    if __name__ == '__main__':
      unittest.main()
 
-  
-
-5. Logging and performance
 
 5. Future Work
 --------------
@@ -343,31 +359,40 @@ Tests
 
 - Graphics
 
-- Version control
+- Github integration
+
+  - Why version control
+  - Structure of the serialization file
+  - User interface for version control
 
 6. Conclusions
 --------------
 
-.. table:: Summary of the problems in current spreadsheets and how SciSheets features address
-           these problems. Items in italics are not yet implemented. :label:`fig-benefits`
+.. table:: Summary of the problems in current spreadsheets 
+           and SciSheets features that are a solution to
+           these problems. 
+           Features in italics are planned but not yet implemented. 
+           :label:`fig-benefits`
 
-   +---------------------+--------------------------+
-   | Problems            |      Solutions           |
-   +=====================+==========================+
-   | - expressiveness    | - python formulas        |
-   |                     | - formulas can be scripts|
-   +---------------------+--------------------------+
-   | - reuse             | - export as a program    |
-   |                     | - *copy with local scope*|
-   +---------------------+--------------------------+
-   | - scalability       | - export as a program    |
-   +---------------------+--------------------------+
-   | - reproducible      | - *embedded version      |
-   |                     |   control*               |
-   +---------------------+--------------------------+
-   | - debuggable        | - localized exception    |
-   |                     |   handling               |
-   +---------------------+--------------------------+
+   +------------------------+-----------------------------+
+   |       Problem          |         Solution            |
+   +========================+=============================+
+   | - expressivity         | - python formulas           |
+   |                        | - formula scripts           |
+   +------------------------+-----------------------------+
+   | - reuse                | - program export            |
+   |                        | - *hierarchical tables*     |
+   |                        |   *with local scopes*       |
+   +------------------------+-----------------------------+
+   | - complex data         | - hierarchical tables       |
+   +------------------------+-----------------------------+
+   | - performance          | - progam export             |
+   +------------------------+-----------------------------+
+   | - debuggablity of      | - localized exceptions      |
+   |   scripts              |                             |
+   +------------------------+-----------------------------+
+   | - reproducibility      | - *github integration*      |
+   +------------------------+-----------------------------+
 
 
 References
