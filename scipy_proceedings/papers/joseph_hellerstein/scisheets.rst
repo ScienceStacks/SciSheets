@@ -338,6 +338,27 @@ Tests
 6. Conclusions
 --------------
 
+.. table:: Summary of the problems in current spreadsheets and how SciSheets features address
+           these problems. Items in italics are not yet implemented. :label:`fig-benefits`
+
+   +----------------+--------------------------+
+   | Problems       |      Solutions           |
+   +================+=+========================+
+   | expressiveness | -formulas can be scripts |
+   |                | -use python packages     |
+   +----------------+--------------------------+
+   | reuse          | -export as a program     |
+   |                | -copy with local scope   |
+   +----------------+--------------------------+
+   | scalability    | -export as a program     |
+   +----------------+--------------------------+
+   | version        | -embedded version        |
+   | control        |  control                 |
+   +----------------+--------------------------+
+   | debuggable     | -localized exception     |
+   |                |  handling                |
+   +----------------+--------------------------+
+
 
 References
 ----------
