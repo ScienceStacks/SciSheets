@@ -103,7 +103,7 @@ several novel features.
   This feature also improves scalability since
   calculations can be executed without the overhead of the spreadsheet system.
 
-Further, SciSheets seeks to improve the programming skills of it users.
+Further, SciSheets seeks to improve the programming skills of its users.
 It is hoped that Calcers will start using scripts, and that Scripters will gain
 better insight into modularization and testing.
 
