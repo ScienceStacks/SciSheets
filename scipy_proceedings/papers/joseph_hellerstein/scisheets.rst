@@ -228,20 +228,29 @@ We connect the frontend and backend using Django ref??.
 Fig :ref:`fig-coreclasses` displays the relationships between core 
 classes used in the SciSheets backend.
 
-UC1-UC3 pose several challenges.
-Prominent among these are that:
-(a) the user need not be aware of data dependencies between columns and
+The use casses create the following requirements:
+(a) SciSheets must perform calculations without prior knowledge of data dependencies between
+columns; and
 (b) column formulas may be arbitrary Python scripts.
-In particular,
+The latter means that *SciSheets cannot use a static
+analysis to discover data dependencies between columns* 
+(as is possible in a traditional spreadsheet).
+To see the issue here, note that a
+formula may contain an *eval* statement on a string variable
+whose value cannot be determined until runtime.
+Another example is that a formula may 
+call an external function
+that changes values in columns.
 
-1. Automated detection of data dependencies is not possible since there made be code with
-"eval" statements or calls to external python functions.
+A second implication follows from (b); this
+relates to debuggability.
+Specifically,
+since a formula may be a script consisting of many lines, syntax errors
+and exceptions must localize the problem to a line within the script.
+We refer to this as the *Script Debuggability Use Case*.
 
-2. Error localization must be more sophisticated than identify the column in which
-a syntax error occurred since the column formula may be a lengthy script.
-
-We begin with (1), our inability to use automated dependency detection.
-Our solution here is ...
+We begin with our approach to handling data dependencies.
+Our solution is ...
 
 Concern (2), localizing errors, seques into a broader discussion of how spreadsheets are executed.
 This must be done in a way so that the column formulas run in a standalone program.
@@ -357,7 +366,8 @@ Tests
 5. Future Work
 --------------
 
-- Realizing the full power of hierarchies - reuse with "copy" action but with different technical semantics.
+- Hierarchical tables with local scopes provides another
+  approach to reuse.
 
 - Graphics
 
@@ -370,30 +380,31 @@ Tests
 6. Conclusions
 --------------
 
-.. table:: Summary of the problems in current spreadsheets 
+1. Discuss entries in table. For now, performance is not evaluated.
+
+.. table:: Summary of Use Cases not handled in current spreadsheets 
            and SciSheets features that are a solution to
            these problems. 
            Features in italics are planned but not yet implemented. 
            :label:`fig-benefits`
 
    +------------------------+-----------------------------+
-   |       Problem          |         Solution            |
+   |       Use Case         |    SciSheets Feature        |
    +========================+=============================+
-   | - expressivity         | - python formulas           |
+   | - Expressivity         | - python formulas           |
    |                        | - formula scripts           |
    +------------------------+-----------------------------+
-   | - reuse                | - program export            |
+   | - Reuse                | - program export            |
    |                        | - *hierarchical tables*     |
    |                        |   *with local scopes*       |
    +------------------------+-----------------------------+
-   | - complex data         | - hierarchical tables       |
+   | - Complex Data         | - hierarchical tables       |
    +------------------------+-----------------------------+
-   | - performance          | - progam export             |
+   | - Performance          | - progam export             |
    +------------------------+-----------------------------+
-   | - debuggablity of      | - localized exceptions      |
-   |   scripts              |                             |
+   | - Script Debuggablity  | - localized exceptions      |
    +------------------------+-----------------------------+
-   | - reproducibility      | - *github integration*      |
+   | - Reproducibility      | - *github integration*      |
    +------------------------+-----------------------------+
 
 
