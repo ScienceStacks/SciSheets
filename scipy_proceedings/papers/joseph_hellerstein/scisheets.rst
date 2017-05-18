@@ -85,17 +85,19 @@ However, Stencila strays from features that spreadsheet users expect:
 and (b) avoiding considerations of data dependencies in calculations.
 
 Even with these innovations,
-serious deficiencies remain in spreadsheets:
+serious deficiencies remain in spreadsheets.
+Specifically, the following use cases
+are poorly addresed.
 
-1. The expressivity of formulas is limited because formulas are 
-   restricted to being expressions, not scripts.
-2. It is almost impossible to reuse spreadsheet
-   formulas, especially to allow software systems
-   to reuse calculations done in spreadsheets.
-3. It remains burdensome to deal
-   with complex data relationships in spreadsheets, such as
-   hierarchically structured data.
-4. Very little has been done to address the performance problems that occur as spreadsheets scale.
+- **Expressivity**: The expressivity of formulas is limited because formulas are 
+  restricted to being expressions, not scripts.
+- **Reuse**: It is impossible to reuse spreadsheet
+  formulas in other formulas or in software systems.
+- **Complex Data**: It remains burdensome to deal
+  with complex data relationships in spreadsheets, such as
+  hierarchically structured data.
+- **Performance**: Very little has been done to address the 
+  performance problems that occur as spreadsheets scale.
 
 This paper introduces SciSheets [SciSheets], a new spreadsheet system with the goal of delivering
 the power of programming with the simplicity of spreadsheets.
@@ -104,24 +106,19 @@ who do complex calculations on structured data.
 To date, our focus has been on calculations,
 not features such as formatting.
 
-SciSheets addresses the deficiencies enumerated above by introducing
+SciSheets addresses the above use cases by introducing
 several novel features.
 
-- *Formulas can be Python scripts, not just expressions.*
-  This increases the expressiveness of formulas.
-- *Tables can have nested columns (columns within columns).*
-  This provides a conceptually simple way to express
-  complex data relationships, such as n-to-m relationships.
-- *Spreadsheets can be exported as standalone Python programs.*
+- Expressivity: *Formulas can be Python scripts, not just expressions.*
+- Reuse and Performance: *Spreadsheets can be exported as standalone Python programs.*
   This provides for sharing and reuse since the exported codes
   can be used by other SciSheets spreadsheets or by
   python programs.
   This feature also improves scalability since
   calculations can be executed without the overhead of the spreadsheet system.
-
-Further, SciSheets seeks to improve the programming skills of its users.
-It is hoped that Calcers will start using scripts, and that Scripters will gain
-better insight into modularization and testing.
+- Complex Data: *Tables can have nested columns (columns within columns).*
+  This provides a conceptually simple way to express
+  complex data relationships, such as n-to-m relationships.
 
 The remainder of the paper is organized as follows.
 Section 2 presents the use cases that we consider, and
@@ -133,13 +130,14 @@ Our conclusions are presented in Section 6.
 2. Use Cases
 ------------
 
-We present our driving use cases by giving examples of spreadsheet uses.
+This section provides explicit examples of how existing spreadsheet systems
+fail to address the use cases for expressivity, reuse, and complex data.
 
 .. figure:: ExistingSpreadSheet.png
 
    Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig-excel1`
 
-1. Michaelis-Menten calculation of enzyme activity.
+1. Expressivity and Reuse
 
    a. Background. Common processing of biochemical assays to compute key characteristics of enzymes
    b. Use cases
@@ -151,7 +149,7 @@ We present our driving use cases by giving examples of spreadsheet uses.
 
    Student grade data from two departments in the school of engineering. :label:`fig-excel2`
 
-2. Managing multiple tables
+2. Complex Data
 
    a. Background. Multiple departments in the school of engineering, 
       keeping records in slightly different ways.
@@ -387,6 +385,11 @@ Tests
 --------------
 
 1. Discuss entries in table. For now, performance is not evaluated.
+
+2. SciSheets seeks to improve the programming skills of its users.
+It is hoped that Calcers will start using scripts, 
+and that Scripters will gain
+better insight into modularization and testing.
 
 .. table:: Summary of Use Cases not handled in current spreadsheets 
            and SciSheets features that are a solution to
