@@ -366,9 +366,34 @@ Tests
    if __name__ == '__main__':
      unittest.main()
 
+Last, we consider performance.
 
-5. Futures
-----------
+- Our experience is that there are typically two
+  causes for poor performance. One is having a
+  large amount of data, since the current
+  implementation of SciSheets embeds data with the
+  HTML document that is rendered by the browser.
+  We plan to change this to a "load on demand"
+  approach to downloading data.
+- The second cause of poor performance is having
+  many iterations of formula evaluations.
+- If *N > 1* formula columns, then the best case is to
+  execute the formula columns twice (which is possible
+  if the formula columns are in order of their data
+  dependencies).
+- Some efficiencies gained by having the Prologue and
+  Epilogue since this is likely where file I/O occurs,
+  which is often the most time consuming step in a
+  calculation.
+- Performance can be improved by reducing the number
+  of columns. SciSheets supports this by having scripts.
+  This is a reasonable strategy for a Scripter, but
+  it may work poorly for a Calcer who is unaware
+  of data dependencies.
+
+
+5. Future Directions
+--------------------
 
 - Hierarchical tables with local scopes provides another
   approach to reuse.
