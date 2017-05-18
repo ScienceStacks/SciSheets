@@ -73,16 +73,22 @@ Google Fusion Tables [Gonz2010] uses column formulas to avoid a common source of
 the need to copy formulas as rows are added/deleted from a table.
 The Pyspread [PySpread] project uses Python as the formula language, which increases the expressivity of formulas.
 A more radical approach is taken by
-the Stencila system [Stencila], which
-provides a document structure that includes cells that execute formulas, including the display of of data tables;
-cells may execute statements from many languages including Python and R.
+Stencila [Stencila].
+Stencila is not really a spreadsheet system; it
+is a document system that provides ways to execute code that can
+update tables (more along the lines of a Jupyter notebook
+[Pere2015]).
+Stencila supports a variety of languages including
+JavaScript, Python, and SQL.
+However, Stencila strays from features that spreadsheet users expect:
+(a) easily associating code with data values
+and (b) avoiding considerations of data dependencies in calculations.
 
 Even with these innovations,
 serious deficiencies remain in spreadsheets:
 
 1. The expressivity of formulas is limited because formulas are 
-   restricted to being expressions, not scripts (although 
-   Stencila does provide a limited form of scripting).
+   restricted to being expressions, not scripts.
 2. It is almost impossible to reuse spreadsheet
    formulas, especially to allow software systems
    to reuse calculations done in spreadsheets.
@@ -421,4 +427,7 @@ References
               and Collaboration*, Hector Gonzalez et al., SIGMOD, 2010.
 .. [PySpread] Manns, M. *PYSPREAD*, http://github.com/manns/pyspread.
 .. [Stencila] *Stencila*, https://stenci.la/.
+.. [Pere2015] Perez, Fernando and Branger, Brian.
+              *Project Jupyter: Computational Narratives as the
+              Engine of Collaborative Data Science*, http://archive.ipython.org/JupyterGrantNarrative-2015.pdf.
 .. [SciSheet] *SciSheets*, https://github.com/ScienceStacks/SciSheets.
