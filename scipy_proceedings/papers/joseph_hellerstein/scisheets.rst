@@ -86,7 +86,7 @@ and (b) avoiding considerations of data dependencies in calculations.
 
 Even with these innovations,
 serious deficiencies remain in spreadsheets.
-Specifically, the following use cases
+Specifically, the following requirements
 are poorly addresed.
 
 - **Expressivity**: The expressivity of formulas is limited because formulas are 
@@ -106,7 +106,7 @@ who do complex calculations on structured data.
 To date, our focus has been on calculations,
 not features such as formatting.
 
-SciSheets addresses the above use cases by introducing
+SciSheets addresses the above requirements by introducing
 several novel features.
 
 - Expressivity: *Formulas can be Python scripts, not just expressions.*
@@ -121,17 +121,17 @@ several novel features.
   complex data relationships, such as n-to-m relationships.
 
 The remainder of the paper is organized as follows.
-Section 2 presents the use cases that we consider, and
-section 3 describes how SciSheets addresses these use cases.
+Section 2 presents the requirements that we consider, and
+section 3 describes the SciSheets features that address these requirements.
 The design of SciSheets is discussed in Section 4.
 Section 5 discusses features planned for SciSheets.
 Our conclusions are presented in Section 6.
 
-2. Use Cases
-------------
+2. Requirements
+---------------
 
-This section provides explicit examples of how existing spreadsheet systems
-fail to address the use cases for expressivity, reuse, and complex data.
+This section motivates the requirements of expressivity, reuse, and complex data
+through examples.
 
 .. figure:: ExistingSpreadSheet.png
 
@@ -140,7 +140,7 @@ fail to address the use cases for expressivity, reuse, and complex data.
 1. Expressivity and Reuse
 
    a. Background. Common processing of biochemical assays to compute key characteristics of enzymes
-   b. Use cases
+   b. Requirements
 
       a.) *Expressivity*: limited ability specify calculations as expressions
       b.) *Reuse*: Cannot reuse (robustly) formulas in other spreadsheets or in software systems
@@ -153,15 +153,15 @@ fail to address the use cases for expressivity, reuse, and complex data.
 
    a. Background. Multiple departments in the school of engineering, 
       keeping records in slightly different ways.
-   b. Use cases
+   b. Requirements
  
       a) *Complex data*: Cannot easily manipulate complex data, such as nested tables. 
          Examples include of manipulations: View data side-by-side, but still manage as separate tables
          in terms of insert/delete.
 
 
-3. How SciSheets Addresses the Use Cases
-----------------------------------------
+3. Features
+-----------
 
 .. figure:: ColumnPopup.png
 
@@ -214,8 +214,8 @@ fail to address the use cases for expressivity, reuse, and complex data.
 
 4. Complex data: managing multiple tables
 
-4. SciSheets Design
--------------------
+4. Design
+---------
 
 To enable a zero-install deployment and leverage the rapid pace
 of UI innovation happening with web technologies, SciSheets is a client-server
@@ -251,7 +251,7 @@ relates to debuggability.
 Specifically,
 since a formula may be a script consisting of many lines, syntax errors
 and exceptions must localize the problem to a line within the script.
-We refer to this as the *Script Debuggability Use Case*.
+We refer to this as the *Script Debuggability Requirement*.
 
 We begin with our approach to handling data dependencies.
 Our solution is ...
@@ -367,8 +367,8 @@ Tests
      unittest.main()
 
 
-5. Future Work
---------------
+5. Futures
+----------
 
 - Hierarchical tables with local scopes provides another
   approach to reuse.
@@ -391,14 +391,13 @@ It is hoped that Calcers will start using scripts,
 and that Scripters will gain
 better insight into modularization and testing.
 
-.. table:: Summary of Use Cases not handled in current spreadsheets 
-           and SciSheets features that are a solution to
-           these problems. 
+.. table:: Summary of requirements
+           and SciSheets features that address these requirements.
            Features in italics are planned but not yet implemented. 
            :label:`fig-benefits`
 
    +------------------------+-----------------------------+
-   |       Use Case         |    SciSheets Feature        |
+   |      Requirement       |    SciSheets Feature        |
    +========================+=============================+
    | - Expressivity         | - python formulas           |
    |                        | - formula scripts           |
