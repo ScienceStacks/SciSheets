@@ -140,21 +140,38 @@ Our conclusions are presented in Section 6.
 This section motivates through examples
 the requirements of expressivity, reuse, and complex data.
 
-Our first example is relates to a common procedure done in biochemistry labs
-studying reactions facilitated by enzymes.
+Our first example is relates to a procedure done in biochemistry labs
+studying enzyme mediated reactions.
 Commonly, the Michaelis-Menten ref?? model of enzyme activity is used in which
 there is a single chemical species, called the substrate, that interacts with the enzyme to produce
 new chemical species (the product).
 Two properties of enzymes are of much interest: the maximum reaction rate,
-denoted by $V_{MAX}$, and the concentration $K_M$ of substrate that achieves
-a reaction rate equal to half of $V_max$.
+denoted by :math:`V_{MAX}`, and the concentration :math:`K_M` of substrate that achieves
+a reaction rate equal to half of :math:`V_{MAX}`.
+Laboratory data are collected for different values of the substrate concentration
+:math:`S` and reaction rate :math:`V`.
+Then, a calculation is done to obtain the parameters :math:`V_{MAX}` and :math:`K_M`.
 
-:ref:`fig-excel1` displays an Excel spreadsheet that calculates the Michaelis-Menten parameters
-$V_{MAX}$ and $K_M$, and :ref:`fig-excel2` displays the formulas that perform these calculations.
+Fig. :ref:`fig-excel1` shows an Excel spreadsheet displaying values of
+:math::math:`V_{MAX}` and :math:`K_M` for a Michaelis-Menten calculation. 
+The procedure is:
 
-.. figure:: ExistingSpreadSheet.png
+- Compute the inverse of :math:`S` and :math:`V`, the columns ``INV_S`` and ``INV_V``.
+- Compute the intercept and slope of the regression of ``INV_V`` 
+  on ``INV_S``, the columns ``INTERCEPT`` and ``SLOPE``.
+- Calculate the columns ``V_MAX`` and ``K_M`` from ``INTERCEPT`` and ``SLOPE``.
 
-   Data view (top) and formulas view (bottom) for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig-excel1`
+Fig. :ref:`fig-excel2` shows the formulas that 
+perform these calculations.
+
+
+.. figure:: excel1.png
+
+   Data view for an Excel spreadsheet that calculates Michaelis-Menten Parameters. :label:`fig-excel1`
+
+.. figure:: excel2.png
+
+   Formulas used in Fig. :ref:`fig-excel1`. :label:`fig-excel2`
 
 1. Expressivity and Reuse
 
@@ -496,6 +513,8 @@ better insight into modularization and testing.
    |                           | - *Load data on demand*        |
    |                           | - *Conditional static*         |
    |                           |   *dependency checking*        |
+   +---------------------------+--------------------------------+
+   | - Plotting                | - *Embed bokeh components*     |
    +---------------------------+--------------------------------+
    | - Script Debuggablity     | - Localized exceptions         |
    +---------------------------+--------------------------------+
