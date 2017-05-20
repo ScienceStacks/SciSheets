@@ -1,10 +1,10 @@
 :author: Alicia Clark
 :email: clarka34@uw.edu
-:institution: University of Washington
+:institution: eScience Institute, University of Washington
 
 :author: Joseph Hellerstein
 :email: joseph.hellerstein@gmail.com
-:institution: University of Washington
+:institution: Department of Mechanical Engineering, University of Washington
 :corresponding:
 
 --------------------------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ several novel features.
 - *SciSheets formulas can be Python scripts, not just expressions.*
   This addresses the expressivity requirement since spreadsheet
   calculations can be expressed as algorithms.
-- *SciSheet spreadsheets can be exported as standalone Python programs.*
+- *SciSheets spreadsheets can be exported as standalone Python programs.*
   This addresses the reuse requirement since
   exported spreadsheets
   can be used in SciSheets formulas and/or by
@@ -122,10 +122,10 @@ several novel features.
   such as representing n-to-m relationships.
 
 The remainder of the paper is organized as follows.
-Section 2 presents the requirements that we consider, and
-section 3 describes the SciSheets features that address these requirements.
-The design of SciSheets is discussed in Section 4.
-Section 5 discusses features planned for SciSheets.
+Section 2 describes the requirements that we consider, and
+section 3 details the SciSheets features that address these requirements.
+The design of SciSheets is discussed in Section 4, and
+section 5 discusses features planned for SciSheets.
 Our conclusions are presented in Section 6.
 
 2. Requirements
@@ -175,7 +175,11 @@ by present examples of spreadsheets.
 
 .. figure:: ComplexFormula.png
 
-   Formula for computing the slope and intercept of a regression line for the Michaelis-Menten calculation. Note that One column assigns values to another column and that a script is used. label:`fig-simpleformula`
+   Formula for computing the slope and intercept of a regression 
+   line for the Michaelis-Menten calculation. Note that the
+   formula is a script. Also, note that the
+   INTERCEPT column assigns a value to the SLOPE column.
+   :label:`fig-simpleformula`
 
 1. SciSheets UI structure
 
@@ -183,6 +187,8 @@ by present examples of spreadsheets.
    b. Popup menus
    c. Execution model: prologue, formula evaluations, epilogue. (Dependency checking is not possible
       because users can employ "eval" statement.)
+   d. Column names are python variables of type pandas.array; this means that vector calculations are supported
+      directly, including the handling of missing data for floating point using np.nan.
 
 .. figure:: TableExport.png
 
@@ -420,6 +426,8 @@ of data dependencies.
   approach to reuse.
 
 - Graphics
+
+- Multiple languages
 
 - Github integration
 
