@@ -23,8 +23,10 @@ Short abstract.
 ---------------
 
 Digital spreadsheets are the "killer app" that ushered in the PC revolution.
-This is largely because spreadsheets provide a conceptually simple way to do calculations that avoids the mental burdens of programming,
-especially considerations of control flow, data dependencies, and data structures.
+This is largely because spreadsheets provide a conceptually simple way to do calculations that
+(a) closely associates data with the calculations that produce the data and (b) avoids the mental burdens of programming
+such as
+control flow, data dependencies, and data structures.
 Recent estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
 [MODE2017],
 which is about 50 times the number
@@ -38,59 +40,24 @@ Our experience is that there are three types of spreadsheet users.
    (b) they can avoid flow control by using
    "copy" and "paste" for iteration; 
    and (c) data structures are "visual" (e.g., rectangular blocks).
- - **Scripters** feel comfortable with expressing calculations algorithmically using for-loops and if-then
-   statements, and they can use simple data structures such as lists and dataframes (which are like spreadsheets).
+ - **Scripters** feel comfortable with expressing calculations algorithmically using ``for`` and ``if``
+   statements; and they can use simple data structures such as lists and 
+   ``pandas DataFrames`` (which are like spreadsheets).
    However, they rarely encapsulate code into functions, preferring to copy code to get reuse.
- - **Programmers** know about advanced data structures, modularization, and testing. 
+ - **Programmers** know about advanced data structures, modularization, reuse, and testing. 
 
-We find that the bulk of spreadsheet users who employ formulas are Calcers and then Scripters. 
-Programmers are more likely to use a mix of formulas and macros (e.g., Visual Basic for Microsoft Excel or
+Our experience is primarily with scientists, especially biologists and chemists.
+Most commonly, we encounter Calcers and then Scripters.
+Only Programmers take advantage of spreadsheet macro capabilities 
+(e.g.,  Visual Basic for Microsoft Excel or
 AppScript in Google Sheets).
 
-Despite their appeal, the use of spreadsheet formulas has severe shortcomings.
-
-- poor scalability because executing formulas within the spreadsheet system has high overhead;
-- great difficulty with reuse because there is no concept of encapsulation (and even different length data are problematic);
-- great difficulty with transitioning from a spreadsheet to a 
-  program to facilitate integration into software systems;
-- limited ability to handle complex data because 
-  there is no concept of structured data;
-- poor readability because formulas must be expressions 
-  (not scripts) and any cell may have a formula; and
-- limited ability to express calculations because formulas 
-  are restricted to using a few hundred or so functions 
-  provided by the spreadsheet system (or specially coded macros).
-
-Academic computer science has recognized the growing importance
-of end-user programming (EUP) [BURN2009].
-Even though
-spreadsheets are likely the most pervasiveness example of EUP,
-there is a virtual absence of academic literature about addressing
-the shortcomings of spreadsheets.
-Outside of academia there has been significant 
-interest in innovating spreadsheets.
-Google Fusion Tables [Gonz2010] uses column formulas to avoid a common source of errors,
-the need to copy formulas as rows are added/deleted from a table.
-The Pyspread [PySpread] project uses Python as the formula language, which increases the expressivity of formulas.
-A more radical approach is taken by
-Stencila [Stencila].
-Stencila is not really a spreadsheet system; it
-is a document system that provides ways to execute code that can
-update tables (more along the lines of a Jupyter notebook
-[Pere2015]).
-Stencila supports a variety of languages including
-JavaScript, Python, and SQL.
-However, Stencila strays from features that spreadsheet users expect:
-(a) easily associating code with data values
-and (b) avoiding considerations of data dependencies in calculations.
-
-Even with these innovations,
-serious deficiencies remain in spreadsheets.
-Specifically, the following requirements
-are poorly addresed.
+Based on this experience, we find that despite the appeal of spreadsheets, especially to
+Calcers and Scripters, existing spreadsheets lack several key requirements:
 
 - **Expressivity**: The expressivity of formulas is limited because formulas are 
-  restricted to being expressions, not scripts.
+  restricted to being expressions, not scripts,
+  and so calculations cannot be written as algorithms.
 - **Reuse**: It is impossible to reuse spreadsheet
   formulas in other formulas or in software systems.
 - **Complex Data**: It remains burdensome to deal
@@ -99,26 +66,57 @@ are poorly addresed.
 - **Performance**: Very little has been done to address the 
   performance problems that occur as spreadsheets scale.
 
+Academic computer science has recognized the growing importance
+of end-user programming (EUP) [BURN2009].
+Even though
+spreadsheets are likely the most pervasiveness example of EUP,
+there is a virtual absence of academic literature that attempts
+to remedy
+the shortcomings of spreadsheets.
+Outside of academia there has been significant 
+interest in innovating spreadsheets.
+Google Fusion Tables [Gonz2010] 
+and the "Tables" feature of Microsoft Excel ref??
+use column formulas to avoid a common source of errors,
+the need to copy formulas as rows are added/deleted from a table.
+The Pyspread [PySpread] project uses Python as the formula language, which gives formulas access to thousands of Python packages.
+A more radical approach is taken by
+Stencila [Stencila],
+a document system that provides ways to execute code that
+updates tables (an approach that is in the same
+spirit as Jupyter Notebooks
+[Pere2015]).
+Stencila supports a variety of languages including
+JavaScript, Python, and SQL.
+However, Stencila lacks features that spreadsheet users expect:
+(a) closely associating data with the calculations that produce the data and
+and (b) avoiding considerations of data dependencies in calculations.
+
 This paper introduces SciSheets [SciSheets], a new spreadsheet system with the goal of delivering
 the power of programming with the simplicity of spreadsheets.
 Our target users are technical professionals, such as scientists and financial engineers,
 who do complex calculations on structured data.
-To date, our focus has been on calculations,
-not features such as formatting.
+We note in passing that our focus is on
+calculations,
+not document processing features such as formatting and drawing figures.
 
 SciSheets addresses the above requirements by introducing
 several novel features.
 
-- Expressivity: *Formulas can be Python scripts, not just expressions.*
-- Reuse and Performance: *Spreadsheets can be exported as standalone Python programs.*
-  This provides for sharing and reuse since the exported codes
-  can be used by other SciSheets spreadsheets or by
+- *Scisheets formulas can be Python scripts, not just expressions.*
+  This addresses the expressivity requirement since spreadsheet
+  calculations can be expressed as algorithms.
+- *SciSheet spreadsheets can be exported as standalone Python programs.*
+  This addresses the reuse requirement since
+  exported spreadsheets
+  can be used in SciSheets formulas and/or by
   python programs.
-  This feature also improves scalability since
-  calculations can be executed without the overhead of the spreadsheet system.
-- Complex Data: *Tables can have nested columns (columns within columns).*
-  This provides a conceptually simple way to express
-  complex data relationships, such as n-to-m relationships.
+  Further, performance is improved by this export feaure
+  since calculations can execute without the 
+  overheads of the spreadsheet environment.
+- *Tables can have nested columns (columns within columns).*
+  This addresses the complex data requirement,
+  such as representing n-to-m relationships.
 
 The remainder of the paper is organized as follows.
 Section 2 presents the requirements that we consider, and
@@ -131,7 +129,7 @@ Our conclusions are presented in Section 6.
 ---------------
 
 This section motivates the requirements of expressivity, reuse, and complex data
-through examples.
+by present examples of spreadsheets.
 
 .. figure:: ExistingSpreadSheet.png
 
@@ -256,6 +254,9 @@ We refer to this as the *Script Debuggability Requirement*.
 We begin with our approach to handling data dependencies.
 Our solution is ...
 
+- Use term "formula evaluation loop"
+- Calculation workflow
+
 Concern (2), localizing errors, seques into a broader discussion of how spreadsheets are executed.
 This must be done in a way so that the column formulas run in a standalone program.
 
@@ -367,29 +368,46 @@ Tests
      unittest.main()
 
 Last, we consider performance.
+Typically, there are two
+causes of poor performance. 
+The first is having a
+large amount of data, since the current
+implementation of SciSheets embeds data with the
+HTML document that is rendered by the browser.
+Note that this problem does not exist if the
+spreadsheet is exported and runs as a standalone
+Python program. That said, we
+do plan to implement a
+policy whereby data are downloaded on demand and
+cached locall.
 
-- Our experience is that there are typically two
-  causes for poor performance. One is having a
-  large amount of data, since the current
-  implementation of SciSheets embeds data with the
-  HTML document that is rendered by the browser.
-  We plan to change this to a "load on demand"
-  approach to downloading data.
-- The second cause of poor performance is having
-  many iterations of formula evaluations.
-- If *N > 1* formula columns, then the best case is to
-  execute the formula columns twice (which is possible
-  if the formula columns are in order of their data
-  dependencies).
-- Some efficiencies gained by having the Prologue and
-  Epilogue since this is likely where file I/O occurs,
-  which is often the most time consuming step in a
-  calculation.
-- Performance can be improved by reducing the number
-  of columns. SciSheets supports this by having scripts.
-  This is a reasonable strategy for a Scripter, but
-  it may work poorly for a Calcer who is unaware
-  of data dependencies.
+The second cause of poor performance is having
+many iterations of the formula evaluation loop.
+If there are  *N > 1* formula columns, then the best case is to
+evaluate each formula column twice.
+The first execution produces the desired result
+(which is possible
+if the formula columns are in order of their data
+dependencies);
+the second execution confirms that the result has
+converged.
+Some efficiencies can be gained by using the Prologue and
+Epilogue for one-shot file I/O since this
+is often the most time consuming step in a
+calculation.
+Also, we are exploring the extent to which SciSheets
+can detect automatically when static dependency checking
+is possible so that formula evaluation is done
+only once.
+
+Clearly, performance can be improved by reducing the number
+of formula columns since this reduces the maximum number
+of iterations of the formulation evaluation loop. 
+SciSheets supports this strategy by permitting
+formulas to be scripts.
+This is a reasonable strategy for a Scripter, but
+it may work poorly for a Calcer who is unaware
+of data dependencies.
 
 
 5. Future Directions
@@ -434,6 +452,7 @@ better insight into modularization and testing.
    | - Complex Data         | - hierarchical tables       |
    +------------------------+-----------------------------+
    | - Performance          | - progam export             |
+   |                        | - prologue, epilogue        |
    +------------------------+-----------------------------+
    | - Script Debuggablity  | - localized exceptions      |
    +------------------------+-----------------------------+
