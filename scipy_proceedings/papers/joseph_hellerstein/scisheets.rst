@@ -34,17 +34,17 @@ of software developers world wide [Thib2013].
 
 Our experience is that there are three types of spreadsheet users.
 
- - **Calcers** want to evaluate equations.
-   Spreadsheet formulas work well for Calcers since: (a) they can
-   ignore data dependencies;
-   (b) they can avoid flow control by using
-   "copy" and "paste" for iteration; 
-   and (c) data structures are "visual" (e.g., rectangular blocks).
- - **Scripters** feel comfortable with expressing calculations algorithmically using ``for`` and ``if``
-   statements; and they can use simple data structures such as lists and 
-   ``pandas DataFrames`` (which are like spreadsheets).
-   However, they rarely encapsulate code into functions, preferring to copy code to get reuse.
- - **Programmers** know about advanced data structures, modularization, reuse, and testing. 
+- **Calcers** want to evaluate equations.
+  Spreadsheet formulas work well for Calcers since: (a) they can
+  ignore data dependencies;
+  (b) they can avoid flow control by using
+  "copy" and "paste" for iteration; 
+  and (c) data structures are "visual" (e.g., rectangular blocks).
+- **Scripters** feel comfortable with expressing calculations algorithmically using ``for`` and ``if``
+  statements; and they can use simple data structures such as lists and 
+  ``pandas DataFrames`` (which are like spreadsheets).
+  However, they rarely encapsulate code into functions, preferring to copy code to get reuse.
+- **Programmers** know about advanced data structures, modularization, reuse, and testing. 
 
 Our experience is primarily with scientists, especially biologists and chemists.
 Most commonly, we encounter Calcers and then Scripters.
@@ -94,7 +94,10 @@ and (b) avoiding considerations of data dependencies in calculations.
 
 This paper introduces SciSheets [SciSheets], a new spreadsheet system with the goal of delivering
 the power of programming with the simplicity of spreadsheets.
-Our target users are technical professionals, such as scientists and financial engineers,
+The name SciSheets is a contraction of the phrase "Scientific Spreadsheet", a nod to the users
+who motivated the requirements that we address.
+That said,
+our target users are more broadly technical professionals
 who do complex calculations on structured data.
 We note in passing that our focus is on
 calculations,
@@ -103,7 +106,7 @@ not document processing features such as formatting and drawing figures.
 SciSheets addresses the above requirements by introducing
 several novel features.
 
-- *Scisheets formulas can be Python scripts, not just expressions.*
+- *SciSheets formulas can be Python scripts, not just expressions.*
   This addresses the expressivity requirement since spreadsheet
   calculations can be expressed as algorithms.
 - *SciSheet spreadsheets can be exported as standalone Python programs.*
