@@ -27,12 +27,13 @@ This is largely because spreadsheets provide a conceptually simple way to do cal
 (a) closely associates data with the calculations that produce the data and (b) avoids the mental burdens of programming
 such as
 control flow, data dependencies, and data structures.
-Recent estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
+Estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
 [MODE2017],
 which is about 50 times the number
 of software developers world wide [Thib2013].
 
-Our experience is that there are three types of spreadsheet users.
+We categorize
+spreadsheet users as follows:
 
 - **Calcers** want to evaluate equations.
   Spreadsheet formulas work well for Calcers since: (a) they can
@@ -43,11 +44,12 @@ Our experience is that there are three types of spreadsheet users.
 - **Scripters** feel comfortable with expressing calculations algorithmically using ``for`` and ``if``
   statements; and they can use simple data structures such as lists and 
   ``pandas DataFrames`` (which are like spreadsheets).
-  However, they rarely encapsulate code into functions, preferring to copy code to get reuse.
-- **Programmers** know about advanced data structures, modularization, reuse, and testing. 
+  However, they rarely encapsulate code into functions, 
+  preferring to ``copy`` and ``paste`` code to get reuse.
+- **Programmers** know about sophisticated data structures, modularization, reuse, and testing. 
 
 Our experience is primarily with scientists, especially biologists and chemists.
-Most commonly, we encounter Calcers and then Scripters.
+Most commonly, we encounter Calcers and Scripters.
 Only Programmers take advantage of spreadsheet macro capabilities 
 (e.g.,  Visual Basic for Microsoft Excel or
 AppScript in Google Sheets).
@@ -58,6 +60,8 @@ Calcers and Scripters, existing spreadsheets lack several key requirements:
 - **Expressivity**: The expressivity of formulas is limited because formulas are 
   restricted to being expressions, not scripts,
   and so calculations cannot be written as algorithms.
+  Expressing calculations as algorithms is crucial for
+  Scripters, we find that Calcers will so use simple algorithms.
 - **Reuse**: It is impossible to reuse spreadsheet
   formulas in other formulas or in software systems.
 - **Complex Data**: It remains burdensome to deal
@@ -69,9 +73,9 @@ Calcers and Scripters, existing spreadsheets lack several key requirements:
 Academic computer science has recognized the growing importance
 of end-user programming (EUP) [BURN2009].
 Even though
-spreadsheets are likely the most pervasiveness example of EUP,
-there is a virtual absence of academic literature that attempts
-to remedy
+spreadsheets are arguably the most pervasiveness form of EUP,
+there is a virtual absence of academic literature that
+addresses
 the shortcomings of spreadsheets.
 Outside of academia there has been significant 
 interest in innovating spreadsheets.
@@ -89,32 +93,34 @@ spirit as Jupyter Notebooks
 Stencila supports a variety of languages including
 JavaScript, Python, and SQL.
 However, Stencila lacks features that spreadsheet users expect:
-(a) closely associating data with the calculations that produce the data and
+(a) closely associating data with the calculations that produce the data
 and (b) avoiding considerations of data dependencies in calculations.
 
-This paper introduces SciSheets [SciSheets], a new spreadsheet system with the goal of delivering
+This paper introduces SciSheets [SciSheets], a new spreadsheet system with the 
+objective of delivering
 the power of programming with the simplicity of spreadsheets.
 The name SciSheets is a contraction of the phrase "Scientific Spreadsheet", a nod to the users
 who motivated the requirements that we address.
 That said,
 our target users are more broadly technical professionals
 who do complex calculations on structured data.
-We note in passing that our focus is on
+We use the term **scisheet** to refer to a SciSheets spreadsheet.
+We note in passing that our focus for scisheets is on
 calculations,
 not document processing features such as formatting and drawing figures.
 
 SciSheets addresses the above requirements by introducing
 several novel features.
 
-- *SciSheets formulas can be Python scripts, not just expressions.*
-  This addresses the expressivity requirement since spreadsheet
+- *Scisheet formulas can be Python scripts, not just expressions.*
+  This addresses the expressivity requirement since
   calculations can be expressed as algorithms.
-- *SciSheets spreadsheets can be exported as standalone Python programs.*
+- *Scisheet can be exported as standalone Python programs.*
   This addresses the reuse requirement since
   exported spreadsheets
-  can be used in SciSheets formulas and/or by
-  python programs.
-  Further, performance is improved by this export feaure
+  can be reused in SciSheets formulas and/or by
+  external programs (e.g., written by Programmers).
+  Further, performance is improved by the export feaure
   since calculations can execute without the 
   overheads of the spreadsheet environment.
 - *Tables can have nested columns (columns within columns).*
@@ -131,8 +137,20 @@ Our conclusions are presented in Section 6.
 2. Requirements
 ---------------
 
-This section motivates the requirements of expressivity, reuse, and complex data
-by present examples of spreadsheets.
+This section motivates through examples
+the requirements of expressivity, reuse, and complex data.
+
+Our first example is relates to a common procedure done in biochemistry labs
+studying reactions facilitated by enzymes.
+Commonly, the Michaelis-Menten ref?? model of enzyme activity is used in which
+there is a single chemical species, called the substrate, that interacts with the enzyme to produce
+new chemical species (the product).
+Two properties of enzymes are of much interest: the maximum reaction rate,
+denoted by $V_{MAX}$, and the concentration $K_M$ of substrate that achieves
+a reaction rate equal to half of $V_max$.
+
+:ref:`fig-excel1` displays an Excel spreadsheet that calculates the Michaelis-Menten parameters
+$V_{MAX}$ and $K_M$, and :ref:`fig-excel2` displays the formulas that perform these calculations.
 
 .. figure:: ExistingSpreadSheet.png
 
@@ -198,15 +216,24 @@ by present examples of spreadsheets.
 
 .. figure:: Multitable.png
 
-   A table with two subtables. :label:`fig-subtables`
+   A table with two subtables.
+   Subtables CSE and Biology can be manipulated separately,
+   providing a way to express n-to-m relationships.
+   :label:`fig-subtables`
 
 .. figure:: PopupForHierarchicalRowInsert.png
 
-   Menu to insert a row in one subtable. :label:`fig-subtable-insert`
+   Menu to insert a row in one subtable. 
+   The menu was accessed by left-clicking on the "3" cell
+   in the column labelled "row" in the CSE subtable.
+   :label:`fig-subtable-insert`
 
 .. figure:: AfterHierarchicalRowInsert.png
 
-   Result of inserting a row in one subtable. :label:`fig-subtable-after`
+   Result of inserting a row in one subtable. 
+   Note that a row inserted in the CSE subtable without affecting
+   the Biology substable.
+   :label:`fig-subtable-after`
 
 3. Reuse: Code re-use through export
 
@@ -243,11 +270,11 @@ The use casses create the following requirements:
 (a) SciSheets must perform calculations without prior knowledge of data dependencies between
 columns; and
 (b) column formulas may be arbitrary Python scripts.
-The latter means that *SciSheets cannot use a static
+The implies that *SciSheets cannot use a static
 analysis to discover data dependencies between columns* 
 (as is possible in a traditional spreadsheet).
 To see the issue here, note that a
-formula may contain an *eval* statement on a string variable
+formula may contain an ``eval`` statement on a string variable
 whose value cannot be determined until runtime.
 Another example is that a formula may 
 call an external function
@@ -258,7 +285,7 @@ relates to debuggability.
 Specifically,
 since a formula may be a script consisting of many lines, syntax errors
 and exceptions must localize the problem to a line within the script.
-We refer to this as the *Script Debuggability Requirement*.
+We refer to this as the **Script Debuggability Requirement**.
 
 We begin with our approach to handling data dependencies.
 Our solution is ...
@@ -377,22 +404,22 @@ Tests
      unittest.main()
 
 Last, we consider performance.
-Typically, there are two
-causes of poor performance. 
-The first is having a
-large amount of data, since the current
-implementation of SciSheets embeds data with the
+Our experience is that
+there are two common
+causes of poor performance
+in our current implementation of SciSheets. 
+The first relates to data size since
+since, at present,
+SciSheets embeds data with the
 HTML document that is rendered by the browser.
-Note that this problem does not exist if the
-spreadsheet is exported and runs as a standalone
-Python program. That said, we
-do plan to implement a
-policy whereby data are downloaded on demand and
-cached locall.
+We expect to address this by implementing
+a feaure
+whereby data are downloaded on demand and
+cached locally.
 
 The second cause of poor performance is having
 many iterations of the formula evaluation loop.
-If there are  *N > 1* formula columns, then the best case is to
+If there is more than one formula column, then the best case is to
 evaluate each formula column twice.
 The first execution produces the desired result
 (which is possible
@@ -401,9 +428,8 @@ dependencies);
 the second execution confirms that the result has
 converged.
 Some efficiencies can be gained by using the Prologue and
-Epilogue for one-shot file I/O since this
-is often the most time consuming step in a
-calculation.
+Epilogue features for one-shot 
+execution of high overhead operations (e.g., file I/O).
 Also, we are exploring the extent to which SciSheets
 can detect automatically when static dependency checking
 is possible so that formula evaluation is done
@@ -438,6 +464,9 @@ of data dependencies.
 6. Conclusions
 --------------
 
+We developed SciSheets to address deficiencies
+in existing spreadsheet systems.
+
 1. Discuss entries in table. For now, performance is not evaluated.
 
 2. SciSheets seeks to improve the programming skills of its users.
@@ -450,25 +479,28 @@ better insight into modularization and testing.
            Features in italics are planned but not yet implemented. 
            :label:`fig-benefits`
 
-   +------------------------+-----------------------------+
-   |      Requirement       |    SciSheets Feature        |
-   +========================+=============================+
-   | - Expressivity         | - python formulas           |
-   |                        | - formula scripts           |
-   +------------------------+-----------------------------+
-   | - Reuse                | - program export            |
-   |                        | - *hierarchical tables*     |
-   |                        |   *with local scopes*       |
-   +------------------------+-----------------------------+
-   | - Complex Data         | - hierarchical tables       |
-   +------------------------+-----------------------------+
-   | - Performance          | - progam export             |
-   |                        | - prologue, epilogue        |
-   +------------------------+-----------------------------+
-   | - Script Debuggablity  | - localized exceptions      |
-   +------------------------+-----------------------------+
-   | - Reproducibility      | - *github integration*      |
-   +------------------------+-----------------------------+
+   +---------------------------+--------------------------------+
+   |      Requirement          |    SciSheets Feature           |
+   +===========================+================================+
+   | - Expressivity            | - Python formulas              |
+   |                           | - Formula scripts              |
+   +---------------------------+--------------------------------+
+   | - Reuse                   | - Program export               |
+   |                           | - *Hierarchical tables*        |
+   |                           |   *with local scopes*          |
+   +---------------------------+--------------------------------+
+   | - Complex Data            | - Hierarchical tables          |
+   +---------------------------+--------------------------------+
+   | - Performance             | - Progam export                |
+   |                           | - Prologue, Epilogue           |
+   |                           | - *Load data on demand*        |
+   |                           | - *Conditional static*         |
+   |                           |   *dependency checking*        |
+   +---------------------------+--------------------------------+
+   | - Script Debuggablity     | - Localized exceptions         |
+   +---------------------------+--------------------------------+
+   | - Reproducibility         | - ``github`` *integration*     |
+   +---------------------------+--------------------------------+
 
 
 References
