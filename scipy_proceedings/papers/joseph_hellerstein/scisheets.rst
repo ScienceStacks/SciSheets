@@ -58,10 +58,12 @@ Based on this experience, we find that despite the appeal of spreadsheets, espec
 Calcers and Scripters, existing spreadsheets lack several key requirements:
 
 - **Expressivity**: The expressivity of formulas is limited because formulas are 
-  restricted to being expressions, not scripts,
-  and so calculations cannot be written as algorithms.
-  Expressing calculations as algorithms is crucial for
-  Scripters, we find that Calcers will so use simple algorithms.
+  restricted to being expressions, not scripts.
+  This means that
+  calculations cannot be written as algorithms,
+  a key consideration for Scripters.
+  It also means that Calcers cannot write a step-by-step
+  recipe for how data are produced.
 - **Reuse**: It is impossible to reuse spreadsheet
   formulas in other formulas or in software systems.
 - **Complex Data**: It remains burdensome to deal
@@ -210,26 +212,53 @@ perform these calculations.
 
 .. figure:: ComplexFormula.png
 
-   Formula for computing the slope and intercept of a regression 
-   line for the Michaelis-Menten calculation. Note that the
-   formula is a script. Also, note that the
-   INTERCEPT column assigns a value to the SLOPE column.
-   :label:`fig-simpleformula`
+   Formula for the complete calculation of :math:`V_{MAX}` and
+   :math:`K_M`.
+   The formula is a simple script, allowing a Calcer to see
+   exactly how the data in the scisheet are produced.
+   :label:`fig-complexformula`
 
-1. SciSheets UI structure
+3.1 UI Structure
+~~~~~~~~~~~~~~~~
+
+1. Basics
 
    a. Elements - sheet, tables, columns, rows, cells (Fig)
-   b. Popup menus
-   c. Execution model: prologue, formula evaluations, epilogue. (Dependency checking is not possible
-      because users can employ "eval" statement.)
-   d. Column names are python variables of type pandas.array; this means that vector calculations are supported
-      directly, including the handling of missing data for floating point using np.nan.
+   b. Row column - unique ID (name) for row
+   c. Common popup menus for sheet, table, column, row: insert, delete, hide/unhide, rename (for row, moves the row)
+   d. Cell - edit
+   e. Column: formula
+   f. Table: prologue, epilogue
+   g. scisheet: saveas, undo/redo, export
+   h. Column names are pandas array. Referred
+      to as **Column Variables**.
+      Means that vector operations are supported, natural for Calcer. Also, handles
+      missing data.
+
+2. Challenges with formula evaluation because of arbitrary code.
+
+3. Workflow for table evaluation
+
+   a. Prolog - initialize Column Variables from the table.
+      If there is no exception, then control continues to formula evaluation.
+      Otherwise an exception is raised.
+   b. Formula evaluation loop. Evaluate each column formula until one of the following holds:
+
+      a) All Column Variables have the same value in two successive iterations of the formula evaluation loop
+         and there is no exception.
+      b) A specified number of iterations has occurred.
+         The number of iterations is equal to the number of formula columns.
+         If there is no exception, then control continues to the Epilogue.
+         Otherwise an exception is raised.
+
+   c. Epilogue. Evaluate the Epilogue formula. If no exception occurs, update the column values.
 
 .. figure:: TableExport.png
 
    Menu to export a table as a standalone python program. :label:`fig-export`
 
-2. Expressivity: Formulas can be scripts
+3.2 Formulas Can Be Scripts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: Multitable.png
 
@@ -252,7 +281,8 @@ perform these calculations.
    the Biology substable.
    :label:`fig-subtable-after`
 
-3. Reuse: Code re-use through export
+3.3. Program Export
+~~~~~~~~~~~~~~~~~~~
 
 .. figure:: ProcessFiles.png
    :scale: 50 %
@@ -263,7 +293,8 @@ perform these calculations.
 
    Column formula that is a script to process CSV files. :label:`fig-processfiles`
 
-4. Complex data: managing multiple tables
+3.4. Hierarchical Tables
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 4. Design
 ---------
