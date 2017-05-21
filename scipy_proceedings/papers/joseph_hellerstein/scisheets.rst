@@ -218,47 +218,23 @@ perform these calculations.
    exactly how the data in the scisheet are produced.
    :label:`fig-complexformula`
 
-3.1 UI Structure
-~~~~~~~~~~~~~~~~
+3.1 User Interface
+~~~~~~~~~~~~~~~~~~
 
-1. Basics
-
-   a. Elements - sheet, tables, columns, rows, cells (Fig)
-   b. Row column - unique ID (name) for row
-   c. Common popup menus for sheet, table, column, row: insert, delete, hide/unhide, rename (for row, moves the row)
-   d. Cell - edit
-   e. Column: formula
-   f. Table: prologue, epilogue
-   g. scisheet: saveas, undo/redo, export
-   h. Column names are pandas array. Referred
-      to as **Column Variables**.
-      Means that vector operations are supported, natural for Calcer. Also, handles
-      missing data.
-
-2. Challenges with formula evaluation because of arbitrary code.
-
-3. Workflow for table evaluation
-
-   a. Prolog - initialize Column Variables from the table.
-      If there is no exception, then control continues to formula evaluation.
-      Otherwise an exception is raised.
-   b. Formula evaluation loop. Evaluate each column formula until one of the following holds:
-
-      a) All Column Variables have the same value in two successive iterations of the formula evaluation loop
-         and there is no exception.
-      b) A specified number of iterations has occurred.
-         The number of iterations is equal to the number of formula columns.
-         If there is no exception, then control continues to the Epilogue.
-         Otherwise an exception is raised.
-
-   c. Epilogue. Evaluate the Epilogue formula. If no exception occurs, update the column values.
+1. Elements - sheet, tables, columns, rows, cells (Fig)
+2. Row column - unique ID (name) for row
+3. Common popup menus for sheet, table, column, row: insert, delete, hide/unhide, rename (for row, moves the row)
+4. Cell - edit
+5. Column: formula
+6. Table: prologue, epilogue
+7. scisheet: saveas, undo/redo, export
 
 .. figure:: TableExport.png
 
    Menu to export a table as a standalone python program. :label:`fig-export`
 
-3.2 Formulas Can Be Scripts
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3.2 Formula Scripts
+~~~~~~~~~~~~~~~~~~~
 
 .. figure:: Multitable.png
 
@@ -281,6 +257,29 @@ perform these calculations.
    the Biology substable.
    :label:`fig-subtable-after`
 
+1. Column Variables. Column names are pandas array. Referred
+   to as **Column Variables**.
+   Means that vector operations are supported, natural for Calcer. Also, handles
+   missing data.
+
+2. Challenges with formula evaluation because of arbitrary code.
+
+3. Workflow for table evaluation
+
+   a. Prolog - initialize Column Variables from the table.
+      If there is no exception, then control continues to formula evaluation.
+      Otherwise an exception is raised.
+   b. Formula evaluation loop. Evaluate each column formula until one of the following holds:
+
+      a) All Column Variables have the same value in two successive iterations of the formula evaluation loop
+         and there is no exception.
+      b) A specified number of iterations has occurred.
+         The number of iterations is equal to the number of formula columns.
+         If there is no exception, then control continues to the Epilogue.
+         Otherwise an exception is raised.
+
+   c. Epilogue. Evaluate the Epilogue formula. If no exception occurs, update the column values.
+
 3.3. Program Export
 ~~~~~~~~~~~~~~~~~~~
 
@@ -293,8 +292,8 @@ perform these calculations.
 
    Column formula that is a script to process CSV files. :label:`fig-processfiles`
 
-3.4. Hierarchical Tables
-~~~~~~~~~~~~~~~~~~~~~~~~
+3.4. Hierarchical Columns
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 4. Design
 ---------
