@@ -114,10 +114,12 @@ not document processing features such as formatting and drawing figures.
 SciSheets addresses the above requirements by introducing
 several novel features.
 
-- *Scisheet formulas can be Python scripts, not just expressions.*
+- *Formula Scripts*
+  Scisheet formulas can be Python scripts, not just expressions.
   This addresses the expressivity requirement since
   calculations can be expressed as algorithms.
-- *Scisheet can be exported as standalone Python programs.*
+- *Program Export.*
+  Scisheets can be exported as standalone Python programs.
   This addresses the reuse requirement since
   exported spreadsheets
   can be reused in SciSheets formulas and/or by
@@ -125,7 +127,8 @@ several novel features.
   Further, performance is improved by the export feaure
   since calculations can execute without the 
   overheads of the spreadsheet environment.
-- *Tables can have nested columns (columns within columns).*
+- *Subtables.*
+  Tables can have columns that are themselves tables (columns within columns).
   This addresses the complex data requirement,
   such as representing n-to-m relationships.
 
@@ -185,7 +188,12 @@ perform these calculations.
 
 .. figure:: ExcelMultiTable.png
 
-   Student grade data from two departments in the school of engineering. :label:`fig-excel2`
+   Student grade data from two departments in the school of engineering. 
+   CSE and Biology are separate tables that are grouped together for
+   convenience of analysis.
+   However, it is difficult to manage them separate, such as insert, delete,
+   and/or hide rows.
+   :label:`fig-excel2`
 
 2. Complex Data
 
@@ -210,14 +218,6 @@ perform these calculations.
 
    Formula for computing the inverse of the input value S. :label:`fig-simpleformula`
 
-.. figure:: ComplexFormula.png
-
-   Formula for the complete calculation of :math:`V_{MAX}` and
-   :math:`K_M`.
-   The formula is a simple script, allowing a Calcer to see
-   exactly how the data in the scisheet are produced.
-   :label:`fig-complexformula`
-
 3.1 User Interface
 ~~~~~~~~~~~~~~~~~~
 
@@ -229,33 +229,25 @@ perform these calculations.
 6. Table: prologue, epilogue
 7. scisheet: saveas, undo/redo, export
 
-.. figure:: TableExport.png
-
-   Menu to export a table as a standalone python program. :label:`fig-export`
-
 3.2 Formula Scripts
 ~~~~~~~~~~~~~~~~~~~
 
-.. figure:: Multitable.png
+.. figure:: ComplexFormula.png
 
-   A table with two subtables.
-   Subtables CSE and Biology can be manipulated separately,
-   providing a way to express n-to-m relationships.
-   :label:`fig-subtables`
+   Formula for the complete calculation of :math:`V_{MAX}` and
+   :math:`K_M`.
+   The formula is a simple script, allowing a Calcer to see
+   exactly how the data in the scisheet are produced.
+   :label:`fig-complexformula`
 
-.. figure:: PopupForHierarchicalRowInsert.png
+.. figure:: ProcessFiles.png
+   :scale: 50 %
 
-   Menu to insert a row in one subtable. 
-   The menu was accessed by left-clicking on the "3" cell
-   in the column labelled "row" in the CSE subtable.
-   :label:`fig-subtable-insert`
+   A scisheet that processes many CSV files. :label:`fig-processfiles`
 
-.. figure:: AfterHierarchicalRowInsert.png
+.. figure:: ProcessFilesScript.png
 
-   Result of inserting a row in one subtable. 
-   Note that a row inserted in the CSE subtable without affecting
-   the Biology substable.
-   :label:`fig-subtable-after`
+   Column formula that is a script to process CSV files. :label:`fig-processfiles`
 
 1. Column Variables. Column names are pandas array. Referred
    to as **Column Variables**.
@@ -283,66 +275,9 @@ perform these calculations.
 3.3. Program Export
 ~~~~~~~~~~~~~~~~~~~
 
-.. figure:: ProcessFiles.png
-   :scale: 50 %
+.. figure:: TableExport.png
 
-   A scisheet that processes many CSV files. :label:`fig-processfiles`
-
-.. figure:: ProcessFilesScript.png
-
-   Column formula that is a script to process CSV files. :label:`fig-processfiles`
-
-3.4. Hierarchical Columns
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-4. Design
----------
-
-To enable a zero-install deployment and leverage the rapid pace
-of UI innovation happening with web technologies, SciSheets is a client-server
-application in which the front end uses HTML and Javascript;
-tables are rendered using YUI DataTables ref??.
-The backend handles the bulk of the computing tasks (e.g., formula evaluation).
-We connect the frontend and backend using Django ref??.
-
-.. figure:: SciSheetsCoreClasses.png
-   :scale: 30 %
-
-   SciSheets core classes. :label:`fig-coreclasses`
-
-Fig :ref:`fig-coreclasses` displays the relationships between core 
-classes used in the SciSheets backend.
-
-The use casses create the following requirements:
-(a) SciSheets must perform calculations without prior knowledge of data dependencies between
-columns; and
-(b) column formulas may be arbitrary Python scripts.
-The implies that *SciSheets cannot use a static
-analysis to discover data dependencies between columns* 
-(as is possible in a traditional spreadsheet).
-To see the issue here, note that a
-formula may contain an ``eval`` statement on a string variable
-whose value cannot be determined until runtime.
-Another example is that a formula may 
-call an external function
-that changes values in columns.
-
-A second implication follows from (b); this
-relates to debuggability.
-Specifically,
-since a formula may be a script consisting of many lines, syntax errors
-and exceptions must localize the problem to a line within the script.
-We refer to this as the **Script Debuggability Requirement**.
-
-We begin with our approach to handling data dependencies.
-Our solution is ...
-
-- Use term "formula evaluation loop"
-- Calculation workflow
-
-Concern (2), localizing errors, seques into a broader discussion of how spreadsheets are executed.
-This must be done in a way so that the column formulas run in a standalone program.
-
+   Menu to export a table as a standalone python program. :label:`fig-export`
 
 .. code-block:: python
 
@@ -450,6 +385,78 @@ Tests
    if __name__ == '__main__':
      unittest.main()
 
+3.4. Subtables
+~~~~~~~~~~~~~~
+
+.. figure:: Multitable.png
+
+   A table with two subtables.
+   Subtables CSE and Biology can be manipulated separately,
+   providing a way to express n-to-m relationships.
+   :label:`fig-subtables`
+
+.. figure:: PopupForHierarchicalRowInsert.png
+
+   Menu to insert a row in one subtable. 
+   The menu was accessed by left-clicking on the "3" cell
+   in the column labelled "row" in the CSE subtable.
+   :label:`fig-subtable-insert`
+
+.. figure:: AfterHierarchicalRowInsert.png
+
+   Result of inserting a row in one subtable. 
+   Note that a row inserted in the CSE subtable without affecting
+   the Biology substable.
+   :label:`fig-subtable-after`
+
+4. Design
+---------
+
+To enable a zero-install deployment and leverage the rapid pace
+of UI innovation happening with web technologies, SciSheets is a client-server
+application in which the front end uses HTML and Javascript;
+tables are rendered using YUI DataTables ref??.
+The backend handles the bulk of the computing tasks (e.g., formula evaluation).
+We connect the frontend and backend using Django ref??.
+
+.. figure:: SciSheetsCoreClasses.png
+   :scale: 30 %
+
+   SciSheets core classes. :label:`fig-coreclasses`
+
+Fig :ref:`fig-coreclasses` displays the relationships between core 
+classes used in the SciSheets backend.
+
+The use casses create the following requirements:
+(a) SciSheets must perform calculations without prior knowledge of data dependencies between
+columns; and
+(b) column formulas may be arbitrary Python scripts.
+The implies that *SciSheets cannot use a static
+analysis to discover data dependencies between columns* 
+(as is possible in a traditional spreadsheet).
+To see the issue here, note that a
+formula may contain an ``eval`` statement on a string variable
+whose value cannot be determined until runtime.
+Another example is that a formula may 
+call an external function
+that changes values in columns.
+
+A second implication follows from (b); this
+relates to debuggability.
+Specifically,
+since a formula may be a script consisting of many lines, syntax errors
+and exceptions must localize the problem to a line within the script.
+We refer to this as the **Script Debuggability** requirement.
+
+We begin with our approach to handling data dependencies.
+Our solution is ...
+
+- Use term "formula evaluation loop"
+- Calculation workflow
+
+Concern (2), localizing errors, seques into a broader discussion of how spreadsheets are executed.
+This must be done in a way so that the column formulas run in a standalone program.
+
 Last, we consider performance.
 Our experience is that
 there are two common
@@ -498,11 +505,11 @@ of data dependencies.
 - Hierarchical tables with local scopes provides another
   approach to reuse.
 
-- Graphics
+- **Plotting** requirement.
 
 - Multiple languages
 
-- Github integration
+- **Reproducibility** requirement. Addressed by github integration.
 
   - Why version control
   - Structure of the serialization file
@@ -536,7 +543,7 @@ better insight into modularization and testing.
    |                           | - *Hierarchical tables*        |
    |                           |   *with local scopes*          |
    +---------------------------+--------------------------------+
-   | - Complex Data            | - Hierarchical tables          |
+   | - Complex Data            | - Subtables                    |
    +---------------------------+--------------------------------+
    | - Performance             | - Progam export                |
    |                           | - Prologue, Epilogue           |
