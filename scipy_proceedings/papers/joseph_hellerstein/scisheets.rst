@@ -238,6 +238,7 @@ perform these calculations.
    :math:`K_M`.
    The formula is a simple script, allowing a Calcer to see
    exactly how the data in the scisheet are produced.
+   Note that the formula assigns values to other columns.
    :label:`fig-complexformula`
 
 .. figure:: ProcessFiles.png
@@ -325,16 +326,6 @@ Prologue
          INV_S = s.coerceValues('INV_S', INV_S)
        except Exception as exc:
          s.controller.exceptionForBlock(exc)
-        
-       try:
-         # Column INV_V
-         s.controller.startBlock('INV_V')
-         INV_V = np.round(1/V,2)
-         s.controller.endBlock()
-         INV_V = s.coerceValues('INV_V', INV_V)
-       except Exception as exc:
-         s.controller.exceptionForBlock(exc)
-
 
 .. code-block:: python
     
