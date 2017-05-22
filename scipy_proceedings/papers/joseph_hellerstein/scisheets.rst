@@ -54,31 +54,44 @@ Only Programmers take advantage of spreadsheet macro capabilities
 (e.g.,  Visual Basic for Microsoft Excel or
 AppScript in Google Sheets).
 
-Based on this experience, we find that despite the appeal of spreadsheets, especially to
-Calcers and Scripters, existing spreadsheets lack several key requirements:
-
-- **Expressivity**: The expressivity of formulas is limited because formulas are 
-  restricted to being expressions, not scripts.
-  This means that
-  calculations cannot be written as algorithms,
-  a key consideration for Scripters.
-  It also means that Calcers cannot write a step-by-step
-  recipe for how data are produced.
-- **Reuse**: It is impossible to reuse spreadsheet
-  formulas in other formulas or in software systems.
-- **Complex Data**: It remains burdensome to deal
-  with complex data relationships in spreadsheets, such as
-  hierarchically structured data.
-- **Performance**: Very little has been done to address the 
-  performance problems that occur as spreadsheets scale.
+Based on this experience, we find
+existing spreadsheets lack several key requirements.
+The first requirement is **Expressivity**. 
+Existing spreadsheets only support formulas that are expressions,
+not scripts.
+This is significant limitation for Scripters
+who often want to express calculations as algorithms.
+It is also a burder for Calcers
+who want to write linear workflows to
+articulate a computational recipe, a kind
+a computational laboratory notebook.
+A second requirement not addressed in today's spreadsheets is
+**Reuse**. 
+Specifically, it is impossible to reuse spreadsheet
+formulas in other spreadsheet formulas or in software systems.
+A third requirements is that spreadsheets handle
+**Complex Data**. 
+For example, today's spreadsheets
+make it extremely difficult to handle
+hierarchically structured data and n-to-m relationships.
+A final requirement we consider is
+**Performance**. 
+A common complaint is that
+spreadsheets scale poorly with
+the size of data and the number of formulas.
 
 Academic computer science has recognized the growing importance
 of end-user programming (EUP) [BURN2009].
-Even though
-spreadsheets are arguably the most pervasiveness form of EUP,
-there is a virtual absence of academic literature that
-addresses
-the shortcomings of spreadsheets.
+Even so,
+there is little
+academic literature on spreadsheets.
+[MCLU2006] discusses object oriented spreadsheets that
+introduces a sophisticated object model but fails to recognize
+the requirements of Calcers to have a simple way to evaluate equations.
+[JONE2003] describes a way that users can implement functions
+within a spreadsheet to get reuse, but the approach requires
+considerable user effort and does not address reuse of
+spreadsheet formulas in a larger software system.
 Outside of academia there has been significant 
 interest in innovating spreadsheets.
 Google Fusion Tables [Gonz2010] 
@@ -142,33 +155,28 @@ Our conclusions are presented in Section 6.
 2. Requirements
 ---------------
 
-This section motivates through examples
+This section present examples that motivate
 the requirements of expressivity, reuse, and complex data.
 
-Our first example is relates to a procedure done in biochemistry labs
-studying enzyme mediated reactions.
+Our first example is drawn from biochemistry labs
+studying enzyme mediated chemical reactions.
 Commonly, the Michaelis-Menten ref?? model of enzyme activity is used in which
 there is a single chemical species, called the substrate, that interacts with the enzyme to produce
-new chemical species (the product).
+a new chemical species (the product).
 Two properties of enzymes are of much interest: the maximum reaction rate,
 denoted by :math:`V_{MAX}`, and the concentration :math:`K_M` of substrate that achieves
 a reaction rate equal to half of :math:`V_{MAX}`.
-Laboratory data are collected for different values of the substrate concentration
+
+To perform the Michaelis-Menten analysis,
+laboratory data are collected for different values of the substrate concentration
 :math:`S` and reaction rate :math:`V`.
-Then, a calculation is done to obtain the parameters :math:`V_{MAX}` and :math:`K_M`.
+Then, a calculation is done to obtain the parameters :math:`V_{MAX}` and :math:`K_M`
+using the following recipe.
 
-Fig. :ref:`fig-excel1` shows an Excel spreadsheet displaying values of
-:math::math:`V_{MAX}` and :math:`K_M` for a Michaelis-Menten calculation. 
-The procedure is:
-
-- Compute the inverse of :math:`S` and :math:`V`, the columns ``INV_S`` and ``INV_V``.
-- Compute the intercept and slope of the regression of ``INV_V`` 
-  on ``INV_S``, the columns ``INTERCEPT`` and ``SLOPE``.
-- Calculate the columns ``V_MAX`` and ``K_M`` from ``INTERCEPT`` and ``SLOPE``.
-
-Fig. :ref:`fig-excel2` shows the formulas that 
-perform these calculations.
-
+1. Compute :math:``1/S`` and :math:``1/V``, the inverses of :math:`S` and :math:`V`.
+2. Compute the intercept and slope of the regression of :math:``1/V`` on
+   :math:``1/S``.
+3. Calculate :math:``V_{MAX}`` and :math:``K_M`` from the intercept and slope.
 
 .. figure:: excel1.png
 
@@ -178,14 +186,6 @@ perform these calculations.
 
    Formulas used in Fig. :ref:`fig-excel1`. :label:`fig-excel2`
 
-1. Expressivity and Reuse
-
-   a. Background. Common processing of biochemical assays to compute key characteristics of enzymes
-   b. Requirements
-
-      a.) *Expressivity*: limited ability specify calculations as expressions
-      b.) *Reuse*: Cannot reuse (robustly) formulas in other spreadsheets or in software systems
-
 .. figure:: ExcelMultiTable.png
 
    Student grade data from two departments in the school of engineering. 
@@ -193,18 +193,42 @@ perform these calculations.
    convenience of analysis.
    However, it is difficult to manage them separate, such as insert, delete,
    and/or hide rows.
-   :label:`fig-excel2`
+   :label:`fig-complexdata`
 
-2. Complex Data
+Fig. :ref:`fig-excel1` shows an Excel spreadsheet that implements this recipe
+with column names chosen to correspond to the variables in the recipe.
+Fig. :ref:`fig-excel2` shows the formulas that 
+perform these calculations.
+Readability can be improved by using column formulas (e.g., as in Fusion Tables).
+However, two problems remain.
+Calcers cannot make an *explicit* statement of
+the computational recipe; rather, it is implicit in the order of the columns.
+Even more serious, there is no way to reuse these formulas in other
+formulas (other than error-prone copy-and-paste), and
+there is no way
+to reuse in an external program.
 
-   a. Background. Multiple departments in the school of engineering, 
-      keeping records in slightly different ways.
-   b. Requirements
- 
-      a) *Complex data*: Cannot easily manipulate complex data, such as nested tables. 
-         Examples include of manipulations: View data side-by-side, but still manage as separate tables
-         in terms of insert/delete.
-
+We consider a second example to illustrate problems with handling
+non-trivial data relationships in spreadsheets.
+Fig. :ref:`fig-complexdata` displays data that a university
+might have for students in two departments in the School of Engineering.
+The data are organized into two tables (CSE and Biology) grouped under
+the School of Engineering, with separate columns for student identifiers
+and grades.
+These tables
+are adjacent to each other to facilitate the comparisons between
+students.
+However, the tables are independent of each other
+in that we should be able to insert, delete, and hide rows
+in one table without affecting
+the other table.
+Unfortunately, existing spreadsheet systems do not handle this well in that adding
+a row to one table affects all tables on that row in the sheet.
+Note that arranging the tables vertically does not help since now the problem
+becomes adding, deleting, or hiding columns.
+(We could arrange the tables in a diagonal, but 
+this makes it difficult to make visual comparisons between
+tables becomes.)
 
 3. Features
 -----------
@@ -493,14 +517,23 @@ of data dependencies.
 5. Future Directions
 --------------------
 
-- Hierarchical tables with local scopes provides another
-  approach to reuse.
+5.1 Subtables with Scoping
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Approach to reuse
+
+5.2 Plotting
+~~~~~~~~~~~~
 
 - **Plotting** requirement.
 
-- Multiple languages
+5.3 Multiple Languages
+~~~~~~~~~~~~~~~~~~~~~~
 
-- **Reproducibility** requirement. Addressed by github integration.
+5.4 Github Integration
+~~~~~~~~~~~~~~~~~~~~~~
+
+- **Reproducibility** requirement.
 
   - Why version control
   - Structure of the serialization file
@@ -531,8 +564,7 @@ better insight into modularization and testing.
    |                           | - Formula scripts              |
    +---------------------------+--------------------------------+
    | - Reuse                   | - Program export               |
-   |                           | - *Hierarchical tables*        |
-   |                           |   *with local scopes*          |
+   |                           | - *Subtables with Scoping*     |
    +---------------------------+--------------------------------+
    | - Complex Data            | - Subtables                    |
    +---------------------------+--------------------------------+
@@ -559,6 +591,13 @@ References
 .. [Thib2013] Thibodeau, Patrick. 
               *India to overtake U.S. on number of developers by 2017*, 
               COMPUTERWORLD, Jul 10, 2013.
+.. [MCCU2006] McCutchen, M., Itzhaky, S., and Jackson, D.*Object spreadsheets: 
+              a new computational model for end-user development of data-centric web applications*,
+              Proceedings of the 2016 ACM International Symposium on New Ideas, New Paradigms, 
+              and Reflections on Programming and Software, 2006.
+.. [JONE2003] Jones, S., Blackwell, A., and Burnett, M. i
+              *A user-centred approach to functions in excel*,
+              SIGPLAN Notices, 2003.
 .. [Gonz2010] *Google Fusion Tables: Web-Centered Data Management
               and Collaboration*, Hector Gonzalez et al., SIGMOD, 2010.
 .. [PySpread] Manns, M. *PYSPREAD*, http://github.com/manns/pyspread.
