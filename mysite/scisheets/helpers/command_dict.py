@@ -77,8 +77,9 @@ class CommandDict(dict):
     self['table_name'] = _extractDataFromRequest(request, 'table')
     self['args'] = _extractDataFromRequest(request, 'args[]', listvar=True)
     if self['args'] is not None:
-      python_name = DTTable.fromHTMLToPythonName(self['args'][0])
-      self['args'][0] = python_name
+      if not self['command'] in ['Prologue', 'Epilogue', 'Formula']:
+        python_name = DTTable.fromHTMLToPythonName(self['args'][0])
+        self['args'][0] = python_name
     html_name = _extractDataFromRequest(request, 'columnName')
     python_name = DTTable.fromHTMLToPythonName(html_name)
     self['column_name'] = DTTable.fromHTMLToPythonName(python_name)

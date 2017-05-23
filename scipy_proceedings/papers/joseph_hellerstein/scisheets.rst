@@ -1,10 +1,10 @@
 :author: Alicia Clark
 :email: clarka34@uw.edu
-:institution: eScience Institute, University of Washington
+:institution: Department of Mechanical Engineering, University of Washington
 
 :author: Joseph Hellerstein
 :email: joseph.hellerstein@gmail.com
-:institution: Department of Mechanical Engineering, University of Washington
+:institution: eScience Institute, University of Washington
 :corresponding:
 
 --------------------------------------------------------------------------------------------------------------------
@@ -24,7 +24,8 @@ Short abstract.
 
 Digital spreadsheets are the "killer app" that ushered in the PC revolution.
 This is largely because spreadsheets provide a conceptually simple way to do calculations that
-(a) closely associates data with the calculations that produce the data and (b) avoids the mental burdens of programming
+(a) closely associates data with the calculations that produce the data and 
+(b) avoids the mental burdens of programming
 such as
 control flow, data dependencies, and data structures.
 Estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
@@ -95,7 +96,7 @@ considerable user effort and does not address reuse of
 spreadsheet formulas in a larger software system.
 Outside of academia there has been significant
 interest in innovating spreadsheets.
-Google Fusion Tables [Gonz2010]
+Google Fusion Tables [GONZ2010]
 and the "Tables" feature of Microsoft Excel ref??
 use column formulas to avoid a common source of errors,
 the need to copy formulas as rows are added/deleted from a table.
@@ -581,45 +582,25 @@ a scisheet element (e.g., column), its name, an action to perform
 
    SciSheets core classes. :label:`fig-coreclasses`
 
-### You seem to have deleted this, but I am keeping it in just in case. I will end
-### the section with '###'
-Fig :ref:`fig-coreclasses` displays the relationships between core
-classes used in the SciSheets backend.
-
-The use casses create the following requirements:
-(a) SciSheets must perform calculations without prior knowledge of data dependencies between
-columns; and
-(b) column formulas may be arbitrary Python scripts.
-The implies that *SciSheets cannot use a static
-analysis to discover data dependencies between columns*
-(as is possible in a traditional spreadsheet).
-To see the issue here, note that a
-formula may contain an ``eval`` statement on a string variable
-whose value cannot be determined until runtime.
-Another example is that a formula may
-call an external function
-that changes values in columns.
-
-A second implication follows from (b); this
-relates to debuggability.
-Specifically,
-since a formula may be a script consisting of many lines, syntax errors
-and exceptions must localize the problem to a line within the script.
-We refer to this as the **Script Debuggability** requirement.
-
-We begin with our approach to handling data dependencies.
-Our solution is ...
-
-- Use term "formula evaluation loop"
-- Calculation workflow
-
-Concern (2), localizing errors, seques into a broader discussion of how spreadsheets are executed.
-This must be done in a way so that the column formulas run in a standalone program.
-###
 The SciSheets server handles the details of requests, which also
 requires maintaining the data associated with scisheets.
 Fig :ref:`fig-coreclasses` displays the core
-classes used in the SciSheets backend.
+classes used in the SciSheets server.
+Core classes have several required methods.
+One example of this is the ``copy`` method.
+This method makes a copy of the object for which it is
+invoked.
+To do this, the method calls the ``copy`` method for its parent
+class as well (which in turn calls its parent, and so on).
+Further, the object must call the ``copy`` method for its children
+if there is a has-a relationship, such as between
+``ColumnContainer`` and ``Column``.
+Other examples of required methods are:
+
+- ``isEquivalent`` tests if the current object has the same
+   instance values as its children
+- ``getSerializationDict
+- ``deserialize``
 
 1. Common methods for classes: copy, isEquivalent, getSerializationDict, deserialize
 2. coerce method for value
@@ -771,7 +752,7 @@ better insight into modularization and testing.
    +---------------------------+--------------------------------+
    | - Plotting                | - *Embed bokeh components*     |
    +---------------------------+--------------------------------+
-   | - Script Debuggablity     | - Localized exceptions         |
+   | - Script Debuggability    | - Localized exceptions         |
    +---------------------------+--------------------------------+
    | - Reproducibility         | - ``github`` *integration*     |
    +---------------------------+--------------------------------+
@@ -793,7 +774,7 @@ References
 .. [JONE2003] Jones, S., Blackwell, A., and Burnett, M. i
               *A user-centred approach to functions in excel*,
               SIGPLAN Notices, 2003.
-.. [Gonz2010] *Google Fusion Tables: Web-Centered Data Management
+.. [GONZ2010] *Google Fusion Tables: Web-Centered Data Management
               and Collaboration*, Hector Gonzalez et al., SIGMOD, 2010.
 .. [PySpread] Manns, M. *PYSPREAD*, http://github.com/manns/pyspread.
 .. [Stencila] *Stencila*, https://stenci.la/.
