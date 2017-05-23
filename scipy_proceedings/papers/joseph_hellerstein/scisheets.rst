@@ -687,11 +687,51 @@ of data dependencies.
 5.4 Github Integration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-- **Reproducibility** requirement.
+.. figure:: spreadsheet_branch.png
 
-  - Why version control
-  - Structure of the serialization file
-  - User interface for version control
+   Diagram showing how a scisheet can be split into two separate branches for testing
+   code features. :label:`fig-branch`
+
+.. figure:: spreadsheet_merge.png
+
+   Diagram showing how two scisheets will be merged (assuming no merge conflicts).
+   :label:`fig-merge`
+
+A common problem with spreadsheets is that calculations are difficult to reproduce
+because some steps are manual (e.g., menu interactions) and the presence
+of errors.
+We refer to this as the **Reproducibility Requirement**.
+Version control is an integral part of reproducibility.
+Today, a spreadsheet file as a whole can be version controlled,
+but this granularity is too course.
+More detailed version control can be done manually.
+However, this is error prone, and it is very difficult
+to keep current (a considerably problem in a collaborative environment).
+One automated approach is a revision history, such as
+Google Sheets.
+But this technique fails to record the sequence in which changes were made, by whom,
+and for what reason.
+
+It turns out that the way that SciSheets serialization of tables naturally lends itself
+to github integration.
+scisheets are serialized as JSON files with separate lines used for data, formulas,
+and the structural relationships between columns, tables, and the scisheet.
+Although the structural relationships have a complex representation, it
+does seem that the SciSheets can be integrated with the line oriented version
+control of github.
+
+We are in the process of designing a user friendly integration of SciSheets with
+github.
+The scope here includes the following use cases:
+
+- Branching.
+  Uses should be able to create branches to explore new calculations and features
+  of a scisheet.
+  As with branching for software teams, branching with a spreadsheet
+  should allow collaborators to work on their part of the project without
+  worrying about affecting the work of others.
+
+- Merging.
 
 6. Conclusions
 --------------
@@ -705,36 +745,6 @@ in existing spreadsheet systems.
 It is hoped that Calcers will start using scripts,
 and that Scripters will gain
 better insight into modularization and testing.
-
-Additionally, version control will be implemented to improve reproducibility.
-This is important because there is not currently a good way to keep track of
-changes made to a spreadsheet, especially in large collaborative environments. The most
-common version control method used currently is to have a user implemented log of
-changes made in each iteration of the spreadsheet. In addition to being prone to
-user error, this type of log does not truly encapsulate the changes made throughout
-the spreadsheet, and it makes it difficult for collabortors to quickly check the
-changes made by their peers. Google Sheets does include a revision history for
-spreadsheets; however, it is very simplistic. It is also difficult for the user
-to control when the spreadsheet changes are saved which is potentially problematic
-between collaborators.
-
-- Branching/Merging a scisheet
-Another useful feature that will be implemented is the ability to create branches so that
-different spreadsheet features can be explored and tested without altering the original
-spreadsheet. This allows a collaborator to work on their part of the project without
-worrying about affecting the work of others.
-
-- Merging a spreadsheet
-
-.. figure:: spreadsheet_branch.png
-
-   Diagram showing how a scisheet can be split into two separate branches for testing
-   code features. :label:`fig-branch`
-
-.. figure:: spreadsheet_merge.png
-
-   Diagram showing how two scisheets will be merged (assuming no merge conflicts).
-   :label:`fig-merge`
 
 
 .. table:: Summary of requirements
