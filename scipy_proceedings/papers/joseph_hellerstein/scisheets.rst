@@ -61,7 +61,7 @@ Existing spreadsheets only support formulas that are expressions,
 not scripts.
 This is significant limitation for Scripters
 who often want to express calculations as algorithms.
-It is also a burder for Calcers
+It is also a burden for Calcers
 who want to write linear workflows to
 articulate a computational recipe, a kind
 a computational laboratory notebook.
@@ -69,10 +69,11 @@ A second requirement not addressed in today's spreadsheets is
 **Reuse**. 
 Specifically, it is impossible to reuse spreadsheet
 formulas in other spreadsheet formulas or in software systems.
-A third requirements is that spreadsheets handle
+A third requirement that is missing from existing spreadsheets
+is handling
 **Complex Data**. 
 For example, today's spreadsheets
-make it extremely difficult to handle
+make it extremely difficult to manipulate
 hierarchically structured data and n-to-m relationships.
 A final requirement we consider is
 **Performance**. 
@@ -233,25 +234,57 @@ tables becomes.)
 3. Features
 -----------
 
+This section describes SciSheets features that address the requirements of expressivity, reuse, complex data,
+and performance.
+We begin with a discussion of the SciSheets
+user interface in Section 3.1.
+Then, Sections 3.2, 3.3, and 3.4 in turn present:
+formula scripts (which addresses expressivity),
+program export (which addresses reuse and performance),
+and subtables (which addresses complex data).
+
+3.1 User Interface
+~~~~~~~~~~~~~~~~~~
+
 .. figure:: ColumnPopup.png
 
    Column popup menu in a scisheet for the Michaelis-Menten calculation. :label:`fig-columnpopup`
+
+Fig. :ref:`fig-columnpopup` displays a scisheet that performs the Michaelis-Menten calculations
+as we did in Fig. :ref:`fig-excel1`.
+A scisheet
+has the familiar tabular structure of a spreadsheet.
+However, unlike spreadsheets, SciSheets knows about the
+*structure of a scisheet: 
+scisheet (entire sheet), tables, columns, rows, and cells*.
+Table and column names are Python variables that the user can reference in formulas.
+These **Column Variables**
+are ``pandas Arrays``.
+It is easy to do vector calculations on Column Variables using a rich set of operators that properly handle
+missing data using `nan` values.
+
+Users interact directly with scisheet elements (instead of primarily with a menu, as is done in spreadsheet systems).
+A left click on a scisheet element results in a popup menu.
+For example,
+in Fig. :ref:`fig-columnpopup` we see the column popup for the column ``INV_S``.
+Users select an item from the popup, and this may in turn present additional menus.
+The popup menus for row, column, and table have common items for insert, delete, hide/unhide.
+Columns additionally have a formula item.
+The scisheet popup has items for saving and renaming the scisheet as well as undoing/redoing operations
+on the scisheet.
+The cell popup is an editor for the value in the cell.
+
 
 .. figure:: SimpleFormula.png
    :scale: 50 %
 
    Formula for computing the inverse of the input value S. :label:`fig-simpleformula`
 
-3.1 User Interface
-~~~~~~~~~~~~~~~~~~
-
-1. Elements - sheet, tables, columns, rows, cells (Fig)
-2. Row column - unique ID (name) for row
-3. Common popup menus for sheet, table, column, row: insert, delete, hide/unhide, rename (for row, moves the row)
-4. Cell - edit
-5. Column: formula
-6. Table: prologue, epilogue
-7. scisheet: saveas, undo/redo, export
+Fig. :ref:`fig-simpleformula` displays the submenu resulting from selecting the formula item
+from the popup menu in Fig. :ref:`fig-columnpopup` for the column ``INV_S``.
+A simple line editor is displayed.
+The formula is an expression that references the Column Variable ``S``.
+A column that contains a formula has its name annotated with an ``*``.
 
 3.2 Formula Scripts
 ~~~~~~~~~~~~~~~~~~~
@@ -265,37 +298,51 @@ tables becomes.)
    Note that the formula assigns values to other columns.
    :label:`fig-complexformula`
 
+SciSheets allows formulas to be scripts.
+For example, Fig. :ref:`fig-complexformula` displays a script that contains
+the entire computational recipe for the Michaelis-Menten calculation
+descripted in Section 2.
+This capability greatly increases the ability of spreadsheet users
+to describe and document their calculations.
+
 .. figure:: ProcessFiles.png
    :scale: 50 %
 
    A scisheet that processes many CSV files. :label:`fig-processfiles`
 
-.. figure:: ProcessFilesScript.png
+At this point, we elaborate briefly on how formula evaluation is done
+in SciSheets.
+Since a formula may contain arbitrary Python expressions including
+``eval`` expressions, we cannot use static dependency analysis
+to determine data dependencies.
+Thus, formula evaluation is done iteratively.
+But how many times must this iteration be done?
 
-   Column formula that is a script to process CSV files. :label:`fig-processfiles`
+Consider an evaluation of *N* formula columns assuming that
+there are no
+circular references or other inherent anomalies in the formulas.
+Then, at most *N* iterations are needed to converge since on each iteration
+at least one Column Variable is assigned its value.
+If after *N* iterations, there is an exception, (e.g., a Column Variable
+does not have a value assigned), this is reported to the user since there is
+an error in the formulas.
+Otherwise, the scisheet is updated with the new values of the
+Column Variables.
+Actually, we can do better than this since 
+if the values of Column Variables converge after loop iteration
+*M < N* (and there is no exception), then
+formula evaluation stops.
 
-1. Column Variables. Column names are pandas array. Referred
-   to as **Column Variables**.
-   Means that vector operations are supported, natural for Calcer. Also, handles
-   missing data.
-
-2. Challenges with formula evaluation because of arbitrary code.
-
-3. Workflow for table evaluation
-
-   a. Prolog - initialize Column Variables from the table.
-      If there is no exception, then control continues to formula evaluation.
-      Otherwise an exception is raised.
-   b. Formula evaluation loop. Evaluate each column formula until one of the following holds:
-
-      a) All Column Variables have the same value in two successive iterations of the formula evaluation loop
-         and there is no exception.
-      b) A specified number of iterations has occurred.
-         The number of iterations is equal to the number of formula columns.
-         If there is no exception, then control continues to the Epilogue.
-         Otherwise an exception is raised.
-
-   c. Epilogue. Evaluate the Epilogue formula. If no exception occurs, update the column values.
+SciSheets augments formula evaluation by providing users with the opportunity
+to specify two additional formulas.
+The **Prologue Formula** is executed once at the beginning of formula evaluation;
+the **Epilogue Formula** is executed once at the end of formula evaluation.
+These formulas provide a way to do high overhead operations in a one-shot manner.
+For example, a user may have Prologue Formula that
+reads a file (e.g., to initialize input values in a talbe) at the beginning
+of the calculation, and an Epilogue Formula
+that writes results at the end of the calculation.
+Prologue and Epilogue Formulas are modified through the table popup menu.
 
 3.3. Program Export
 ~~~~~~~~~~~~~~~~~~~
@@ -399,6 +446,13 @@ Tests
    
    if __name__ == '__main__':
      unittest.main()
+
+The combination of the program export and formula script features is very powerful.
+For example, ...
+
+.. figure:: ProcessFilesScript.png
+
+   Column formula that is a script to process CSV files. :label:`fig-processfiles`
 
 3.4. Subtables
 ~~~~~~~~~~~~~~
