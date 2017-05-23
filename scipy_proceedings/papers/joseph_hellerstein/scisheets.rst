@@ -39,24 +39,24 @@ spreadsheet users as follows:
   Spreadsheet formulas work well for Calcers since: (a) they can
   ignore data dependencies;
   (b) they can avoid flow control by using
-  "copy" and "paste" for iteration; 
+  "copy" and "paste" for iteration;
   and (c) data structures are "visual" (e.g., rectangular blocks).
 - **Scripters** feel comfortable with expressing calculations algorithmically using ``for`` and ``if``
-  statements; and they can use simple data structures such as lists and 
+  statements; and they can use simple data structures such as lists and
   ``pandas DataFrames`` (which are like spreadsheets).
-  However, they rarely encapsulate code into functions, 
+  However, they rarely encapsulate code into functions,
   preferring to ``copy`` and ``paste`` code to get reuse.
-- **Programmers** know about sophisticated data structures, modularization, reuse, and testing. 
+- **Programmers** know about sophisticated data structures, modularization, reuse, and testing.
 
 Our experience is primarily with scientists, especially biologists and chemists.
 Most commonly, we encounter Calcers and Scripters.
-Only Programmers take advantage of spreadsheet macro capabilities 
+Only Programmers take advantage of spreadsheet macro capabilities
 (e.g.,  Visual Basic for Microsoft Excel or
 AppScript in Google Sheets).
 
 Based on this experience, we find
 existing spreadsheets lack several key requirements.
-The first requirement is **Expressivity**. 
+The first requirement is **Expressivity**.
 Existing spreadsheets only support formulas that are expressions,
 not scripts.
 This is significant limitation for Scripters
@@ -66,17 +66,17 @@ who want to write linear workflows to
 articulate a computational recipe, a kind
 a computational laboratory notebook.
 A second requirement not addressed in today's spreadsheets is
-**Reuse**. 
+**Reuse**.
 Specifically, it is impossible to reuse spreadsheet
 formulas in other spreadsheet formulas or in software systems.
 A third requirement that is missing from existing spreadsheets
 is handling
-**Complex Data**. 
+**Complex Data**.
 For example, today's spreadsheets
 make it extremely difficult to manipulate
 hierarchically structured data and n-to-m relationships.
 A final requirement we consider is
-**Performance**. 
+**Performance**.
 A common complaint is that
 spreadsheets scale poorly with
 the size of data and the number of formulas.
@@ -93,9 +93,9 @@ the requirements of Calcers to have a simple way to evaluate equations.
 within a spreadsheet to get reuse, but the approach requires
 considerable user effort and does not address reuse of
 spreadsheet formulas in a larger software system.
-Outside of academia there has been significant 
+Outside of academia there has been significant
 interest in innovating spreadsheets.
-Google Fusion Tables [Gonz2010] 
+Google Fusion Tables [Gonz2010]
 and the "Tables" feature of Microsoft Excel ref??
 use column formulas to avoid a common source of errors,
 the need to copy formulas as rows are added/deleted from a table.
@@ -112,7 +112,7 @@ However, Stencila lacks features that spreadsheet users expect:
 (a) closely associating data with the calculations that produce the data
 and (b) avoiding considerations of data dependencies in calculations.
 
-This paper introduces SciSheets [SciSheets], a new spreadsheet system with the 
+This paper introduces SciSheets [SciSheets], a new spreadsheet system with the
 objective of delivering
 the power of programming with the simplicity of spreadsheets.
 The name SciSheets is a contraction of the phrase "Scientific Spreadsheet", a nod to the users
@@ -139,7 +139,7 @@ several novel features.
   can be reused in SciSheets formulas and/or by
   external programs (e.g., written by Programmers).
   Further, performance is improved by the export feaure
-  since calculations can execute without the 
+  since calculations can execute without the
   overheads of the spreadsheet environment.
 - *Subtables.*
   Tables can have columns that are themselves tables (columns within columns).
@@ -148,15 +148,15 @@ several novel features.
 
 The remainder of the paper is organized as follows.
 Section 2 describes the requirements that we consider, and
-section 3 details the SciSheets features that address these requirements.
+Section 3 details the SciSheets features that address these requirements.
 The design of SciSheets is discussed in Section 4, and
-section 5 discusses features planned for SciSheets.
+Section 5 discusses features planned for SciSheets.
 Our conclusions are presented in Section 6.
 
 2. Requirements
 ---------------
 
-This section present examples that motivate
+This section presents examples that motivate
 the requirements of expressivity, reuse, and complex data.
 
 Our first example is drawn from biochemistry labs
@@ -189,7 +189,7 @@ using the following recipe.
 
 .. figure:: ExcelMultiTable.png
 
-   Student grade data from two departments in the school of engineering. 
+   Student grade data from two departments in the school of engineering.
    CSE and Biology are separate tables that are grouped together for
    convenience of analysis.
    However, it is difficult to manage them separate, such as insert, delete,
@@ -198,7 +198,7 @@ using the following recipe.
 
 Fig. :ref:`fig-excel1` shows an Excel spreadsheet that implements this recipe
 with column names chosen to correspond to the variables in the recipe.
-Fig. :ref:`fig-excel2` shows the formulas that 
+Fig. :ref:`fig-excel2` shows the formulas that
 perform these calculations.
 Readability can be improved by using column formulas (e.g., as in Fusion Tables).
 However, two problems remain.
@@ -227,9 +227,9 @@ Unfortunately, existing spreadsheet systems do not handle this well in that addi
 a row to one table affects all tables on that row in the sheet.
 Note that arranging the tables vertically does not help since now the problem
 becomes adding, deleting, or hiding columns.
-(We could arrange the tables in a diagonal, but 
+(We could arrange the tables in a diagonal, but
 this makes it difficult to make visual comparisons between
-tables becomes.)
+tables.)
 
 3. Features
 -----------
@@ -255,7 +255,7 @@ as we did in Fig. :ref:`fig-excel1`.
 A scisheet
 has the familiar tabular structure of a spreadsheet.
 However, unlike spreadsheets, SciSheets knows about the
-*structure of a scisheet: 
+*structure of a scisheet:
 scisheet (entire sheet), tables, columns, rows, and cells*.
 Table and column names are Python variables that the user can reference in formulas.
 These **Column Variables**
@@ -328,7 +328,7 @@ does not have a value assigned), this is reported to the user since there is
 an error in the formulas.
 Otherwise, the scisheet is updated with the new values of the
 Column Variables.
-Actually, we can do better than this since 
+Actually, we can do better than this since
 if the values of Column Variables converge after loop iteration
 *M < N* (and there is no exception), then
 formula evaluation stops.
@@ -339,7 +339,7 @@ The **Prologue Formula** is executed once at the beginning of formula evaluation
 the **Epilogue Formula** is executed once at the end of formula evaluation.
 These formulas provide a way to do high overhead operations in a one-shot manner.
 For example, a user may have Prologue Formula that
-reads a file (e.g., to initialize input values in a talbe) at the beginning
+reads a file (e.g., to initialize input values in a table) at the beginning
 of the calculation, and an Epilogue Formula
 that writes results at the end of the calculation.
 Prologue and Epilogue Formulas are modified through the table popup menu.
@@ -378,15 +378,15 @@ Prologue
      s.controller.endBlock()
 
 .. code-block:: python
-  
-   # 
+
+   #
      # Loop initialization
      s.controller.initializeLoop()
      while not s.controller.isTerminateLoop():
        s.controller.startAnIteration()
 
 .. code-block:: python
-  
+
    #
        # Formula evaluation blocks
        try:
@@ -399,19 +399,19 @@ Prologue
          s.controller.exceptionForBlock(exc)
 
 .. code-block:: python
-    
+
    #
        # Close of function
        s.controller.endAnIteration()
-     
+
      if s.controller.getException() is not None:
        raise Exception(s.controller.formatError(
            is_absolute_linenumber=True))
-     
+
      s.controller.startBlock('Epilogue')
      # Epilogue
      s.controller.endBlock()
-     
+
      return V_MAX,K_M
 
 Tests
@@ -421,19 +421,19 @@ Tests
    from scisheets.core import api as api
    from michaelis import michaelis
    import unittest
-   
+
    #############################
    # Tests
    #############################
    # pylint: disable=W0212,C0111,R0904
    class Testmichaelis(unittest.TestCase):
-   
+
      def setUp(self):
        from scisheets.core import api as api
        self.s = api.APIPlugin('michaelis.scish')
        self.s.initialize()
        _table = self.s.getTable()
-       
+
      def testBasics(self):
        # Assign column values to program variables.
        S = self.s.getColumnValue('S')
@@ -443,7 +443,7 @@ Tests
            self.s.compareToColumnValues('V_MAX', V_MAX))
        self.assertTrue(
            self.s.compareToColumnValues('K_M', K_M))
-   
+
    if __name__ == '__main__':
      unittest.main()
 
@@ -466,14 +466,14 @@ For example, ...
 
 .. figure:: PopupForHierarchicalRowInsert.png
 
-   Menu to insert a row in one subtable. 
+   Menu to insert a row in one subtable.
    The menu was accessed by left-clicking on the "3" cell
    in the column labelled "row" in the CSE subtable.
    :label:`fig-subtable-insert`
 
 .. figure:: AfterHierarchicalRowInsert.png
 
-   Result of inserting a row in one subtable. 
+   Result of inserting a row in one subtable.
    Note that a row inserted in the CSE subtable without affecting
    the Biology substable.
    :label:`fig-subtable-after`
@@ -493,7 +493,7 @@ We connect the frontend and backend using Django ref??.
 
    SciSheets core classes. :label:`fig-coreclasses`
 
-Fig :ref:`fig-coreclasses` displays the relationships between core 
+Fig :ref:`fig-coreclasses` displays the relationships between core
 classes used in the SciSheets backend.
 
 The use casses create the following requirements:
@@ -501,12 +501,12 @@ The use casses create the following requirements:
 columns; and
 (b) column formulas may be arbitrary Python scripts.
 The implies that *SciSheets cannot use a static
-analysis to discover data dependencies between columns* 
+analysis to discover data dependencies between columns*
 (as is possible in a traditional spreadsheet).
 To see the issue here, note that a
 formula may contain an ``eval`` statement on a string variable
 whose value cannot be determined until runtime.
-Another example is that a formula may 
+Another example is that a formula may
 call an external function
 that changes values in columns.
 
@@ -530,7 +530,7 @@ Last, we consider performance.
 Our experience is that
 there are two common
 causes of poor performance
-in our current implementation of SciSheets. 
+in our current implementation of SciSheets.
 The first relates to data size since
 since, at present,
 SciSheets embeds data with the
@@ -551,7 +551,7 @@ dependencies);
 the second execution confirms that the result has
 converged.
 Some efficiencies can be gained by using the Prologue and
-Epilogue features for one-shot 
+Epilogue features for one-shot
 execution of high overhead operations (e.g., file I/O).
 Also, we are exploring the extent to which SciSheets
 can detect automatically when static dependency checking
@@ -560,7 +560,7 @@ only once.
 
 Clearly, performance can be improved by reducing the number
 of formula columns since this reduces the maximum number
-of iterations of the formulation evaluation loop. 
+of iterations of the formulation evaluation loop.
 SciSheets supports this strategy by permitting
 formulas to be scripts.
 This is a reasonable strategy for a Scripter, but
@@ -602,13 +602,44 @@ in existing spreadsheet systems.
 1. Discuss entries in table. For now, performance is not evaluated.
 
 2. SciSheets seeks to improve the programming skills of its users.
-It is hoped that Calcers will start using scripts, 
+It is hoped that Calcers will start using scripts,
 and that Scripters will gain
 better insight into modularization and testing.
 
+Additionally, version control will be implemented to improve reproducibility.
+This is important because there is not currently a good way to keep track of
+changes made to a spreadsheet, especially in large collaborative environments. The most
+common version control method used currently is to have a user implemented log of
+changes made in each iteration of the spreadsheet. In addition to being prone to
+user error, this type of log does not truly encapsulate the changes made throughout
+the spreadsheet, and it makes it difficult for collabortors to quickly check the
+changes made by their peers. Google Sheets does include a revision history for
+spreadsheets; however, it is very simplistic. It is also difficult for the user
+to control when the spreadsheet changes are saved which is potentially problematic
+between collaborators.
+
+- Branching/Merging a scisheet
+Another useful feature that will be implemented is the ability to create branches so that
+different spreadsheet features can be explored and tested without altering the original
+spreadsheet. This allows a collaborator to work on their part of the project without
+worrying about affecting the work of others.
+
+- Merging a spreadsheet
+
+.. figure:: spreadsheet_branch.png
+
+   Diagram showing how a scisheet can be split into two separate branches for testing
+   code features. :label:`fig-branch`
+
+.. figure:: spreadsheet_merge.png
+
+   Diagram showing how two scisheets will be merged (assuming no merge conflicts).
+   :label:`fig-merge`
+
+
 .. table:: Summary of requirements
            and SciSheets features that address these requirements.
-           Features in italics are planned but not yet implemented. 
+           Features in italics are planned but not yet implemented.
            :label:`fig-benefits`
 
    +---------------------------+--------------------------------+
@@ -642,12 +673,12 @@ References
               it matter?*, Lecture Notes in Computer Science, 2009
 .. [MODE2017] *MODELOFF - Financial Modeling World Championships*,
               http://www.modeloff.com/the-legend/.
-.. [Thib2013] Thibodeau, Patrick. 
-              *India to overtake U.S. on number of developers by 2017*, 
+.. [Thib2013] Thibodeau, Patrick.
+              *India to overtake U.S. on number of developers by 2017*,
               COMPUTERWORLD, Jul 10, 2013.
-.. [MCCU2006] McCutchen, M., Itzhaky, S., and Jackson, D.*Object spreadsheets: 
+.. [MCCU2006] McCutchen, M., Itzhaky, S., and Jackson, D.*Object spreadsheets:
               a new computational model for end-user development of data-centric web applications*,
-              Proceedings of the 2016 ACM International Symposium on New Ideas, New Paradigms, 
+              Proceedings of the 2016 ACM International Symposium on New Ideas, New Paradigms,
               and Reflections on Programming and Software, 2006.
 .. [JONE2003] Jones, S., Blackwell, A., and Burnett, M. i
               *A user-centred approach to functions in excel*,
