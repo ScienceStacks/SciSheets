@@ -4,12 +4,12 @@
 
 :author: Joseph Hellerstein
 :email: joseph.hellerstein@gmail.com
-:institution: eScience Institute, University of Washington
+:institution: eScience Institute, University of Washington. This work was made possible by the Moore/Sloan Data Science Environments Project at the University of Washington supported by grants from the Gordon and Betty Moore Foundation (Award #3835) and the Alfred P. Sloan Foundation (Award #2013-10-29).
 :corresponding:
 
---------------------------------------------------------------------------------------------------------------------
-SciSheets: Delivering the Power of Programming With The Simplicity of Spreadsheets
---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+SciSheets: Providing the Power of Programming With The Simplicity of Spreadsheets
+---------------------------------------------------------------------------------
 
 .. class:: abstract
 
@@ -58,7 +58,7 @@ AppScript in Google Sheets).
 
 Based on this experience, we find
 existing spreadsheets lack several key requirements.
-The first requirement is **Expressivity**.
+The first is the **expressivity requirement**.
 Existing spreadsheets only support formulas that are expressions,
 not scripts.
 This is significant limitation for Scripters
@@ -67,18 +67,18 @@ It is also a burden for Novices
 who want to write linear workflows to
 articulate a computational recipe, a kind
 a computational laboratory notebook.
-A second requirement not addressed in today's spreadsheets is
-**Reuse**.
-Specifically, it is impossible to reuse spreadsheet
+A second consideration is the
+**reuse requirement**.
+Today,
+it is impossible to reuse spreadsheet
 formulas in other spreadsheet formulas or in software systems.
-A third requirement that is missing from existing spreadsheets
-is handling
-**Complex Data**.
+Third, current spreadsheet systems do satisfy the
+**complex data requirement**.
 For example, today's spreadsheets
 make it extremely difficult to manipulate
 hierarchically structured data and n-to-m relationships.
-A final requirement we consider is
-**Performance**.
+Finally, there is the
+**performance requirement**.
 A common complaint is that
 spreadsheets scale poorly with
 the size of data and the number of formulas.
@@ -262,7 +262,7 @@ However, unlike spreadsheets, SciSheets knows about the
 scisheet (entire sheet), tables, columns, rows, and cells*.
 Table and column names are Python variables that the user can reference in formulas.
 These **Column Variables**
-are ``pandas Arrays``.
+are ``numpy Arrays``.
 It is easy to do vector calculations on Column Variables using a rich set of operators that properly handle
 missing data using `nan` values.
 
@@ -603,7 +603,8 @@ values of instance variables, and
 in a JSON structure.
 
 We now describe the responsibility of the classes in
-Fig. :ref:`fig-coreclasses`.
+the ``Tree`` hierarchy
+in Fig. :ref:`fig-coreclasses`.
 ``Tree`` implements a tree that is used to express
 hierarchical
 relationships such as between ``Table`` and ``Column`` objects.
@@ -618,6 +619,18 @@ does formula evaluation using ``evaluate()``.
 ``UITable`` handles user requests (e.g., renaming a column and
 inserting a row) in a way that is independent of the client implemenation.
 ``DTTable`` provides client specific services, such as rendering tables into HTML using ``render()``.
+
+The classes ``NameSpace`` (a Python namespace) and ``ColumnVariable``
+are at the center of formula evaluation.
+The ``evaluate()`` method in ``Table`` generates Python code that
+is executed in a Python namespace.
+This SciSheets runtime creates an instance of a ``ColumnVariable`` for each
+``Column`` in the scisheet being evaluated.
+``ColumnVariable`` puts the name of its corresponding ``Column`` into the
+namespace, and assigns
+to this name a ``numpy Array`` that is populated with
+the values of the ``Column``.
+
 
 Last, we consider performance.
 There are two common
@@ -667,17 +680,63 @@ under development.
 5.1 Subtables with Scoping
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Approach to reuse
+This feature addresses the reuse requirement.
+Today, spreadsheet users typically use copy-and-paste to reuse formulas.
+This approach suffers from many problems.
+First, it is error prone since there are often mistakes as to what is copied
+and where it is pasted.
+Second, fixing bugs in formulas requires repeating the copy-and-paste, another
+error prone process.
+
+It turns out that a modest change to the subtable feature can provide
+a robust approach to
+reuse through copy-and-paste.
+The feature is to have subtables define a name scope.
+To see this, consider Fig. :ref:`fig-subtables` with the subtables
+``CSE`` and ``Biology``.
+Suppose further that these subtables both have a column named ``GPA``,
+and we want to add the column ``TypicalGPA`` to both subtables.
+The approach would be as follows:
+
+1. Add the column ``TypicalGPA`` to ``CSE``.
+2. Create the formula 
+   ``np.mean(GPA)`` in
+   ``TypicalGPA``.
+3. Copy the column ``TypicalGPA`` to subtable ``Biology``
+   Since the subtable scope is local, the formula
+   ``np.mean(GPA)`` will reference the column ``GPA`` in
+   ``Biology``.
+
+Now suppose that we want to change the calculation of
+``TypicalGPA`` to be the median instead of the mean.
+This is handled as follows:
+
+1. The user edits the formula for the column ``TypicalGPA`` in
+   subtable ``CSE``,
+   changing the formula to 
+   ``np.median(GPA)``.
+2. SciSheets responds by asking if the user wants the
+   copies of this formula
+   to be updated as well.
+3. The user answers "yes", and the formula is changed for
+   ``TypicalGPA`` in subtable ``Biology``.
+   
 
 5.2 Plotting
 ~~~~~~~~~~~~
 
-- **Plotting** requirement.
+At present, SciSheets does not support plotting.
+However, there is clearly a **Plotting Requirement** for
+any reasonable spreadsheet system.
+Mostly like, our approach to plotting will be to leverage
+the bokeh package ref?? since it provides a convenient way
+to generate HTML and JavaScript for plots that can be embedded
+into HTML documents.
+Our vision is to make ``plot`` a function that can be used
+in a formula.
+A *plot* column will have its cells rendered as HTML. 
 
-5.3 Multiple Languages
-~~~~~~~~~~~~~~~~~~~~~~
-
-5.4 Github Integration
+5.3 Github Integration
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: spreadsheet_branch.png
@@ -729,17 +788,6 @@ The scope here includes the following use cases:
 6. Conclusions
 --------------
 
-We developed SciSheets to address deficiencies
-in existing spreadsheet systems.
-
-1. Discuss entries in table. For now, performance is not evaluated.
-
-2. SciSheets seeks to improve the programming skills of its users.
-It is hoped that Novices will start using scripts,
-and that Scripters will gain
-better insight into modularization and testing.
-
-
 .. table:: Summary of requirements
            and SciSheets features that address these requirements.
            Features in italics are planned but not yet implemented.
@@ -769,6 +817,24 @@ better insight into modularization and testing.
    | - Reproducibility         | - ``github`` *integration*     |
    +---------------------------+--------------------------------+
 
+We are developing SciSheets to address deficiencies
+in existing spreadsheet systems,
+especially the requirements of expressivity, reuse, complex data, and performance.
+Table :ref:`fig-benefits` displays
+a comprehensive list of the requirements we plan to address
+and the corresponding SciSheets features (some of which are under development).
+One goal for SciSheets is to make users more productive with their existing
+workflows for developing and evaluating formulas.
+However, we also hope that SciSheets becomes a vehicle for elevating the skill levels
+of users, making Novices into Scripters and Scripters into Programmers.
+
+The status of SciSheets is that it is
+capable of doing robust demos.
+Some work remains to create a capable beta.
+Further, we are exploring possible deployment vehicles.
+For example,
+rather than having SciSheets be a standalone tool, another possible is
+integration with Jupyter notebooks.
 
 References
 ----------
