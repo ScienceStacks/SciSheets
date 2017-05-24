@@ -31,13 +31,14 @@ control flow, data dependencies, and data structures.
 Estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
 [MODE2017],
 which is about 50 times the number
-of software developers world wide [Thib2013].
+of software developers world wide [THIB2013].
 
 We categorize
 spreadsheet users as follows:
 
-- **Calcers** want to evaluate equations.
-  Spreadsheet formulas work well for Calcers since: (a) they can
+- **Novices** want to evaluate equations, but they do not want
+  to think about how to do it.
+  Spreadsheet formulas work well for Novices since: (a) they can
   ignore data dependencies;
   (b) they can avoid flow control by using
   "copy" and "paste" for iteration;
@@ -50,7 +51,7 @@ spreadsheet users as follows:
 - **Programmers** know about sophisticated data structures, modularization, reuse, and testing.
 
 Our experience is primarily with scientists, especially biologists and chemists.
-Most commonly, we encounter Calcers and Scripters.
+Most commonly, we encounter Novices and Scripters.
 Only Programmers take advantage of spreadsheet macro capabilities
 (e.g.,  Visual Basic for Microsoft Excel or
 AppScript in Google Sheets).
@@ -62,7 +63,7 @@ Existing spreadsheets only support formulas that are expressions,
 not scripts.
 This is significant limitation for Scripters
 who often want to express calculations as algorithms.
-It is also a burden for Calcers
+It is also a burden for Novices
 who want to write linear workflows to
 articulate a computational recipe, a kind
 a computational laboratory notebook.
@@ -89,7 +90,7 @@ there is little
 academic literature on spreadsheets.
 [MCLU2006] discusses object oriented spreadsheets that
 introduces a sophisticated object model but fails to recognize
-the requirements of Calcers to have a simple way to evaluate equations.
+the requirements of Novices to have a simple way to evaluate equations.
 [JONE2003] describes a way that users can implement functions
 within a spreadsheet to get reuse, but the approach requires
 considerable user effort and does not address reuse of
@@ -100,20 +101,21 @@ Google Fusion Tables [GONZ2010]
 and the "Tables" feature of Microsoft Excel ref??
 use column formulas to avoid a common source of errors,
 the need to copy formulas as rows are added/deleted from a table.
-The Pyspread [PySpread] project uses Python as the formula language, which gives formulas access to thousands of Python packages.
+The Pyspread [PYSPREAD] project uses Python as the formula language, which gives formulas access to thousands of Python packages.
 A more radical approach is taken by
-Stencila [Stencila],
+STENCILA [STENCILA],
 a document system that provides ways to execute code that
 updates tables (an approach that is in the same
 spirit as Jupyter Notebooks
-[Pere2015]).
-Stencila supports a variety of languages including
+[PERE2015]).
+STENCILA supports a variety of languages including
 JavaScript, Python, and SQL.
-However, Stencila lacks features that spreadsheet users expect:
+However, STENCILA lacks features that spreadsheet users expect:
 (a) closely associating data with the calculations that produce the data
 and (b) avoiding considerations of data dependencies in calculations.
 
-This paper introduces SciSheets [SciSheets], a new spreadsheet system with the
+This paper introduces SciSheets [SCISHEETS], 
+a new spreadsheet system with the
 objective of delivering
 the power of programming with the simplicity of spreadsheets.
 The name SciSheets is a contraction of the phrase "Scientific Spreadsheet", a nod to the users
@@ -175,10 +177,10 @@ laboratory data are collected for different values of the substrate concentratio
 Then, a calculation is done to obtain the parameters :math:`V_{MAX}` and :math:`K_M`
 using the following recipe.
 
-1. Compute :math:``1/S`` and :math:``1/V``, the inverses of :math:`S` and :math:`V`.
-2. Compute the intercept and slope of the regression of :math:``1/V`` on
-   :math:``1/S``.
-3. Calculate :math:``V_{MAX}`` and :math:``K_M`` from the intercept and slope.
+1. Compute :math:`1/S` and :math:`1/V`, the inverses of :math:`S` and :math:`V`.
+2. Compute the intercept and slope of the regression of :math:`1/V` on
+   :math:`1/S`.
+3. Calculate :math:`V_{MAX}` and :math:`K_M` from the intercept and slope.
 
 .. figure:: excel1.png
 
@@ -203,12 +205,12 @@ Fig. :ref:`fig-excel2` shows the formulas that
 perform these calculations.
 Readability can be improved by using column formulas (e.g., as in Fusion Tables).
 However, two problems remain.
-Calcers cannot make an *explicit* statement of
-the computational recipe; rather, it is implicit in the order of the columns.
+Novices cannot *explicitly* articulate
+the computational recipe; rather, the recipe is implicit in the order of the columns.
 Even more serious, there is no way to reuse these formulas in other
 formulas (other than error-prone copy-and-paste), and
 there is no way
-to reuse in an external program.
+to reuse formulas in an external program.
 
 We consider a second example to illustrate problems with handling
 non-trivial data relationships in spreadsheets.
@@ -294,7 +296,7 @@ A column that contains a formula has its name annotated with an ``*``.
 
    Formula for the complete calculation of :math:`V_{MAX}` and
    :math:`K_M`.
-   The formula is a simple script, allowing a Calcer to see
+   The formula is a simple script, allowing a Novice to see
    exactly how the data in the scisheet are produced.
    Note that the formula assigns values to other columns.
    :label:`fig-complexformula`
@@ -546,7 +548,7 @@ To see this,
 recall that in Section 2
 we could not insert a row into ``CSE``
 without also inserting a row into ``Biology``.
-SciSheet addresses this requirement by providing a row popup
+SciSheets addresses this requirement by providing a row popup
 for each table.
 This is shown in
 Fig. :ref:`fig-subtable-insert` where there is a popup
@@ -599,7 +601,7 @@ Other examples of required methods are:
 
 - ``isEquivalent`` tests if the current object has the same
    instance values as its children
-- ``getSerializationDict
+- ``getSerializationDict``
 - ``deserialize``
 
 1. Common methods for classes: copy, isEquivalent, getSerializationDict, deserialize
@@ -617,7 +619,7 @@ since, at present,
 SciSheets embeds data with the
 HTML document that is rendered by the browser.
 We expect to address this by implementing
-a feaure
+a feature
 whereby data are downloaded on demand and
 cached locally.
 
@@ -645,7 +647,7 @@ of iterations of the formulation evaluation loop.
 SciSheets supports this strategy by permitting
 formulas to be scripts.
 This is a reasonable strategy for a Scripter, but
-it may work poorly for a Calcer who is unaware
+it may work poorly for a Novice who is unaware
 of data dependencies.
 
 
@@ -723,7 +725,7 @@ in existing spreadsheet systems.
 1. Discuss entries in table. For now, performance is not evaluated.
 
 2. SciSheets seeks to improve the programming skills of its users.
-It is hoped that Calcers will start using scripts,
+It is hoped that Novices will start using scripts,
 and that Scripters will gain
 better insight into modularization and testing.
 
@@ -762,23 +764,23 @@ References
 ----------
 .. [BURN2009] Burnett, M. *What is end-user software engineering and why does
               it matter?*, Lecture Notes in Computer Science, 2009
-.. [MODE2017] *MODELOFF - Financial Modeling World Championships*,
-              http://www.modeloff.com/the-legend/.
-.. [Thib2013] Thibodeau, Patrick.
-              *India to overtake U.S. on number of developers by 2017*,
-              COMPUTERWORLD, Jul 10, 2013.
+.. [GONZ2010] *Google Fusion Tables: Web-Centered Data Management
+              and Collaboration*, Hector Gonzalez et al., SIGMOD, 2010.
+.. [JONE2003] Jones, S., Blackwell, A., and Burnett, M. i
+              *A user-centred approach to functions in excel*,
+              SIGPLAN Notices, 2003.
 .. [MCCU2006] McCutchen, M., Itzhaky, S., and Jackson, D.*Object spreadsheets:
               a new computational model for end-user development of data-centric web applications*,
               Proceedings of the 2016 ACM International Symposium on New Ideas, New Paradigms,
               and Reflections on Programming and Software, 2006.
-.. [JONE2003] Jones, S., Blackwell, A., and Burnett, M. i
-              *A user-centred approach to functions in excel*,
-              SIGPLAN Notices, 2003.
-.. [GONZ2010] *Google Fusion Tables: Web-Centered Data Management
-              and Collaboration*, Hector Gonzalez et al., SIGMOD, 2010.
-.. [PySpread] Manns, M. *PYSPREAD*, http://github.com/manns/pyspread.
-.. [Stencila] *Stencila*, https://stenci.la/.
-.. [Pere2015] Perez, Fernando and Branger, Brian.
+.. [MODE2017] *MODELOFF - Financial Modeling World Championships*,
+              http://www.modeloff.com/the-legend/.
+.. [PERE2015] Perez, Fernando and Branger, Brian.
               *Project Jupyter: Computational Narratives as the
               Engine of Collaborative Data Science*, http://archive.ipython.org/JupyterGrantNarrative-2015.pdf.
-.. [SciSheet] *SciSheets*, https://github.com/ScienceStacks/SciSheets.
+.. [PYSPREAD] Manns, M. *PYSPREAD*, http://github.com/manns/pyspread.
+.. [SCISHEET] *SciSheets*, https://github.com/ScienceStacks/SciSheets.
+.. [STENCILA] *STENCILA*, https://stenci.la/.
+.. [THIB2013] Thibodeau, Patrick.
+              *India to overtake U.S. on number of developers by 2017*,
+              COMPUTERWORLD, Jul 10, 2013.
