@@ -330,8 +330,9 @@ Actually, we can do better than this since
 if the values of Column Variables converge after loop iteration
 *M < N* (and there is no exception), then
 formula evaluation stops.
+We refer to this as the **Formula Evaluation Loop**.
 
-SciSheets augments formula evaluation by providing users with the opportunity
+SciSheets augments the formula evaluation loop by providing users with the opportunity
 to specify two additional formulas.
 The **Prologue Formula** is executed once at the beginning of formula evaluation;
 the **Epilogue Formula** is executed once at the end of formula evaluation.
@@ -421,7 +422,7 @@ the SciSheets API as to identify which formula is being executed
 so that formula errors can be localized to a particular line.
 
 
-Next, we consider formula evaluation.
+Next, we consider the formula evaluation loop.
 
 .. code-block:: python
 
@@ -452,16 +453,13 @@ for a formula column; this is essential if formula columns are not
 ordered according to their data dependencies.
 
 Last, there is the function close.
-Here, the loop termination condition is checked.
-The occurrence of an exception formula evaluation causes an exception
+The occurrence of an exception in the formula evaluation loop causes an exception
 with the line number in the formula in which the (last) exception occurred.
-If there is no exception, then Epilogue Formula is executed,
-and the output values of the function are returned.
+If there is no exception, then Epilogue Formula is executed, and
+the output values of the function are returned (assuming there is no exception
+in the Epilogue Formula).
 
 .. code-block:: python
-
-       # Close of function
-       s.controller.endAnIteration()
 
      if s.controller.getException() is not None:
        raise Exception(s.controller.formatError(
@@ -473,6 +471,7 @@ and the output values of the function are returned.
 
      return V_MAX,K_M
 
+The second file produced by program export is a test file.
 The test code makes use of ``unittest`` with a ``setUp``
 method that assigns ``self.s`` the value of an API object.
 The test is to compare the results of running the
@@ -563,21 +562,19 @@ Note that the ``Biology`` subtable is not modified.
 SciSheets uses a client-server design.
 The client runs in the browser using HTML and JavaScript;
 the server runs Python using the Django frameworki ref??.
-This design provides benefits, especially
+This design provides a
 zero install deployment and
-leverage the rapid pace of innovation of browser technologies.
+leverages the rapid pace of innovation of browser technologies.
 
 Our strategy has been to limit the scope of the client codes
 to presentation and handling end-user interactions.
-The client's scisheets is limited to handling interactions to
-recognize which scisheet element is clicked and to providing
-menus in response to clicks.
-When additional data are required to populate a menu (e.g.,
-the scisheet "open" item), the client uses AJAX to obtain
-information from the server.
-In general, AJAX calls specify
-a scisheet element (e.g., column), its name, an action to perform
-(e.g., rename), and arguments.
+In some cases, the client requires data from the server
+to perform an end-user interaction
+(e.g., populate a list of saved scisheets).
+In these cases,
+the client interacts with the server via AJAX calls.
+The client makes use of several JavaScript packages
+including JQuery, YUI DataTable, and JQueryLinedText.
 
 .. figure:: SciSheetsCoreClasses.png
    :scale: 30 %
@@ -592,43 +589,53 @@ Core classes have several required methods.
 One example of this is the ``copy`` method.
 This method makes a copy of the object for which it is
 invoked.
-To do this, the method calls the ``copy`` method for its parent
-class as well (which in turn calls its parent, and so on).
-Further, the object must call the ``copy`` method for its children
-if there is a has-a relationship, such as between
-``ColumnContainer`` and ``Column``.
-Other examples of required methods are:
+To do this, the object calls the ``copy`` method for its parent
+class as well (which happens recursively).
+Further, the object must call the ``copy`` method for core
+objects that are instance variables.
+For example, 
+``ColumnContainer`` objects have an instance
+variable ``columns`` that contains a list of ``Column`` objects.
+Other examples of required methods are
+``isEquivalent``, which tests if two objects have the same
+values of instance variables, and 
+``deserialize``, which creates objects based on data serialized
+in a JSON structure.
 
-- ``isEquivalent`` tests if the current object has the same
-   instance values as its children
-- ``getSerializationDict``
-- ``deserialize``
-
-1. Common methods for classes: copy, isEquivalent, getSerializationDict, deserialize
-2. coerce method for value
-3. recursive operation of copy, isEquivalent, getSerializtionDict, deserialize
-4. What each level in the hierarchy does
+We now describe the responsibility of the classes in
+Fig. :ref:`fig-coreclasses`.
+``Tree`` implements a tree that is used to express
+hierarchical
+relationships such as between ``Table`` and ``Column`` objects.
+``Tree`` also provides a mapping between the names of
+scisheet elements
+and the object associated with the name
+(e.g., to handle user requests).
+``ColumnContainer`` manages a collections of ``Table`` and ``Column`` objects.
+``Column`` is a container of data values.
+``Table`` knows about rows, and it 
+does formula evaluation using ``evaluate()``.
+``UITable`` handles user requests (e.g., renaming a column and
+inserting a row) in a way that is independent of the client implemenation.
+``DTTable`` provides client specific services, such as rendering tables into HTML using ``render()``.
 
 Last, we consider performance.
-Our experience is that
-there are two common
+There are two common
 causes of poor performance
-in our current implementation of SciSheets.
-The first relates to data size since
-since, at present,
+in the current implementation of SciSheets.
+The first relates to data size.
+At present,
 SciSheets embeds data with the
 HTML document that is rendered by the browser.
-We expect to address this by implementing
-a feature
-whereby data are downloaded on demand and
-cached locally.
+We will address this
+by downloading data on demand and caching data locally.
 
 The second cause of poor performance is having
 many iterations of the formula evaluation loop.
 If there is more than one formula column, then the best case is to
 evaluate each formula column twice.
 The first execution produces the desired result
-(which is possible
+(e.g.,
 if the formula columns are in order of their data
 dependencies);
 the second execution confirms that the result has
@@ -637,8 +644,8 @@ Some efficiencies can be gained by using the Prologue and
 Epilogue features for one-shot
 execution of high overhead operations (e.g., file I/O).
 Also, we are exploring the extent to which SciSheets
-can detect automatically when static dependency checking
-is possible so that formula evaluation is done
+can detect automatically if static dependency checking
+can be used so that formula evaluation is done
 only once.
 
 Clearly, performance can be improved by reducing the number
@@ -651,8 +658,11 @@ it may work poorly for a Novice who is unaware
 of data dependencies.
 
 
-5. Future Directions
---------------------
+5. Future Work
+--------------
+
+This section describes several features that are
+under development.
 
 5.1 Subtables with Scoping
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -764,12 +774,12 @@ References
 ----------
 .. [BURN2009] Burnett, M. *What is end-user software engineering and why does
               it matter?*, Lecture Notes in Computer Science, 2009
-.. [GONZ2010] *Google Fusion Tables: Web-Centered Data Management
+.. [GONZ2010]  *Google Fusion Tables: Web-Centered Data Management
               and Collaboration*, Hector Gonzalez et al., SIGMOD, 2010.
 .. [JONE2003] Jones, S., Blackwell, A., and Burnett, M. i
               *A user-centred approach to functions in excel*,
               SIGPLAN Notices, 2003.
-.. [MCCU2006] McCutchen, M., Itzhaky, S., and Jackson, D.*Object spreadsheets:
+.. [MCCU2006] McCutchen, M., Itzhaky, S., and Jackson, D. *Object spreadsheets:
               a new computational model for end-user development of data-centric web applications*,
               Proceedings of the 2016 ACM International Symposium on New Ideas, New Paradigms,
               and Reflections on Programming and Software, 2006.
