@@ -16,16 +16,34 @@ SciSheets: Providing the Power of Programming With The Simplicity of Spreadsheet
 Digital spreadsheets are the "killer app" that ushered in the PC revolution.
 Today,
 spreadsheet users outnumber software developers by a factor of
-more than 50. 
-Although spreadsheets can greatly simplify doing many calculations, they fail
+50 or more. 
+Although spreadsheets simplify doing many calculations, they fail
 to address requirements for expressivity, reuse, complex data, and performance.
 SciSheets (from "scientific spreadsheets") is an open source project that provides
-novel features to address these requirements: (a) expressivity is
-addressed by allowing spreadsheet formulas
-to be arbitrary Python expressions or scripts; (b) 
-reuse and performance are addressed with the capability to export spreadsheets as
-standalone Python programs; and (c) more complex data can be handled by providing
-subtables (i.e., a column may itself be a table).
+novel features to address these requirements. 
+*Formula Scripts.*
+Scisheet formulas can be arbitrary Python scripts as well as expressions.
+This addresses expressivity by allowing
+calculations to be written as algorithms.
+*Program Export.*
+Scisheets can be exported as standalone Python programs.
+This addresses reuse since
+exported codes
+can be reused in SciSheets formulas and/or by
+external programs.
+Further, performance is improved by the export feature
+since calculations can execute without the
+overheads of the spreadsheet environment.
+*Subtables.*
+Tables can have columns that are themselves tables (columns within columns).
+This addresses the complex data requirement,
+such as representing hierarhically structured
+data and n-to-m relationships.
+One goal for SciSheets is to make users more productive with their existing
+workflows for developing and evaluating formulas.
+However, we also hope that SciSheets becomes a vehicle for elevating the skill levels
+of users, making Novices into Scripters and Scripters into Programmers.
+
 
 .. class:: keywords
 
@@ -40,7 +58,7 @@ This is largely because spreadsheets provide a conceptually simple way to do cal
 (b) avoids the mental burdens of programming
 such as
 control flow, data dependencies, and data structures.
-Estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
+Over 800M professionals author spreadsheet formulas as part of their work
 [MODE2017],
 which is over 50 times the number
 of software developers world wide [THIB2013].
@@ -57,9 +75,9 @@ spreadsheet users as follows:
   and (c) data structures are "visual" (e.g., rectangular blocks).
 - **Scripters** feel comfortable with expressing calculations algorithmically using ``for`` and ``if``
   statements; and they can use simple data structures such as lists and
-  ``pandas DataFrames`` (which are like spreadsheets).
-  However, they rarely encapsulate code into functions,
-  preferring to ``copy`` and ``paste`` code to get reuse.
+  ``pandas DataFrames``.
+  However, Scripters rarely encapsulate code into functions,
+  preferring ``copy`` and ``paste`` to get reuse.
 - **Programmers** know about sophisticated data structures, modularization, reuse, and testing.
 
 Our experience is primarily with scientists, especially biologists and chemists.
@@ -70,44 +88,45 @@ AppScript in Google Sheets).
 
 Based on this experience, we find
 existing spreadsheets lack several key requirements.
-The first is the **expressivity requirement**.
-Existing spreadsheets only support formulas that are expressions,
+First, they lack
+the **expressivity requirement** in that (a)
+they only permit a limited set of functions to be used
+in formulas (e.g., so that static dependency
+checking can be done); and (b)
+they only support formulas that are expressions,
 not scripts.
-This is significant limitation for Scripters
-who often want to express calculations as algorithms.
-It is also a burden for Novices
-who want to write linear workflows to
-articulate a computational recipe, a kind
-a computational laboratory notebook.
+Both restrictions limit expressivity.
+In particular, the latter means that Scripters
+cannot express calculations as algorithms, and
+Novices
+cannot write linear workflows to
+articulate a computational recipe.
 A second consideration is the
 **reuse requirement**.
 Today,
 it is impossible to reuse spreadsheet
 formulas in other spreadsheet formulas or in software systems.
 Third, current spreadsheet systems cannot handle the
-**complex data requirement**.
-For example, today's spreadsheets
-make it extremely difficult to manipulate
-hierarchically structured data and n-to-m relationships.
+**complex data requirement**, such as
+manipulating data that are
+hierarchically structured or data that have n-to-m relationships.
 Finally, there is the
-**performance requirement**.
-A common complaint is that
-spreadsheets scale poorly with
+**performance requirement**, that
+spreadsheets scale well with
 the size of data and the number of formulas.
 
 Academic computer science has recognized the growing importance
 of end-user programming (EUP) [BURN2009].
 Even so,
 there is little
-academic literature on spreadsheets.
+academic literature on spreadsheets,
+the most pervasive EUP environment on the planet.
 [MCLU2006] discusses object oriented spreadsheets that
-introduce a sophisticated object model.
-But this work fails to recognize
-the requirements of Novices to have a simple way to 
-evaluate equations.
+introduce a sophisticated object model, but the complexity of
+this proposal is unlikely to appeal to Novices.
 [JONE2003] describes a way that users can implement functions
 within a spreadsheet to get reuse. 
-However, the approach is somewhat complex,
+However, the approach imposes a significant burdern on the user,
 and does not address reuse of
 formulas outside the spreadsheet environment.
 Industry has had significant
@@ -115,18 +134,18 @@ interest in innovating spreadsheets.
 Google Fusion Tables [GONZ2010]
 and the "Tables" feature of Microsoft Excel ref??
 use column formulas to avoid a common source of errors,
-the need to copy formulas as rows are added/deleted from a table.
+copying formulas as rows are added/deleted from a table.
 The Pyspread [PYSPREAD] project uses Python as the formula language, 
-but formulas cannot be Python scripts.
+but Pyspread formulas cannot be Python scripts.
 A more radical approach is taken by
-STENCILA [STENCILA],
+Stencila [STENCILA],
 a document system that provides ways to execute code that
 updates tables (an approach that is in the same
 spirit as Jupyter Notebooks
 [PERE2015]).
-STENCILA supports a variety of languages including
+Stencila supports a variety of languages including
 JavaScript, Python, and SQL.
-However, STENCILA lacks features that spreadsheet users expect:
+However, Stencila lacks features that spreadsheet users expect:
 (a) closely associating data with the calculations that produce the data
 and (b) avoiding considerations of data dependencies in calculations.
 
@@ -148,29 +167,30 @@ SciSheets addresses the above requirements by introducing
 several novel features.
 
 - *Formula Scripts.*
-  Scisheet formulas can be Python scripts, not just expressions.
-  This addresses the expressivity requirement since
-  calculations can be expressed as algorithms.
+  Scisheet formulas can be arbitrary Python scripts as well as expressions.
+  This addresses expressivity by allowing
+  calculations to be written as algorithms.
 - *Program Export.*
   Scisheets can be exported as standalone Python programs.
-  This addresses the reuse requirement since
-  exported spreadsheets
+  This addresses reuse since
+  exported codes
   can be reused in SciSheets formulas and/or by
-  external programs (e.g., written by Programmers).
+  external programs.
   Further, performance is improved by the export feature
-  since calculations can execute without the
+  since calculations execute without the
   overheads of the spreadsheet environment.
 - *Subtables.*
   Tables can have columns that are themselves tables (columns within columns).
   This addresses the complex data requirement,
-  such as representing n-to-m relationships.
+  such as representing hierarhically structured
+  data and n-to-m relationships.
 
 The remainder of the paper is organized as follows.
 Section 2 describes the requirements that we consider, and
 Section 3 details the SciSheets features that address these requirements.
 The design of SciSheets is discussed in Section 4, and
 Section 5 discusses features planned for SciSheets.
-Our conclusions are presented in Section 6.
+Our conclusions are contained in Section 6.
 
 2. Requirements
 ---------------
@@ -850,11 +870,11 @@ several novel features.
 
 - *Formula Scripts.*
   Scisheet formulas can be Python scripts, not just expressions.
-  This addresses the expressivity requirement since
-  calculations can be expressed as algorithms.
+  This addresses expressivity by allowing
+  calculations to be written as algorithms.
 - *Program Export.*
   Scisheets can be exported as standalone Python programs.
-  This addresses the reuse requirement since
+  This addresses reuse since
   exported spreadsheets
   can be reused in SciSheets formulas and/or by
   external programs (e.g., written by Programmers).
@@ -903,7 +923,7 @@ References
               Engine of Collaborative Data Science*, http://archive.ipython.org/JupyterGrantNarrative-2015.pdf.
 .. [PYSPREAD] Manns, M. *PYSPREAD*, http://github.com/manns/pyspread.
 .. [SCISHEET] *SciSheets*, https://github.com/ScienceStacks/SciSheets.
-.. [STENCILA] *STENCILA*, https://stenci.la/.
+.. [STENCILA] *Stencila*, https://stenci.la/.
 .. [THIB2013] Thibodeau, Patrick.
               *India to overtake U.S. on number of developers by 2017*,
               COMPUTERWORLD, Jul 10, 2013.
