@@ -13,7 +13,19 @@ SciSheets: Providing the Power of Programming With The Simplicity of Spreadsheet
 
 .. class:: abstract
 
-Short abstract.
+Digital spreadsheets are the "killer app" that ushered in the PC revolution.
+Today,
+spreadsheet users outnumber software developers by a factor of
+more than 50. 
+Although spreadsheets can greatly simplify doing many calculations, they fail
+to address requirements for expressivity, reuse, complex data, and performance.
+SciSheets (from "scientific spreadsheets") is an open source project that provides
+novel features to address these requirements: (a) expressivity is
+addressed by allowing spreadsheet formulas
+to be arbitrary Python expressions or scripts; (b) 
+reuse and performance are addressed with the capability to export spreadsheets as
+standalone Python programs; and (c) more complex data can be handled by providing
+subtables (i.e., a column may itself be a table).
 
 .. class:: keywords
 
@@ -30,7 +42,7 @@ such as
 control flow, data dependencies, and data structures.
 Estimates suggest that over 800M professionals author spreadsheet formulas as part of their work
 [MODE2017],
-which is about 50 times the number
+which is over 50 times the number
 of software developers world wide [THIB2013].
 
 We categorize
@@ -72,7 +84,7 @@ A second consideration is the
 Today,
 it is impossible to reuse spreadsheet
 formulas in other spreadsheet formulas or in software systems.
-Third, current spreadsheet systems do satisfy the
+Third, current spreadsheet systems cannot handle the
 **complex data requirement**.
 For example, today's spreadsheets
 make it extremely difficult to manipulate
@@ -89,19 +101,23 @@ Even so,
 there is little
 academic literature on spreadsheets.
 [MCLU2006] discusses object oriented spreadsheets that
-introduces a sophisticated object model but fails to recognize
-the requirements of Novices to have a simple way to evaluate equations.
+introduce a sophisticated object model.
+But this work fails to recognize
+the requirements of Novices to have a simple way to 
+evaluate equations.
 [JONE2003] describes a way that users can implement functions
-within a spreadsheet to get reuse, but the approach requires
-considerable user effort and does not address reuse of
-spreadsheet formulas in a larger software system.
-Outside of academia there has been significant
+within a spreadsheet to get reuse. 
+However, the approach is somewhat complex,
+and does not address reuse of
+formulas outside the spreadsheet environment.
+Industry has had significant
 interest in innovating spreadsheets.
 Google Fusion Tables [GONZ2010]
 and the "Tables" feature of Microsoft Excel ref??
 use column formulas to avoid a common source of errors,
 the need to copy formulas as rows are added/deleted from a table.
-The Pyspread [PYSPREAD] project uses Python as the formula language, which gives formulas access to thousands of Python packages.
+The Pyspread [PYSPREAD] project uses Python as the formula language, 
+but formulas cannot be Python scripts.
 A more radical approach is taken by
 STENCILA [STENCILA],
 a document system that provides ways to execute code that
@@ -116,7 +132,7 @@ and (b) avoiding considerations of data dependencies in calculations.
 
 This paper introduces SciSheets [SCISHEETS], 
 a new spreadsheet system with the
-objective of delivering
+objective of providing
 the power of programming with the simplicity of spreadsheets.
 The name SciSheets is a contraction of the phrase "Scientific Spreadsheet", a nod to the users
 who motivated the requirements that we address.
@@ -216,8 +232,9 @@ We consider a second example to illustrate problems with handling
 non-trivial data relationships in spreadsheets.
 Fig. :ref:`fig-complexdata` displays data that a university
 might have for students in two departments in the School of Engineering.
-The data are organized into two tables (CSE and Biology) grouped under
-the School of Engineering, with separate columns for student identifiers
+The data are organized into two tables 
+(``CSE`` and ``Biology``) grouped under
+the ``School of Engineering``, with separate columns for student identifiers
 and grades.
 These tables
 are adjacent to each other to facilitate the comparisons between
@@ -410,7 +427,7 @@ is serialized in a JSON format
 with extension ``.scish``.
 
 This code points to a somewhat subtle requirement that SciSheets addresses.
-We refer to this as the **Script Debuggability** requirement,
+We refer to this as the **Script Debuggability Requirement**,
 a requirement that arises because allowing a formula to be script
 means that errors must be localized to a line within the formula.
 SciSheets handles this through the use of the paired statements
@@ -817,18 +834,48 @@ The scope here includes the following use cases:
    | - Reproducibility         | - ``github`` *integration*     |
    +---------------------------+--------------------------------+
 
-We are developing SciSheets to address deficiencies
+SciSheets is
+a new spreadsheet system.
+Our guiding principle is to provide
+the power of programming with the simplicity of spreadsheets.
+Our target users are technical professionals
+who do complex calculations on structured data.
+
+SciSheets addresses several requirements that are
+not handled well
 in existing spreadsheet systems,
 especially the requirements of expressivity, reuse, complex data, and performance.
+SciSheets addresses these requirements by introducing
+several novel features.
+
+- *Formula Scripts.*
+  Scisheet formulas can be Python scripts, not just expressions.
+  This addresses the expressivity requirement since
+  calculations can be expressed as algorithms.
+- *Program Export.*
+  Scisheets can be exported as standalone Python programs.
+  This addresses the reuse requirement since
+  exported spreadsheets
+  can be reused in SciSheets formulas and/or by
+  external programs (e.g., written by Programmers).
+  Further, performance is improved by the export feature
+  since calculations can execute without the
+  overheads of the spreadsheet environment.
+- *Subtables.*
+  Tables can have columns that are themselves tables (columns within columns).
+  This addresses the complex data requirement,
+  such as representing n-to-m relationships.
+
 Table :ref:`fig-benefits` displays
 a comprehensive list of the requirements we plan to address
-and the corresponding SciSheets features (some of which are under development).
+and the corresponding SciSheets features.
+
 One goal for SciSheets is to make users more productive with their existing
 workflows for developing and evaluating formulas.
 However, we also hope that SciSheets becomes a vehicle for elevating the skill levels
 of users, making Novices into Scripters and Scripters into Programmers.
 
-The status of SciSheets is that it is
+At present, SciSheets is
 capable of doing robust demos.
 Some work remains to create a capable beta.
 Further, we are exploring possible deployment vehicles.

@@ -1,3 +1,6 @@
 "cumtime (ms)", "last_elapsed (ms)", "name", "details"
-0.500000, 0.500000, "controller/start/test", ""
-0.500000, 0.000000, "controller/exception/test", "Computing test near line 5: Testing"
+6.700000, 6.700000, "controller/start/Prologue", ""
+6.700000, 0.000000, "controller/end/Prologue", ""
+9.700000, 3.000000, "controller/start/Epilogue", ""
+9.700000, 0.000000, "controller/end/Epilogue", ""
+16.300000, 6.600000, "controller/endProgram", "After updateColumnFromColumnVariables"
