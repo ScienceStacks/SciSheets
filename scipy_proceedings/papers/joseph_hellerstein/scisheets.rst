@@ -463,7 +463,6 @@ Next, we consider the formula evaluation loop.
 
 .. code-block:: python
 
-     # Loop initialization
      s.controller.initializeLoop()
      while not s.controller.isTerminateLoop():
        s.controller.startAnIteration()
@@ -501,7 +500,6 @@ in the Epilogue Formula).
      if s.controller.getException() is not None:
        raise Exception(s.controller.formatError(
            is_absolute_linenumber=True))
-
      s.controller.startBlock('Epilogue')
      # Epilogue
      s.controller.endBlock()
