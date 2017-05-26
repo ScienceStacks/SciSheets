@@ -251,10 +251,10 @@ to reuse formulas in an external program.
 We consider a second example to illustrate problems with handling
 non-trivial data relationships in spreadsheets.
 Fig. :ref:`fig-complexdata` displays data that a university
-might have for students in two departments in the School of Engineering.
+might have for students in two departments in Engineering.
 The data are organized into two tables 
 (``CSE`` and ``Biology``) grouped under
-the ``School of Engineering``, with separate columns for student identifiers
+the ``Engineering``, with separate columns for student identifiers
 and grades.
 These tables
 are adjacent to each other to facilitate the comparisons between
