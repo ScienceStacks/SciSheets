@@ -812,7 +812,7 @@ A *plot* column will have its cells rendered as HTML.
 A common problem with spreadsheets is that calculations are difficult to reproduce
 because some steps are manual (e.g., menu interactions). Additionally, it can be
 difficult to reproduce a spreadsheet due to the presence of errors.
-We refer to this as the **Reproducibility Requirement**.
+We refer to this as the **reproducibility requirement**.
 Version control is an integral part of reproducibility.
 Today, a spreadsheet file as a whole can be version controlled,
 but this granularity is too course.
