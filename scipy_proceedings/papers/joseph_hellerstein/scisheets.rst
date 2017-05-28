@@ -4,7 +4,7 @@
 
 :author: Joseph Hellerstein
 :email: joseph.hellerstein@gmail.com
-:institution: eScience Institute, University of Washington. This work was made possible by the Moore/Sloan Data Science Environments Project at the University of Washington supported by grants from the Gordon and Betty Moore Foundation (Award #3835) and the Alfred P. Sloan Foundation (Award #2013-10-29).
+:institution: eScience Institute and School of Computer Science, University of Washington. This work was made possible by the Moore/Sloan Data Science Environments Project at the University of Washington supported by grants from the Gordon and Betty Moore Foundation (Award #3835) and the Alfred P. Sloan Foundation (Award #2013-10-29).
 :corresponding:
 
 ---------------------------------------------------------------------------------
@@ -13,36 +13,34 @@ SciSheets: Providing the Power of Programming With The Simplicity of Spreadsheet
 
 .. class:: abstract
 
-Digital spreadsheets are the "killer app" that ushered in the PC revolution.
-Today,
-spreadsheet users outnumber software developers by a factor of
-50 or more.
+Digital spreadsheets are arguably the most pervasive environment for
+end user programming on the planet.
 Although spreadsheets simplify many calculations, they fail
 to address requirements for expressivity, reuse, complex data, and performance.
 SciSheets (from "scientific spreadsheets") is an open source project that provides
-novel features to address these requirements.
-*Formula Scripts.*
-Scisheet formulas can be arbitrary Python scripts as well as expressions.
-This addresses expressivity by allowing
-calculations to be written as algorithms.
-*Program Export.*
-Scisheets can be exported as standalone Python programs.
-This addresses reuse since
+novel features to address these requirements: (1) 
+formulas can be arbitrary Python scripts as well as expressions (*formula scripts*),
+which addresses
+expressivity by allowing
+calculations to be written as algorithms;
+(2) spreadsheets
+can be exported as standalone Python programs
+(*program export*), which
+addresses reuse since
 exported codes
-can be reused in SciSheets formulas and/or by
-external programs.
-Further, performance is improved by the export feature
+can be reused in formulas and/or by
+external programs and improves performance
 since calculations can execute without the
-overheads of the spreadsheet environment.
-*Subtables.*
-Tables can have columns that are themselves tables (columns within columns).
-This addresses the complex data requirement,
+overheads of the spreadsheet environment;
+and
+(3) tables can have columns that are themselves tables
+(*subtables*), which addresses
+complex data
 such as representing hierarchically structured
 data and n-to-m relationships.
-One goal for SciSheets is to make users more productive with their existing
-workflows for developing and evaluating formulas.
-However, we also hope that SciSheets becomes a vehicle for elevating the skill levels
-of users, making Novices into Scripters and Scripters into Programmers.
+We believe that these features can make spreadsheets less 
+error prone, and make spreadsheet users more
+productive.
 
 
 .. class:: keywords
@@ -96,7 +94,6 @@ in formulas (e.g., so that static dependency
 checking can be done); and (b)
 they only support formulas that are expressions,
 not scripts.
-Both restrictions limit expressivity.
 In particular, the latter means that Scripters
 cannot express calculations as algorithms, and
 Novices
@@ -121,7 +118,7 @@ of end-user programming (EUP) [BURN2009].
 Even so,
 there is little
 academic literature on spreadsheets,
-the most pervasive EUP environment on the planet.
+arguably the most pervasive EUP environment on the planet.
 [MCLU2006] discusses object oriented spreadsheets that
 introduce a sophisticated object model, but the complexity of
 this proposal is unlikely to appeal to Novices.
@@ -133,7 +130,7 @@ formulas outside the spreadsheet environment.
 Industry has had significant
 interest in innovating spreadsheets.
 Google Fusion Tables [GONZ2010]
-and the "Tables" feature of Microsoft Excel ref??
+and the "Tables" feature of Microsoft Excel [MICROSOF]
 use column formulas to avoid a common source of error,
 copying formulas as rows are added/deleted from a table.
 The Pyspread [PYSPREAD] project uses Python as the formula language,
@@ -201,7 +198,7 @@ the requirements of expressivity, reuse, and complex data.
 
 Our first example is drawn from biochemistry labs
 studying enzyme mediated chemical reactions.
-Commonly, the Michaelis-Menten ref?? Model of enzyme activity is used in which
+Commonly, the Michaelis-Menten [BERG2002] Model of enzyme activity is used in which
 there is a single chemical species, called the substrate, that interacts with the enzyme to produce
 a new chemical species (the product).
 Two properties of enzymes are of much interest: the maximum reaction rate,
@@ -237,7 +234,7 @@ using the following recipe.
    :label:`fig-complexdata`
 
 Fig. :ref:`fig-excel1` shows an Excel spreadsheet that implements this recipe
-with column names chosen to correspond to the variables in the recipe.
+with column names that correspond to the variables in the recipe.
 Fig. :ref:`fig-excel2` shows the formulas that
 perform these calculations.
 Readability can be improved by using column formulas (e.g., as in Fusion Tables).
@@ -252,7 +249,7 @@ to reuse formulas in an external program.
 We consider a second example to illustrate problems with handling
 non-trivial data relationships in spreadsheets.
 Fig. :ref:`fig-complexdata` displays data that a university
-might have for students in two departments in Engineering.
+might have for students in two departments in the School of Engineering.
 The data are organized into two tables
 (``CSE`` and ``Biology``) grouped under
 ``Engineering``, with separate columns for student identifiers
@@ -264,10 +261,11 @@ However, the tables are independent of each other
 in that we should be able to insert, delete, and hide rows
 in one table without affecting
 the other table.
-Unfortunately, existing spreadsheet systems do not handle this well; adding
-a row to one table affects every row in the entire spreadsheet.
+Unfortunately, existing spreadsheet systems do not handle this well;
+inserting, deleting, or hiding
+a row in one table affects every table that overlaps that row in the spreadsheet.
 Note that arranging the tables vertically does not help since now the problem
-becomes adding, deleting, or hiding columns.
+becomes inserting, deleting, and hiding columns.
 (We could arrange the tables in a diagonal, but
 this makes it difficult to make visual comparisons between
 tables.)
@@ -295,19 +293,22 @@ Fig. :ref:`fig-columnpopup` displays a scisheet that performs the Michaelis-Ment
 as we did in Fig. :ref:`fig-excel1`.
 A scisheet
 has the familiar tabular structure of a spreadsheet.
-However, unlike spreadsheets, SciSheets knows about the
-*structure of a scisheet:
-scisheet (entire sheet), tables, columns, rows, and cells*.
-Table and column names are Python variables that the user can reference in formulas.
-These **Column Variables**
-are ``numpy Arrays``.
-It is easy to do vector calculations on Column Variables using a rich set of operators that properly handle
-missing data using `nan` values.
+However, unlike existing spreadsheets, SciSheets knows about the
+structure of spreadsheets:
+tables, columns, rows, and cells.
+Column names are Python variables that can be referenced in formulas.
+These **column variables**
+are ``numpy Arrays``. 
+This means that formulas can be written using column names
+to express vector calculation
+using a rich set of operators that properly handle
+missing data (e.g., using ``NaN`` values).
 
-Users interact directly with scisheet elements (instead of primarily with a menu, as is done in spreadsheet systems).
+SciSheets users interact directly with 
+scisheet elements instead of primarily with a menu, as is done in spreadsheet systems.
 A left click on a scisheet element results in a popup menu.
 For example,
-in Fig. :ref:`fig-columnpopup` we see the column popup for the column ``INV_S``.
+in Fig. :ref:`fig-columnpopup` we see the column popup for ``INV_S``.
 Users select an item from the popup, and this may in turn present additional menus.
 The popup menus for row, column, and table have common items for insert, delete, hide/unhide.
 Columns additionally have a formula item.
@@ -324,11 +325,11 @@ The cell popup is an editor for the value in the cell.
 Fig. :ref:`fig-simpleformula` displays the submenu resulting from selecting the formula item
 from the popup menu in Fig. :ref:`fig-columnpopup` for the column ``INV_S``.
 A simple line editor is displayed.
-The formula is an expression that references the Column Variable ``S``.
+The formula is an expression that references the column ``S``.
 A column that contains a formula has its name annotated with an ``*``.
 
-3.2 Formula Scripts
-~~~~~~~~~~~~~~~~~~~
+3.2 Formula Scripts and Formula Evaluation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: ComplexFormula.png
 
@@ -339,16 +340,16 @@ A column that contains a formula has its name annotated with an ``*``.
    Note that the formula assigns values to other columns.
    :label:`fig-complexformula`
 
-SciSheets allows formulas to be scripts.
+SciSheets allows formulas to be scripts with arbitrary Python statements.
 For example, Fig. :ref:`fig-complexformula` displays a script that contains
 the entire computational recipe for the Michaelis-Menten calculation
 described in Section 2.
 This capability greatly increases the ability of spreadsheet users
 to describe and document their calculations.
 
-At this point, we elaborate briefly on how formula evaluation is done
-in SciSheets.
-Since a formula may contain arbitrary Python expressions including
+The Formula Scripts feature has a significant implication
+on how formulas are evaluated.
+Since a formula may contain arbitrary Python codes including
 ``eval`` expressions, we cannot use static dependency analysis
 to determine data dependencies.
 Thus, formula evaluation is done iteratively.
@@ -356,32 +357,32 @@ But how many times must this iteration be done?
 
 Consider an evaluation of *N* formula columns assuming that
 there are no
-circular references or other inherent anomalies in the formulas.
+circular references or other anomalies in the formulas.
 Then, at most *N* iterations are needed to converge since on each iteration
-at least one Column Variable is assigned its value.
-If after *N* iterations, there is an exception, (e.g., a Column Variable
+at least one column variable is assigned its final value.
+If after *N* iterations, there is an exception, (e.g., a column variable
 does not have a value assigned), this is reported to the user since there is
 an error in the formulas.
 Otherwise, the scisheet is updated with the new values of the
-Column Variables.
+column variables.
 Actually, we can do better than this since
-if the values of Column Variables converge after loop iteration
+if the values of column variables converge after loop iteration
 *M < N* (and there is no exception), then
 formula evaluation stops.
-We refer to this as the **Formula Evaluation Loop**.
+We refer to the above workflow as the **formula evaluation loop**.
 
 SciSheets augments the formula evaluation loop by providing users with the opportunity
 to specify two additional formulas.
-The **Prologue Formula** is executed once at the beginning of formula evaluation;
-the **Epilogue Formula** is executed once at the end of formula evaluation.
-These formulas provide a way to do high overhead operations in a one-shot manner
-and so providing another feature
-related to the Performance requirement.
-For example, a user may have Prologue Formula that
+The **prologue formula** is executed once at the beginning of formula evaluation;
+the **epilogue formula** is executed once at the end of formula evaluation.
+These formulas provide a way to do high overhead operations in a one-shot manner,
+a feature
+related to the performance requirement.
+For example, a user may have a prologue formula that
 reads a file (e.g., to initialize input values in a table) at the beginning
-of the calculation, and an Epilogue Formula
+of the calculation, and an epilogue formula
 that writes results at the end of the calculation.
-Prologue and Epilogue Formulas are modified through the scisheet popup menu.
+Prologue and epilogue formulas are modified through the scisheet popup menu.
 
 3.3. Program Export
 ~~~~~~~~~~~~~~~~~~~
@@ -390,20 +391,20 @@ Prologue and Epilogue Formulas are modified through the scisheet popup menu.
 
    Menu to export a table as a standalone python program. :label:`fig-export`
 
-A scisheet can be executed as a standalone program or as
+A scisheet can be exported as a standalone program or as
 a function in a python module.
-The feature addresses the Reuse requirement since
+This feature addresses the reuse requirement since
 exported programs can be used in scisheet formulas
 and/or external programs.
-The export feature also addresses the Performance requirement
+The export feature also addresses the performance requirement
 since executing standalone code eliminates the overheads of
 the spreadsheet environment.
 
 Fig. :ref:`fig-export` displays the scisheet popup menu for
 program export.
 The user sees a menu with entries for the function name,
-inputs (list of column names that are inputs),
-and outputs (list of column names that are computed by the function).
+inputs (a list of column names),
+and outputs (a list of column names).
 
 Program export produces two files.
 The first is the python module containing the exported function.
@@ -417,7 +418,9 @@ The code in this file is structured into several sections:
 - Function close
 
 The function definition and setup contain the function definition,
-imports, and the scisheet Prologue Formula (a script consisting of imports).
+imports, and the scisheet prologue formula.
+Note that the prologue formula is a convenient
+place to import Python packages.
 
 .. code-block:: python
 
@@ -440,27 +443,36 @@ imports, and the scisheet Prologue Formula (a script consisting of imports).
      # End Prologue
      s.controller.endBlock()
 
-In the above code, there is an import of ``api`` from ``scisheets.core``.
-``api`` is the SciSheets runtime.
-The API object ``s`` is constructed from the
-exported scisheet that is
-serialized in a JSON format
-with extension ``.scish``.
+In the above code, the imported package ``scisheets.core.api``
+contains the SciSheets runtime.
+The object ``s`` is constructed
+using a serialization of the scisheet
+that did the program export.
+scisheets are
+serialized in a JSON format with
+file names have the
+extension ``.scish``.
 
-This code points to a somewhat subtle requirement that SciSheets addresses.
-We refer to this as the **Script Debuggability Requirement**,
-a requirement that arises because allowing a formula to be a script
-means that errors must be localized to a line within the formula.
-SciSheets handles this through the use of the paired statements
+We see that prologue formulas can be lengthy scripts.
+Indeed,
+one
+scisheet developed with a plant biologists has
+a prologue formula with over fifty statements.
+With lengthy scripts, it is essential that
+syntax and execution errors are localized 
+to a line within the script.
+We refer to this as the **script debuggability requirement**.
+SciSheets handles this requirement by using the paired statements
 ``s.controller.startBlock('Prologue')``
 and
 ``s.controller.endBlock()``.
-These statements allow
-the SciSheets API as to identify which formula is being executed
-so that formula errors can be localized to a particular line.
-
+These statements "bracket" the script so that if an
+exception occurs, SciSheets can
+compute the line number within the script for that exception.
 
 Next, we consider the formula evaluation loop.
+Below is the code that is generated for the beginning of the
+loop and the evaluation of the formula for ``INV_S``.
 
 .. code-block:: python
 
@@ -478,23 +490,24 @@ Next, we consider the formula evaluation loop.
          s.controller.exceptionForBlock(exc)
 
 
-``s.controller.initializeLoop()`` snapshots Column Variables.
+``s.controller.initializeLoop()`` snapshots column variables.
 ``s.controller.isTerminateLoop()`` counts loop iterations, looks
-for convergence of Column Variables, and checks to see if the last
+for convergence of column variables, and checks to see if the last
 loop iteration has an exception.
-For each formula column, there is a ``try except`` block that informs
-the API as to the formula being executed, executes the formula,
-and records any exception.
-Note that loop execution continues even if there is an execution
-for a formula column; this is essential if formula columns are not
+Each formula column has a pair of  ``try`` and ``except`` statements that
+executes the formula
+and records exceptions.
+Note that loop execution continues even if there is an exception
+for one or more formula column. 
+This is done to handle situations in which formula columns are *not*
 ordered according to their data dependencies.
 
 Last, there is the function close.
 The occurrence of an exception in the formula evaluation loop causes an exception
 with the line number in the formula in which the (last) exception occurred.
-If there is no exception, then Epilogue Formula is executed, and
+If there is no exception, then the epilogue formula is executed, and
 the output values of the function are returned (assuming there is no exception
-in the Epilogue Formula).
+in the epilogue formula).
 
 .. code-block:: python
 
@@ -504,21 +517,15 @@ in the Epilogue Formula).
      s.controller.startBlock('Epilogue')
      # Epilogue
      s.controller.endBlock()
-
      return V_MAX,K_M
 
-The second file produced by program export is a test file.
-The test code makes use of ``unittest`` with a ``setUp``
-method that assigns ``self.s`` the value of an API object.
-The test is to compare the results of running the
-exported function on columns in the scisheet that are
-input to the function with the values of columns
-that are outputs from the function.
+The second file produced by SciSheets program export contains test code.
+Test code makes use of ``unittest`` with a ``setUp``
+method that assigns ``self.s`` the value of a SciSheets runtime object.
 
 .. code-block:: python
 
      def testBasics(self):
-       # Assign column values to program variables.
        S = self.s.getColumnValue('S')
        V = self.s.getColumnValue('V')
        V_MAX,K_M = michaelis(S,V)
@@ -526,6 +533,12 @@ that are outputs from the function.
            self.s.compareToColumnValues('V_MAX', V_MAX))
        self.assertTrue(
            self.s.compareToColumnValues('K_M', K_M))
+
+The above test compares the results of running the
+exported function ``michaelis`` on the input columns
+``S`` and ``V``
+with the
+values of output columns ``V_MAX`` and ``K_M``.
 
 .. figure:: ProcessFiles.png
    :scale: 50 %
@@ -539,16 +552,32 @@ that are outputs from the function.
    list of CSV files.
    :label:`fig-processfilesscript`
 
-The combination of the program export and formula script features is very powerful.
-For example, the ``michaelis`` function exported in
-Fig. :ref:`fig-processfiles` reuses the ``michaelis`` function to process a list of files.
-Fig. :ref:`fig-processfilesscript` displays the column formula for ``K_M``.
+The combination of program export and formula scripts is extremely powerful.
+To see this, consider
+a common pain point with spreadsheets - doing the same computation for different
+data sets.
+For example, the Michaelis-Menten calculation in Fig. :ref:`fig-excel1`  needs to be
+done for data collected collected from many experiments
+that are stored in several comma separated variable (CSV) files.
+Fig. :ref:`fig-processfiles` displays a spreadsheet
+that does the Michaelis-Menten calculation for the list of CSV files
+in the column ``CSV_FILE``.
+(This list is computed by the prologue formula based on the contents
+of the current directory.)
+Fig. :ref:`fig-processfilesscript` displays a script that reuses
+the ``michaelis`` function exported previously to compute values
+for ``K_M`` and ``V_MAX``.
+Thus,
+whenever new CSV files are available,
+``K_M`` and ``V_MAX`` are calculated without any change to
+Fig. :ref:`fig-processfiles`.
 
 3.4. Subtables
 ~~~~~~~~~~~~~~
 
-Subtables provide a way for SciSheets to deal with complex data.
-This feature allows the user to nest a table within another table.
+Subtables provide a way for SciSheets to deal with complex data
+by having 
+tables nested tables.
 
 .. figure:: Multitable.png
 
@@ -558,12 +587,11 @@ This feature allows the user to nest a table within another table.
 
 We illustrate this by revisiting the example
 in Fig. :ref:`fig-complexdata`.
-Fig. :ref:`fig-subtables` displays a scisheet for these data that
-is similar to
-Fig. :ref:`fig-complexdata`.
-However, unlike traditional spreadsheet programs,
-*SciSheets treats
-``CSE`` and ``Biology`` as independent tables.*
+Fig. :ref:`fig-subtables` displays a scisheet for these data.
+Unlike Fig. :ref:`fig-complexdata`, Fig. :ref:`fig-subtables` treats
+``CSE`` and ``Biology`` as independent tables.
+This
+is indicated by the columns named ``row`` for these tables.
 
 .. figure:: PopupForHierarchicalRowInsert.png
 
@@ -579,68 +607,68 @@ However, unlike traditional spreadsheet programs,
    the Biology substable.
    :label:`fig-subtable-after`
 
-To see this,
-recall that in Section 2
+Recall that in Section 2
 we could not insert a row into ``CSE``
 without also inserting a row into ``Biology``.
-SciSheets addresses this requirement by providing a row popup
-for each table.
+SciSheets addresses this requirement by providing a separate row popup
+for each subtable.
 This is shown in
 Fig. :ref:`fig-subtable-insert` where there is a popup
 for row 3 of ``CSE``.
 The result of selecting ``insert`` is displayed in
 Fig. :ref:`fig-subtable-after`.
-Note that the ``Biology`` subtable is not modified.
+Note that the ``Biology`` subtable is not modified
+when there is an insert into ``CSE``.
 
 4. Design
 ---------
 
 SciSheets uses a client-server design.
 The client runs in the browser using HTML and JavaScript;
-the server runs Python using the Django framework ref??.
+the server runs Python using the Django framework [DJANGOPR].
 This design provides a
-zero install deployment and
-leverages the rapid innovation of browser technologies.
+zero install deployment, and
+leverages the rapid innovation in browser technologies.
 
 Our strategy has been to limit the scope of the client code
 to presentation and handling end-user interactions.
-In some cases, the client requires data from the server
-to perform an end-user interaction
-(e.g., populate a list of saved scisheets).
-In these cases,
-the client interacts with the server via AJAX calls.
-The client makes use of several JavaScript packages
-including JQuery, YUI DataTable, and JQueryLinedText.
+When the client requires data from the server
+to perform end-user interactions
+(e.g., populate a list of saved scisheets),
+the client uses AJAX calls.
+The client also makes use of several JavaScript packages
+including JQuery [JQUERYPR], YUI DataTable [YUIDATAT], and 
+JQueryLinedText [JQUERYLI].
 
 .. figure:: SciSheetsCoreClasses.png
    :scale: 30 %
 
    SciSheets core classes. :label:`fig-coreclasses`
 
-The SciSheets server handles the details of requests, which also
+The SciSheets server handles the details of user requests, which also
 requires maintaining the data associated with scisheets.
 Fig :ref:`fig-coreclasses` displays the core
 classes used in the SciSheets server.
 Core classes have several required methods.
-One example of this is the ``copy`` method.
-This method makes a copy of the object for which it is
+For example, the ``copy`` method
+makes a copy of the object for which it is
 invoked.
-To do this, the object calls the ``copy`` method for its parent
-class as well (which happens recursively).
+To do this, the object calls the ``copy`` method of its parent
+class as well, and this is done recursively.
 Further, the object must call the ``copy`` method for core
-objects that are instance variables.
-For example,
-``ColumnContainer`` objects have an instance
-variable ``columns`` that contains a list of ``Column`` objects.
+objects that are in its instance variables,
+such as
+``ColumnContainer`` which has the instance variable
+``columns`` that contains a list of ``Column`` objects.
 Other examples of required methods are
 ``isEquivalent``, which tests if two objects have the same
 values of instance variables, and
 ``deserialize``, which creates objects based on data serialized
 in a JSON structure.
 
-We now describe the responsibility of the classes in
-the ``Tree`` hierarchy
-in Fig. :ref:`fig-coreclasses`.
+Next, we describe
+the classes in
+Fig. :ref:`fig-coreclasses`.
 ``Tree`` implements a tree that is used to express
 hierarchical
 relationships such as between ``Table`` and ``Column`` objects.
@@ -660,7 +688,7 @@ The classes ``NameSpace`` (a Python namespace) and ``ColumnVariable``
 are at the center of formula evaluation.
 The ``evaluate()`` method in ``Table`` generates Python code that
 is executed in a Python namespace.
-The SciSheets runtime creates an instance of a ``ColumnVariable`` for each
+The SciSheets runtime creates an instance of ``ColumnVariable`` for each
 ``Column`` in the scisheet being evaluated.
 ``ColumnVariable`` puts the name of its corresponding ``Column`` into the
 namespace, and assigns
@@ -689,10 +717,10 @@ if the formula columns are in order of their data
 dependencies);
 the second execution confirms that the result has
 converged.
-Some efficiencies can be gained by using the Prologue and
-Epilogue features for one-shot
+Some efficiencies can be gained by using the prologue and
+epilogue features for one-shot
 execution of high overhead operations (e.g., file I/O).
-Also, we are exploring the extent to which SciSheets
+In addition, we are exploring the extent to which SciSheets
 can automatically detect if static dependency checking
 can be used so that formula evaluation is done
 only once.
@@ -713,12 +741,12 @@ of data dependencies.
 This section describes several features that are
 under development.
 
-5.1 Subtables with Scoping
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+5.1 Subtable Scoping
+~~~~~~~~~~~~~~~~~~~~
 
 This feature addresses the reuse requirement.
 Today, spreadsheet users typically use copy-and-paste to reuse formulas.
-This approach suffers from many problems.
+This approach has from many drawbacks.
 First, it is error prone since there are often mistakes as to what is copied
 and where it is pasted.
 Second, fixing bugs in formulas requires repeating the copy-and-paste, another
@@ -727,18 +755,24 @@ error prone process.
 It turns out that a modest change to the subtable feature can provide
 a robust approach to
 reuse through copy-and-paste.
-The feature is to have subtables define a name scope.
-To see this, consider Fig. :ref:`fig-subtables` with the subtables
+This change is to make it so that a subtable subtable defines a name scope.
+That is, the same column name can be present in two different subtables.
+
+We illustrate
+the benefits of subtable scoping. 
+Consider Fig. :ref:`fig-subtables` with the subtables
 ``CSE`` and ``Biology``.
-Suppose further that these subtables both have a column named ``GPA``,
-and we want to add the column ``TypicalGPA`` to both subtables.
+Suppose further that these subtables both have a column named ``GPA``.
+We want to add the column ``TypicalGPA`` to both subtables;
+this column will have a formula that computes the
+mean value of ``GPA``.
 The approach would be as follows:
 
 1. Add the column ``TypicalGPA`` to ``CSE``.
 2. Create the formula
    ``np.mean(GPA)`` in
    ``TypicalGPA``.
-3. Copy the column ``TypicalGPA`` to subtable ``Biology``
+3. Copy the column ``TypicalGPA`` to subtable ``Biology``.
    Since the subtable scope is local, the formula
    ``np.mean(GPA)`` will reference the column ``GPA`` in
    ``Biology``.
@@ -762,10 +796,10 @@ This is handled as follows:
 ~~~~~~~~~~~~
 
 At present, SciSheets does not support plotting.
-However, there is clearly a **Plotting Requirement** for
+However, there is clearly a **plotting requirement** for
 any reasonable spreadsheet system.
-Our approach to plotting will be to leverage
-the bokeh package ref?? since it provides a convenient way
+Our approach to plotting will most likely be to leverage
+the ``bokeh`` package [BOKEHPRO] since it provides a convenient way
 to generate HTML and JavaScript for plots that can be embedded
 into HTML documents.
 Our vision is to make ``plot`` a function that can be used
@@ -878,14 +912,14 @@ The scope here includes the following use cases:
    +---------------------------+--------------------------------+
 
 SciSheets is
-a new spreadsheet system.
-Our guiding principle is to provide
+a new spreadsheet system with the
+guiding principle of providing
 the power of programming with the simplicity of spreadsheets.
 Our target users are technical professionals
 who do complex calculations on structured data.
 
 SciSheets addresses several requirements that are
-not handled well
+not handled
 in existing spreadsheet systems,
 especially the requirements of expressivity, reuse, complex data, and performance.
 SciSheets addresses these requirements by introducing
@@ -900,7 +934,7 @@ several novel features.
   This addresses reuse since
   exported spreadsheets
   can be reused in SciSheets formulas and/or by
-  external programs (e.g., written by Programmers).
+  external programs.
   Further, performance is improved by the export feature
   since calculations can execute without the
   overheads of the spreadsheet environment.
@@ -915,30 +949,38 @@ and the corresponding SciSheets features.
 
 One goal for SciSheets is to make users more productive with their existing
 workflows for developing and evaluating formulas.
-However, we also hope that SciSheets becomes a vehicle for elevating the skill levels
+However, we also hope that SciSheets becomes a vehicle for elevating the skills
 of users, making Novices into Scripters and Scripters into Programmers.
 
 At present, SciSheets is
 capable of doing robust demos.
-Some work remains to create a capable beta.
-Further, we are exploring possible deployment vehicles.
+Some work remains to create a beta.
+We are exploring possible deployment vehicles.
 For example,
 rather than having SciSheets be a standalone tool, another possibility is
 integration with Jupyter notebooks.
 
 References
 ----------
+.. [BERG2002] Berg, Jermey et al. *Biochemistry*,
+              W H Freeman, 2002.
+.. [BOKEHPRO] Bokeh Project. http://bokeh.pydata.org/.
 .. [BURN2009] Burnett, M. *What is end-user software engineering and why does
               it matter?*, Lecture Notes in Computer Science, 2009
+.. [DJANGOPR] Django Project. http://www.djangoproject.com.
 .. [GONZ2010]  *Google Fusion Tables: Web-Centered Data Management
               and Collaboration*, Hector Gonzalez et al., SIGMOD, 2010.
 .. [JONE2003] Jones, S., Blackwell, A., and Burnett, M. i
               *A user-centred approach to functions in excel*,
               SIGPLAN Notices, 2003.
+.. [JQUERYLI] JQueryLinedText. https://github.com/aw20/JQueryLinedText.
+.. [JQUERYPR] JQuery Package. https://jquery.com/.
 .. [MCCU2006] McCutchen, M., Itzhaky, S., and Jackson, D. *Object spreadsheets:
               a new computational model for end-user development of data-centric web applications*,
               Proceedings of the 2016 ACM International Symposium on New Ideas, New Paradigms,
               and Reflections on Programming and Software, 2006.
+.. [MICROSOF] Microsoft Corporation. *Overview of Excel tables*,
+              https://support.office.com/en-us/article/Overview-of-Excel-tables-7ab0bb7d-3a9e-4b56-a3c9-6c94334e492c.
 .. [MODE2017] *MODELOFF - Financial Modeling World Championships*,
               http://www.modeloff.com/the-legend/.
 .. [NBDIME]   *nbdime*, https://github.com/jupyter/nbdime.
@@ -951,3 +993,4 @@ References
 .. [THIB2013] Thibodeau, Patrick.
               *India to overtake U.S. on number of developers by 2017*,
               COMPUTERWORLD, Jul 10, 2013.
+.. [YUIDATAT] Yahoo User Interface DataTable. https://yuilibrary.com/yui/docs/datatable/.
