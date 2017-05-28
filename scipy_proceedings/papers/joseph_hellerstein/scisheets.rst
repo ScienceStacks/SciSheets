@@ -839,7 +839,9 @@ The scope here includes the following use cases:
 
   .. figure:: spreadsheet_history.png
 
-     Diagram showing a visual history of the SciSheet.
+     Diagram showing a visual history of the SciSheet. The SciSheets in green show
+     when columns have been added; whereas, the SciSheets in red show when columns
+     have been removed.
      :label:`fig-diff`
 
 
