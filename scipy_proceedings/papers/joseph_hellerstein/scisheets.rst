@@ -16,11 +16,11 @@ SciSheets: Providing the Power of Programming With The Simplicity of Spreadsheet
 Digital spreadsheets are the "killer app" that ushered in the PC revolution.
 Today,
 spreadsheet users outnumber software developers by a factor of
-50 or more. 
-Although spreadsheets simplify doing many calculations, they fail
+50 or more.
+Although spreadsheets simplify many calculations, they fail
 to address requirements for expressivity, reuse, complex data, and performance.
 SciSheets (from "scientific spreadsheets") is an open source project that provides
-novel features to address these requirements. 
+novel features to address these requirements.
 *Formula Scripts.*
 Scisheet formulas can be arbitrary Python scripts as well as expressions.
 This addresses expressivity by allowing
@@ -37,7 +37,7 @@ overheads of the spreadsheet environment.
 *Subtables.*
 Tables can have columns that are themselves tables (columns within columns).
 This addresses the complex data requirement,
-such as representing hierarhically structured
+such as representing hierarchically structured
 data and n-to-m relationships.
 One goal for SciSheets is to make users more productive with their existing
 workflows for developing and evaluating formulas.
@@ -54,7 +54,7 @@ of users, making Novices into Scripters and Scripters into Programmers.
 
 Digital spreadsheets are the "killer app" that ushered in the PC revolution.
 This is largely because spreadsheets provide a conceptually simple way to do calculations that
-(a) closely associates data with the calculations that produce the data and 
+(a) closely associates data with the calculations that produce the data and
 (b) avoids the mental burdens of programming
 such as
 control flow, data dependencies, and data structures.
@@ -66,8 +66,8 @@ of software developers world wide [THIB2013].
 We categorize
 spreadsheet users as follows:
 
-- **Novices** want to evaluate equations, but they do not want
-  to think about how to do it.
+- **Novices** want to evaluate equations, but they do not have the prior
+  programming experience necessary to create reusable functions and longer scripts.
   Spreadsheet formulas work well for Novices since: (a) they can
   ignore data dependencies;
   (b) they can avoid flow control by using
@@ -77,14 +77,15 @@ spreadsheet users as follows:
   statements; and they can use simple data structures such as lists and
   ``pandas DataFrames``.
   However, Scripters rarely encapsulate code into functions,
-  preferring ``copy`` and ``paste`` to get reuse.
+  preferring "copy" and "paste" to get reuse.
 - **Programmers** know about sophisticated data structures, modularization, reuse, and testing.
 
 Our experience is primarily with scientists, especially biologists and chemists.
-Most commonly, we encounter Novices and Scripters.
-Only Programmers take advantage of spreadsheet macro capabilities
-(e.g.,  Visual Basic for Microsoft Excel or
-AppScript in Google Sheets).
+Most commonly, we encounter Novices and Scripters with limited prior programming
+experience. We do not expect these groups of users to take advantage of
+spreadsheet macro capabilities (e.g.,  Visual Basic for Microsoft Excel or
+AppScript in Google Sheets); we anticipate this functionality to be taken advantage
+of only by Programmers.
 
 Based on this experience, we find
 existing spreadsheets lack several key requirements.
@@ -125,7 +126,7 @@ the most pervasive EUP environment on the planet.
 introduce a sophisticated object model, but the complexity of
 this proposal is unlikely to appeal to Novices.
 [JONE2003] describes a way that users can implement functions
-within a spreadsheet to get reuse. 
+within a spreadsheet to get reuse.
 However, the approach imposes a significant burdern on the user,
 and does not address reuse of
 formulas outside the spreadsheet environment.
@@ -133,9 +134,9 @@ Industry has had significant
 interest in innovating spreadsheets.
 Google Fusion Tables [GONZ2010]
 and the "Tables" feature of Microsoft Excel ref??
-use column formulas to avoid a common source of errors,
+use column formulas to avoid a common source of error,
 copying formulas as rows are added/deleted from a table.
-The Pyspread [PYSPREAD] project uses Python as the formula language, 
+The Pyspread [PYSPREAD] project uses Python as the formula language,
 but Pyspread formulas cannot be Python scripts.
 A more radical approach is taken by
 Stencila [STENCILA],
@@ -149,7 +150,7 @@ However, Stencila lacks features that spreadsheet users expect:
 (a) closely associating data with the calculations that produce the data
 and (b) avoiding considerations of data dependencies in calculations.
 
-This paper introduces SciSheets [SCISHEETS], 
+This paper introduces SciSheets [SCISHEETS],
 a new spreadsheet system with the
 objective of providing
 the power of programming with the simplicity of spreadsheets.
@@ -252,9 +253,9 @@ We consider a second example to illustrate problems with handling
 non-trivial data relationships in spreadsheets.
 Fig. :ref:`fig-complexdata` displays data that a university
 might have for students in two departments in Engineering.
-The data are organized into two tables 
+The data are organized into two tables
 (``CSE`` and ``Biology``) grouped under
-the ``Engineering``, with separate columns for student identifiers
+``Engineering``, with separate columns for student identifiers
 and grades.
 These tables
 are adjacent to each other to facilitate the comparisons between
@@ -263,8 +264,8 @@ However, the tables are independent of each other
 in that we should be able to insert, delete, and hide rows
 in one table without affecting
 the other table.
-Unfortunately, existing spreadsheet systems do not handle this well in that adding
-a row to one table affects all tables on that row in the sheet.
+Unfortunately, existing spreadsheet systems do not handle this well; adding
+a row to one table affects every row in the entire spreadsheet.
 Note that arranging the tables vertically does not help since now the problem
 becomes adding, deleting, or hiding columns.
 (We could arrange the tables in a diagonal, but
@@ -389,13 +390,13 @@ Prologue and Epilogue Formulas are modified through the scisheet popup menu.
 
    Menu to export a table as a standalone python program. :label:`fig-export`
 
-A scisheet can be executed as a standalone program as
+A scisheet can be executed as a standalone program or as
 a function in a python module.
 The feature addresses the Reuse requirement since
 exported programs can be used in scisheet formulas
 and/or external programs.
 The export feature also addresses the Performance requirement
-since executing code standalone eliminates the overheads of
+since executing standalone code eliminates the overheads of
 the spreadsheet environment.
 
 Fig. :ref:`fig-export` displays the scisheet popup menu for
@@ -415,7 +416,7 @@ The code in this file is structured into several sections:
 - Formula evaluation
 - Function close
 
-The function definition and setup contains the function definition,
+The function definition and setup contain the function definition,
 imports, and the scisheet Prologue Formula (a script consisting of imports).
 
 .. code-block:: python
@@ -443,12 +444,12 @@ In the above code, there is an import of ``api`` from ``scisheets.core``.
 ``api`` is the SciSheets runtime.
 The API object ``s`` is constructed from the
 exported scisheet that is
-is serialized in a JSON format
+serialized in a JSON format
 with extension ``.scish``.
 
 This code points to a somewhat subtle requirement that SciSheets addresses.
 We refer to this as the **Script Debuggability Requirement**,
-a requirement that arises because allowing a formula to be script
+a requirement that arises because allowing a formula to be a script
 means that errors must be localized to a line within the formula.
 SciSheets handles this through the use of the paired statements
 ``s.controller.startBlock('Prologue')``
@@ -480,7 +481,7 @@ Next, we consider the formula evaluation loop.
 ``s.controller.initializeLoop()`` snapshots Column Variables.
 ``s.controller.isTerminateLoop()`` counts loop iterations, looks
 for convergence of Column Variables, and checks to see if the last
-loop iteration had an exception.
+loop iteration has an exception.
 For each formula column, there is a ``try except`` block that informs
 the API as to the formula being executed, executes the formula,
 and records any exception.
@@ -547,7 +548,7 @@ Fig. :ref:`fig-processfilesscript` displays the column formula for ``K_M``.
 ~~~~~~~~~~~~~~
 
 Subtables provide a way for SciSheets to deal with complex data.
-This feature allows for having tables nested within a table.
+This feature allows the user to nest a table within another table.
 
 .. figure:: Multitable.png
 
@@ -560,7 +561,7 @@ in Fig. :ref:`fig-complexdata`.
 Fig. :ref:`fig-subtables` displays a scisheet for these data that
 is similar to
 Fig. :ref:`fig-complexdata`.
-However, there is an importance.
+However, unlike traditional spreadsheet programs,
 *SciSheets treats
 ``CSE`` and ``Biology`` as independent tables.*
 
@@ -596,12 +597,12 @@ Note that the ``Biology`` subtable is not modified.
 
 SciSheets uses a client-server design.
 The client runs in the browser using HTML and JavaScript;
-the server runs Python using the Django frameworki ref??.
+the server runs Python using the Django framework ref??.
 This design provides a
 zero install deployment and
-leverages the rapid pace of innovation of browser technologies.
+leverages the rapid innovation of browser technologies.
 
-Our strategy has been to limit the scope of the client codes
+Our strategy has been to limit the scope of the client code
 to presentation and handling end-user interactions.
 In some cases, the client requires data from the server
 to perform an end-user interaction
@@ -628,12 +629,12 @@ To do this, the object calls the ``copy`` method for its parent
 class as well (which happens recursively).
 Further, the object must call the ``copy`` method for core
 objects that are instance variables.
-For example, 
+For example,
 ``ColumnContainer`` objects have an instance
 variable ``columns`` that contains a list of ``Column`` objects.
 Other examples of required methods are
 ``isEquivalent``, which tests if two objects have the same
-values of instance variables, and 
+values of instance variables, and
 ``deserialize``, which creates objects based on data serialized
 in a JSON structure.
 
@@ -643,23 +644,23 @@ in Fig. :ref:`fig-coreclasses`.
 ``Tree`` implements a tree that is used to express
 hierarchical
 relationships such as between ``Table`` and ``Column`` objects.
-``Tree`` also provides a mapping between the names of
-scisheet elements
+``Tree`` also provides a mapping between the name of the
+scisheet element
 and the object associated with the name
 (e.g., to handle user requests).
 ``ColumnContainer`` manages a collections of ``Table`` and ``Column`` objects.
 ``Column`` is a container of data values.
-``Table`` knows about rows, and it 
+``Table`` knows about rows, and it
 does formula evaluation using ``evaluate()``.
 ``UITable`` handles user requests (e.g., renaming a column and
-inserting a row) in a way that is independent of the client implemenation.
+inserting a row) in a way that is independent of the client implementation.
 ``DTTable`` provides client specific services, such as rendering tables into HTML using ``render()``.
 
 The classes ``NameSpace`` (a Python namespace) and ``ColumnVariable``
 are at the center of formula evaluation.
 The ``evaluate()`` method in ``Table`` generates Python code that
 is executed in a Python namespace.
-This SciSheets runtime creates an instance of a ``ColumnVariable`` for each
+The SciSheets runtime creates an instance of a ``ColumnVariable`` for each
 ``Column`` in the scisheet being evaluated.
 ``ColumnVariable`` puts the name of its corresponding ``Column`` into the
 namespace, and assigns
@@ -692,7 +693,7 @@ Some efficiencies can be gained by using the Prologue and
 Epilogue features for one-shot
 execution of high overhead operations (e.g., file I/O).
 Also, we are exploring the extent to which SciSheets
-can detect automatically if static dependency checking
+can automatically detect if static dependency checking
 can be used so that formula evaluation is done
 only once.
 
@@ -734,7 +735,7 @@ and we want to add the column ``TypicalGPA`` to both subtables.
 The approach would be as follows:
 
 1. Add the column ``TypicalGPA`` to ``CSE``.
-2. Create the formula 
+2. Create the formula
    ``np.mean(GPA)`` in
    ``TypicalGPA``.
 3. Copy the column ``TypicalGPA`` to subtable ``Biology``
@@ -748,14 +749,14 @@ This is handled as follows:
 
 1. The user edits the formula for the column ``TypicalGPA`` in
    subtable ``CSE``,
-   changing the formula to 
+   changing the formula to
    ``np.median(GPA)``.
 2. SciSheets responds by asking if the user wants the
    copies of this formula
    to be updated as well.
 3. The user answers "yes", and the formula is changed for
    ``TypicalGPA`` in subtable ``Biology``.
-   
+
 
 5.2 Plotting
 ~~~~~~~~~~~~
@@ -763,30 +764,20 @@ This is handled as follows:
 At present, SciSheets does not support plotting.
 However, there is clearly a **Plotting Requirement** for
 any reasonable spreadsheet system.
-Mostly like, our approach to plotting will be to leverage
+Our approach to plotting will be to leverage
 the bokeh package ref?? since it provides a convenient way
 to generate HTML and JavaScript for plots that can be embedded
 into HTML documents.
 Our vision is to make ``plot`` a function that can be used
 in a formula.
-A *plot* column will have its cells rendered as HTML. 
+A *plot* column will have its cells rendered as HTML.
 
 5.3 Github Integration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. figure:: spreadsheet_branch.png
-
-   Diagram showing how a scisheet can be split into two separate branches for testing
-   code features. :label:`fig-branch`
-
-.. figure:: spreadsheet_merge.png
-
-   Diagram showing how two scisheets will be merged (assuming no merge conflicts).
-   :label:`fig-merge`
-
 A common problem with spreadsheets is that calculations are difficult to reproduce
-because some steps are manual (e.g., menu interactions) and the presence
-of errors.
+because some steps are manual (e.g., menu interactions). Additionally, it can be
+difficult to reproduce a spreadsheet due to the presence of errors.
 We refer to this as the **Reproducibility Requirement**.
 Version control is an integral part of reproducibility.
 Today, a spreadsheet file as a whole can be version controlled,
@@ -796,29 +787,61 @@ However, this is error prone, and it is very difficult
 to keep current (a considerably problem in a collaborative environment).
 One automated approach is a revision history, such as
 Google Sheets.
-But this technique fails to record the sequence in which changes were made, by whom,
+However, this technique fails to record the sequence in which changes were made, by whom,
 and for what reason.
 
-It turns out that the way that SciSheets serialization of tables naturally lends itself
+The method of serialization used in SciSheets lends itself well
 to github integration.
-scisheets are serialized as JSON files with separate lines used for data, formulas,
-and the structural relationships between columns, tables, and the scisheet.
+Scisheets are serialized as JSON files with separate lines used for data, formulas,
+and structural relationships between columns, tables, and the scisheet.
 Although the structural relationships have a complex representation, it
-does seem that the SciSheets can be integrated with the line oriented version
+does seem that SciSheets can be integrated with the line oriented version
 control of github.
 
 We are in the process of designing a user friendly integration of SciSheets with
 github.
 The scope here includes the following use cases:
 
-- Branching.
-  Uses should be able to create branches to explore new calculations and features
-  of a scisheet.
+- **Branching.**
+  Users should be able to create branches to explore new calculations and also
+  features in a scisheet. Fig. :ref:`fig-branch` shows how a Scisheet can be split
+  into two separate branches.
   As with branching for software teams, branching with a spreadsheet
-  should allow collaborators to work on their part of the project without
+  will allow collaborators to work on their part of the project without
   worrying about affecting the work of others.
 
-- Merging.
+  .. figure:: spreadsheet_branch.png
+
+     Diagram showing how a scisheet can be split into two separate branches for testing
+     code features. :label:`fig-branch`
+
+- **Merging.**
+  Users will be able to utilize the existing github strategies for merging two
+  documents. In addition to
+  having a code based implementation to solve merge conflicts, we intend to develop
+  a visual way for users to approve or deny merge conflicts within the Scisheet
+  itself. Fig. :ref:`fig-merge` shows how two Scisheets can be merged into an
+  individual spreadsheet. This implementation will be similar to the
+  `nbdime` package developed for merging and differcing Jupyter notebooks [NBDIME].
+
+  .. figure:: spreadsheet_merge.png
+
+     Diagram showing how two scisheets will be merged (assuming no merge conflicts).
+     :label:`fig-merge`
+
+- **Differencing.**
+  Users will be able to look through the history of git commits to explore
+  previous changes. Fig. :ref:`fig-diff` shows a visual example of the history of
+  a SciSheet. The user will be able to select any point in history to further
+  explore the history (similar to ``git checkout``). This functionality will allow
+  collaborators to gain a greater understanding of changes made to the spreadsheet
+  and potentially reduce duplicate implementations of certain formulas.
+
+  .. figure:: spreadsheet_history.png
+
+     Diagram showing a visual history of the SciSheet.
+     :label:`fig-diff`
+
 
 6. Conclusions
 --------------
@@ -898,7 +921,7 @@ capable of doing robust demos.
 Some work remains to create a capable beta.
 Further, we are exploring possible deployment vehicles.
 For example,
-rather than having SciSheets be a standalone tool, another possible is
+rather than having SciSheets be a standalone tool, another possibility is
 integration with Jupyter notebooks.
 
 References
@@ -916,6 +939,7 @@ References
               and Reflections on Programming and Software, 2006.
 .. [MODE2017] *MODELOFF - Financial Modeling World Championships*,
               http://www.modeloff.com/the-legend/.
+.. [NBDIME]   *nbdime*, https://github.com/jupyter/nbdime.
 .. [PERE2015] Perez, Fernando and Branger, Brian.
               *Project Jupyter: Computational Narratives as the
               Engine of Collaborative Data Science*, http://archive.ipython.org/JupyterGrantNarrative-2015.pdf.
