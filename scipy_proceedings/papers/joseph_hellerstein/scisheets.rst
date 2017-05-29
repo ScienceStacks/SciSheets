@@ -225,11 +225,13 @@ using the following recipe.
 
 .. figure:: ExcelMultiTable.png
 
-   Student grade data from two departments in the school of engineering.
+   Illustrative example of 
+   student grade data from two departments in the School of Engineering.
    CSE and Biology are separate tables that are grouped together for
    convenience of analysis.
-   However, it is difficult to manage them separate, such as insert, delete,
-   and/or hide rows.
+   However, it is difficult to 
+   perform operations such as insert, delete,
+   and/or hide rows on one subtable without affecting the other subtable.
    :label:`fig-complexdata`
 
 Fig. :ref:`fig-excel1` shows an Excel spreadsheet that implements this recipe
@@ -338,7 +340,6 @@ The formula is an expression that references the column ``S``.
    :math:`K_M`.
    The formula is a simple script, allowing a Novice to see
    exactly how the data in the scisheet are produced.
-   Note that the formula assigns values to other columns.
    :label:`fig-complexformula`
 
 SciSheets allows formulas to be scripts with arbitrary Python statements.
@@ -390,7 +391,8 @@ Prologue and epilogue formulas are modified through the scisheet popup menu.
 
 .. figure:: TableExport.png
 
-   Menu to export a table as a standalone python program. :label:`fig-export`
+   Menu to export a table as a standalone Python module. 
+   :label:`fig-export`
 
 A scisheet can be exported as
 a function in a python module.
@@ -584,8 +586,11 @@ tables nested within tables.
 
 .. figure:: Multitable.png
 
-   A table with two subtables.
-   Subtables CSE and Biology can be manipulated separately.
+   The table ``Engineering`` has two subtables
+   ``CSE`` and ``Biology``.
+   The subtables are independent of one another, which is
+   indicated by the square brackets around their names
+   and the presence of separate ``row`` columns.
    :label:`fig-subtables`
 
 We illustrate this by revisiting the example
@@ -607,9 +612,8 @@ of ``CSE`` are independent of the rows of ``Biology``.
 
 .. figure:: AfterHierarchicalRowInsert.png
 
-   Result of inserting a row in one subtable.
-   Note that a row is inserted in the CSE subtable without affecting
-   the Biology substable.
+   Result of inserting a row in the ``CSE`` subtable.
+   Note that the ``Biology`` substable is unchanged.
    :label:`fig-subtable-after`
 
 Recall that in Section 2
@@ -648,7 +652,8 @@ JQueryLinedText [JQUERYLI].
 .. figure:: SciSheetsCoreClasses.png
    :scale: 30 %
 
-   SciSheets core classes. :label:`fig-coreclasses`
+   SciSheets core classes. 
+   :label:`fig-coreclasses`
 
 The SciSheets server handles the details of user requests, which also
 requires maintaining the data associated with scisheets.
@@ -864,8 +869,9 @@ The scope includes the following use cases:
 
   .. figure:: spreadsheet_branch.png
 
-     Diagram showing how a scisheet can be split into two separate branches for testing
-     code features. :label:`fig-branch`
+     Mockup showing how a scisheet can be split into two branches
+     (e.g., for testing and/or feature exploration).
+     :label:`fig-branch`
 
 - **Merging.**
   Users will be able to utilize the existing github strategies for merging two
@@ -882,7 +888,8 @@ The scope includes the following use cases:
 
   .. figure:: spreadsheet_merge.png
 
-     Diagram showing how two scisheets will be merged (assuming no merge conflicts).
+     Mockup displaying two scisheets can be merged 
+     (assuming no merge conflicts).
      :label:`fig-merge`
 
 - **Differencing.**
@@ -895,8 +902,10 @@ The scope includes the following use cases:
 
   .. figure:: spreadsheet_history.png
 
-     Diagram showing a visual history of the SciSheet. The SciSheets in green show
-     when columns have been added; whereas, the SciSheets in red show when columns
+     Mockup visualzation of the change history of a scisheet. 
+     The versions in green show
+     when columns have been added; 
+     the versions in red show when columns
      have been removed.
      :label:`fig-diff`
 
