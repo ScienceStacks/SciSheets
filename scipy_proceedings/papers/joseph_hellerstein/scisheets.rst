@@ -38,8 +38,7 @@ and
 complex data
 such as representing hierarchically structured
 data and n-to-m relationships.
-We believe that these features can make spreadsheets less 
-error prone, and make spreadsheet users more
+We believe that these features can make spreadsheets users more
 productive.
 
 
