@@ -24,8 +24,8 @@ which addresses
 expressivity by allowing
 calculations to be written as algorithms;
 (2) spreadsheets
-can be exported as standalone Python modules 
-(*module export*), which
+can be exported as functions in a Python module
+(*function export*), which
 addresses reuse since
 exported codes
 can be reused in formulas and/or by
@@ -167,8 +167,8 @@ several novel features.
   Scisheet formulas can be arbitrary Python scripts as well as expressions.
   This addresses expressivity by allowing
   calculations to be written as algorithms.
-- *Module Export.*
-  Scisheets can be exported as standalone Python modules.
+- *Function Export.*
+  Scisheets can be exported as functions in a Python module.
   This addresses reuse since
   exported codes
   can be reused in SciSheets formulas and/or by
@@ -205,8 +205,8 @@ denoted by :math:`V_{MAX}`, and the concentration :math:`K_M` of substrate that 
 a reaction rate equal to half of :math:`V_{MAX}`.
 
 To perform the Michaelis-Menten analysis,
-laboratory data are collected for different values of the substrate concentration
-:math:`S` and the associated reaction rate :math:`V`.
+laboratory data are collected for different values of the substrate concentrations
+:math:`S` and associated reaction rates :math:`V`.
 Then, a calculation is done to obtain the parameters :math:`V_{MAX}` and :math:`K_M`
 using the following recipe.
 
@@ -227,11 +227,13 @@ using the following recipe.
 
    Illustrative example of 
    student grade data from two departments in the School of Engineering.
-   CSE and Biology are separate tables that are grouped together for
+   ``CSE`` and ``Biology`` are 
+   separate tables that are grouped together for
    convenience of analysis.
-   However, it is difficult to 
-   perform operations such as insert, delete,
-   and/or hide rows on one subtable without affecting the other subtable.
+   In existing spreadsheet systems, users cannot
+   perform row operations such as insert, delete,
+   and/or hide on one subtable without 
+   affecting the other subtable.
    :label:`fig-complexdata`
 
 Fig. :ref:`fig-excel1` shows an Excel spreadsheet that implements this recipe
@@ -280,7 +282,7 @@ We begin with a discussion of the SciSheets
 user interface in Section 3.1.
 Then, Sections 3.2, 3.3, and 3.4 in turn present:
 formula scripts (which addresses expressivity),
-module export (which addresses reuse and performance),
+function export (which addresses reuse and performance),
 and subtables (which addresses complex data).
 
 3.1 User Interface
@@ -292,7 +294,7 @@ and subtables (which addresses complex data).
 
 Fig. :ref:`fig-columnpopup` displays a scisheet that performs the Michaelis-Menten calculations
 as we did in Fig. :ref:`fig-excel1`.
-Note that a column that contains a formula has its name annotated with an ``*``.
+Note that columns containing a formula have a name annotated with an ``*``.
 
 A scisheet
 has the familiar tabular structure of a spreadsheet.
@@ -326,7 +328,7 @@ The cell popup is an editor for the value in the cell.
 
    Formula for computing the inverse of the input value S. :label:`fig-simpleformula`
 
-Fig. :ref:`fig-simpleformula` displays the results of selecting the formula item
+Fig. :ref:`fig-simpleformula` displays the results of selecting the ``formula`` item
 from the popup menu in Fig. :ref:`fig-columnpopup` for the column ``INV_S``.
 A simple line editor is displayed.
 The formula is an expression that references the column ``S``.
@@ -386,16 +388,17 @@ of the calculation, and an epilogue formula
 that writes results at the end of the calculation.
 Prologue and epilogue formulas are modified through the scisheet popup menu.
 
-3.3. Module Export
-~~~~~~~~~~~~~~~~~~~
+3.3. Function Export
+~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: TableExport.png
 
-   Menu to export a table as a standalone Python module. 
+   Menu to export a scisheet as a
+   function in a Python module. 
    :label:`fig-export`
 
 A scisheet can be exported as
-a function in a python module.
+a function in a Python module.
 This feature addresses the reuse requirement since
 exported codes can be used in scisheet formulas
 and/or external programs.
@@ -404,14 +407,14 @@ since executing standalone code eliminates
 many overheads.
 
 Fig. :ref:`fig-export` displays the scisheet popup menu for
-module export.
+function export.
 The user sees a menu with entries for the function name,
 inputs (a list of column names),
 and outputs (a list of column names).
 
-Module export produces two files.
-The first is the python module containing the exported function.
-The second is a python file containing a test for the exported function.
+Function export produces two files.
+The first is the Python module containing the exported function.
+The second is a Python file containing a test for the exported function.
 
 We begin with the first file.
 The code in this file is structured into several sections:
@@ -425,7 +428,7 @@ imports, and the scisheet prologue formula.
 Note that the prologue formula is a convenient
 place to import Python packages.
 
-.. code-block:: python
+.. code-block:: Python
 
    # Function definition
    def michaelis(S, V):
@@ -451,10 +454,10 @@ contains the SciSheets runtime.
 The object ``s`` is constructed
 using a serialization of the scisheet
 that is written
-at the time of module export.
+at the time of function export.
 scisheets are
-serialized in a JSON format with
-file names have the
+serialized in a JSON format
+to a file that has the
 extension ``.scish``.
 
 We see that prologue formulas can be lengthy scripts.
@@ -479,7 +482,7 @@ Next, we consider the formula evaluation loop.
 Below is the code that is generated for the beginning of the
 loop and the evaluation of the formula for ``INV_S``.
 
-.. code-block:: python
+.. code-block:: Python
 
      s.controller.initializeLoop()
      while not s.controller.isTerminateLoop():
@@ -514,7 +517,7 @@ If there is no exception, then the epilogue formula is executed, and
 the output values of the function are returned (assuming there is no exception
 in the epilogue formula).
 
-.. code-block:: python
+.. code-block:: Python
 
      if s.controller.getException() is not None:
        raise Exception(s.controller.formatError(
@@ -524,11 +527,11 @@ in the epilogue formula).
      s.controller.endBlock()
      return V_MAX,K_M
 
-The second file produced by SciSheets module export contains test code.
+The second file produced by SciSheets function export contains test code.
 Test code makes use of ``unittest`` with a ``setUp``
 method that assigns ``self.s`` the value of a SciSheets runtime object.
 
-.. code-block:: python
+.. code-block:: Python
 
      def testBasics(self):
        S = self.s.getColumnValue('S')
@@ -557,7 +560,8 @@ values of output columns ``V_MAX`` and ``K_M``.
    list of CSV files.
    :label:`fig-processfilesscript`
 
-The combination of module export and formula scripts is extremely powerful.
+The combination of the features
+function export and formula scripts is extremely powerful.
 To see this, consider
 a common pain point with spreadsheets - doing the same computation for different
 data sets.
@@ -756,7 +760,7 @@ under development.
 
 This feature addresses the reuse requirement.
 Today, spreadsheet users typically employ copy-and-paste to reuse formulas.
-This approach has from many drawbacks.
+This approach has many drawbacks.
 First, it is error prone since there are often mistakes as to what is copied
 and where it is pasted.
 Second, fixing bugs in formulas requires repeating the 
@@ -765,18 +769,18 @@ same error prone copy-and-paste.
 It turns out that a modest change to the subtable feature can provide
 a robust approach to
 reuse through copy-and-paste.
-This change is to make a subtable define a name scope.
-As a result,
+This change is to have a subtable define a name scope.
+This means that
 the same column name can be present in two different subtables
-since these names have different scopes.
+since these names are in different scopes.
 
 We illustrate
 the benefits of subtable name scoping. 
 Consider Fig. :ref:`fig-subtables` with the subtables
 ``CSE`` and ``Biology``.
-Suppose further that the column ``GradePtAvg``
+Suppose that the column ``GradePtAvg``
 in ``CSE`` is renamed to ``GPA`` so that
-both the ``CSE`` and ``Biology`` subtables
+both ``CSE`` and ``Biology``
 have a column named ``GPA``.
 Now, consider adding the
 column ``TypicalGPA`` to both subtables;
@@ -860,7 +864,7 @@ We are in the process of designing an integration of SciSheets with
 The scope includes the following use cases:
 
 - **Branching.**
-  Users should be able to create branches to explore new calculations and also
+  Users should be able to create branches to explore new calculations and
   features in a scisheet. Fig. :ref:`fig-branch` shows how a scisheet can be split
   into two branches.
   As with branching for software teams, branching with a spreadsheet
@@ -874,17 +878,16 @@ The scope includes the following use cases:
      :label:`fig-branch`
 
 - **Merging.**
-  Users will be able to utilize the existing github strategies for merging two
+  Users will be able to utilize the existing ``github`` strategies for merging
   documents. 
   In addition,
   we intend to develop
   a visual way for users to detect and resolve merge conflicts.
-  Fig. :ref:`fig-merge` illustrates how two Scisheets can be merged into an
-  individual spreadsheet. 
+  Fig. :ref:`fig-merge` illustrates how two scisheets can be merged.
   Our thinking is that name conflicts will be handled in a manner similar
   to that used in ``pandas`` with ``join`` operations.
   Our implementation will likely be similar to the
-  `nbdime` package developed for merging and differencing Jupyter notebooks [NBDIME].
+  ``nbdime`` package developed for merging and differencing Jupyter notebooks [NBDIME].
 
   .. figure:: spreadsheet_merge.png
 
@@ -893,12 +896,11 @@ The scope includes the following use cases:
      :label:`fig-merge`
 
 - **Differencing.**
-  Users will be able to review the history of ``git commit`` operations to explore
-  changes. Fig. :ref:`fig-diff` shows a visual example of the history of
-  a scisheet. The user will be able to select any point in history to further
-  explore the history (similar to ``git checkout``). This functionality will allow
-  collaborators to gain a greater understanding of changes made
-  and potentially reduce duplicate implementations of formulas.
+  Users will be able to review the history of ``git commit`` operations.
+  Fig. :ref:`fig-diff` displays a mockup of a visualization of the history of
+  a scisheet. The user will be able to select any point in history
+  (similar to ``git checkout``). This functionality will allow
+  collaborators to gain a greater understanding of changes made.
 
   .. figure:: spreadsheet_history.png
 
@@ -924,12 +926,12 @@ The scope includes the following use cases:
    | - Expressivity            | - Python formulas              |
    |                           | - Formula scripts              |
    +---------------------------+--------------------------------+
-   | - Reuse                   | - Module export                |
+   | - Reuse                   | - Function export              |
    |                           | - *Subtable name scoping*      |
    +---------------------------+--------------------------------+
    | - Complex Data            | - Subtables                    |
    +---------------------------+--------------------------------+
-   | - Performance             | - Module export                |
+   | - Performance             | - Function export              |
    |                           | - Prologue, Epilogue           |
    |                           | - *Load data on demand*        |
    |                           | - *Conditional static*         |
@@ -960,8 +962,8 @@ several novel features.
   Scisheet formulas can be Python scripts, not just expressions.
   This addresses expressivity by allowing
   calculations to be written as algorithms.
-- *Module Export.*
-  Scisheets can be exported as standalone Python modules.
+- *Function Export.*
+  Scisheets can be exported as functions in a Python module.
   This addresses reuse since
   exported codes 
   can be reused in SciSheets formulas and/or by
@@ -1017,7 +1019,7 @@ References
 .. [NBDIME]   *nbdime*, https://github.com/jupyter/nbdime.
 .. [PERE2015] Perez, Fernando and Branger, Brian.
               *Project Jupyter: Computational Narratives as the
-              Engine of Collaborative Data Science*, http://archive.ipython.org/JupyterGrantNarrative-2015.pdf.
+              Engine of Collaborative Data Science*, http://archive.iPython.org/JupyterGrantNarrative-2015.pdf.
 .. [PYSPREAD] Manns, M. *PYSPREAD*, http://github.com/manns/pyspread.
 .. [SCISHEET] *SciSheets*, https://github.com/ScienceStacks/SciSheets.
 .. [STENCILA] *Stencila*, https://stenci.la/.
