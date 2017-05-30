@@ -365,7 +365,7 @@ But how many times must this iteration be done?
 Consider an evaluation of *N* formula columns assuming that
 there are no
 circular references or other anomalies in the formulas.
-Then, at most *N* iterations are needed for convergeince since on each iteration
+Then, at most *N* iterations are needed for convergence since on each iteration
 at least one column variable is assigned its final value.
 If after *N* iterations, there is an exception, (e.g., a column variable
 does not have a value assigned), this is reported to the user since there is
@@ -394,7 +394,7 @@ Prologue and epilogue formulas are modified through the scisheet popup menu.
 3.3. Function Export
 ~~~~~~~~~~~~~~~~~~~~
 
-.. figure:: TableExport.png
+.. figure:: FunctionExport.png
 
    Menu to export a scisheet as a
    function in a Python module. 
