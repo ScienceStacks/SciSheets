@@ -38,9 +38,11 @@ and
 complex data
 such as representing hierarchically structured
 data and n-to-m relationships.
-We believe that these features can make spreadsheet users more
-productive.
-
+Our future directions include
+refinements to subtables, github integration,
+and plotting.
+At present, SciSheets can do robust demos, but it is
+not yet beta code.
 
 .. class:: keywords
 
@@ -77,7 +79,7 @@ spreadsheet users as follows:
   preferring "copy" and "paste" to get reuse.
 - **Programmers** know about sophisticated data structures, modularization, reuse, and testing.
 
-Our experience is primarily with scientists, especially biologists and chemists.
+Our experience is primarily with technical users such as scientists.
 Most commonly, we encounter Novices and Scripters with limited prior programming
 experience. We do not expect these groups of users to take advantage of
 spreadsheet macro capabilities (e.g.,  Visual Basic for Microsoft Excel or
@@ -107,9 +109,9 @@ Third, current spreadsheet systems cannot handle the
 **complex data requirement**, such as
 manipulating data that are
 hierarchically structured or data that have n-to-m relationships.
-Finally, there is the
-**performance requirement**, that
-spreadsheets scale well with
+Finally, existing spreadsheets cannot address the
+**performance requirement** in that
+spreadsheets scale poorly with
 the size of data and the number of formulas.
 
 Academic computer science has recognized the growing importance
@@ -252,7 +254,8 @@ to reuse formulas in an external program.
 We consider a second example to illustrate problems with handling
 non-trivial data relationships in spreadsheets.
 Fig. :ref:`fig-complexdata` displays data that a university
-might have for students in two departments in the School of Engineering.
+might have for students in two departments in the School of Engineering,
+Computer Science & Engineering (CSE) and Biology.
 The data are organized into two tables
 (``CSE`` and ``Biology``) grouped under
 ``Engineering``, with separate columns for student identifiers
@@ -517,13 +520,17 @@ If there is no exception, then the epilogue formula is executed, and
 the output values of the function are returned (assuming there is no exception
 in the epilogue formula).
 
+.. raw:: LaTeX
+
+     \newpage
+
 .. code-block:: Python
 
      if s.controller.getException() is not None:
        raise Exception(s.controller.formatError(
            is_absolute_linenumber=True))
      s.controller.startBlock('Epilogue')
-     # Epilogue
+     # Epilogue (empty)
      s.controller.endBlock()
      return V_MAX,K_M
 
@@ -819,21 +826,7 @@ Note that we would have the same result in the above procedure
 if the user had in step (1) modified the ``Biology`` subtable.
 
 
-5.2 Plotting
-~~~~~~~~~~~~
-
-At present, SciSheets does not support plotting.
-However, there is clearly a **plotting requirement** for
-any reasonable spreadsheet system.
-Our approach to plotting will most likely be to leverage
-the ``bokeh`` package [BOKEHPRO] since it provides a convenient way
-to generate HTML and JavaScript for plots that can be embedded
-into HTML documents.
-Our vision is to make ``plot`` a function that can be used
-in a formula.
-A *plot* column will have its cells rendered as HTML.
-
-5.3 Github Integration
+5.2 Github Integration
 ~~~~~~~~~~~~~~~~~~~~~~
 
 A common problem with spreadsheets is that calculations are difficult to reproduce
@@ -904,12 +897,26 @@ The scope includes the following use cases:
 
   .. figure:: spreadsheet_history.png
 
-     Mockup visualzation of the change history of a scisheet. 
+     Mockup visualization of the change history of a scisheet. 
      The versions in green show
      when columns have been added; 
      the versions in red show when columns
      have been removed.
      :label:`fig-diff`
+
+5.3 Plotting
+~~~~~~~~~~~~
+
+At present, SciSheets does not support plotting.
+However, there is clearly a **plotting requirement** for
+any reasonable spreadsheet system.
+Our approach to plotting will most likely be to leverage
+the ``bokeh`` package [BOKEHPRO] since it provides a convenient way
+to generate HTML and JavaScript for plots that can be embedded
+into HTML documents.
+Our vision is to make ``plot`` a function that can be used
+in a formula.
+A *plot* column will have its cells rendered as HTML.
 
 
 6. Conclusions
