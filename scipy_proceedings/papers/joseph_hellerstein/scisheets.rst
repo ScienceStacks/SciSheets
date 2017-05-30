@@ -38,7 +38,7 @@ and
 complex data
 such as representing hierarchically structured
 data and n-to-m relationships.
-We believe that these features can make spreadsheets users more
+We believe that these features can make spreadsheet users more
 productive.
 
 
@@ -362,11 +362,11 @@ But how many times must this iteration be done?
 Consider an evaluation of *N* formula columns assuming that
 there are no
 circular references or other anomalies in the formulas.
-Then, at most *N* iterations are needed to converge since on each iteration
+Then, at most *N* iterations are needed for convergeince since on each iteration
 at least one column variable is assigned its final value.
 If after *N* iterations, there is an exception, (e.g., a column variable
 does not have a value assigned), this is reported to the user since there is
-an error in the formulas.
+likely an error in the formulas.
 Otherwise, the scisheet is updated with the new values of the
 column variables.
 Actually, we can do better than this since
@@ -461,7 +461,7 @@ to a file that has the
 extension ``.scish``.
 
 We see that prologue formulas can be lengthy scripts.
-Indeed,
+For example,
 one
 scisheet developed with a plant biologist has
 a prologue formula with over fifty statements.
@@ -503,10 +503,10 @@ loop and the evaluation of the formula for ``INV_S``.
 for convergence of column variables, and checks to see if the last
 loop iteration has an exception.
 Each formula column has a pair of  ``try`` and ``except`` statements that
-executes the formula
-and records exceptions.
+execute the formula
+and record exceptions.
 Note that loop execution continues even if there is an exception
-for one or more formula column. 
+for one or more formula columns. 
 This is done to handle situations in which formula columns are *not*
 ordered according to their data dependencies.
 
@@ -566,7 +566,7 @@ To see this, consider
 a common pain point with spreadsheets - doing the same computation for different
 data sets.
 For example, the Michaelis-Menten calculation in Fig. :ref:`fig-excel1`  needs to be
-done for data collected collected from many experiments
+done for data collected from many experiments
 that are stored in several comma separated variable (CSV) files.
 Fig. :ref:`fig-processfiles` displays a scisheet
 that does the Michaelis-Menten calculation for the list of CSV files
