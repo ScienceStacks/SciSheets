@@ -8,10 +8,6 @@
 #  make Makefile yui
 # To re-acquire the source files used
 #  make Makefile acquire
-# Issues
-#  1. Broken
-#  2. Do I need to compile the components of the API if I can download
-#     a built API for YUI?
 
 B=$(shell echo $(HOME))
 CDIR=$(shell pwd)
@@ -26,7 +22,6 @@ DDIR_QUNIT=$(DDIR)/qunit
 N=$(B)/node_modules
 YUI=$(CDIR)/yui
 YUI_JS=$(CDIR)/yui/js
-YUI_API=yuiapi.min.js
 YUI_CSS=$(CDIR)/yui/css
 SMASH=$(N)/.bin/smash
 UGLIFYJS=$(N)/.bin/uglifyjs
@@ -61,7 +56,6 @@ YUI_JS_FILES = \
 	$(YUI_JS)/animation.js \
 	$(YUI_JS)/container_core.js \
 	$(YUI_JS)/menu.js
-	$(YUI_JS)/menu.js
 
 YUI_CSS_SRC = \
 	http://yui.yahooapis.com/2.9.0/build/reset/reset.css \
@@ -93,7 +87,7 @@ clean:
 	@rm -f $(YUI_GENERATED_FILES)
 	@rm -f $(DDIR_JQUERY)/*.*
 	@rm -f $(DDIR_JQUERYUI)/*.*
-	@rm -f $(DDIR_JQUERYLINEDTEXTAREA)/*.*
+	#@rm -f $(DDIR_JQUERYLINEDTEXTAREA)/*.*
 
 # TODO: Add jquery-ui
 all: yui jquery jquery-linedtextarea
@@ -102,7 +96,7 @@ all: yui jquery jquery-linedtextarea
 ############# YUI ####################
 # Run the "yui" rule to obtain all YUI dependencies
 
-yui: Makefile $(DDIR_YUI)/yui.min.css $(DDIR_YUI)/yui.min.js package.json $(DDIR_YUI)/$(YUI_API)
+yui: Makefile $(DDIR_YUI)/yui.min.css $(DDIR_YUI)/yui.min.js package.json
 
 $(DDIR_YUI)/yui.min.css: $(YUI_CSS_FILES) package.json
 	$(SMASH) $(YUI_CSS_FILES) > $(DDIR_YUI)/yui.css
@@ -111,12 +105,6 @@ $(DDIR_YUI)/yui.min.css: $(YUI_CSS_FILES) package.json
 $(DDIR_YUI)/yui.min.js: $(YUI_JS_FILES) package.json
 	$(SMASH) $(YUI_JS_FILES) > $(DDIR_YUI)/yui.js
 	$(UGLIFYJS) $(DDIR_YUI)/yui.js > $@
-
-$(DDIR_YUI)/$(YUI_API):
-	@mkdir -p $(DDIR_YUI)
-	@wget http://yui.yahooapis.com/3.18.1/build/yui/yui-min.js -O $(YUI_API)
-	@rm -f $(DDIR_JQUERY)/$(YUI_API)
-	@mv $(YUI_API) $(DDIR_JQUERY)/
 
 
 ############# OTHER ####################
