@@ -27,7 +27,7 @@ SMASH=$(N)/.bin/smash
 UGLIFYJS=$(N)/.bin/uglifyjs
 UGLIFYCSS=/usr/local/bin/uglifycss
 
-JQUERY = $(DDIR_JQUERYUI)/jquery.min.js
+#JQUERY = $(DDIR_JQUERYUI)/jquery.min.js
 
 YUI_GENERATED_FILES = \
 	$(DDIR_YUI)/yui.min.js \
@@ -86,7 +86,7 @@ YUI_JS_SRC = \
 clean:
 	@rm -f $(YUI_GENERATED_FILES)
 	@rm -f $(DDIR_JQUERY)/*.*
-	@rm -f $(DDIR_JQUERYUI)/*.*
+	#@rm -f $(DDIR_JQUERYUI)/*.*
 	#@rm -f $(DDIR_JQUERYLINEDTEXTAREA)/*.*
 
 # TODO: Add jquery-ui
