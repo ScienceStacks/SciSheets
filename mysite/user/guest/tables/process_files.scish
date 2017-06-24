@@ -8,7 +8,8 @@
       "_cells": [
         "Glu.csv",
         "LL-DAP.csv",
-        "THDPA.csv"
+        "THDPA.csv",
+        "newTHDPA.csv"
       ],
       "_formula": null,
       "_name": "CSV_FILE"
@@ -22,6 +23,9 @@
         ],
         [
           0.929
+        ],
+        [
+          0.011
         ],
         [
           0.011
@@ -39,6 +43,9 @@
         ],
         [
           23.81
+        ],
+        [
+          0.229
         ],
         [
           0.229
