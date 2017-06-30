@@ -1,3 +1,6 @@
 [submodule "jquery-mockjax"]
 	path = jquery-mockjax
 	url = https://github.com/jakerella/jquery-mockjax.git
+[submodule "mysite/Common"]
+	path = mysite/Common
+	url = https://github.com/ScienceStacks/Common.git
