@@ -1,7 +1,8 @@
 #!/bin/bash
 # Prepares the test file and run the tests.
 
-SITE=$HOME/SciSheets/mysite/mysite
+#SITE=$HOME/Documents/SciSheets/mysite/mysite
+SITE=$(dirname $(dirname $PWD))
 cp $SITE/templates/scitable.html test1.html
 sed 's/.{% static "/"..\//' <test1.html >test2.html
 sed 's/ %}.//' <test2.html >test3.html
