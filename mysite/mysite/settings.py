@@ -10,7 +10,13 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+common_path = os.path.join(BASE_DIR, 'Common/Common/Python')
+sys.path.append(common_path)
+import pdb; pdb.set_trace()
+from Common.Files import file_access
 
 TEMPLATES = [
     {
