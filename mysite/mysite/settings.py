@@ -15,8 +15,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 common_path = os.path.join(BASE_DIR, 'Common/Common/Python')
 sys.path.append(common_path)
-import pdb; pdb.set_trace()
-from Common.Files import file_access
+from Files import file_access
 
 TEMPLATES = [
     {
