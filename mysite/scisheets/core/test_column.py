@@ -13,7 +13,9 @@ COLUMN_NAME = "DUMMY"
 COLUMN_STR_NAME = "DUMMY_STR"
 LIST = [2.1, 3.0]
 LIST1 = [20.0, 30.0]
+LIST2 = [35.0, 20.0]
 LIST_STR = ["aa bb", "cc"]
+LIST_STR1 = ["b", "a"]
 TABLE = 'DUMMY'
 VALID_FORMULA = "a + b*math.cos(x)"
 INVALID_FORMULA = "a + b*math.cos(x"
@@ -257,6 +259,17 @@ class TestColumn(unittest.TestCase):
     column.setParent(self.column.getParent())
     self.assertTrue(column.isEquivalent(self.column))
     
+def testSortCells(self):
+    if IGNORE_TEST:
+      return
+    self.column1 = createColumn(COLUMN_NAME, data=LIST2, table=None,
+        formula=VALID_FORMULA)    
+    LIST3 = np.sort(LIST2)
+    self.assertEqual(self.column1.sortCells()._cells, LIST3)
+    self.column_str1 = createColumn(COLUMN_STR_NAME, data=LIST_STR1,
+        table=None, formula=VALID_FORMULA)
+    LIST_STR2 = np.sort(LIST_STR1)
+    self.assertEqual(self.column_str1.sortCells()._cells, LIST_STR2)
 
 if __name__ == '__main__':
   unittest.main()
