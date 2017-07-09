@@ -334,7 +334,6 @@ class Column(NamedTree):
       error = "%s produced the error: %s" % (name, str(err))
     return error
 
-  # ToDo: Test
   def sortCells(self):
     """ 
     :param new_data: array to replace existing data

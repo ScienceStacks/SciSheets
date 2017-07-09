@@ -4,7 +4,6 @@
 
 SOURCE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >>/dev/null && pwd )"
 cd $SOURCE
-echo $SOURCE
 #cd $HOME/SciSheets/mysite/scisheets/core
 
 function runTests {

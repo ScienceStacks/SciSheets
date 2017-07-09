@@ -264,11 +264,11 @@ def testSortCells(self):
       return
     self.column1 = createColumn(COLUMN_NAME, data=LIST2, table=None,
         formula=VALID_FORMULA)    
-    LIST3 = np.sort(LIST2)
+    LIST3 = [20.0, 35.0]
     self.assertEqual(self.column1.sortCells()._cells, LIST3)
     self.column_str1 = createColumn(COLUMN_STR_NAME, data=LIST_STR1,
         table=None, formula=VALID_FORMULA)
-    LIST_STR2 = np.sort(LIST_STR1)
+    LIST_STR2 = ["a", "b"]
     self.assertEqual(self.column_str1.sortCells()._cells, LIST_STR2)
 
 if __name__ == '__main__':
