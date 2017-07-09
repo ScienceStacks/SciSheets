@@ -2,6 +2,9 @@
 # Runs one or more tests for files
 # Argument is a specific test file (w/o extension) or none.
 
+SOURCE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >>/dev/null && pwd )"
+cd $SOURCE
+echo $SOURCE
 #cd $HOME/SciSheets/mysite/scisheets/core
 
 function runTests {

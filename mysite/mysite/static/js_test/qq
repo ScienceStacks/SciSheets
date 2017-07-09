@@ -1,8 +1,9 @@
 #!/bin/bash
 # Prepares the test file and run the tests.
+# As is, must be run in js_test directory
 
-#SITE=$HOME/Documents/SciSheets/mysite/mysite
-SITE=$(dirname $(dirname $PWD))
+SOURCE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >>/dev/null && pwd )"
+SITE=$(dirname $(dirname "$SOURCE"))
 cp $SITE/templates/scitable.html test1.html
 sed 's/.{% static "/"..\//' <test1.html >test2.html
 sed 's/ %}.//' <test2.html >test3.html

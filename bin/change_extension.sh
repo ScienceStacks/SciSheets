@@ -1,2 +1,4 @@
 #!/bin/bash
-python /home/ubuntu/SciSheets/mysite/mysite/helpers/change_extension.py 
+BASEDIR=$(bash get_basedir.sh)
+HELPERS=$BASEDIR/mysite/mysite/helpers
+python $HELPERS/change_extension.py 
