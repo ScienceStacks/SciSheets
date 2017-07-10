@@ -1,15 +1,15 @@
 '''
   Implements the column class
 '''
-
-
-from mysite.helpers.named_tree import NamedTree
+from mysite import settings  # Load this to get path set
+from named_tree import NamedTree
 from helpers.formula_statement import FormulaStatement
 from helpers.extended_array import ExtendedArray
 from helpers.prune_nulls import pruneNulls
 import helpers.cell_types as cell_types
 import collections
 import numpy as np
+import os
 
 
 class Column(NamedTree):

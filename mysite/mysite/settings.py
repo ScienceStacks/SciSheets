@@ -6,11 +6,25 @@ https://docs.djangoproject.com/en/1.7/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
+
+This file has the side effect of setting sys.path
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+# Include submodules in ScienceStackCommon
+common_modules_path = os.path.dirname(BASE_DIR)
+PATH_DIRS = ['ScienceStacksCommon', 'ScienceStacksCommon', 'Python']
+CODE_DIRS = ['Tree']
+for directory in PATH_DIRS:
+  common_modules_path = os.path.join(common_modules_path, directory)
+for directory in CODE_DIRS:
+  path = os.path.join(common_modules_path, directory)
+  sys.path.append(path)
 
 TEMPLATES = [
     {
