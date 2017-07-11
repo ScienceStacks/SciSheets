@@ -3,8 +3,8 @@ Tests for YUI DataTable renderings.
 """
 
 from mysite import settings
-from mysite.helpers.versioned_file import VersionedFile
-import mysite.helpers.named_tree as named_tree
+from FileVersion.versioned_file import VersionedFile
+import Tree.named_tree as named_tree
 import scisheets.core.helpers.api_util as api_util
 from scisheets.core.column import Column
 from scisheets.core.helpers.api_util  \

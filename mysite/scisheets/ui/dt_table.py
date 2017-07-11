@@ -5,13 +5,13 @@
 from django.shortcuts import render
 from django.template.loader import get_template
 import mysite.settings as settings
-import mysite.helpers.named_tree as named_tree
+import Tree.named_tree as named_tree
 from scisheets.core.helpers.api_util import getFileNameWithoutExtension
 from scisheets.core.helpers.cell_types import isFloats, isStr
 from scisheets.core.column import Column
 from ui_table import UITable
 from mysite import settings as st
-from mysite.helpers import util as ut
+from CommonUtil import util as ut
 import collections
 import json
 import numpy as np

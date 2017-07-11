@@ -6,10 +6,10 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        2,
-        16,
-        20,
-        55
+        3,
+        90,
+        95,
+        37
       ],
       "_formula": null,
       "_name": "Col_0"
@@ -18,12 +18,12 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        47,
-        90,
-        8,
-        18
+        0.1411200080598672,
+        0.8939966636005579,
+        0.683261714736121,
+        -0.6435381333569995
       ],
-      "_formula": null,
+      "_formula": "np.sin(Col_0)",
       "_name": "Col_1"
     },
     {

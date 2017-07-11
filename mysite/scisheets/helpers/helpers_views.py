@@ -6,9 +6,8 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Context
 from mysite import settings
-from mysite.helpers import file_access as fa
-from mysite.helpers.csv_formatter import GeneticCodeAsNestedDict
-from mysite.helpers.db_access import (DBAccess, CUR_DB)
+from Files import file_access as fa
+from Database.db_access import (DBAccess, CUR_DB)
 from mysite.helpers.file_to_db import FileTable
 import datetime
 import json
@@ -82,26 +81,6 @@ def upload(request):
   return render(request, 'upload.html', 
      {'form': form, 
      })
-
-def codons(request):
-  # To generalize so that cells can be merged and hence multiple
-  # values may be present, construct a string from the vectorss.
-  t_codons = get_template('codons.html')
-  data_dict = GeneticCodeAsNestedDict()[0]
-  NUCLEOTIDES = ['A', 'C', 'G', 'T']
-  ctx_dict = {}
-  #for nuc in NUCLEOTIDES:
-  for n in range(len(NUCLEOTIDES)):
-    nuc = NUCLEOTIDES[n]
-    cur_var = "data_%d" % n
-    json_var = "json_%s" % cur_var
-    exec("%s = data_dict[nuc]" % cur_var)
-    exec("%s = json.dumps(%s)" % (json_var, cur_var)) 
-    exec("ctx_dict['%s'] = %s" % (json_var, json_var))
-  ctx_dict["top_header"] = NUCLEOTIDES
-  ctx = Context(ctx_dict)
-  html = t_codons.render(ctx)
-  return HttpResponse(html)
 
 def nested(request):
   t_nested_tables = get_template('nested_tables.html')

@@ -4,7 +4,7 @@ Compiles Python statements that evaluate formulas in a Table.
 
 from mysite import settings
 import api_util
-from mysite.helpers.statement_accumulator import StatementAccumulator
+from CodeGeneration.statement_accumulator import StatementAccumulator
 import os
 import numpy as np
 

@@ -7,7 +7,7 @@ from scisheets.core.column import Column
 from scisheets.core.errors import NotYetImplemented, InternalError
 from scisheets.core.helpers.cell_types import getType
 from mysite import settings as settings
-from mysite.helpers.named_tree import ROOT_NAME
+from Tree.named_tree import ROOT_NAME
 import collections
 import numpy as np
 import os

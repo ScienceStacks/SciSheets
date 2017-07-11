@@ -5,7 +5,7 @@ of code (hereafter, just block) can be a formulas, prologue, or
 epilogue.
 """
 
-from mysite.helpers.logger import Logger
+from Files.logger import Logger
 from mysite import settings
 import inspect
 import os

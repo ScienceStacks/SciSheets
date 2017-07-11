@@ -1,12 +1,12 @@
 '''Trying a table view'''
 
-from mysite.helpers.db_access import (DBAccess, CUR_DB)
+from Database.db_access import (DBAccess, CUR_DB)
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Context
-from mysite.helpers import file_access as fa
+from Files import file_access as fa
 from mysite import settings
 from mysite.helpers.file_to_db import FileTable
 from django.shortcuts import render_to_response

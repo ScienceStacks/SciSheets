@@ -1,9 +1,9 @@
 '''Evaluates formulas in a Table.'''
 
-from mysite.helpers.versioned_file import VersionedFile
+from FileVersion.versioned_file import VersionedFile
 from serialize_deserialize import serialize, deserialize
 import mysite.settings as settings
-import mysite.helpers.util as ut
+import CommonUtil.util as ut
 import cell_types
 from prune_nulls import pruneNulls
 
