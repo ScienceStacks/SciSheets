@@ -1,8 +1,7 @@
 '''
   Implements the column class
 '''
-from mysite import settings  # Load this to get path set
-from named_tree import NamedTree
+from Tree.named_tree import NamedTree
 from helpers.formula_statement import FormulaStatement
 from helpers.extended_array import ExtendedArray
 from helpers.prune_nulls import pruneNulls

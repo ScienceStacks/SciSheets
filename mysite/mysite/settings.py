@@ -17,14 +17,14 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Include submodules in ScienceStackCommon
+# Modifying the path here works since SciSheets modules
+# are invoked using django manage.py test, which
+# runs settings.
 common_modules_path = os.path.dirname(BASE_DIR)
 PATH_DIRS = ['ScienceStacksCommon', 'ScienceStacksCommon', 'Python']
-CODE_DIRS = ['Tree']
 for directory in PATH_DIRS:
   common_modules_path = os.path.join(common_modules_path, directory)
-for directory in CODE_DIRS:
-  path = os.path.join(common_modules_path, directory)
-  sys.path.append(path)
+sys.path.append(common_modules_path)
 
 TEMPLATES = [
     {

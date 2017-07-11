@@ -2,9 +2,9 @@
   Implements the table class for SciSheets.
 '''
 from mysite import settings
-import mysite.helpers.util as ut
-from mysite.helpers.data_capture import DataCapture
-from mysite.helpers.versioned_file import VersionedFile
+import CommonUtil.util as ut
+from Files.data_capture import DataCapture
+from FileVersion.versioned_file import VersionedFile
 from helpers.formula_statement import FormulaStatement
 from helpers.is_null import isNull
 from column import Column

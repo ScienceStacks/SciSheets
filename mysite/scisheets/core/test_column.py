@@ -1,7 +1,7 @@
 '''Tests for column'''
 
 import column as cl
-from mysite.helpers.named_tree import NamedTree
+from Tree.named_tree import NamedTree
 from table import Table
 import unittest
 import numpy as np
