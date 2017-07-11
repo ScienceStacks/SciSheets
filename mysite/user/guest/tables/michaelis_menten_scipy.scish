@@ -71,12 +71,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.047,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        0.047
       ],
       "_formula": "np.round(SLOPE, 3)",
       "_name": "SLOPE"
@@ -85,12 +80,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.229,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        0.229
       ],
       "_formula": "np.round(V_MAX, 3)",
       "_name": "V_MAX"
@@ -99,12 +89,7 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        0.011,
-        NaN,
-        NaN,
-        NaN,
-        NaN,
-        NaN
+        0.011
       ],
       "_formula": "np.round(K_M,3)",
       "_name": "K_M"

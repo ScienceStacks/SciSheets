@@ -17,7 +17,7 @@ CATEGORICAL as follows:
   y                2    4
 """
 
-from scisheets.core.helpers.is_null import isNull
+from CommonUtil.is_null import isNull
 import collections
 import numpy as np
 

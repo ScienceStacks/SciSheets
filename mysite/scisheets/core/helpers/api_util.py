@@ -4,8 +4,8 @@ from FileVersion.versioned_file import VersionedFile
 from serialize_deserialize import serialize, deserialize
 import mysite.settings as settings
 import CommonUtil.util as ut
+from CommonUtil.prune_nulls import pruneNulls
 import cell_types
-from prune_nulls import pruneNulls
 
 import collections
 import numpy as np

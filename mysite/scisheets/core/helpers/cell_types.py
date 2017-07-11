@@ -1,7 +1,7 @@
 '''Utilities used in core scitable code.'''
 
 from extended_array import ExtendedArray
-from prune_nulls import pruneNulls
+from CommonUtil.prune_nulls import pruneNulls
 import collections
 import math
 import numpy as np

@@ -2,7 +2,7 @@
 Get the group names and their values
 """
 
-from scisheets.core.helpers.prune_nulls import pruneNulls
+from CommonUtil.prune_nulls import pruneNulls
 from scisheets.core.helpers import cell_types
 import collections
 import numpy as np

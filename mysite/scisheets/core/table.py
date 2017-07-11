@@ -6,7 +6,7 @@ import CommonUtil.util as ut
 from Files.data_capture import DataCapture
 from FileVersion.versioned_file import VersionedFile
 from helpers.formula_statement import FormulaStatement
-from helpers.is_null import isNull
+from CommonUtil.is_null import isNull
 from column import Column
 from column_container import ColumnContainer
 from table_evaluator import TableEvaluator

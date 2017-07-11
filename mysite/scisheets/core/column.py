@@ -4,7 +4,7 @@
 from Tree.named_tree import NamedTree
 from helpers.formula_statement import FormulaStatement
 from helpers.extended_array import ExtendedArray
-from helpers.prune_nulls import pruneNulls
+from CommonUtil.prune_nulls import pruneNulls
 import helpers.cell_types as cell_types
 import collections
 import numpy as np
