@@ -1,7 +1,7 @@
 '''Tests for column'''
 
 import column as cl
-from Tree.named_tree import NamedTree
+from common_tree.named_tree import NamedTree
 from table import Table
 import unittest
 import numpy as np

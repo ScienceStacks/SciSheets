@@ -6,8 +6,8 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Context
 from mysite import settings
-from Files import file_access as fa
-from Database.db_access import (DBAccess, CUR_DB)
+from common_file import file_access as fa
+from common_database.db_access import (DBAccess, CUR_DB)
 from mysite.helpers.file_to_db import FileTable
 import datetime
 import json

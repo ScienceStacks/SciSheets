@@ -2,7 +2,7 @@
 
 from mysite import settings as st
 from helpers_test import HelperHTTP, COLUMN_INDEX
-import CommonUtil.util as ut
+import common_util.util as ut
 from django.test import TestCase
 from scisheets.core.table import Table
 import scisheets.ui.dt_table as dt

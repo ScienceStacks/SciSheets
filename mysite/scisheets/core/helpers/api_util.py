@@ -1,10 +1,10 @@
 '''Evaluates formulas in a Table.'''
 
-from FileVersion.versioned_file import VersionedFile
+from common_versioned_file.versioned_file import VersionedFile
 from serialize_deserialize import serialize, deserialize
 import mysite.settings as settings
-import CommonUtil.util as ut
-from CommonUtil.prune_nulls import pruneNulls
+import common_util.util as ut
+from common_util.prune_nulls import pruneNulls
 import cell_types
 
 import collections

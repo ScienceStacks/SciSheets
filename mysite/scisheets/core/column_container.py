@@ -4,8 +4,8 @@
 '''
 
 from mysite import settings as settings
-from FileVersion.versioned_file import VersionedFile
-from Tree.named_tree import NamedTree
+from common_versioned_file.versioned_file import VersionedFile
+from common_tree.named_tree import NamedTree
 from column import Column
 import errors as er
 import column as cl

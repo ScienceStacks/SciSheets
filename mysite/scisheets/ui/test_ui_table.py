@@ -6,7 +6,7 @@ from scisheets.core.helpers.serialize_deserialize import serialize,  \
 from scisheets.core.column import Column
 from scisheets.core.table import NAME_COLUMN_STR, Table
 from scisheets.helpers.command_dict import CommandDict
-from Tree.named_tree import GLOBAL_SEPARATOR
+from common_tree.named_tree import GLOBAL_SEPARATOR
 from ui_table import UITable
 from django.test import TestCase  # Provides mocks
 import json

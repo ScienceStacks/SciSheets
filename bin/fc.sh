@@ -6,5 +6,5 @@ for x in $LIST
 do
   echo " "
   echo "*** $x ***"
-  ft.sh $x *.py | grep -v "Binary"
+  ft.sh $x *.py | grep -v "Binary" | grep -v "("
 done

@@ -2,7 +2,7 @@
 
 from django.http import HttpResponse
 from scisheets.ui.dt_table import DTTable
-import CommonUtil.util as ut
+import common_util.util as ut
 
 
 # ******************** Helper Functions and Classes *****************

@@ -5,7 +5,7 @@ files in core.
 
 from scisheets.core import helpers_test as ht
 import mysite.settings as settings
-from CommonUtil.util import stripFileExtension
+from common_util.util import stripFileExtension
 from scisheets.core.helpers_test import TEST_DIR
 import api_util as api_util
 from extended_array import ExtendedArray

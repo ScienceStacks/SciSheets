@@ -6,12 +6,11 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "TAbLj",
-        "ZwHBI",
-        "NZAZa",
-        "cYizG",
-        "JlBYd",
-        "VThwL"
+        "boEKl",
+        "rGjSA",
+        "dLgMt",
+        "pwTJe",
+        "JkIIY"
       ],
       "_formula": null,
       "_name": "Col_0"
@@ -20,12 +19,11 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        17,
-        90,
-        22,
-        12,
-        18,
-        26
+        28,
+        62,
+        8,
+        25,
+        67
       ],
       "_formula": null,
       "_name": "Col_1"
@@ -34,43 +32,27 @@
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        131072,
-        0,
-        4194304,
-        4096,
-        262144,
-        67108864
+        77,
+        28,
+        29,
+        89,
+        2
       ],
-      "_formula": "2**Col_1",
+      "_formula": null,
       "_name": "Col_2"
     },
     {
       "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
       "_asis": false,
       "_cells": [
-        "pXtBu",
-        "NQtUF",
-        "ukswU",
-        "uZUCn",
-        "IuSGI",
-        "uEGkA"
+        135,
+        154,
+        47,
+        137,
+        138
       ],
-      "_formula": null,
-      "_name": "Col_3"
-    },
-    {
-      "SciSheets_Class": "<class 'scisheets.core.column.Column'>",
-      "_asis": false,
-      "_cells": [
-        75,
-        89,
-        10,
-        33,
-        50,
-        7
-      ],
-      "_formula": null,
-      "_name": "Col_4"
+      "_formula": "2*Col_1 + Col_2^2",
+      "_name": "xxx"
     }
   ],
   "_epilogue_formula": "# Epilogue\n",

@@ -9,7 +9,7 @@ For a SciSheet object to be supported, it must implement the following methods:
   deserialize(dict) - returns an object of the class using the properties in dict
   
 """
-from CommonUtil.util import stringToClass
+from common_util.util import stringToClass
 import collections
 import json
 

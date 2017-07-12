@@ -2,8 +2,8 @@
    Utilities used for testing
 '''
 
-from FileVersion.versioned_file import VersionedFile
-from Files.data_capture import DataCapture
+from common_versioned_file.versioned_file import VersionedFile
+from common_file.data_capture import DataCapture
 from mysite import settings
 from scisheets.ui.dt_table import DTTable
 from scisheets.core.helpers import api_util

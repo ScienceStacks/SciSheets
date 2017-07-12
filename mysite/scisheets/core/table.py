@@ -2,11 +2,11 @@
   Implements the table class for SciSheets.
 '''
 from mysite import settings
-import CommonUtil.util as ut
-from Files.data_capture import DataCapture
-from FileVersion.versioned_file import VersionedFile
+import common_util.util as ut
+from common_file.data_capture import DataCapture
+from common_versioned_file.versioned_file import VersionedFile
 from helpers.formula_statement import FormulaStatement
-from CommonUtil.is_null import isNull
+from common_util.is_null import isNull
 from column import Column
 from column_container import ColumnContainer
 from table_evaluator import TableEvaluator

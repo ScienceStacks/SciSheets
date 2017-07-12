@@ -3,7 +3,7 @@
 from column_variable import ColumnVariable
 from scisheets.core import helpers_test as ht
 from scisheets.core.column import Column
-from CommonUtil.is_null import isNull
+from common_util.is_null import isNull
 import os
 import unittest
 

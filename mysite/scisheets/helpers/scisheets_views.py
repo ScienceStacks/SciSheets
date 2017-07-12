@@ -1,12 +1,12 @@
 '''The file handles the logic of the views'''
 
 from django.http import HttpResponse
-from FileVersion.versioned_file import VersionedFile
+from common_versioned_file.versioned_file import VersionedFile
 from scisheets.core.errors import InternalError
 from scisheets.core.helpers.api_util import readObjectFromFile, \
     writeObjectToFile, getFileNameWithoutExtension
 from scisheets.ui.dt_table import DTTable
-import CommonUtil.util as ut
+import common_util.util as ut
 from command_dict import CommandDict
 import mysite.settings as settings
 import json
