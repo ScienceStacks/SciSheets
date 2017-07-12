@@ -29,10 +29,11 @@ SciSheets.prototype.utilMenuProcessor = function (eleId, oArgs, target) {
   ep = new SciSheetsUtilEvent(this, oArgs);
   console.log(target + " click. Selected " + eleId + ".");
   cmd = this.createServerCommand();
+  console.log(cmd);
   cmd.command = eleId;
   cmd.columnName = ep.columnName;
   cmd.target = target;
-  simpleCommands = ['Delete', 'Hide', 'Trim', 'Unhide', 'UnhideAll'];
+  simpleCommands = ['Delete', 'Hide', 'Sort', 'Trim', 'Unhide', 'UnhideAll'];
   if (simpleCommands.indexOf(cmd.command) > -1) {
     this.utilSendAndReload(cmd);
   } else if (cmd.command === 'Append') {

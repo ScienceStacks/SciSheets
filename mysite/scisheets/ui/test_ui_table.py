@@ -10,6 +10,7 @@ from Tree.named_tree import GLOBAL_SEPARATOR
 from ui_table import UITable
 from django.test import TestCase  # Provides mocks
 import json
+import numpy as np
 import random
 
 
@@ -277,6 +278,27 @@ a = 5
         NROW, NCOL, 0.3, prob_detach=0.2)
     self._testRename("Table")
     self._testRename("Column")
+
+  def _testSort(self, column):
+    col_name = column.getName(is_global_name=False)
+    col_vals = np.sort(column.getCells())
+    self.cmd_dict['target'] = 'Column'
+    self.cmd_dict['command'] = 'Sort'
+    self.cmd_dict['column_name'] = column.getName()
+    self.table.processCommand(self.cmd_dict)
+    self.assertEqual(column.getName(is_global_name=False), col_name)
+    self.assertListEqual(column.getCells(), col_vals.tolist())
+
+  def testSort(self):
+    if IGNORE_TEST:
+      return
+    self.table = UITable.createRandomTable(TABLE_NAME,
+        NROW, NCOL)
+    #self.table = UITable.createRandomHierarchicalTable(TABLE_NAME, 
+    #    NROW, NCOL, 0.3, prob_detach=0.2)
+    leaves = self.table.getDataColumns(is_recursive=True,
+        is_attached=False)
+    [self._testSort(c) for c in leaves]
 
   def _testTablize(self, target):
     node = _getNode(self.table, target)

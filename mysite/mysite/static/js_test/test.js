@@ -125,6 +125,7 @@ QUnit.test("sheet_setup", function (assert) {
     1, // Move
     1,  // Refactor
     1,  // Rename
+    1,  // Sort
     1,  // Tablize
     1  // Unhide
   ];

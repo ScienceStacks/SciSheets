@@ -333,6 +333,14 @@ class Column(NamedTree):
       error = "%s produced the error: %s" % (name, str(err))
     return error
 
+  def sortCells(self):
+    """ 
+    :param new_data: array to replace existing data
+    """ 
+    data_list = self._cells
+    data_list = np.sort(data_list)
+    self._setDatavalues(data_list)
+
   def updateCell(self, val, index):
     """
     Input: val - value to insert
