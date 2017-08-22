@@ -221,9 +221,9 @@ class TestTableEvaluator(unittest.TestCase):
     self.assertTrue(success)
     # Run the program and its test. Will get an exception if these fail.
     commands = """
-        cd $HOME/SciSheets/mysite; 
+        cd %s        
         python manage.py test scisheets.core.test_dir.%s
-        """ % FUNCTION_NAME
+        """ % (settings.BASE_DIR, FUNCTION_NAME)
     out = runProcess(commands)
     test_commands = """
         cd %s; 

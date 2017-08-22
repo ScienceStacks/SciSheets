@@ -1,3 +1,5 @@
 #!/bin/bash
 # Checks if there are residual debug flags
-cd $HOME/SciSheets/mysite/scisheets; ftg.sh "IGNORE_TEST" | grep True
+BASEDIR=$(bash get_basedir.sh)
+
+cd $BASEDIR/mysite/scisheets; ftg.sh "IGNORE_TEST" | grep True

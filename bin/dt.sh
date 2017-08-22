@@ -3,7 +3,9 @@
 # $1 - file with extension or python path
 filename=`echo $1 | sed "s/.py//"`
 cur_dir=`pwd`
-cd $HOME/SciSheets/mysite
+
+BASEDIR=$(bash get_basedir.sh)
+cd $BASEDIR/mysite
 home_dir=`pwd`
 null_str=""
 rel_dir="${cur_dir/$home_dir/}"

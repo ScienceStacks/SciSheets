@@ -1,6 +1,9 @@
 #!/bin/bash
 # Checks out the desired branch
-cd $HOME/SciSheets/mysite
+BASEDIR=$(bash get_basedir.sh)
+HELPERS=$BASEDIR/mysite
+
+cd $HELPERS
 SQLFILE="db.sqlite3"
 rm $SQLFILE
 git checkout $1
